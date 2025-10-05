@@ -1,0 +1,85 @@
+/* @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap');
+
+@reference "tailwindcss";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.Toastify__toast {
+  @apply bg-gray-800 text-white rounded-xl shadow-xl font-semibold;
+  padding: 1rem; 
+}
+
+.Toastify__toast--success {
+  @apply bg-green-600;
+}
+
+.Toastify__toast--error {
+  @apply bg-red-600;
+}
+
+.Toastify__toast--warning {
+  @apply bg-yellow-500 text-gray-900;
+}
+
+.Toastify__toast--info {
+  @apply bg-blue-600;
+}
+
+.Toastify__progress-bar {
+  @apply bg-white;
+}
+
+.Toastify__close-button {
+  @apply text-white hover:text-gray-300;
+}
+
+.Toastify__toast {
+  @apply transition-all duration-300 ease-in-out;
+} */
+
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap');
+
+@import "tailwindcss/preflight";
+@import "tailwindcss/utilities";
+
+/* 👇 Add this line so @apply works */
+@reference "tailwindcss";
+
+.Toastify__toast {
+  @apply bg-gray-800 text-white rounded-xl shadow-xl font-semibold;
+  padding: 1rem;
+}
+
+.Toastify__toast--success {
+  @apply bg-green-600;
+}
+
+.Toastify__toast--error {
+  @apply bg-red-600;
+}
+
+.Toastify__toast--warning {
+  @apply bg-yellow-500 text-gray-900;
+}
+
+.Toastify__toast--info {
+  @apply bg-blue-600;
+}
+
+.Toastify__progress-bar {
+  @apply bg-white;
+}
+
+.Toastify__close-button {
+  @apply text-white hover:text-gray-300;
+}
+
+.Toastify__toast {
+  @apply transition-all duration-300 ease-in-out;
+}
+
+

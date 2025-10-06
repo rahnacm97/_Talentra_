@@ -7,6 +7,7 @@ import { AdminCandidateService } from "../../services/admin/admin.candidateServi
 import { AdminEmployerService } from "../../services/admin/admin.employerService";
 import { CandidateRepository } from "../../repositories/candidate/candidate.repository";
 import { EmployerRepository } from "../../repositories/employer/employer.repository";
+import { verifyAuth } from "../../middlewares/authMiddleware";
 
 const router = Router();
 
@@ -22,11 +23,11 @@ const adminEmployerController = new AdminEmployerController(adminEmployerService
 
 // Routes
 router.post("/login", adminAuthController.login);
-router.get("/candidates", adminCandidateController.getAllCandidates);
-router.get("/candidates/:id", adminCandidateController.getCandidateById);
-router.patch("/block-unblock", adminCandidateController.blockUnblockCandidate);
-router.get("/employers", adminEmployerController.getAllEmployers);
-router.get("/employers/:id", adminEmployerController.getEmployerById);
-router.patch("/block", adminEmployerController.blockUnblockEmployer);
+router.get("/candidates", verifyAuth("Admin"), adminCandidateController.getAllCandidates);
+router.get("/candidates/:id", verifyAuth("Admin"), adminCandidateController.getCandidateById);
+router.patch("/candidates/block-unblock", verifyAuth("Admin"), adminCandidateController.blockUnblockCandidate);
+router.get("/employers", verifyAuth("Admin"), adminEmployerController.getAllEmployers);
+router.get("/employers/:id", verifyAuth("Admin"), adminEmployerController.getEmployerById);
+router.patch("/employers/block-unblock", verifyAuth("Admin"), adminEmployerController.blockUnblockEmployer);
 
 export default router;

@@ -1,3 +1,12 @@
+export interface Employer {
+  id: string;
+  name: string;
+  email: string;
+  resume?: string;
+  blocked: boolean;
+}
+
+
 export interface EmployerResponseDTO {
   id: string;
   name: string;

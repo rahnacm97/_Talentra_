@@ -57,8 +57,7 @@ const Signup: React.FC = () => {
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-
-    // Calculate password strength
+    
     if (name === "password") {
       let strength = 0;
       if (value.length >= 8) strength++;
@@ -119,7 +118,6 @@ const Signup: React.FC = () => {
       .unwrap()
 
       .then(async () => {
-        // ✅ send OTP here immediately
         const resultAction = await dispatch(
           sendOtp({ email: formData.email, purpose: "signup" }),
         );
@@ -132,12 +130,8 @@ const Signup: React.FC = () => {
           toast.error((resultAction.payload as string) || "Failed to send OTP");
         }
       })
-      // .then(() => {
-
-      //   navigate("/verify", { state: { email: formData.email, purpose: "signup" } });
-      //   console.log("")
-      // })
       .catch((err) => {
+        toast.error(err);
         console.error("Signup failed:", err);
       });
   };
@@ -246,7 +240,6 @@ const Signup: React.FC = () => {
                   onChange={handleChange}
                   onBlur={handleBlur}
                   className="w-full px-4 py-3 pl-12 text-sm lg:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-gray-50 focus:bg-white"
-                  required
                 />
                 <User className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
               </div>
@@ -274,7 +267,7 @@ const Signup: React.FC = () => {
                     onChange={handleChange}
                     onBlur={handleBlur}
                     className="w-full px-4 py-3 pl-12 text-sm lg:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-gray-50 focus:bg-white"
-                    required
+                    
                   />
                   <Mail className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
                 </div>
@@ -299,7 +292,7 @@ const Signup: React.FC = () => {
                     onChange={handleChange}
                     onBlur={handleBlur}
                     className="w-full px-4 py-3 pl-12 text-sm lg:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-gray-50 focus:bg-white"
-                    required
+                    
                   />
                   <Phone className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
                 </div>
@@ -329,7 +322,7 @@ const Signup: React.FC = () => {
                   onChange={handleChange}
                   onBlur={handleBlur}
                   className="w-full px-4 py-3 pl-12 pr-12 text-sm lg:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-gray-50 focus:bg-white"
-                  required
+                  
                 />
                 <Lock className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
                 <button
@@ -400,7 +393,7 @@ const Signup: React.FC = () => {
                         : "border-red-300 focus:ring-red-500 focus:border-red-500"
                       : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                   }`}
-                  required
+                  
                 />
                 <Lock className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
                 <button
@@ -436,7 +429,6 @@ const Signup: React.FC = () => {
               </p>
             )}
 
-            {/* Submit Button */}
             <button
               type="button"
               onClick={handleSubmit}
@@ -457,7 +449,6 @@ const Signup: React.FC = () => {
             </button>
           </div>
 
-          {/* Footer */}
           <div className="mt-6 lg:mt-8 text-center">
             <p className="text-xs lg:text-sm text-gray-500">
               By creating an account, you're joining thousands of professionals

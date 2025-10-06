@@ -8,6 +8,14 @@ import {
   Typography,
   Stack,
 } from "@mui/material";
+//import { SvgIcon } from "@mui/material";
+
+// const GoogleIcon = (props: any) => (
+//   <SvgIcon {...props}>
+//     <path d="M21.35 11.1h-9.2v2.9h5.3c-.23 1.3-1.52 3.8-5.3 3.8-3.18 0-5.78-2.6-5.78-5.8s2.6-5.8 5.78-5.8c1.44 0 2.4.61 2.95 1.14l2.02-1.95C17.05 2.7 15.35 1.8 12.15 1.8 6.87 1.8 2.7 6 2.7 11.3s4.17 9.5 9.45 9.5c5.45 0 9.05-3.85 9.05-9.3 0-.63-.07-1.1-.85-1.4z" />
+//   </SvgIcon>
+// );
+
  
 const GoogleLogin: React.FC = () => {
   const [open, setOpen] = useState(false);
@@ -33,6 +41,7 @@ const GoogleLogin: React.FC = () => {
             height="20"
           />
         }
+        //startIcon={<GoogleIcon />}
         onClick={() => setOpen(true)}
         sx={{
           backgroundColor: "white",

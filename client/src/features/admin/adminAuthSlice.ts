@@ -43,8 +43,8 @@ const adminAuthSlice = createSlice({
       state.accessToken = null;
       state.refreshToken = null;
 
-      localStorage.removeItem("adminAccessToken");
-      localStorage.removeItem("adminRefreshToken");
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
     },
     adminLoginSuccess(state, action: PayloadAction<{ admin: any; accessToken: string; refreshToken: string }>) {
     state.admin = action.payload.admin;

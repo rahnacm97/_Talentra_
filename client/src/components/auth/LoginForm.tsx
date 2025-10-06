@@ -24,7 +24,7 @@ const LoginForm = () => {
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { loading, error } = useAppSelector((state) => state.auth);
+  const { loading } = useAppSelector((state) => state.auth);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -52,20 +52,25 @@ const LoginForm = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-const handleSubmit = (e: React.FormEvent) => {
-  e.preventDefault();
-  if (!validateForm()) return;
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateForm()) return;
 
-  dispatch(login(formData))
+    dispatch(login(formData))
       .unwrap()
       .then(() => {
         navigate("/");
       })
       .catch((err) => {
-        toast.error(err || "Login failed");
+        if (err === "You have been blocked by the admin") {
+          toast.error(
+            "Access denied — your account has been blocked by the admin.",
+          );
+        } else {
+          toast.error(err || "Login failed");
+        }
       });
   };
-
 
   return (
     <div className="w-full max-w-md">
@@ -101,7 +106,6 @@ const handleSubmit = (e: React.FormEvent) => {
                   ? "border-red-500 focus:ring-red-500 focus:border-red-500"
                   : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
               }`}
-              required
             />
             <Mail
               className={`w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 ${
@@ -136,7 +140,6 @@ const handleSubmit = (e: React.FormEvent) => {
                   ? "border-red-500 focus:ring-red-500 focus:border-red-500"
                   : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
               }`}
-              required
             />
             <Lock
               className={`w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 ${
@@ -148,7 +151,11 @@ const handleSubmit = (e: React.FormEvent) => {
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 p-1"
             >
-              {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              {showPassword ? (
+                <EyeOff className="w-5 h-5" />
+              ) : (
+                <Eye className="w-5 h-5" />
+              )}
             </button>
           </div>
           {errors.password && (
@@ -161,11 +168,13 @@ const handleSubmit = (e: React.FormEvent) => {
         {/* Forgot Password */}
         <div className="flex items-center justify-between">
           <div></div>
-          
+
           <Link
             to="/forgot-password"
             className="text-blue-600 hover:text-blue-500 font-medium"
-          >Forgot Password?</Link>
+          >
+            Forgot Password?
+          </Link>
         </div>
 
         {/* Submit Button */}
@@ -187,11 +196,11 @@ const handleSubmit = (e: React.FormEvent) => {
           )}
         </button>
 
-        {error && (
+        {/* {error && (
           <p className="mt-3 text-red-600 text-sm flex items-center">
             <AlertCircle className="w-4 h-4 mr-1" /> {error}
           </p>
-        )}
+        )} */}
 
         {/* Divider */}
         <div className="relative">
@@ -199,7 +208,9 @@ const handleSubmit = (e: React.FormEvent) => {
             <div className="w-full border-t border-gray-300" />
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white text-gray-500">or continue with</span>
+            <span className="px-2 bg-white text-gray-500">
+              or continue with
+            </span>
           </div>
         </div>
         <GoogleSignInButton />

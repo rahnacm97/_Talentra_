@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import PersonSearchRoundedIcon from "@mui/icons-material/PersonSearchRounded";
 import { useAppSelector, useAppDispatch } from "../../hooks/hooks";
-import { logout, loginSuccess} from "../../features/auth/authSlice";
+import { logout, loginSuccess } from "../../features/auth/authSlice";
+import { toast } from "react-toastify";
 
 const Header: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -12,32 +13,46 @@ const Header: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-  if (!auth.user) {
-    const storedUser = localStorage.getItem("user");
-    const accessToken = localStorage.getItem("accessToken");
-    const refreshToken = localStorage.getItem("refreshToken");
+    if (!auth.user) {
+      const storedUser = localStorage.getItem("user");
+      const accessToken = localStorage.getItem("accessToken");
+      const refreshToken = localStorage.getItem("refreshToken");
 
-    if (storedUser && accessToken && refreshToken) {
-      dispatch(
-        loginSuccess({
-          user: JSON.parse(storedUser),
-          accessToken,
-          refreshToken,
-        })
-      );
+      if (storedUser && accessToken && refreshToken) {
+        dispatch(
+          loginSuccess({
+            user: JSON.parse(storedUser),
+            accessToken,
+            refreshToken,
+          }),
+        );
+      }
     }
-  }
-}, [auth.user, dispatch]);
-
+  }, [auth.user, dispatch]);
 
   useEffect(() => {
-  console.log("Auth state in Header:", auth);
-  }, [auth]);
+    if (auth.user?.blocked) {
+      toast.error("Your account has been blocked by the admin.", {
+        position: "top-right",
+        autoClose: 4000,
+      });
 
+      setTimeout(() => {
+        dispatch(logout());
+        navigate("/login");
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+      }, 4500);
+    }
+  }, [auth.user, dispatch, navigate]);
+
+  useEffect(() => {
+    console.log("Auth state in Header:", auth);
+  }, [auth]);
 
   const handleLogout = () => {
     dispatch(logout());
-    navigate("/login"); 
+    navigate("/login");
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     setDropdownOpen(false);
@@ -108,19 +123,29 @@ const Header: React.FC = () => {
                     strokeWidth="2"
                     viewBox="0 0 24 24"
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M19 9l-7 7-7-7"
+                    />
                   </svg>
                 </button>
 
                 {dropdownOpen && (
                   <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                    <Link
-                      to="/profile"
-                      className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
-                      onClick={() => setDropdownOpen(false)}
+                    <button
+                      className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                      onClick={() => {
+                        setDropdownOpen(false);
+                        if (auth.user?.role === "Candidate") {
+                          navigate("/candidate-profile");
+                        } else if (auth.user?.role === "Employer") {
+                          navigate("/employer-profile");
+                        }
+                      }}
                     >
                       Profile
-                    </Link>
+                    </button>
                     <button
                       className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
                       onClick={handleLogout}
@@ -132,6 +157,7 @@ const Header: React.FC = () => {
               </div>
             )}
           </nav>
+
 
           {/* Mobile Menu Icon */}
           <div className="md:hidden">
@@ -154,7 +180,6 @@ const Header: React.FC = () => {
           </div>
         </div>
 
-        {/* Mobile Navigation Menu */}
         {mobileMenuOpen && (
           <div className="md:hidden mt-2 space-y-2 border-t border-gray-200 pt-2">
             <Link
@@ -209,11 +234,9 @@ const Header: React.FC = () => {
             )}
           </div>
         )}
-
       </div>
     </header>
   );
 };
 
 export default Header;
-

@@ -2,8 +2,9 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {
   getAllCandidatesApi,
   blockUnblockCandidateApi,
-} from "./adminCandidateApi"
+} from "./adminCandidateApi";
 import type { Candidate } from "../../types/admin/admin.candidate.types";
+import { toast } from "react-toastify";
 
 interface CandidateState {
   candidates: Candidate[];
@@ -21,16 +22,24 @@ const initialState: CandidateState = {
 
 export const fetchCandidates = createAsyncThunk(
   "adminCandidates/fetchAll",
-  async ({ page, limit, search }: { page: number; limit: number; search: string }) => {
+  async ({
+    page,
+    limit,
+    search,
+  }: {
+    page: number;
+    limit: number;
+    search: string;
+  }) => {
     return await getAllCandidatesApi(page, limit, search);
-  }
+  },
 );
 
 export const toggleBlockCandidate = createAsyncThunk(
   "adminCandidates/blockUnblock",
   async ({ candidateId, block }: { candidateId: string; block: boolean }) => {
     return await blockUnblockCandidateApi(candidateId, block);
-  }
+  },
 );
 
 const adminCandidateSlice = createSlice({
@@ -54,7 +63,10 @@ const adminCandidateSlice = createSlice({
       .addCase(toggleBlockCandidate.fulfilled, (state, action) => {
         const updated = action.payload.candidate;
         state.candidates = state.candidates.map((c) =>
-          c.id === updated.id ? updated : c
+          c.id === updated.id ? updated : c,
+        );
+        toast.success(
+          `${updated.name} has been ${updated.blocked ? "blocked" : "unblocked"}`,
         );
       });
   },

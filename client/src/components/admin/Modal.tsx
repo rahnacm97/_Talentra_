@@ -1,16 +1,24 @@
 import BlockIcon from "@mui/icons-material/Block";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
-const Modal = ({
+interface ModalProps {
+  isOpen: boolean;
+  onApprove: () => void;
+  onCancel: () => void;
+  actionType: "block" | "unblock";
+  name: string; // generic name prop
+}
+
+const Modal: React.FC<ModalProps> = ({
   isOpen,
   onApprove,
   onCancel,
   actionType,
-  candidateName,
+  name,
 }: any) => {
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div className="fixed inset-0 flex items-center justify-center bg-white/10 backdrop-blur-sm z-50">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-md m-4">
         <div className="p-6">
           <div className="flex items-center justify-center w-16 h-16 mx-auto bg-yellow-100 rounded-full mb-4">
@@ -27,7 +35,7 @@ const Modal = ({
 
           <p className="text-gray-600 text-center mb-6">
             Are you sure you want to {actionType}{" "}
-            <span className="font-semibold">{candidateName}</span>? This action
+            <span className="font-semibold">{name}</span>? This action
             will{" "}
             {actionType === "block"
               ? "prevent them from accessing the platform"

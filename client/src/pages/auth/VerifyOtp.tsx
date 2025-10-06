@@ -13,7 +13,6 @@ import { sendOtp, verifyOtp } from "../../features/auth/authSlice";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../app/store";
 
-
 import { useLocation, useNavigate } from "react-router-dom";
 
 const VerifyOtp: React.FC = () => {

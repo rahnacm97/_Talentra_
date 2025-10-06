@@ -26,6 +26,8 @@ export interface AuthResponse {
     name: string;
     email: string;
     role: "Candidate" | "Employer";
+    emailVerified: boolean;
+    blocked: boolean;
   };
 }
 

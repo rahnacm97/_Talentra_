@@ -37,19 +37,10 @@ const AdminSignIn: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-
-    // dispatch(adminLogin(formData))
-    // .unwrap()
-    // .then(() => {
-    //   navigate("/admin-dashboard");
-    // })
-    // .catch((error) => {
-    //   console.error("Login failed:", error);
-    //   setErrors({ email: error, password: error });
-    // });
     dispatch(adminLogin(formData))
   .unwrap()
   .then((res) => {
+    localStorage.setItem("adminAccessToken", res.accessToken); 
     localStorage.setItem("admin", JSON.stringify(res.admin));
     navigate("/admin-dashboard");
   })

@@ -192,7 +192,7 @@ const AdminEmployers: React.FC = () => {
         renderActions={(emp: any) => (
           <div className="flex items-center space-x-2">
             <button
-              onClick={() => openModal(emp._id, emp.name, emp.blocked)}
+              onClick={() => openModal(emp.id, emp.name, emp.blocked)}
               className={`inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium transition-colors duration-200 ${
                 emp.blocked ? "bg-green-100 text-green-700 hover:bg-green-200" : "bg-red-100 text-red-700 hover:bg-red-200"
               }`}
@@ -227,7 +227,7 @@ const AdminEmployers: React.FC = () => {
         onApprove={handleApprove}
         onCancel={handleCancel}
         actionType={isBlockAction ? "block" : "unblock"}
-        employerName={selectedEmployerName}
+        name={selectedEmployerName}
       />
     </div>
   );

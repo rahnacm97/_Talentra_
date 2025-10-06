@@ -201,7 +201,7 @@ const AdminCandidates: React.FC = () => {
         onApprove={handleApprove}
         onCancel={handleCancel}
         actionType={isBlockAction ? "block" : "unblock"}
-        candidateName={selectedCandidateName}
+        name={selectedCandidateName}
       />
     </div>
   );

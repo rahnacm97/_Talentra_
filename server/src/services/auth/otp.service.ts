@@ -47,7 +47,6 @@ export class OtpService implements IOtpService{
 
     await this.otpRepository.deleteOtp(email, purpose);
 
-    // Only needed for signup verification
     if (purpose === "signup") {
       const detected = await detectUserByEmail(email, this.userRepos);
       if (detected) {

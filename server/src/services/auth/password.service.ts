@@ -20,8 +20,6 @@ export class PasswordService{
 
 async resetPassword(data: ResetPasswordDTO) {
 
-  // await this.otpService.verifyOtp(data.email, "forgot-password", );
-
   const detected = await detectUserByEmail(data.email, this.userRepos);
   if (!detected) throw new Error("User not found");
 

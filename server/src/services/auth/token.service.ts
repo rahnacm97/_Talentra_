@@ -1,20 +1,30 @@
 import jwt from "jsonwebtoken";
+import { ITokenService } from "../../interfaces/auth/ITokenService";
 
-export class TokenService {
+export class TokenService implements ITokenService {
   generateAccessToken(payload: object): string {
-    return jwt.sign(payload, process.env.JWT_SECRET as string, { expiresIn: "15m" });
+    const secret = process.env.JWT_SECRET;
+    if (!secret) throw new Error("JWT_SECRET is not defined");
+    return jwt.sign(payload, secret, { expiresIn: "15m" });
   }
 
   generateRefreshToken(payload: object): string {
-    return jwt.sign(payload, process.env.JWT_REFRESH_SECRET as string, { expiresIn: "7d" });
+    const secret = process.env.JWT_REFRESH_SECRET;
+    if (!secret) throw new Error("JWT_REFRESH_SECRET is not defined");
+    return jwt.sign(payload, secret, { expiresIn: "7d" });
   }
 
   verifyAccessToken(token: string) {
-    return jwt.verify(token, process.env.JWT_SECRET as string);
+    const secret = process.env.JWT_SECRET;
+    if (!secret) throw new Error("JWT_SECRET is not defined");
+    return jwt.verify(token, secret);
   }
 
   verifyRefreshToken(token: string) {
-    return jwt.verify(token, process.env.JWT_REFRESH_SECRET as string);
+    const secret = process.env.JWT_REFRESH_SECRET;
+    if (!secret) throw new Error("JWT_REFRESH_SECRET is not defined");
+    return jwt.verify(token, secret);
   }
 }
+
 

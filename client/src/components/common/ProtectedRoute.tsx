@@ -11,7 +11,6 @@ const ProtectedRoute: React.FC<Props> = ({ children }) => {
 
   const isAuthenticated = !!user;
 
-  // Pure render-time check only — no useEffect, no navigate() calls here
   if (!isAuthenticated) {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }

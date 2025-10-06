@@ -10,11 +10,8 @@ import { useAppDispatch } from "./hooks/hooks";
 import { loginSuccess } from "./features/auth/authSlice";
 import { adminLoginSuccess } from "./features/admin/adminAuthSlice";
 import "react-toastify/dist/ReactToastify.css";
-
-//import ProtectedRoute from "./components/common/ProtectedRoute";
 import PublicRoute from "./components/common/PublicRoute";
 import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
-
 import Homepage from "./pages/common/HomePage";
 import AdminSignIn from "./pages/admin/AdminSignin";
 import Signup from "./pages/auth/SignUp";
@@ -27,6 +24,9 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminCandidates from "./pages/admin/AdminCandidate";
 import AdminEmployers from "./pages/admin/AdminEmployer";
 import AuthSuccess from "./pages/auth/AuthSuccess";
+import CandidateProfile from "./pages/candidate/CandidateProfile";
+import EmployerProfile from "./pages/employer/EmployerProfile";
+import ProtectedRoute from "./components/common/ProtectedRoute";
 
 const App: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -101,7 +101,7 @@ const App: React.FC = () => {
             element={
               <PublicRoute>
                 <VerifyOtp />
-              </PublicRoute>
+              </PublicRoute>               
             }
           />
           <Route
@@ -128,8 +128,6 @@ const App: React.FC = () => {
               </PublicRoute>
             }
           />
-
-          {/* Protected Routes */}
           <Route
             path="/"
             element={
@@ -138,9 +136,25 @@ const App: React.FC = () => {
               </PublicRoute>
             }
           />
+          <Route
+          path="/candidate-profile"
+          element={
+            <ProtectedRoute>
+              <CandidateProfile/>
+            </ProtectedRoute>
+              
+            
+          }
+          />
+          <Route
+          path="/employer-profile"
+          element={
+            
+              <EmployerProfile/>
+            
+          }
+          />
           <Route path="/auth-success" element={<AuthSuccess />} />
-
-          {/* Admin Routes (Protected) */}
           <Route
             element={
               <AdminProtectedRoute>
@@ -152,8 +166,6 @@ const App: React.FC = () => {
             <Route path="/admin-candidates" element={<AdminCandidates />} />
             <Route path="/admin-employers" element={<AdminEmployers />} />
           </Route>
-
-          {/* Catch-all */}
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </Router>

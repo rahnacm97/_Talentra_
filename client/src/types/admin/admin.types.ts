@@ -3,14 +3,6 @@ export interface AdminLoginRequest{
     password: string;
 }
 
-// export interface AdminAuthResponse {
-//     token: string;
-//     admin: {
-//         id: string;
-//         name: string;
-//         email: string;
-//     }
-// }
 
 export interface AdminAuthResponse {
   accessToken: string;

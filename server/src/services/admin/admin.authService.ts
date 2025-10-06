@@ -17,6 +17,8 @@ export class AdminAuthService {
         if(!isMatch){
             throw new Error("Invalid credentials");
         }
+
+        //console.log("Received login DTO:", data);
         
         const token = jwt.sign(
             { id: admin._id, email: admin.email, role: "Admin" },

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { AuthController } from "../../controllers/auth/auth.controller";
 import { AuthService } from "../../services/auth/auth.service";
+import { TokenService } from "../../services/auth/token.service";
 import { CandidateRepository } from "../../repositories/candidate/candidate.repository";
 import { EmployerRepository } from "../../repositories/employer/employer.repository";
 import { AdminRepository } from "../../repositories/admin/admin.repository";
@@ -22,9 +23,10 @@ const userRepos = {
   Admin: new AdminRepository(),
 };
 
-const otpRepository = new OtpRepository()
+const otpRepository = new OtpRepository();
+const tokenService = new TokenService();
 
-const authService = new AuthService(userRepos);
+const authService = new AuthService(userRepos, tokenService);
 const emailService = new EmailService();
 const otpService = new OtpService(otpRepository, emailService, userRepos);
 const passwordService = new PasswordService(otpService, userRepos);

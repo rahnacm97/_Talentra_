@@ -6,4 +6,12 @@ export class CandidateRepository extends AuthRepository<ICandidate> {
   constructor() {
     super(Candidate);
   }
+
+  async updateBlockStatus(candidateId: string, block: boolean) {
+  return await Candidate.findByIdAndUpdate(
+    candidateId,
+    { blocked: block },
+    { new: true }
+  );
+}
 }

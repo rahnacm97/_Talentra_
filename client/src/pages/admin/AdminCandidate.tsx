@@ -15,7 +15,7 @@ import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
 import {
   fetchCandidates,
   toggleBlockCandidate,
-} from "../../features/admin/adminCandidateSlice";
+} from "../../thunks/admin.thunk";
 
 const AdminCandidates: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -29,11 +29,11 @@ const AdminCandidates: React.FC = () => {
   const [selectedCandidateName, setSelectedCandidateName] = useState<string>("");
   const [isBlockAction, setIsBlockAction] = useState<boolean | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-
-  const limit = 10;
+  const itemsPerPage = 5;
+  
 
   useEffect(() => {
-    dispatch(fetchCandidates({ page: currentPage, limit, search: searchTerm }));
+    dispatch(fetchCandidates({ page: currentPage, limit: itemsPerPage, search: searchTerm }));
   }, [dispatch, currentPage, searchTerm]);
 
   const openModal = (id: string, name: string, blocked: boolean) => {
@@ -60,6 +60,9 @@ const AdminCandidates: React.FC = () => {
     setIsBlockAction(null);
   };
 
+  const verifiedCount = candidates.filter((c: any) => !c.blocked).length;
+  const blockedCount = candidates.filter((c: any) => c.blocked).length;
+
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       <div className="mb-8">
@@ -71,7 +74,7 @@ const AdminCandidates: React.FC = () => {
         </p>
       </div>
 
-      {/* Stats cards */}
+
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center">
@@ -79,7 +82,7 @@ const AdminCandidates: React.FC = () => {
               <PersonIcon sx={{ fontSize: 24, color: "#2563eb" }} />
             </div>
             <div className="ml-4">
-              <h3 className="text-2xl font-bold text-gray-900">{candidates.length}</h3>
+              <h3 className="text-2xl font-bold text-gray-900">{total}</h3>
               <p className="text-gray-600 text-sm">Total Candidates</p>
             </div>
           </div>
@@ -92,7 +95,7 @@ const AdminCandidates: React.FC = () => {
             </div>
             <div className="ml-4">
               <h3 className="text-2xl font-bold text-gray-900">
-                {candidates.filter((c) => !c.blocked).length}
+                {verifiedCount}
               </h3>
               <p className="text-gray-600 text-sm">Active Candidates</p>
             </div>
@@ -106,7 +109,7 @@ const AdminCandidates: React.FC = () => {
             </div>
             <div className="ml-4">
               <h3 className="text-2xl font-bold text-gray-900">
-                {candidates.filter((c) => c.blocked).length}
+                {blockedCount}
               </h3>
               <p className="text-gray-600 text-sm">Blocked Candidates</p>
             </div>
@@ -186,16 +189,16 @@ const AdminCandidates: React.FC = () => {
             )}
           />
 
-          {/* Pagination */}
           <Pagination
             currentPage={currentPage}
-            totalPages={Math.ceil(total / limit)}
+            totalPages={Math.ceil(total / itemsPerPage)}
             paginate={setCurrentPage}
+            totalItems={total}
+            itemsPerPage={itemsPerPage}
           />
         </>
       )}
 
-      {/* Confirmation Modal */}
       <Modal
         isOpen={showModal}
         onApprove={handleApprove}

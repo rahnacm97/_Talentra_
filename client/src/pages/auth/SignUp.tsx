@@ -20,12 +20,12 @@ import {
   validateConfirmPassword,
 } from "../../utils/helper";
 import { Link } from "react-router-dom";
-import { signup } from "../../features/auth/authSlice";
+import { signup } from "../../thunks/auth.thunk";
 import { useAppDispatch } from "../../hooks/hooks";
 import type { SignupRequest } from "../../types/auth/Auth";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { sendOtp } from "../../features/auth/authSlice";
+import { sendOtp } from "../../thunks/auth.thunk";
 
 const Signup: React.FC = () => {
   const [userType, setUserType] =
@@ -287,7 +287,7 @@ const Signup: React.FC = () => {
                     id="phoneNumber"
                     type="tel"
                     name="phoneNumber"
-                    placeholder="+1 (555) 000-0000"
+                    placeholder="0000000000"
                     value={formData.phoneNumber}
                     onChange={handleChange}
                     onBlur={handleBlur}

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
-import { adminLogin } from "../../features/admin/adminAuthSlice";
+import { adminLogin } from "../../thunks/admin.thunk";
 import type { AdminLoginErrors } from "../../types/admin/admin.types";
 import { Eye, EyeOff, Building2 } from "lucide-react";
 import ScreenLeft from "../../components/common/AuthLeft";

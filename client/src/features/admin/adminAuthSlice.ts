@@ -1,10 +1,9 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice} from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import type {
-  AdminLoginRequest,
   AdminAuthResponse,
 } from "../../types/admin/admin.types";
-import { loginAdmin } from "./adminAuthApi";
+import { adminLogin } from "../../thunks/admin.thunk";
 
 interface AdminAuthState {
   admin: AdminAuthResponse["admin"] | null;
@@ -21,18 +20,6 @@ const initialState: AdminAuthState = {
   loading: false,
   error: null,
 };
-
-export const adminLogin = createAsyncThunk(
-  "admin/login",
-  async (data: AdminLoginRequest, { rejectWithValue }) => {
-    try {
-      return await loginAdmin(data);
-    } catch (error: any) {
-      const message = error.response?.data?.message || "Admin login failed";
-      return rejectWithValue(message);
-    }
-  },
-);
 
 const adminAuthSlice = createSlice({
   name: "adminAuth",

@@ -23,11 +23,12 @@ const adminEmployerController = new AdminEmployerController(adminEmployerService
 
 // Routes
 router.post("/login", adminAuthController.login);
-router.get("/candidates", verifyAuth("Admin"), adminCandidateController.getAllCandidates);
-router.get("/candidates/:id", verifyAuth("Admin"), adminCandidateController.getCandidateById);
-router.patch("/candidates/block-unblock", verifyAuth("Admin"), adminCandidateController.blockUnblockCandidate);
-router.get("/employers", verifyAuth("Admin"), adminEmployerController.getAllEmployers);
-router.get("/employers/:id", verifyAuth("Admin"), adminEmployerController.getEmployerById);
-router.patch("/employers/block-unblock", verifyAuth("Admin"), adminEmployerController.blockUnblockEmployer);
+router.get("/candidates", verifyAuth(["Admin"]), adminCandidateController.getAllCandidates);
+router.get("/candidates/:id", verifyAuth(["Admin"]), adminCandidateController.getCandidateById);
+router.patch("/candidates/block-unblock", verifyAuth(["Admin"]), adminCandidateController.blockUnblockCandidate);
+router.get("/employers", verifyAuth(["Admin"]), adminEmployerController.getAllEmployers);
+router.get("/employers/:id", verifyAuth(["Admin"]), adminEmployerController.getEmployerById);
+router.patch("/employers/block-unblock", verifyAuth(["Admin"]), adminEmployerController.blockUnblockEmployer);
+router.post("/logout", adminAuthController.logout);
 
 export default router;

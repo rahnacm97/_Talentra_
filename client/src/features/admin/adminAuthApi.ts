@@ -11,3 +11,8 @@ export const loginAdmin = async (data: AdminLoginRequest): Promise<AdminAuthResp
   );
   return response.data;
 };
+
+export const adminLogoutApi = async (refreshToken: string) => {
+  const response = await axios.post(`${API_BASE_URL}/admin/logout`, { refreshToken });
+  return response.data;
+};

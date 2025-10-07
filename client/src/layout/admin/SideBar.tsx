@@ -1,6 +1,7 @@
 import React from "react";
-import { useAppDispatch } from "../../hooks/hooks";
+import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
 import { adminLogout } from "../../features/admin/adminAuthSlice";
+import { serverAdminLogout } from "../../thunks/admin.thunk";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PersonIcon from "@mui/icons-material/Person";
@@ -14,11 +15,21 @@ const Sidebar: React.FC = () => {
   const location = useLocation();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const refreshToken = useAppSelector((state) => state.adminAuth.refreshToken);
+  
+  const handleLogout = async () => {
+  if (refreshToken) {
+    try {
+      await dispatch(serverAdminLogout(refreshToken)).unwrap();
+    } catch (error) {
+      console.error("Server logout failed:", error);
+    }
+  }
 
-  const handleLogout = () => {
-    dispatch(adminLogout());
-    navigate("/admin-signin"); 
-  };
+  dispatch(adminLogout());
+  navigate("/admin-signin");
+};
+
 
   const menuItems = [
     {

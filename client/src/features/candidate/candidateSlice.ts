@@ -1,7 +1,7 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getCandidateProfileApi } from "./candidateApi";
+import { createSlice } from "@reduxjs/toolkit";
 import type { ICandidate } from "../../types/candidate/candidate.types";
-import { toast } from "react-toastify";
+import { fetchCandidateProfile } from "../../thunks/candidate.thunks";
+
 
 interface CandidateState {
   profile: ICandidate | null;
@@ -15,30 +15,6 @@ const initialState: CandidateState = {
   error: null,
 };
 
-// Async thunk to fetch candidate profile
-// export const fetchCandidateProfile = createAsyncThunk(
-//   "candidate/fetchProfile",
-//   async (candidateId: string) => {
-//     return await getCandidateProfileApi(candidateId);
-//   }
-// );
-
-export const fetchCandidateProfile = createAsyncThunk(
-  "candidate/fetchProfile",
-  async (candidateId: string, { rejectWithValue }) => {
-    try {
-      const response = await getCandidateProfileApi(candidateId);
-      return response;
-    } catch (error: any) {
-      if (error.response?.status === 403) {
-        toast.error("You have been blocked by admin");
-      } else {
-        toast.error("Failed to load profile");
-      }
-      return rejectWithValue(error.response?.data || error.message);
-    }
-  }
-);
 
 const candidateSlice = createSlice({
   name: "candidate",

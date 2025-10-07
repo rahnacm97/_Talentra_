@@ -48,7 +48,6 @@ router.get("/google", (req, res, next) => {
   })(req, res, next); 
 });
 
-
 router.get(
   "/google/callback",
   passport.authenticate("google", { session: false }),
@@ -63,6 +62,7 @@ router.post("/verify-otp", otpController.verifyOtp);
 router.post("/forgot-password", passwordController.requestReset);
 router.post("/reset-password", passwordController.resetPassword);
 router.post("/refresh-token", authController.refreshToken);
+router.post("/logout", authController.logout);
 
 export default router;
 

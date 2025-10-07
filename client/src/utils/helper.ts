@@ -12,7 +12,7 @@ export const validateEmail = (email: string): string | null => {
 };
 
 export const validatePhoneNumber = (phone: string): string | null => {
-  const phoneRegex = /^[0-9]{10,15}$/;
+  const phoneRegex = /^[0-9]{10}$/;
   if (!phone.trim()) return "Phone number is required";
   if (!phoneRegex.test(phone)) return "Invalid phone number";
   return null;

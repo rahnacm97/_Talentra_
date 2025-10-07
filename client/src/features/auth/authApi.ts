@@ -30,3 +30,8 @@ export const resetPasswordApi = async (data: { email: string, newPassword: strin
   const response = await api.post("/auth/reset-password", data);
   return response.data;
 };
+
+export const logoutApi = async (refreshToken: string) => {
+  const response = await api.post("/auth/logout", { refreshToken });
+  return response.data;
+};

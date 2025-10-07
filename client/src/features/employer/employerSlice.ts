@@ -1,7 +1,6 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getEmployerProfileApi } from "./employerApi";
+import { createSlice } from "@reduxjs/toolkit";
 import type { IEmployer } from "../../types/employer/employer.types";
-import { toast } from "react-toastify";
+import { fetchEmployerProfile } from "../../thunks/employer.thunk";
 
 interface EmployerState {
   profile: IEmployer | null;
@@ -14,23 +13,6 @@ const initialState: EmployerState = {
   loading: false,
   error: null,
 };
-
-export const fetchEmployerProfile = createAsyncThunk(
-  "employer/fetchProfile",
-  async (employerId: string, { rejectWithValue }) => {
-    try {
-      const response = await getEmployerProfileApi(employerId);
-      return response;
-    } catch (error: any) {
-      if (error.response?.status === 403) {
-        toast.error("You have been blocked by admin");
-      } else {
-        toast.error("Failed to load profile");
-      }
-      return rejectWithValue(error.response?.data || error.message);
-    }
-  }
-);
 
 const employerSlice = createSlice({
   name: "employer",

@@ -20,6 +20,7 @@ export class AuthRepository<T extends Document> implements IUserReader<T>, IUser
   async findAll(query: any, page: number, limit: number): Promise<T[]> {
     return this.model
       .find(query)
+      .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(limit)
       .exec();

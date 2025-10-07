@@ -1,8 +1,5 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import {
-  getAllCandidatesApi,
-  blockUnblockCandidateApi,
-} from "./adminCandidateApi";
+import { createSlice, } from "@reduxjs/toolkit";
+import { fetchCandidates, toggleBlockCandidate } from "../../thunks/admin.thunk";
 import type { Candidate } from "../../types/admin/admin.candidate.types";
 import { toast } from "react-toastify";
 
@@ -20,27 +17,6 @@ const initialState: CandidateState = {
   error: null,
 };
 
-export const fetchCandidates = createAsyncThunk(
-  "adminCandidates/fetchAll",
-  async ({
-    page,
-    limit,
-    search,
-  }: {
-    page: number;
-    limit: number;
-    search: string;
-  }) => {
-    return await getAllCandidatesApi(page, limit, search);
-  },
-);
-
-export const toggleBlockCandidate = createAsyncThunk(
-  "adminCandidates/blockUnblock",
-  async ({ candidateId, block }: { candidateId: string; block: boolean }) => {
-    return await blockUnblockCandidateApi(candidateId, block);
-  },
-);
 
 const adminCandidateSlice = createSlice({
   name: "adminCandidates",

@@ -47,12 +47,6 @@ adminApi.interceptors.response.use(
   (error) => {
     const message = error.response?.data?.message;
     console.log("message", message);
-    if (message === "You have been blocked by admin") {
-      toast.error("You have been blocked by admin");
-      localStorage.removeItem("adminAccessToken");
-      localStorage.removeItem("admin");
-      window.location.href = "/";
-    }
     return Promise.reject(error);
   }
 );

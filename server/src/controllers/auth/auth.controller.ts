@@ -66,4 +66,18 @@ export class AuthController {
       res.status(500).json({ message: "Failed to fetch user" });
     }
   };
+
+  logout = async (req: Request, res: Response) => {
+  try {
+    const { refreshToken } = req.body;
+    if (!refreshToken) return res.status(400).json({ message: "Refresh token required" });
+
+    await this.authService.logout(refreshToken);
+    res.status(200).json({ message: "Logout successful" });
+  } catch (error: any) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+
 }

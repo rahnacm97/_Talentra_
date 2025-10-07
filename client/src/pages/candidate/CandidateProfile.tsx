@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
-import { fetchCandidateProfile } from "../../features/candidate/candidateSlice";
+import { fetchCandidateProfile } from "../../thunks/candidate.thunks";
 import {
   User,
   Mail,

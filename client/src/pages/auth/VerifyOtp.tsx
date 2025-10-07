@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { useAppDispatch } from "../../hooks/hooks";
-import { sendOtp, verifyOtp } from "../../features/auth/authSlice";
+import { verifyOtp, sendOtp } from "../../thunks/auth.thunk";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../app/store";
 

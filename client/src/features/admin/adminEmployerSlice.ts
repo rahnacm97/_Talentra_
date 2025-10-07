@@ -1,13 +1,10 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import type {
   EmployersState,
   EmployerResponseDTO,
 } from "../../types/admin/admin.employer.types";
-import {
-  getAllEmployersApi,
-  blockUnblockEmployerApi,
-} from "./adminEmployerApi";
+import { fetchEmployers, blockUnblockEmployer } from "../../thunks/admin.thunk";
 import { toast } from "react-toastify";
 
 const initialState: EmployersState = {
@@ -16,35 +13,6 @@ const initialState: EmployersState = {
   loading: false,
   error: null,
 };
-
-export const fetchEmployers = createAsyncThunk(
-  "adminEmployers/fetchEmployers",
-  async (
-    { page, limit, search }: { page: number; limit: number; search?: string },
-    { rejectWithValue },
-  ) => {
-    try {
-      return await getAllEmployersApi({ page, limit, search });
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || error.message);
-    }
-  },
-);
-
-// Block/Unblock employer
-export const blockUnblockEmployer = createAsyncThunk(
-  "adminEmployers/blockUnblockEmployer",
-  async (
-    { employerId, block }: { employerId: string; block: boolean },
-    { rejectWithValue },
-  ) => {
-    try {
-      return await blockUnblockEmployerApi(employerId, block);
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || error.message);
-    }
-  },
-);
 
 const adminEmployerSlice = createSlice({
   name: "adminEmployers",
@@ -71,14 +39,6 @@ const adminEmployerSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      // .addCase(blockUnblockEmployer.fulfilled, (state, action: PayloadAction<EmployerResponseDTO>) => {
-      //   const updated = action.payload.employer;
-      //   state.employers = state.employers.map((emp) =>
-      //     emp.id === action.payload.id ? { ...emp, blocked: action.payload.blocked } : emp
-      //   );
-      //   toast.success(`${updated.name} has been ${updated.blocked ? "blocked" : "unblocked"}`);
-      // });
-
       .addCase(
         blockUnblockEmployer.fulfilled,
         (

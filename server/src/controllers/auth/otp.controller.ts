@@ -1,9 +1,10 @@
 import { Request, Response} from "express";
 import { OtpService } from "../../services/auth/otp.service";
+import { IOtpService } from "../../interfaces/auth/IOtpService";
 import { EmailService } from "../../services/auth/email.service";
 
 export class OtpController{
-    constructor(private otpService: OtpService){}
+    constructor(private otpService: IOtpService){}
 
     sendOtp = async(req: Request, res: Response) => {
         try {

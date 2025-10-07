@@ -12,7 +12,7 @@ import GoogleSignInButton from "../../components/common/GoogleSignInButton";
 import { Link } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
 import { useNavigate } from "react-router-dom";
-import { login } from "../../features/auth/authSlice";
+import { login } from "../../thunks/auth.thunk";
 import type { LoginErrors } from "../../types/auth/Auth";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";

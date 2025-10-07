@@ -2,12 +2,18 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import PersonSearchRoundedIcon from "@mui/icons-material/PersonSearchRounded";
 import { useAppSelector, useAppDispatch } from "../../hooks/hooks";
-import { logout, loginSuccess } from "../../features/auth/authSlice";
+import {
+  logout,
+  loginSuccess,
+} from "../../features/auth/authSlice";
+import { serverLogout } from "../../thunks/auth.thunk";
 import { toast } from "react-toastify";
+
 
 const Header: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const refreshToken = useAppSelector((state: any) => state.auth.refreshToken);
   const auth = useAppSelector((state) => state.auth);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -32,38 +38,37 @@ const Header: React.FC = () => {
 
   useEffect(() => {
     if (auth.user?.blocked) {
-      toast.error("Your account has been blocked by the admin.", {
-        position: "top-right",
-        autoClose: 4000,
-      });
+      toast.error("Your account has been blocked by the admin.");
 
       setTimeout(() => {
-        dispatch(logout());
-        navigate("/login");
+        //dispatch(logout());
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
       }, 4500);
     }
   }, [auth.user, dispatch, navigate]);
 
-  useEffect(() => {
-    console.log("Auth state in Header:", auth);
-  }, [auth]);
 
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate("/login");
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    setDropdownOpen(false);
-    setMobileMenuOpen(false);
+  const handleLogout = async () => {
+    try {    
+      if(refreshToken){
+        await dispatch(serverLogout(refreshToken)).unwrap();
+        dispatch(logout());
+        navigate("/login");
+        // localStorage.removeItem("accessToken");
+        // localStorage.removeItem("refreshToken");
+        setDropdownOpen(false);
+        setMobileMenuOpen(false);
+      }
+    } catch (err: any) {
+      console.error("Logout failed", err);
+    }
   };
 
   return (
     <header className="bg-white shadow-lg border-b border-gray-200 sticky top-0 z-50">
       <div className="container mx-auto px-6 py-4">
         <div className="flex justify-between items-center">
-          {/* Logo */}
           <div className="flex items-center space-x-3">
             <div className="bg-blue-600 p-2 rounded-lg shadow-sm">
               <PersonSearchRoundedIcon sx={{ color: "white", fontSize: 28 }} />
@@ -78,7 +83,6 @@ const Header: React.FC = () => {
             </div>
           </div>
 
-          {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6 relative">
             <Link
               to="/home"
@@ -157,7 +161,6 @@ const Header: React.FC = () => {
               </div>
             )}
           </nav>
-
 
           {/* Mobile Menu Icon */}
           <div className="md:hidden">

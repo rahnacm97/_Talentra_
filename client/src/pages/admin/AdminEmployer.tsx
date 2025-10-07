@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
-import { fetchEmployers, blockUnblockEmployer } from "../../features/admin/adminEmployerSlice";
+import { fetchEmployers, blockUnblockEmployer } from "../../thunks/admin.thunk";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import BlockIcon from "@mui/icons-material/Block";
@@ -28,6 +28,7 @@ const AdminEmployers: React.FC = () => {
   const [selectedEmployerId, setSelectedEmployerId] = useState<string | null>(null);
   const [selectedEmployerName, setSelectedEmployerName] = useState("");
   const [isBlockAction, setIsBlockAction] = useState<boolean | null>(null);
+  
 
   useEffect(() => {
     dispatch(fetchEmployers({ page: currentPage, limit: itemsPerPage, search: searchTerm }));
@@ -118,7 +119,6 @@ const AdminEmployers: React.FC = () => {
         </div>
       </div>
 
-      {/* Table */}
       <Table
         data={employers}
         columns={[
@@ -212,7 +212,6 @@ const AdminEmployers: React.FC = () => {
         )}
       />
 
-      {/* Pagination */}
       <Pagination
         currentPage={currentPage}
         totalPages={Math.ceil(total / itemsPerPage)}
@@ -221,7 +220,6 @@ const AdminEmployers: React.FC = () => {
         itemsPerPage={itemsPerPage}
       />
 
-      {/* Modal */}
       <Modal
         isOpen={showModal}
         onApprove={handleApprove}

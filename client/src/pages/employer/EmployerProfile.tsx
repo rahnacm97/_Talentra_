@@ -22,7 +22,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
-import { fetchEmployerProfile } from "../../features/employer/employerSlice";
+import { fetchEmployerProfile } from "../../thunks/employer.thunk";
 import type { EmployerProfileData } from "../../types/employer/employer.types";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";

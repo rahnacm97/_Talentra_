@@ -17,6 +17,7 @@
     "@mui/material": "^7.3.2",
     "@reduxjs/toolkit": "^2.9.0",
     "axios": "^1.11.0",
+    "history": "^5.3.0",
     "js-cookie": "^3.0.5",
     "lucide-react": "^0.542.0",
     "react": "^19.1.1",
@@ -24,11 +25,13 @@
     "react-hot-toast": "^2.6.0",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.8.2",
-    "react-toastify": "^11.0.5"
+    "react-toastify": "^11.0.5",
+    "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",
     "@tailwindcss/postcss": "^4.1.13",
+    "@types/history": "^5.0.0",
     "@types/js-cookie": "^3.0.6",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",

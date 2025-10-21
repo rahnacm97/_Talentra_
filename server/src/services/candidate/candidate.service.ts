@@ -3,10 +3,9 @@ import { CandidateRepository } from "../../repositories/candidate/candidate.repo
 import { ICandidate } from "../../interfaces/users/candidate/ICandidate";
 
 export class CandidateService implements ICandidateService {
-  private repository = new CandidateRepository();
+  private _repository = new CandidateRepository();
 
   async getCandidateById(candidateId: string): Promise<ICandidate | null> {
-    return this.repository.findById(candidateId);
+    return this._repository.findById(candidateId);
   }
 }
-

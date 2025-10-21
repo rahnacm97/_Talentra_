@@ -1,7 +1,7 @@
 import { Briefcase, Users, TrendingUp, Award } from "lucide-react";
 
 // Stats Component
-const StatsSection = () => (
+const StatsSection: React.FC = () => (
   <div className="bg-gradient-to-r from-blue-600 to-indigo-700 py-16 px-4">
     <div className="max-w-6xl mx-auto">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">

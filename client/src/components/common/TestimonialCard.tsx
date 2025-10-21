@@ -1,8 +1,22 @@
-import React, { useState } from "react";
+import React from "react";
 import { Star, Quote } from "lucide-react";
 
+interface TestimonialCardProps {
+  quote: string;
+  author: string;
+  position: string;
+  company: string;
+  rating: number;
+}
+
 // Testimonial Component
-const TestimonialCard = ({ quote, author, position, company, rating }) => (
+const TestimonialCard: React.FC<TestimonialCardProps> = ({
+  quote,
+  author,
+  position,
+  company,
+  rating,
+}) => (
   <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100 relative">
     <div className="absolute -top-4 left-8">
       <div className="bg-blue-600 p-3 rounded-full">

@@ -4,4 +4,5 @@ export interface ITokenService {
   verifyAccessToken(token: string): object | string;
   verifyRefreshToken(token: string): object | string;
   invalidateToken(token: string): void;
+  isTokenInvalidated(token: string): boolean;
 }

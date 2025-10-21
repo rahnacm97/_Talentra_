@@ -2,17 +2,24 @@ import express from "express";
 import connectDB from "./config/db.config";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import candidateRoute from "./routes/candidate/candidate.routes"
+import candidateRoute from "./routes/candidate/candidate.routes";
 import authRoute from "./routes/auth/auth.routes";
-import adminRoute from "./routes/admin/admin.routes"
-import employerRoute from "./routes/employer/employer.routes"
+import adminRoute from "./routes/admin/admin.routes";
+import employerRoute from "./routes/employer/employer.routes";
 import { errorHandler } from "./middlewares/errorHandler";
 import dotenv from "dotenv";
 
 const app = express();
 dotenv.config();
 app.use(cookieParser());
-app.use(cors({ origin: process.env.CORS_ORIGIN, credentials: true }));
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+);
 app.use(express.json());
 
 connectDB();

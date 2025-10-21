@@ -1,14 +1,22 @@
 import axios from "axios";
 import { toast } from "react-toastify";
+import { store } from "../app/store";
+import { logout } from "../features/auth/authSlice";
+import { FRONTEND_ROUTES } from "../shared/constants";
+import { useNavigationStore } from "../utils/navigate";
 
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:5000",
   withCredentials: true,
 });
 
 api.interceptors.request.use((config) => {
-  const accessToken = localStorage.getItem("accessToken"); 
-  if (accessToken) {
+  const state = store.getState();
+  const accessToken = state.auth.accessToken;
+  if (config.url?.includes("/auth/refresh-token")) {
+    return config;
+  }
+  if (accessToken && !config.headers.Authorization) {
     config.headers.Authorization = `Bearer ${accessToken}`;
   }
   return config;
@@ -16,41 +24,100 @@ api.interceptors.request.use((config) => {
 
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
+    const originalRequest = error.config;
     const message = error.response?.data?.message;
-    console.log("message", message);
+    const navigate = useNavigationStore.getState().navigate;
     if (message === "You have been blocked by admin") {
-      toast.error("You have been blocked by admin");
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("user");
-      window.location.href = "/";
+      store.dispatch(logout());
+
+      toast.error("Your account has been blocked by admin. Please contact support.");
+
+      document.cookie.split(";").forEach((c) => {
+        document.cookie = c
+          .replace(/^ +/, "")
+          .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+      });
+      if (navigate) {
+        navigate(FRONTEND_ROUTES.LOGIN, { replace: true });
+      } else {
+        window.location.href = FRONTEND_ROUTES.LOGIN; 
+      }
+      
+      return Promise.reject(error);
     }
+
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest.url?.includes("/auth/refresh-token") &&
+      !originalRequest.url?.includes("/auth/logout") &&
+      !originalRequest.url?.includes("/admin/logout") &&
+      !originalRequest.url?.includes("/admin/login") &&
+      !originalRequest.url?.includes("/auth/login")
+    ) {
+      originalRequest._retry = true;
+
+      try {
+        const refreshResponse = await axios.post(
+          `${import.meta.env.VITE_API_BASE_URL}/auth/refresh-token`,
+          {},
+          {
+            withCredentials: true,
+            headers: {
+              "Content-Type": "application/json",
+            },
+          },
+        );
+
+        const { accessToken, user } = refreshResponse.data;
+        store.dispatch({
+          type: "auth/loginSuccess",
+          payload: {
+            user: store.getState().auth.user || user,
+            accessToken,
+            refreshToken: null,
+          },
+        });
+
+        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+        return api(originalRequest);
+      } catch (refreshError: unknown) {
+        store.dispatch(logout());
+
+        document.cookie.split(";").forEach((c) => {
+          document.cookie = c
+            .replace(/^ +/, "")
+            .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+        });
+        if (navigate) {
+          navigate(FRONTEND_ROUTES.LOGIN, { replace: true });
+        } else {
+          window.location.href = FRONTEND_ROUTES.LOGIN;
+        }
+        return Promise.reject(refreshError);
+      }
+    }
+
+    // Only show toast for non-auth routes and non-blocked errors
+    // if (
+    //   originalRequest.url !== "/auth/login" &&
+    //   message !== "You have been blocked by admin"
+    // ) {
+    //   toast.error(message || "An error occurred");
+    // }
+
+    if (originalRequest.url?.includes("/auth/login")) {
+      return Promise.reject(error);
+    }
+
+    // Show toast for other errors
+    if (message !== "You have been blocked by admin") {
+      toast.error(message || "An error occurred");
+    }
+
     return Promise.reject(error);
-  }
-);
-
-export const adminApi = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
-  withCredentials: true,
-});
-
-adminApi.interceptors.request.use((config) => {
-  const adminToken = localStorage.getItem("adminAccessToken"); 
-  if (adminToken) {
-    config.headers.Authorization = `Bearer ${adminToken}`;
-  }
-  return config;
-});
-
-adminApi.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    const message = error.response?.data?.message;
-    console.log("message", message);
-    return Promise.reject(error);
-  }
+  },
 );
 
 export default api;
-
-

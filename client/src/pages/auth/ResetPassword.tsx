@@ -12,6 +12,7 @@ import { useSelector } from "react-redux";
 import type { RootState } from "../../app/store";
 import { useDispatch } from "react-redux";
 import { loginApi } from "../../features/auth/authApi";
+import { FRONTEND_ROUTES } from "../../shared/constants";
 
 const ResetPassword: React.FC = () => {
   const [newPassword, setNewPassword] = useState("");
@@ -67,7 +68,7 @@ const ResetPassword: React.FC = () => {
         payload: loginResponse,
       });
       toast.success("Password reset successfully! Logging you in");
-      navigate("/");
+      navigate(FRONTEND_ROUTES.HOME);
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Failed to reset password");
     } finally {
@@ -96,9 +97,9 @@ const ResetPassword: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-fit">
         <button
-          onClick={() => navigate("/login")}
+          onClick={() => navigate(FRONTEND_ROUTES.LOGIN)}
           className="flex items-center text-gray-600 hover:text-gray-800 mb-6 transition-colors duration-200 group"
         >
           <ArrowBackIcon className="mr-2 group-hover:-translate-x-1 transition-transform duration-200" />

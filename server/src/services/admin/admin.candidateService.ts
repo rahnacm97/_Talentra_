@@ -1,17 +1,25 @@
+import { FilterQuery } from "mongoose";
 import { CandidateRepository } from "../../repositories/candidate/candidate.repository";
 import { IAdminCandidateService } from "../../interfaces/users/admin/IAdminCandidateService";
-import { BlockCandidateDTO, CandidateResponseDTO } from "../../dto/admin/candidate.dto";
-import { Types } from "mongoose";
+import {
+  BlockCandidateDTO,
+  CandidateResponseDTO,
+} from "../../dto/admin/candidate.dto";
+import { ICandidate } from "../../interfaces/users/candidate/ICandidate";
 
 export class AdminCandidateService implements IAdminCandidateService {
-  private candidateRepo: CandidateRepository;
+  private _candidateRepo: CandidateRepository;
 
   constructor(candidateRepo: CandidateRepository) {
-    this.candidateRepo = candidateRepo;
+    this._candidateRepo = candidateRepo;
   }
 
-  async getAllCandidates(page: number, limit: number, search?: string): Promise<{ data: CandidateResponseDTO[]; total: number }> {
-    const query: any = {};
+  async getAllCandidates(
+    page: number,
+    limit: number,
+    search?: string,
+  ): Promise<{ data: CandidateResponseDTO[]; total: number }> {
+    const query: FilterQuery<ICandidate> = {};
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: "i" } },
@@ -19,12 +27,12 @@ export class AdminCandidateService implements IAdminCandidateService {
       ];
     }
 
-    const candidates = await this.candidateRepo.findAll(query, page, limit);
-    const total = await this.candidateRepo.count(query);
+    const candidates = await this._candidateRepo.findAll(query, page, limit);
+    const total = await this._candidateRepo.count(query);
 
     return {
       data: candidates.map((c) => ({
-        id: (c._id as Types.ObjectId).toString(),
+        id: c._id.toString(),
         name: c.name,
         email: c.email,
         resume: c.resume || "",
@@ -34,8 +42,13 @@ export class AdminCandidateService implements IAdminCandidateService {
     };
   }
 
-  async blockUnblockCandidate(data: BlockCandidateDTO): Promise<CandidateResponseDTO> {
-    const candidate = await this.candidateRepo.updateBlockStatus(data.candidateId, data.block);
+  async blockUnblockCandidate(
+    data: BlockCandidateDTO,
+  ): Promise<CandidateResponseDTO> {
+    const candidate = await this._candidateRepo.updateBlockStatus(
+      data.candidateId,
+      data.block,
+    );
     if (!candidate) throw new Error("Candidate not found");
 
     return {
@@ -48,7 +61,7 @@ export class AdminCandidateService implements IAdminCandidateService {
   }
 
   async getCandidateById(id: string): Promise<CandidateResponseDTO | null> {
-    const candidate = await this.candidateRepo.findById(id);
+    const candidate = await this._candidateRepo.findById(id);
     if (!candidate) return null;
 
     return {

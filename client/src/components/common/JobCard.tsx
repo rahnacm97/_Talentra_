@@ -1,7 +1,26 @@
 import { MapPin, Briefcase } from "lucide-react";
+import type React from "react";
+
+interface JobCardProps {
+  title: string;
+  company: string;
+  salary: string;
+  location: string;
+  type: string;
+  posted: string;
+  logo?: string;
+}
 
 // Job Card Component
-const JobCard = ({ title, company, salary, location, type, posted, logo }) => (
+const JobCard: React.FC<JobCardProps> = ({
+  title,
+  company,
+  salary,
+  location,
+  type,
+  posted,
+  logo,
+}) => (
   <div className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-6 border border-gray-100 group cursor-pointer">
     <div className="flex items-start justify-between mb-4">
       <div className="flex items-center space-x-4">

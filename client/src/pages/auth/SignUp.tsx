@@ -26,6 +26,7 @@ import type { SignupRequest } from "../../types/auth/Auth";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { sendOtp } from "../../thunks/auth.thunk";
+import { FRONTEND_ROUTES } from "../../shared/constants";
 
 const Signup: React.FC = () => {
   const [userType, setUserType] =
@@ -48,6 +49,7 @@ const Signup: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  //const isLoading = useAppSelector((state) => state.auth.loading);
   const [passwordStrength, setPasswordStrength] = useState(0);
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -57,7 +59,7 @@ const Signup: React.FC = () => {
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    
+
     if (name === "password") {
       let strength = 0;
       if (value.length >= 8) strength++;
@@ -101,39 +103,42 @@ const Signup: React.FC = () => {
       passwordError ||
       confirmPasswordError
     ) {
+      setErrors({
+        fullName: nameError || "",
+        email: emailError || "",
+        phoneNumber: phoneError || "",
+        password: passwordError || "",
+        confirmPassword: confirmPasswordError || "",
+      });
       return;
     }
-
     setIsLoading(true);
 
-    dispatch(
-      signup({
-        name: formData.fullName,
-        email: formData.email,
-        password: formData.password,
-        phoneNumber: formData.phoneNumber,
-        userType,
-      }),
-    )
-      .unwrap()
+    try {
+      await dispatch(
+        signup({
+          name: formData.fullName,
+          email: formData.email,
+          password: formData.password,
+          phoneNumber: formData.phoneNumber,
+          userType,
+        }),
+      ).unwrap();
 
-      .then(async () => {
-        const resultAction = await dispatch(
-          sendOtp({ email: formData.email, purpose: "signup" }),
-        );
-        if (sendOtp.fulfilled.match(resultAction)) {
-          toast.success("OTP sent to your email!");
-          navigate("/verify", {
-            state: { email: formData.email, purpose: "signup" },
-          });
-        } else {
-          toast.error((resultAction.payload as string) || "Failed to send OTP");
-        }
-      })
-      .catch((err) => {
-        toast.error(err);
-        console.error("Signup failed:", err);
+      await dispatch(
+        sendOtp({ email: formData.email, purpose: "signup" }),
+      ).unwrap();
+
+      navigate(FRONTEND_ROUTES.VERIFY_OTP, {
+        state: { email: formData.email, purpose: "signup" },
       });
+      toast.success("OTP sent to your email!");
+    } catch (err) {
+      console.log("Error occurred, isLoading:", isLoading);
+      toast.error(String(err));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const getPasswordStrengthText = () => {
@@ -267,7 +272,6 @@ const Signup: React.FC = () => {
                     onChange={handleChange}
                     onBlur={handleBlur}
                     className="w-full px-4 py-3 pl-12 text-sm lg:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-gray-50 focus:bg-white"
-                    
                   />
                   <Mail className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
                 </div>
@@ -292,7 +296,6 @@ const Signup: React.FC = () => {
                     onChange={handleChange}
                     onBlur={handleBlur}
                     className="w-full px-4 py-3 pl-12 text-sm lg:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-gray-50 focus:bg-white"
-                    
                   />
                   <Phone className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
                 </div>
@@ -322,7 +325,6 @@ const Signup: React.FC = () => {
                   onChange={handleChange}
                   onBlur={handleBlur}
                   className="w-full px-4 py-3 pl-12 pr-12 text-sm lg:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 bg-gray-50 focus:bg-white"
-                  
                 />
                 <Lock className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
                 <button
@@ -393,7 +395,6 @@ const Signup: React.FC = () => {
                         : "border-red-300 focus:ring-red-500 focus:border-red-500"
                       : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                   }`}
-                  
                 />
                 <Lock className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
                 <button

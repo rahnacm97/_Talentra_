@@ -22,7 +22,7 @@ import {
 import type { ProfileData } from "../../types/candidate/candidate.types";
 import Header from "../common/Header";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
+import { FRONTEND_ROUTES } from "../../shared/constants";
 
 const CandidateProfile: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -47,8 +47,8 @@ const CandidateProfile: React.FC = () => {
   });
 
   useEffect(() => {
-    if (auth.user?.id) {
-      dispatch(fetchCandidateProfile(auth.user.id))
+    if (auth.user?._id) {
+      dispatch(fetchCandidateProfile(auth.user._id))
         .unwrap()
         .catch((err: any) => {
           if (
@@ -56,11 +56,7 @@ const CandidateProfile: React.FC = () => {
             err?.status === 403 ||
             err?.message === "You have been blocked by admin"
           ) {
-            toast.error("You have been blocked by admin");
-            localStorage.removeItem("accessToken");
-            localStorage.removeItem("refreshToken");
-            localStorage.removeItem("user");
-            navigate("/login");
+            navigate(FRONTEND_ROUTES.LOGIN);
           }
         });
     }
@@ -103,13 +99,6 @@ const CandidateProfile: React.FC = () => {
       skills: prev.skills.filter((skill) => skill !== skillToRemove),
     }));
   };
-
-  // const handleSave = () => {
-  //   if (auth.user?.id) {
-  //     dispatch(updateCandidateProfile({ id: auth.user.id, ...profileData }));
-  //     setIsEditing(false);
-  //   }
-  // };
 
   const handleSave = () => {};
 

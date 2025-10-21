@@ -16,6 +16,7 @@ import { login } from "../../thunks/auth.thunk";
 import type { LoginErrors } from "../../types/auth/Auth";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { FRONTEND_ROUTES } from "../../shared/constants";
 
 const LoginForm = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -54,18 +55,22 @@ const LoginForm = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
+    console.log("Form submitted", formData);
     if (!validateForm()) return;
 
     dispatch(login(formData))
       .unwrap()
       .then(() => {
-        navigate("/");
+        navigate(FRONTEND_ROUTES.HOME);
       })
       .catch((err) => {
         if (err === "You have been blocked by the admin") {
           toast.error(
             "Access denied — your account has been blocked by the admin.",
           );
+        } else if (err === "Invalid credentials") {
+          toast.error("Invalid email or password. Please try again.");
         } else {
           toast.error(err || "Login failed");
         }

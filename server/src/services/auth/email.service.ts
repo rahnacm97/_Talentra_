@@ -2,7 +2,7 @@ import nodemailer from "nodemailer";
 import { INotificationService } from "../../interfaces/auth/INotificationService";
 
 export class EmailService implements INotificationService {
-  private transporter = nodemailer.createTransport({
+  private _transporter = nodemailer.createTransport({
     service: "Gmail",
     auth: {
       user: process.env.EMAIL_USER,
@@ -11,7 +11,7 @@ export class EmailService implements INotificationService {
   });
 
   async sendOtp(email: string, otp: string): Promise<void> {
-    await this.transporter.sendMail({
+    await this._transporter.sendMail({
       from: `"Talentra" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: "Your OTP Code",

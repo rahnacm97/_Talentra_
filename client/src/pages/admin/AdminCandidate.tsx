@@ -20,20 +20,35 @@ import {
 const AdminCandidates: React.FC = () => {
   const dispatch = useAppDispatch();
   const { candidates, total, loading } = useAppSelector(
-    (state) => state.adminCandidates
+    (state) => state.adminCandidates,
   );
 
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null);
-  const [selectedCandidateName, setSelectedCandidateName] = useState<string>("");
+  const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(
+    null,
+  );
+  const [selectedCandidateName, setSelectedCandidateName] =
+    useState<string>("");
   const [isBlockAction, setIsBlockAction] = useState<boolean | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
-  
 
   useEffect(() => {
-    dispatch(fetchCandidates({ page: currentPage, limit: itemsPerPage, search: searchTerm }));
+    console.log("AdminCandidates - Dispatching fetchCandidates:", {
+      page: currentPage,
+      limit: itemsPerPage,
+      search: searchTerm,
+    });
+    dispatch(
+      fetchCandidates({
+        page: currentPage,
+        limit: itemsPerPage,
+        search: searchTerm,
+      }),
+    ).then((result) => {
+      console.log("AdminCandidates - fetchCandidates result:", result);
+    });
   }, [dispatch, currentPage, searchTerm]);
 
   const openModal = (id: string, name: string, blocked: boolean) => {
@@ -45,7 +60,12 @@ const AdminCandidates: React.FC = () => {
 
   const handleApprove = () => {
     if (selectedCandidateId && isBlockAction !== null) {
-      dispatch(toggleBlockCandidate({ candidateId: selectedCandidateId, block: isBlockAction }));
+      dispatch(
+        toggleBlockCandidate({
+          candidateId: selectedCandidateId,
+          block: isBlockAction,
+        }),
+      );
     }
     setShowModal(false);
     setSelectedCandidateId(null);
@@ -73,7 +93,6 @@ const AdminCandidates: React.FC = () => {
           Manage and monitor all registered candidates on your platform.
         </p>
       </div>
-
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -211,4 +230,3 @@ const AdminCandidates: React.FC = () => {
 };
 
 export default AdminCandidates;
-

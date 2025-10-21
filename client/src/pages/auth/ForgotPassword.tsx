@@ -7,6 +7,7 @@ import { sendOtpApi } from "../../features/auth/authApi";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { setForgotPasswordEmail } from "../../features/auth/authSlice";
+import { FRONTEND_ROUTES } from "../../shared/constants";
 
 const ForgotPassword: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -31,9 +32,8 @@ const ForgotPassword: React.FC = () => {
     try {
       await sendOtpApi(email, "forgot-password");
       toast.success("OTP sent to your email!");
-      //navigate("/verify", { state: { email, purpose: "forgot-password" } });
       dispatch(setForgotPasswordEmail(email));
-      navigate("/verify");
+      navigate(FRONTEND_ROUTES.VERIFY_OTP);
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Failed to send OTP");
     } finally {
@@ -46,7 +46,7 @@ const ForgotPassword: React.FC = () => {
       <div className="w-full max-w-md">
         {/* <Header/> */}
         <button
-          onClick={() => navigate("/login")}
+          onClick={() => navigate(FRONTEND_ROUTES.LOGIN)}
           className="flex items-center text-gray-600 hover:text-gray-800 mb-6 transition-colors duration-200 group"
         >
           <ArrowBackIcon className="mr-2 group-hover:-translate-x-1 transition-transform duration-200" />
@@ -67,9 +67,7 @@ const ForgotPassword: React.FC = () => {
             </p>
           </div>
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email Input */}
             <div>
               <label
                 htmlFor="email"
@@ -156,7 +154,7 @@ const ForgotPassword: React.FC = () => {
             <p className="text-center text-sm text-gray-600">
               Remember your password?{" "}
               <button
-                onClick={() => navigate("/login")}
+                onClick={() => navigate(FRONTEND_ROUTES.LOGIN)}
                 className="text-blue-600 hover:text-blue-700 font-semibold hover:underline transition-colors duration-200"
               >
                 Sign in here

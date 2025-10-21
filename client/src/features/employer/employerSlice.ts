@@ -30,7 +30,8 @@ const employerSlice = createSlice({
       })
       .addCase(fetchEmployerProfile.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || "Failed to fetch employer profile";
+        state.error =
+          action.error.message || "Failed to fetch employer profile";
       });
   },
 });

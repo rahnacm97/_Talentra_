@@ -1,83 +1,137 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import { IAuthService } from "../../interfaces/auth/IAuthService";
-import { AuthSignupDTO } from "../../dto/auth/auth.dto";
+import { AuthSignupDTO, AuthLoginDTO } from "../../dto/auth/auth.dto";
+import {
+  HTTP_STATUS,
+  ERROR_MESSAGES,
+  SUCCESS_MESSAGES,
+} from "../../shared/constants";
+import { IAuthController } from "../../interfaces/auth/IAuthController";
+import {
+  setAuthCookies,
+  clearAuthCookies,
+} from "../../shared/utils/cookie.utils";
 
-export class AuthController {
-  constructor(private authService: IAuthService) {}
+export class AuthController implements IAuthController {
+  constructor(private _authService: IAuthService) {}
 
-  signup = async (req: Request, res: Response) => {
+  signup = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     try {
       const data: AuthSignupDTO = req.body;
-      const result = await this.authService.signup(data);
+      const result = await this._authService.signup(data);
 
-      res.status(201).json({
-        message: "Signup successful",
+      setAuthCookies(res, result.refreshToken);
+
+      res.status(HTTP_STATUS.CREATED).json({
+        message: SUCCESS_MESSAGES.USER_REGISTERED,
         user: {
-          id: result.user._id,
+          _id: result.user._id,
           email: result.user.email,
           name: result.user.name,
           role: data.userType,
         },
         accessToken: result.accessToken,
-        refreshToken: result.refreshToken,
       });
-    } catch (error: any) {
-      res.status(400).json({ message: error.message });
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : ERROR_MESSAGES.VALIDATION_ERROR;
+      res.status(HTTP_STATUS.BAD_REQUEST).json({ message });
     }
   };
 
-  login = async (req: Request, res: Response) => {
+  login = async (req: Request, res: Response): Promise<void> => {
     try {
-      const data: AuthSignupDTO = req.body;
-      const result = await this.authService.login(data);
-      res.status(200).json({
-        message: "Login successful",
+      const data: AuthLoginDTO = req.body;
+      const result = await this._authService.login(data);
+
+      setAuthCookies(res, result.refreshToken);
+
+      res.status(HTTP_STATUS.OK).json({
+        message: SUCCESS_MESSAGES.LOGIN_SUCCESS,
         user: {
-          id: result.user._id,
+          _id: result.user._id,
           email: result.user.email,
           name: result.user.name,
-          role: result.role,
+          role: result.user.role,
         },
         accessToken: result.accessToken,
-        refreshToken: result.refreshToken,
       });
-    } catch (error: any) {
-      res.status(400).json({ message: error.message });
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : ERROR_MESSAGES.INVALID_CREDENTIALS;
+      res.status(HTTP_STATUS.UNAUTHORIZED).json({ message });
     }
   };
 
-  refreshToken = async (req: Request, res: Response) => {
+  refreshToken = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { refreshToken } = req.body;
-      const newToken = await this.authService.refreshToken(refreshToken);
-      res.status(200).json({ accessToken: newToken });
-    } catch (error: any) {
-      res.status(401).json({ message: error.message });
+      const refreshToken = req.cookies.refreshToken;
+
+      if (!refreshToken) {
+        res.status(HTTP_STATUS.UNAUTHORIZED).json({
+          message: ERROR_MESSAGES.NO_REFRESH_TOKEN,
+        });
+        return;
+      }
+
+      const result = await this._authService.refreshToken(refreshToken);
+
+      res.status(HTTP_STATUS.OK).json({
+        accessToken: result.accessToken,
+        user: {
+          _id: result.user._id,
+          email: result.user.email,
+          name: result.user.name,
+          role: result.user.role,
+        },
+      });
+    } catch (error: unknown) {
+      res.status(HTTP_STATUS.UNAUTHORIZED).json({
+        message: ERROR_MESSAGES.INVALID_REFRESH_TOKEN,
+      });
     }
   };
 
-  getMe = async (req: Request, res: Response) => {
+  getMe = async (req: Request, res: Response): Promise<void> => {
     try {
       const userInfo = req.cookies.userInfo;
-      if (!userInfo) return res.status(401).json({ message: "Not authenticated" });
+      if (!userInfo) {
+        res.status(HTTP_STATUS.UNAUTHORIZED).json({
+          message: ERROR_MESSAGES.NO_COOKIES,
+        });
+        return;
+      }
 
       res.json({ user: JSON.parse(userInfo) });
-    } catch (err) {
-      res.status(500).json({ message: "Failed to fetch user" });
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : ERROR_MESSAGES.SERVER_ERROR;
+      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ message });
     }
   };
 
-  logout = async (req: Request, res: Response) => {
-  try {
-    const { refreshToken } = req.body;
-    if (!refreshToken) return res.status(400).json({ message: "Refresh token required" });
+  logout = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const refreshToken = req.cookies.refreshToken;
 
-    await this.authService.logout(refreshToken);
-    res.status(200).json({ message: "Logout successful" });
-  } catch (error: any) {
-    res.status(400).json({ message: error.message });
-  }
-};
-
-
+      if (refreshToken) {
+        await this._authService.logout(refreshToken);
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      clearAuthCookies(res);
+      res.status(HTTP_STATUS.OK).json({
+        message: SUCCESS_MESSAGES.LOGOUT_SUCCESS,
+      });
+    }
+  };
 }

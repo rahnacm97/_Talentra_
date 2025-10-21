@@ -3,9 +3,9 @@ import { EmployerRepository } from "../../repositories/employer/employer.reposit
 import { IEmployer } from "../../interfaces/users/employer/IEmployer";
 
 export class EmployerService implements IEmployerService {
-  private repository = new EmployerRepository();
+  private _repository = new EmployerRepository();
 
   async getEmployerById(employerId: string): Promise<IEmployer | null> {
-    return this.repository.findById(employerId);
+    return this._repository.findById(employerId);
   }
 }

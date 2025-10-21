@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
 
-const password = "Admin@123"; 
+const password = "Admin@123";
 const hashed = bcrypt.hash(password, 10);
-console.log("password",hashed);
+console.log("password", hashed);

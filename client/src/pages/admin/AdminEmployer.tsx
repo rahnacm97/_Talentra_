@@ -25,13 +25,20 @@ const AdminEmployers: React.FC = () => {
   const itemsPerPage = 5;
 
   const [showModal, setShowModal] = useState(false);
-  const [selectedEmployerId, setSelectedEmployerId] = useState<string | null>(null);
+  const [selectedEmployerId, setSelectedEmployerId] = useState<string | null>(
+    null,
+  );
   const [selectedEmployerName, setSelectedEmployerName] = useState("");
   const [isBlockAction, setIsBlockAction] = useState<boolean | null>(null);
-  
 
   useEffect(() => {
-    dispatch(fetchEmployers({ page: currentPage, limit: itemsPerPage, search: searchTerm }));
+    dispatch(
+      fetchEmployers({
+        page: currentPage,
+        limit: itemsPerPage,
+        search: searchTerm,
+      }),
+    );
   }, [dispatch, currentPage, searchTerm]);
 
   const openModal = (id: string, name: string, blocked: boolean) => {
@@ -43,7 +50,12 @@ const AdminEmployers: React.FC = () => {
 
   const handleApprove = () => {
     if (selectedEmployerId && isBlockAction !== null) {
-      dispatch(blockUnblockEmployer({ employerId: selectedEmployerId, block: isBlockAction }));
+      dispatch(
+        blockUnblockEmployer({
+          employerId: selectedEmployerId,
+          block: isBlockAction,
+        }),
+      );
       setShowModal(false);
       setSelectedEmployerId(null);
       setSelectedEmployerName("");
@@ -80,7 +92,9 @@ const AdminEmployers: React.FC = () => {
             <VerifiedIcon sx={{ fontSize: 24, color: "#10b981" }} />
           </div>
           <div className="ml-4">
-            <h3 className="text-2xl font-bold text-gray-900">{verifiedCount}</h3>
+            <h3 className="text-2xl font-bold text-gray-900">
+              {verifiedCount}
+            </h3>
             <p className="text-gray-600 text-sm">Verified Employers</p>
           </div>
         </div>
@@ -106,7 +120,10 @@ const AdminEmployers: React.FC = () => {
 
       {/* Search and Actions */}
       <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
-        <SearchInput value={searchTerm} onChange={(e: any) => setSearchTerm(e.target.value)} />
+        <SearchInput
+          value={searchTerm}
+          onChange={(e: any) => setSearchTerm(e.target.value)}
+        />
         <div className="flex items-center space-x-3">
           <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors duration-200">
             <FilterListIcon sx={{ fontSize: 18, marginRight: 1 }} />
@@ -142,7 +159,9 @@ const AdminEmployers: React.FC = () => {
             label: "Email",
             render: (value: string) => (
               <div className="flex items-center">
-                <EmailIcon sx={{ fontSize: 16, color: "#6b7280", marginRight: 1 }} />
+                <EmailIcon
+                  sx={{ fontSize: 16, color: "#6b7280", marginRight: 1 }}
+                />
                 {value}
               </div>
             ),
@@ -153,7 +172,9 @@ const AdminEmployers: React.FC = () => {
             render: (value: boolean) => (
               <span
                 className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                  value ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
+                  value
+                    ? "bg-green-100 text-green-800"
+                    : "bg-yellow-100 text-yellow-800"
                 }`}
               >
                 {value ? (
@@ -173,7 +194,9 @@ const AdminEmployers: React.FC = () => {
           {
             key: "jobsPosted",
             label: "Jobs Posted",
-            render: (value: number) => <span className="font-medium text-gray-900">{value || 0}</span>,
+            render: (value: number) => (
+              <span className="font-medium text-gray-900">{value || 0}</span>
+            ),
           },
           {
             key: "blocked",
@@ -181,7 +204,9 @@ const AdminEmployers: React.FC = () => {
             render: (value: boolean) => (
               <span
                 className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                  value ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800"
+                  value
+                    ? "bg-red-100 text-red-800"
+                    : "bg-green-100 text-green-800"
                 }`}
               >
                 {value ? "Blocked" : "Active"}
@@ -194,10 +219,16 @@ const AdminEmployers: React.FC = () => {
             <button
               onClick={() => openModal(emp.id, emp.name, emp.blocked)}
               className={`inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium transition-colors duration-200 ${
-                emp.blocked ? "bg-green-100 text-green-700 hover:bg-green-200" : "bg-red-100 text-red-700 hover:bg-red-200"
+                emp.blocked
+                  ? "bg-green-100 text-green-700 hover:bg-green-200"
+                  : "bg-red-100 text-red-700 hover:bg-red-200"
               }`}
             >
-              {emp.blocked ? <CheckCircleIcon sx={{ fontSize: 16, marginRight: 0.5 }} /> : <BlockIcon sx={{ fontSize: 16, marginRight: 0.5 }} />}
+              {emp.blocked ? (
+                <CheckCircleIcon sx={{ fontSize: 16, marginRight: 0.5 }} />
+              ) : (
+                <BlockIcon sx={{ fontSize: 16, marginRight: 0.5 }} />
+              )}
               {emp.blocked ? "Unblock" : "Block"}
             </button>
 
@@ -232,5 +263,3 @@ const AdminEmployers: React.FC = () => {
 };
 
 export default AdminEmployers;
-
-

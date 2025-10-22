@@ -1,4 +1,3 @@
-
 import { FRONTEND_ROUTES } from "../shared/constants";
 
 export const isPublicAuthRoute = (path: string): boolean => {

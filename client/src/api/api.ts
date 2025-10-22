@@ -31,7 +31,9 @@ api.interceptors.response.use(
     if (message === "You have been blocked by admin") {
       store.dispatch(logout());
 
-      toast.error("Your account has been blocked by admin. Please contact support.");
+      toast.error(
+        "Your account has been blocked by admin. Please contact support.",
+      );
 
       document.cookie.split(";").forEach((c) => {
         document.cookie = c
@@ -41,9 +43,9 @@ api.interceptors.response.use(
       if (navigate) {
         navigate(FRONTEND_ROUTES.LOGIN, { replace: true });
       } else {
-        window.location.href = FRONTEND_ROUTES.LOGIN; 
+        window.location.href = FRONTEND_ROUTES.LOGIN;
       }
-      
+
       return Promise.reject(error);
     }
 
@@ -88,7 +90,10 @@ api.interceptors.response.use(
         document.cookie.split(";").forEach((c) => {
           document.cookie = c
             .replace(/^ +/, "")
-            .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+            .replace(
+              /=.*/,
+              "=;expires=" + new Date().toUTCString() + ";path=/",
+            );
         });
         if (navigate) {
           navigate(FRONTEND_ROUTES.LOGIN, { replace: true });
@@ -99,19 +104,10 @@ api.interceptors.response.use(
       }
     }
 
-    // Only show toast for non-auth routes and non-blocked errors
-    // if (
-    //   originalRequest.url !== "/auth/login" &&
-    //   message !== "You have been blocked by admin"
-    // ) {
-    //   toast.error(message || "An error occurred");
-    // }
-
     if (originalRequest.url?.includes("/auth/login")) {
       return Promise.reject(error);
     }
 
-    // Show toast for other errors
     if (message !== "You have been blocked by admin") {
       toast.error(message || "An error occurred");
     }

@@ -57,14 +57,7 @@ const App: React.FC = () => {
           <Routes>
             <Route path={FRONTEND_ROUTES.LOGIN} element={<Login />} />
             <Route path={FRONTEND_ROUTES.SIGNUP} element={<Signup />} />
-            <Route
-              path={FRONTEND_ROUTES.VERIFY_OTP}
-              element={
-              
-                  <VerifyOtp />
-              
-              }
-            />
+            <Route path={FRONTEND_ROUTES.VERIFY_OTP} element={<VerifyOtp />} />
             <Route
               path={FRONTEND_ROUTES.FORGOT_PASSWORD}
               element={

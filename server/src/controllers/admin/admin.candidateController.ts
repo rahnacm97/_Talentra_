@@ -1,21 +1,29 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { IAdminCandidateService } from "../../interfaces/users/admin/IAdminCandidateService";
 import { BlockCandidateDTO } from "../../dto/admin/candidate.dto";
 import {
-  HTTP_STATUS,
   SUCCESS_MESSAGES,
   ERROR_MESSAGES,
-} from "../../shared/constants";
+} from "../../shared/constants/constants";
+import { HTTP_STATUS } from "../../shared/httpStatus/httpStatus";
 import { IAdminCandidateController } from "../../interfaces/users/admin/IAdminCandidateController";
+import { logger } from "../../shared/utils/logger";
+import { ApiError } from "../../shared/utils/ApiError";
 
 export class AdminCandidateController implements IAdminCandidateController {
   constructor(private _candidateService: IAdminCandidateService) {}
 
-  getAllCandidates = async (req: Request, res: Response) => {
+  getAllCandidates = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
     try {
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
       const search = req.query.search as string | undefined;
+
+      logger.info("Fetching all candidates", { page, limit, search });
 
       const result = await this._candidateService.getAllCandidates(
         page,
@@ -28,11 +36,25 @@ export class AdminCandidateController implements IAdminCandidateController {
     } catch (error: unknown) {
       const message =
         error instanceof Error ? error.message : ERROR_MESSAGES.SERVER_ERROR;
-      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ message });
+      logger.error("Failed to fetch candidates", {
+        error: message,
+        page: req.query.page,
+        limit: req.query.limit,
+        search: req.query.search,
+      });
+      next(
+        error instanceof ApiError
+          ? error
+          : new ApiError(HTTP_STATUS.INTERNAL_SERVER_ERROR, message),
+      );
     }
   };
 
-  getCandidateById = async (req: Request, res: Response) => {
+  getCandidateById = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
     try {
       const { id } = req.params;
       if (!id) {
@@ -43,32 +65,49 @@ export class AdminCandidateController implements IAdminCandidateController {
       }
       const candidate = await this._candidateService.getCandidateById(id);
       if (!candidate) {
-        res
-          .status(HTTP_STATUS.NOT_FOUND)
-          .json({ message: ERROR_MESSAGES.EMAIL_NOT_EXIST });
-        return;
+        throw new ApiError(
+          HTTP_STATUS.NOT_FOUND,
+          ERROR_MESSAGES.EMAIL_NOT_EXIST,
+        );
       }
 
       res.status(HTTP_STATUS.OK).json(candidate);
     } catch (error: unknown) {
       const message =
         error instanceof Error ? error.message : ERROR_MESSAGES.SERVER_ERROR;
-      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ message });
+      next(
+        error instanceof ApiError
+          ? error
+          : new ApiError(HTTP_STATUS.INTERNAL_SERVER_ERROR, message),
+      );
     }
   };
 
-  blockUnblockCandidate = async (req: Request, res: Response) => {
+  blockUnblockCandidate = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
     try {
       const data: BlockCandidateDTO = req.body;
       const candidate =
         await this._candidateService.blockUnblockCandidate(data);
+      logger.info("Candidate blocked", { candidateId: data.candidateId });
       res
         .status(HTTP_STATUS.OK)
         .json({ candidate, message: SUCCESS_MESSAGES.STATUS_UPDATED });
     } catch (error: unknown) {
       const message =
         error instanceof Error ? error.message : ERROR_MESSAGES.SERVER_ERROR;
-      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ message });
+      logger.error("Failed to block/unblock candidate", {
+        error: message,
+        candidateId: req.body.candidateId,
+      });
+      next(
+        error instanceof ApiError
+          ? error
+          : new ApiError(HTTP_STATUS.INTERNAL_SERVER_ERROR, message),
+      );
     }
   };
 }

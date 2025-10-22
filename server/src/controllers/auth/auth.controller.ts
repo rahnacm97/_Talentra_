@@ -2,15 +2,17 @@ import { Request, Response, NextFunction } from "express";
 import { IAuthService } from "../../interfaces/auth/IAuthService";
 import { AuthSignupDTO, AuthLoginDTO } from "../../dto/auth/auth.dto";
 import {
-  HTTP_STATUS,
   ERROR_MESSAGES,
   SUCCESS_MESSAGES,
-} from "../../shared/constants";
+} from "../../shared/constants/constants";
+import { HTTP_STATUS } from "../../shared/httpStatus/httpStatus";
 import { IAuthController } from "../../interfaces/auth/IAuthController";
 import {
   setAuthCookies,
   clearAuthCookies,
 } from "../../shared/utils/cookie.utils";
+import { logger } from "../../shared/utils/logger";
+import { ApiError } from "../../shared/utils/ApiError";
 
 export class AuthController implements IAuthController {
   constructor(private _authService: IAuthService) {}
@@ -25,6 +27,11 @@ export class AuthController implements IAuthController {
       const result = await this._authService.signup(data);
 
       setAuthCookies(res, result.refreshToken);
+
+      logger.info("User signup successful", {
+        userId: result.user._id,
+        email: data.email,
+      });
 
       res.status(HTTP_STATUS.CREATED).json({
         message: SUCCESS_MESSAGES.USER_REGISTERED,
@@ -41,16 +48,26 @@ export class AuthController implements IAuthController {
         error instanceof Error
           ? error.message
           : ERROR_MESSAGES.VALIDATION_ERROR;
-      res.status(HTTP_STATUS.BAD_REQUEST).json({ message });
+      logger.error("Signup failed", { error: message, email: req.body.email });
+      next(new ApiError(HTTP_STATUS.BAD_REQUEST, message));
     }
   };
 
-  login = async (req: Request, res: Response): Promise<void> => {
+  login = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     try {
       const data: AuthLoginDTO = req.body;
       const result = await this._authService.login(data);
 
       setAuthCookies(res, result.refreshToken);
+
+      logger.info("User login successful", {
+        userId: result.user._id,
+        email: data.email,
+      });
 
       res.status(HTTP_STATUS.OK).json({
         message: SUCCESS_MESSAGES.LOGIN_SUCCESS,
@@ -67,11 +84,16 @@ export class AuthController implements IAuthController {
         error instanceof Error
           ? error.message
           : ERROR_MESSAGES.INVALID_CREDENTIALS;
-      res.status(HTTP_STATUS.UNAUTHORIZED).json({ message });
+      logger.error("Login failed", { error: message, email: req.body.email });
+      next(new ApiError(HTTP_STATUS.UNAUTHORIZED, message));
     }
   };
 
-  refreshToken = async (req: Request, res: Response): Promise<void> => {
+  refreshToken = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     try {
       const refreshToken = req.cookies.refreshToken;
 
@@ -83,6 +105,7 @@ export class AuthController implements IAuthController {
       }
 
       const result = await this._authService.refreshToken(refreshToken);
+      logger.info("Refresh token successful", { userId: result.user._id });
 
       res.status(HTTP_STATUS.OK).json({
         accessToken: result.accessToken,
@@ -94,13 +117,24 @@ export class AuthController implements IAuthController {
         },
       });
     } catch (error: unknown) {
-      res.status(HTTP_STATUS.UNAUTHORIZED).json({
-        message: ERROR_MESSAGES.INVALID_REFRESH_TOKEN,
-      });
+      const message =
+        error instanceof Error
+          ? error.message
+          : ERROR_MESSAGES.INVALID_REFRESH_TOKEN;
+      logger.error("Refresh token failed", { error: message });
+      next(
+        error instanceof ApiError
+          ? error
+          : new ApiError(HTTP_STATUS.UNAUTHORIZED, message),
+      );
     }
   };
 
-  getMe = async (req: Request, res: Response): Promise<void> => {
+  getMe = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     try {
       const userInfo = req.cookies.userInfo;
       if (!userInfo) {
@@ -111,27 +145,48 @@ export class AuthController implements IAuthController {
       }
 
       res.json({ user: JSON.parse(userInfo) });
+      logger.info("User info retrieved successfully");
     } catch (error: unknown) {
       const message =
         error instanceof Error ? error.message : ERROR_MESSAGES.SERVER_ERROR;
-      res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ message });
+      logger.error("Get user info failed", { error: message });
+      next(
+        error instanceof ApiError
+          ? error
+          : new ApiError(HTTP_STATUS.INTERNAL_SERVER_ERROR, message),
+      );
     }
   };
 
-  logout = async (req: Request, res: Response): Promise<void> => {
+  logout = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     try {
       const refreshToken = req.cookies.refreshToken;
 
       if (refreshToken) {
         await this._authService.logout(refreshToken);
+        logger.info("Logout successful");
       }
-    } catch (error) {
-      console.error("Logout error:", error);
-    } finally {
       clearAuthCookies(res);
       res.status(HTTP_STATUS.OK).json({
         message: SUCCESS_MESSAGES.LOGOUT_SUCCESS,
       });
+    } catch (error) {
+      logger.error("Logout failed", {
+        error:
+          error instanceof Error ? error.message : ERROR_MESSAGES.SERVER_ERROR,
+      });
+      next(
+        error instanceof ApiError
+          ? error
+          : new ApiError(
+              HTTP_STATUS.INTERNAL_SERVER_ERROR,
+              ERROR_MESSAGES.SERVER_ERROR,
+            ),
+      );
     }
   };
 }

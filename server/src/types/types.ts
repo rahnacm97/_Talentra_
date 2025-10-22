@@ -41,10 +41,6 @@ export type GoogleAuthUserRepoMap = {
 
 export type VerifiableUser = ICandidate | IEmployer;
 
-// export function isVerifiableUser(user: AnyUser): user is VerifiableUser {
-//   return ["Candidate", "Employer"].includes((user as any).role || "");
-// }
-
 export function hasEmailVerification(
   user: AnyUser,
 ): user is ICandidate | IEmployer {

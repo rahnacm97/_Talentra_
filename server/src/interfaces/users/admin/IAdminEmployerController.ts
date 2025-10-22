@@ -1,7 +1,19 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 
 export interface IAdminEmployerController {
-  getAllEmployers(req: Request, res: Response): Promise<void>;
-  getEmployerById(req: Request, res: Response): Promise<void>;
-  blockUnblockEmployer(req: Request, res: Response): Promise<void>;
+  getAllEmployers(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void>;
+  getEmployerById(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void>;
+  blockUnblockEmployer(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void>;
 }

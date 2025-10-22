@@ -1,6 +1,6 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 
 export interface IPasswordController {
-  requestReset(req: Request, res: Response): Promise<void>;
-  resetPassword(req: Request, res: Response): Promise<void>;
+  requestReset(req: Request, res: Response, next: NextFunction): Promise<void>;
+  resetPassword(req: Request, res: Response, next: NextFunction): Promise<void>;
 }

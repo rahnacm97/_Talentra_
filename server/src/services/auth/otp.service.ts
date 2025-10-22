@@ -49,8 +49,6 @@ export class OtpService implements IOtpService {
         detected?.userType,
       );
       if (detected) {
-        //const updatedUser = await this._userRepos[detected.userType].verifyEmail(detected.user._id);
-        //const updatedUser = await this._userRepos[detected.userType].verifyEmail(detected.user._id);
         const repo = this._userRepos[detected.userType];
         const updatedUser = await repo.verifyEmail?.(detected.user._id);
 

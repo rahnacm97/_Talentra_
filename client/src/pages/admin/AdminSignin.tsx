@@ -149,9 +149,7 @@ const AdminSignIn: React.FC = () => {
               )}
             </button>
 
-            {error && (
-              <p className="text-red-500 text-center text-sm mt-2"></p>
-            )}
+            {error && <p className="text-red-500 text-center text-sm mt-2"></p>}
           </form>
 
           <div className="mt-6 lg:mt-8 text-center">

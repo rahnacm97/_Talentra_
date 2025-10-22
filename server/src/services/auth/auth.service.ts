@@ -29,14 +29,12 @@ export class AuthService implements IAuthService {
     if (detected) {
       throw new Error("Email already exists in another account");
     }
+
     const repo = this.getRepository(data.userType);
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
     const user = await repo.create({ ...data, password: hashedPassword });
 
-    const emailVerified = hasEmailVerification(user)
-      ? user.emailVerified
-      : false;
     const blocked = hasEmailVerification(user) ? user.blocked : false;
 
     return {

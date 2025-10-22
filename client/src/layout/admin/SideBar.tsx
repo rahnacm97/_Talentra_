@@ -8,7 +8,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import WorkIcon from "@mui/icons-material/Work";
 import SettingsIcon from "@mui/icons-material/Settings";
-import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
+import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import PersonSearchRoundedIcon from "@mui/icons-material/PersonSearchRounded";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { FRONTEND_ROUTES } from "../../shared/constants";
@@ -17,17 +17,15 @@ const Sidebar: React.FC = () => {
   const location = useLocation();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  //const refreshToken = useAppSelector((state) => state.auth.refreshToken);
   const user = useAppSelector((state) => state.auth.user);
 
   const handleLogout = async () => {
-    //if (refreshToken && user) {
-      try {
-        await dispatch(serverLogout({ role: user?.role })).unwrap();
-      } catch (error) {
-        console.error("Server logout failed:", error);
-      }
-    //}
+    try {
+      await dispatch(serverLogout({ role: user?.role })).unwrap();
+    } catch (error) {
+      console.error("Server logout failed:", error);
+    }
+
     dispatch(logout());
     navigate(FRONTEND_ROUTES.ADMINLOGIN);
   };

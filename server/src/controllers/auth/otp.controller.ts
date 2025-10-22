@@ -1,19 +1,22 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { IOtpService } from "../../interfaces/auth/IOtpService";
 import {
-  HTTP_STATUS,
   SUCCESS_MESSAGES,
   ERROR_MESSAGES,
-} from "../../shared/constants";
+} from "../../shared/constants/constants";
+import { HTTP_STATUS } from "../../shared/httpStatus/httpStatus";
 import { IOtpController } from "../../interfaces/auth/IOtpController";
+import { logger } from "../../shared/utils/logger";
+import { ApiError } from "../../shared/utils/ApiError";
 
 export class OtpController implements IOtpController {
   constructor(private _otpService: IOtpService) {}
 
-  sendOtp = async (req: Request, res: Response) => {
+  sendOtp = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email, purpose } = req.body;
       const result = await this._otpService.generateOtp(email, purpose);
+      logger.info("Generating OTP", { email, purpose });
       res.status(HTTP_STATUS.OK).json({
         message: SUCCESS_MESSAGES.SEND_OTP_TO_MAIL,
         data: result,
@@ -21,14 +24,24 @@ export class OtpController implements IOtpController {
     } catch (error: unknown) {
       const message =
         error instanceof Error ? error.message : ERROR_MESSAGES.SERVER_ERROR;
-      res.status(HTTP_STATUS.BAD_REQUEST).json({ message });
+      logger.error("Failed to generate OTP", {
+        error: message,
+        email: req.body.email,
+        purpose: req.body.purpose,
+      });
+      next(
+        error instanceof ApiError
+          ? error
+          : new ApiError(HTTP_STATUS.BAD_REQUEST, message),
+      );
     }
   };
 
-  verifyOtp = async (req: Request, res: Response) => {
+  verifyOtp = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email, purpose, otp } = req.body;
       const result = await this._otpService.verifyOtp(email, purpose, otp);
+      logger.info("Verifying OTP", { email, purpose, otp });
       res.status(HTTP_STATUS.OK).json({
         message: SUCCESS_MESSAGES.OTP_VERIFIED,
         data: result,
@@ -36,7 +49,16 @@ export class OtpController implements IOtpController {
     } catch (error: unknown) {
       const message =
         error instanceof Error ? error.message : ERROR_MESSAGES.INVALID_OTP;
-      res.status(HTTP_STATUS.BAD_REQUEST).json({ message });
+      logger.error("Failed to verify OTP", {
+        error: message,
+        email: req.body.email,
+        purpose: req.body.purpose,
+      });
+      next(
+        error instanceof ApiError
+          ? error
+          : new ApiError(HTTP_STATUS.BAD_REQUEST, message),
+      );
     }
   };
 }

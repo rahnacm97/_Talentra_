@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
-import { ERROR_MESSAGES, HTTP_STATUS } from "../../shared/constants";
+import { ERROR_MESSAGES } from "../../shared/constants/constants";
+import { HTTP_STATUS } from "../../shared/httpStatus/httpStatus";
 import { IGoogleAuthController } from "../../interfaces/auth/IGoogleAuthController";
 import { GoogleUser } from "../../interfaces/auth/IGoogleUser";
 

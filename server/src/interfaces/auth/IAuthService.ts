@@ -1,4 +1,5 @@
 import { AuthLoginDTO, AuthSignupDTO } from "../../dto/auth/auth.dto";
+
 export interface AuthResponse {
   user: {
     _id: string;
@@ -12,11 +13,6 @@ export interface AuthResponse {
   refreshToken: string;
 }
 
-// export interface RefreshTokenResponse {
-//   accessToken: string;
-//   user: AuthResponse["user"];
-// }
-
 export interface RefreshTokenResponse {
   accessToken: string;
   user: {
@@ -24,8 +20,8 @@ export interface RefreshTokenResponse {
     name: string;
     email: string;
     role: UserType;
-    blocked: boolean; // Add blocked property
-    emailVerified?: boolean; // Optional
+    blocked: boolean;
+    emailVerified?: boolean;
   };
 }
 
@@ -35,4 +31,5 @@ export interface IAuthService {
   refreshToken(refreshToken: string): Promise<RefreshTokenResponse>;
   logout(refreshToken: string): Promise<void>;
 }
+
 export type UserType = "Candidate" | "Employer" | "Admin";

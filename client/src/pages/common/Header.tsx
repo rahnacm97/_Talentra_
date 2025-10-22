@@ -43,8 +43,7 @@ const Header: React.FC = () => {
       navigate(FRONTEND_ROUTES.LOGIN);
       setDropdownOpen(false);
       setMobileMenuOpen(false);
-    } catch (err: any) {
-      //toast.error(err?.message || "Logout failed");
+    } catch {
       dispatch(logout());
       navigate(FRONTEND_ROUTES.LOGIN);
     }

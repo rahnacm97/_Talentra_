@@ -15,7 +15,7 @@ export class EmailService implements INotificationService {
       from: `"Talentra" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: "Your OTP Code",
-      html: `<p>Your OTP code is <b>${otp}</b>. It will expire in 1 minute.</p>`,
+      html: `<p>Your OTP code is <b>${otp}</b> for talentra verification. It will expire in 1 minute.</p>`,
     });
   }
 }

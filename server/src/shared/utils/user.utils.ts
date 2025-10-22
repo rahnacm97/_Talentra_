@@ -26,13 +26,11 @@ export async function detectUserByEmailForGoogle(
   user: GoogleAuthUser;
   userType: "Candidate" | "Employer";
 } | null> {
-  // Check Candidate first
   const candidate = await repos.Candidate.findByEmail(email);
   if (candidate) {
     return { user: candidate, userType: "Candidate" };
   }
 
-  // Check Employer
   const employer = await repos.Employer.findByEmail(email);
   if (employer) {
     return { user: employer, userType: "Employer" };

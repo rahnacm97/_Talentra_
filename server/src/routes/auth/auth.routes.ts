@@ -16,6 +16,8 @@ import { GoogleAuthService } from "../../services/auth/googleAuth.service";
 import { GoogleAuthController } from "../../controllers/auth/googleAuth.controller";
 import { UserRepoMap } from "../../types/types";
 import { GoogleAuthUserRepoMap } from "../../types/types";
+import { OtpMapper } from "../../mappers/auth/otp.mapper";
+import { PasswordMapper } from "../../mappers/auth/password.mapper";
 
 const router = Router();
 
@@ -32,11 +34,22 @@ const googleUserRepos: GoogleAuthUserRepoMap = {
 
 const otpRepository = new OtpRepository();
 const tokenService = new TokenService();
+const otpMapper = new OtpMapper();
+const passwordMapper = new PasswordMapper();
 
 const authService = new AuthService(userRepos, tokenService);
 const emailService = new EmailService();
-const otpService = new OtpService(otpRepository, emailService, userRepos);
-const passwordService = new PasswordService(otpService, userRepos);
+const otpService = new OtpService(
+  otpRepository,
+  emailService,
+  userRepos,
+  otpMapper,
+);
+const passwordService = new PasswordService(
+  otpService,
+  userRepos,
+  passwordMapper,
+);
 
 const authController = new AuthController(authService);
 const otpController = new OtpController(otpService);

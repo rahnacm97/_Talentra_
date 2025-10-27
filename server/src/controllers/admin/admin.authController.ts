@@ -5,7 +5,7 @@ import {
   SUCCESS_MESSAGES,
   ERROR_MESSAGES,
 } from "../../shared/constants/constants";
-import { HTTP_STATUS } from "../../shared/httpStatus/httpStatus";
+import { HTTP_STATUS } from "../../shared/httpStatus/httpStatusCode";
 import { IAdminAuthController } from "../../interfaces/users/admin/IAdminAuthController";
 import {
   setAuthCookies,

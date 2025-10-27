@@ -4,15 +4,21 @@ import crypto from "crypto";
 import { detectUserByEmail } from "../../shared/utils/user.utils";
 import { IOtpService } from "../../interfaces/auth/IOtpService";
 import { UserRepoMap } from "../../types/types";
+import { SendOtpDTO, VerifyOtpDTO } from "../../dto/auth/otp.dto";
+import { IOtpMapper } from "../../interfaces/auth/IOtpMapper";
 
 export class OtpService implements IOtpService {
   constructor(
     private _otpRepository: OtpRepository,
     private _notificationService: INotificationService,
     private _userRepos: UserRepoMap,
+    private _otpMapper: IOtpMapper,
   ) {}
 
-  async generateOtp(email: string, purpose: "signup" | "forgot-password") {
+  async generateOtp(
+    email: string,
+    purpose: "signup" | "forgot-password",
+  ): Promise<SendOtpDTO> {
     await this._otpRepository.deleteOtp(email, purpose);
 
     const otp = crypto.randomInt(100000, 999999).toString();
@@ -30,10 +36,15 @@ export class OtpService implements IOtpService {
 
     console.log("Otp", otp);
 
-    return { message: "OTP sent successfully" };
+    //return { message: "OTP sent successfully" };
+    return this._otpMapper.toSendOtpDTO();
   }
 
-  async verifyOtp(email: string, purpose: string, otp: string) {
+  async verifyOtp(
+    email: string,
+    purpose: string,
+    otp: string,
+  ): Promise<VerifyOtpDTO> {
     const record = await this._otpRepository.findOtp(email, purpose);
     if (!record) throw new Error("OTP not found");
     if (record.expiresAt < new Date()) throw new Error("OTP expired");
@@ -63,6 +74,6 @@ export class OtpService implements IOtpService {
       }
     }
 
-    return { success: true, message: "OTP verified successfully" };
+    return this._otpMapper.toVerifyOtpDTO();
   }
 }

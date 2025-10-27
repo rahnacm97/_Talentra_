@@ -76,7 +76,14 @@ const AdminEmployers: React.FC = () => {
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      {/* Header Cards */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          Employer Management
+        </h1>
+        <p className="text-gray-600">
+          Manage and monitor all registered Employers on this platform.
+        </p>
+      </div>
       <div className="mb-8 grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex items-center">
           <div className="p-3 rounded-lg bg-blue-100">
@@ -233,7 +240,7 @@ const AdminEmployers: React.FC = () => {
             </button>
 
             <Link
-              to={`/admin-employers/view/${emp._id}`}
+              to={`/admin-employers/view/${emp.id}`}
               className="inline-flex items-center px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-200 transition-colors duration-200"
             >
               <VisibilityIcon sx={{ fontSize: 16, marginRight: 0.5 }} />

@@ -4,11 +4,10 @@ import {
   SUCCESS_MESSAGES,
   ERROR_MESSAGES,
 } from "../../shared/constants/constants";
-import { HTTP_STATUS } from "../../shared/httpStatus/httpStatus";
+import { HTTP_STATUS } from "../../shared/httpStatus/httpStatusCode";
 import { IPasswordController } from "../../interfaces/auth/IPasswordController";
 import { logger } from "../../shared/utils/logger";
 import { ApiError } from "../../shared/utils/ApiError";
-import { error } from "console";
 
 export class PasswordController implements IPasswordController {
   constructor(private _passwordService: IPasswordService) {}
@@ -21,7 +20,7 @@ export class PasswordController implements IPasswordController {
       res
         .status(HTTP_STATUS.OK)
         .json({ message: SUCCESS_MESSAGES.SEND_OTP_TO_MAIL, data: result });
-    } catch {
+    } catch (error: unknown) {
       const message =
         error instanceof Error ? error.message : ERROR_MESSAGES.SERVER_ERROR;
       logger.error("Failed to request password reset", {
@@ -43,16 +42,17 @@ export class PasswordController implements IPasswordController {
       res
         .status(HTTP_STATUS.OK)
         .json({ message: SUCCESS_MESSAGES.PASSWORD_RESET_SUCCESS });
-    } catch {
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : ERROR_MESSAGES.SERVER_ERROR;
+      logger.error("Failed to request password reset", {
+        error: message,
+        email: req.body.email,
+      });
       next(
         error instanceof ApiError
           ? error
-          : new ApiError(
-              HTTP_STATUS.BAD_REQUEST,
-              error instanceof Error
-                ? error.message
-                : ERROR_MESSAGES.SERVER_ERROR,
-            ),
+          : new ApiError(HTTP_STATUS.BAD_REQUEST, message),
       );
     }
   };

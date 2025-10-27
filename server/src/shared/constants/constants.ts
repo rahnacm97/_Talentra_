@@ -18,6 +18,8 @@ export const ERROR_MESSAGES = {
   USER_BLOCKED: "User blocked by admin.",
   INVALID_REFRESH_TOKEN: "Invalid refresh token",
   NO_REFRESH_TOKEN: "No valid refresh token found",
+  EMPLOYER_NOT_FOUND: "Employer not found",
+  CLOUDINARY_ERROR: "Failed to upload file to Cloudinary",
 } as const;
 
 export const SUCCESS_MESSAGES = {
@@ -33,4 +35,6 @@ export const SUCCESS_MESSAGES = {
   STATUS_UPDATED: "Status updated successfully.",
   CANDIDATE_FETCHED: "Candidate profile fetched successfully.",
   EMPLOYER_FETCHED: "Employer profile fetched successfully.",
+  CANDIDATE_UPDATED: "Candidate profile updated successfully",
+  EMPLOYER_UPDATED: "Employer profile updated successfully",
 } as const;

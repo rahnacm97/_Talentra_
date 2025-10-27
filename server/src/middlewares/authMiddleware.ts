@@ -4,7 +4,7 @@ import { CandidateRepository } from "../repositories/candidate/candidate.reposit
 import { EmployerRepository } from "../repositories/employer/employer.repository";
 import { AdminRepository } from "../repositories/admin/admin.repository";
 import { ERROR_MESSAGES } from "../shared/constants/constants";
-import { HTTP_STATUS } from "../shared/httpStatus/httpStatus";
+import { HTTP_STATUS } from "../shared/httpStatus/httpStatusCode";
 import { ICandidate } from "../interfaces/users/candidate/ICandidate";
 import { IEmployer } from "../interfaces/users/employer/IEmployer";
 import { IAdmin } from "../interfaces/users/admin/IAdmin";

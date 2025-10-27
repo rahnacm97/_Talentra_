@@ -6,13 +6,13 @@ import {
   CandidateResponseDTO,
 } from "../../dto/admin/candidate.dto";
 import { ICandidate } from "../../interfaces/users/candidate/ICandidate";
+import { ICandidateMapper } from "../../interfaces/users/admin/ICandidateMapper";
 
 export class AdminCandidateService implements IAdminCandidateService {
-  private _candidateRepo: CandidateRepository;
-
-  constructor(candidateRepo: CandidateRepository) {
-    this._candidateRepo = candidateRepo;
-  }
+  constructor(
+    private _candidateRepo: CandidateRepository,
+    private _candidateMapper: ICandidateMapper,
+  ) {}
 
   async getAllCandidates(
     page: number,
@@ -29,15 +29,10 @@ export class AdminCandidateService implements IAdminCandidateService {
 
     const candidates = await this._candidateRepo.findAll(query, page, limit);
     const total = await this._candidateRepo.count(query);
-
     return {
-      data: candidates.map((c) => ({
-        id: c._id.toString(),
-        name: c.name,
-        email: c.email,
-        resume: c.resume || "",
-        blocked: c.blocked,
-      })),
+      data: candidates.map((c) =>
+        this._candidateMapper.toCandidateResponseDTO(c),
+      ),
       total,
     };
   }
@@ -45,31 +40,19 @@ export class AdminCandidateService implements IAdminCandidateService {
   async blockUnblockCandidate(
     data: BlockCandidateDTO,
   ): Promise<CandidateResponseDTO> {
+    const candidateEntity = this._candidateMapper.toBlockCandidateEntity(data);
     const candidate = await this._candidateRepo.updateBlockStatus(
-      data.candidateId,
-      data.block,
+      candidateEntity.candidateId,
+      candidateEntity.block,
     );
     if (!candidate) throw new Error("Candidate not found");
 
-    return {
-      id: candidate._id.toString(),
-      name: candidate.name,
-      email: candidate.email,
-      resume: candidate.resume || "",
-      blocked: candidate.blocked,
-    };
+    return this._candidateMapper.toCandidateResponseDTO(candidate);
   }
 
   async getCandidateById(id: string): Promise<CandidateResponseDTO | null> {
     const candidate = await this._candidateRepo.findById(id);
     if (!candidate) return null;
-
-    return {
-      id: candidate._id.toString(),
-      name: candidate.name,
-      email: candidate.email,
-      resume: candidate.resume || "",
-      blocked: candidate.blocked,
-    };
+    return this._candidateMapper.toCandidateResponseDTO(candidate);
   }
 }

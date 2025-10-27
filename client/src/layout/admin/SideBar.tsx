@@ -50,27 +50,31 @@ const Sidebar: React.FC = () => {
       description: "Manage Companies",
     },
     {
-      path: "/admin-jobs",
+      path: FRONTEND_ROUTES.ADMINJOBS,
       label: "Jobs",
       icon: WorkIcon,
       description: "Job Postings",
     },
     {
-      path: "/admin-settings",
-      label: "Settings",
-      icon: SettingsIcon,
-      description: "System Configuration",
-    },
-    {
-      path: "/admin-notification",
+      path: FRONTEND_ROUTES.ADMINNOTIFICATIONS,
       label: "Notifications",
       icon: NotificationsNoneIcon,
       description: "Notifications",
     },
+    {
+      path: FRONTEND_ROUTES.ADMINSETTINGS,
+      label: "Settings",
+      icon: SettingsIcon,
+      description: "System Configuration",
+    },
   ];
 
   const isActiveRoute = (path: string) => {
-    return location.pathname === path;
+    return (
+      location.pathname === path ||
+      (path !== FRONTEND_ROUTES.ADMIN_DASHBOARD &&
+        location.pathname.startsWith(path))
+    );
   };
 
   return (

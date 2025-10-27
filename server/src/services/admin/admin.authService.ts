@@ -4,26 +4,34 @@ import bcrypt from "bcryptjs";
 import { IAdmin } from "../../interfaces/users/admin/IAdmin";
 import { ITokenService } from "../../interfaces/auth/ITokenService";
 import { IUserReader } from "../../interfaces/auth/IAuthRepository";
+import { IAdminMapper } from "../../interfaces/users/admin/IAdminMapper";
+import { ApiError } from "../../shared/utils/ApiError";
+import { HTTP_STATUS } from "../../shared/httpStatus/httpStatusCode";
+import { ERROR_MESSAGES } from "../../shared/constants/constants";
 
 export class AdminAuthService implements IAdminAuthService {
   constructor(
     private _adminRepository: IUserReader<IAdmin>,
     private _tokenService: ITokenService,
+    private _adminMapper: IAdminMapper,
   ) {}
+
   async login(data: AdminLoginDTO) {
-    const admin = await this._adminRepository.findByEmail(data.email);
+    if (!data.email || !data.password) {
+      throw new ApiError(
+        HTTP_STATUS.BAD_REQUEST,
+        ERROR_MESSAGES.INVALID_CREDENTIALS,
+      );
+    }
+    const adminEntity = this._adminMapper.toAdminEntity(data);
+    const admin = await this._adminRepository.findByEmail(adminEntity.email);
+
     if (!admin) throw new Error("Admin not found");
 
     const isMatch = await bcrypt.compare(data.password, admin.password);
     if (!isMatch) throw new Error("Invalid credentials");
 
-    const userData = {
-      _id: admin.id.toString(),
-      email: admin.email,
-      name: admin.name,
-      role: "Admin" as const,
-      emailVerified: true,
-    };
+    const userData = this._adminMapper.toAdminResponseDTO(admin);
 
     const accessToken = this._tokenService.generateAccessToken({
       id: userData._id,

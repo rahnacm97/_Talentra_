@@ -2,7 +2,7 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import passport from "passport";
 import { detectUserByEmailForGoogle } from "../../shared/utils/user.utils";
 import { GoogleAuthUserRepoMap } from "../../types/types";
-import jwt from "jsonwebtoken";
+import jwt, { SignOptions } from "jsonwebtoken";
 import type { UserType } from "../../interfaces/auth/IAuthService";
 import type { GoogleAuthUser, GoogleAuthUserData } from "../../types/types";
 
@@ -69,13 +69,17 @@ export class GoogleAuthService {
             const accessTokenJwt = jwt.sign(
               { id: userData._id, email: userData.email, role },
               process.env.JWT_SECRET!,
-              { expiresIn: process.env.JWT_ACCESS_EXPIRY || "1h" },
+              {
+                expiresIn: process.env.JWT_ACCESS_EXPIRY || "1h",
+              } as SignOptions,
             );
 
             const refreshTokenJwt = jwt.sign(
               { id: userData._id, email: userData.email, role },
               process.env.JWT_REFRESH_SECRET!,
-              { expiresIn: process.env.JWT_REFRESH_EXPIRY || "7d" },
+              {
+                expiresIn: process.env.JWT_REFRESH_EXPIRY || "7d",
+              } as SignOptions,
             );
 
             return done(null, {

@@ -13,17 +13,31 @@ import { ITokenService } from "../../interfaces/auth/ITokenService";
 import { IUserReader } from "../../interfaces/auth/IAuthRepository";
 import { IAdmin } from "../../interfaces/users/admin/IAdmin";
 import { AdminRepository } from "../../repositories/admin/admin.repository";
+import { AdminMapper } from "../../mappers/admin/admin.mapper";
+import { CandidateMapper } from "../../mappers/admin/adminCandidate.mapper";
+import { EmployerMapper } from "../../mappers/admin/adminEmployer.mapper";
 
 const router = Router();
 const adminRepository: IUserReader<IAdmin> = new AdminRepository();
 const tokenService: ITokenService = new TokenService();
+const adminMapper = new AdminMapper();
+const candidateMapper = new CandidateMapper();
+const employerMapper = new EmployerMapper();
 
 // Services
-const adminAuthService = new AdminAuthService(adminRepository, tokenService);
+const adminAuthService = new AdminAuthService(
+  adminRepository,
+  tokenService,
+  adminMapper,
+);
 const adminCandidateService = new AdminCandidateService(
   new CandidateRepository(),
+  candidateMapper,
 );
-const adminEmployerService = new AdminEmployerService(new EmployerRepository());
+const adminEmployerService = new AdminEmployerService(
+  new EmployerRepository(),
+  employerMapper,
+);
 
 // Controllers
 const adminAuthController = new AdminAuthController(adminAuthService);

@@ -7,6 +7,8 @@ export interface IEmployer {
   website: string;
   industry: string;
   companySize: string;
+  profileImage: string;
+  businessLicense: string;
   founded: string;
   about: string;
   benefits: string[];
@@ -16,6 +18,7 @@ export interface IEmployer {
     facebook: string;
   };
   postedJobs: PostedJob[];
+  cinNumber: string;
   stats: {
     totalJobs: number;
     activeJobs: number;
@@ -55,10 +58,39 @@ export interface EmployerProfileData {
     facebook: string;
   };
   postedJobs: PostedJob[];
+  cinNumber: string;
+  businessLicense: string;
+  profileImage: string;
   stats: {
     totalJobs: number;
     activeJobs: number;
     totalApplicants: number;
     hiredThisMonth: number;
   };
+}
+
+export interface Interview {
+  id: string;
+  candidateName: string;
+  jobTitle: string;
+  date: string;
+  time: string;
+  status: "Scheduled" | "Completed" | "Canceled";
+}
+
+export interface EmployerState {
+  interviews: Interview[];
+  loading: boolean;
+  error: string | null;
+  notifications: Notification[];
+}
+
+export interface Notification {
+  id: string;
+  type: "Applications" | "Interviews" | "Messages";
+  message: string;
+  candidateName?: string;
+  jobTitle?: string;
+  timestamp: string;
+  isRead: boolean;
 }

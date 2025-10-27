@@ -6,9 +6,13 @@ import {
   EmployerResponseDTO,
 } from "../../dto/admin/employer.dto";
 import { IEmployer } from "../../interfaces/users/employer/IEmployer";
+import { IEmployerMapper } from "../../interfaces/users/admin/IEmployerMapper";
 
 export class AdminEmployerService implements IAdminEmployerService {
-  constructor(private _employerRepo: EmployerRepository) {}
+  constructor(
+    private _employerRepo: EmployerRepository,
+    private _employerMapper: IEmployerMapper,
+  ) {}
 
   async getAllEmployers(
     page: number,
@@ -27,15 +31,7 @@ export class AdminEmployerService implements IAdminEmployerService {
     const total = await this._employerRepo.count(query);
 
     return {
-      data: employers.map((e) => ({
-        id: e._id.toString(),
-        name: e.name,
-        email: e.email,
-        verified: e.verified,
-        blocked: e.blocked,
-        joinDate: e.joinDate ? e.joinDate.toISOString() : "",
-        jobsPosted: e.jobsPosted ?? 0,
-      })),
+      data: employers.map((e) => this._employerMapper.toEmployerResponseDTO(e)),
       total,
     };
   }
@@ -43,35 +39,30 @@ export class AdminEmployerService implements IAdminEmployerService {
   async blockUnblockEmployer(
     data: BlockEmployerDTO,
   ): Promise<EmployerResponseDTO> {
+    const employerEntity = this._employerMapper.toBlockEmployerEntity(data);
     const employer = await this._employerRepo.updateBlockStatus(
-      data.employerId,
-      data.block,
+      employerEntity.employerId,
+      employerEntity.block,
     );
     if (!employer) throw new Error("Employer not found");
 
-    return {
-      id: employer._id.toString(),
-      name: employer.name,
-      email: employer.email,
-      verified: employer.verified,
-      blocked: employer.blocked,
-      joinDate: employer.joinDate ? employer.joinDate?.toISOString() : "",
-      jobsPosted: employer.jobsPosted ?? 0,
-    };
+    return this._employerMapper.toEmployerResponseDTO(employer);
   }
 
   async getEmployerById(id: string): Promise<EmployerResponseDTO | null> {
     const employer = await this._employerRepo.findById(id);
     if (!employer) return null;
 
-    return {
-      id: employer._id.toString(),
-      name: employer.name,
-      email: employer.email,
-      verified: employer.verified,
-      blocked: employer.blocked,
-      joinDate: employer.joinDate ? employer.joinDate?.toISOString() : "",
-      jobsPosted: employer.jobsPosted ?? 0,
-    };
+    return this._employerMapper.toEmployerResponseDTO(employer);
+  }
+
+  async verifyEmployer(id: string): Promise<EmployerResponseDTO> {
+    const employer = await this._employerRepo.updateVerificationStatus(
+      id,
+      true,
+    );
+    if (!employer) throw new Error("Employer not found");
+
+    return this._employerMapper.toEmployerResponseDTO(employer);
   }
 }

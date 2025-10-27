@@ -10,7 +10,6 @@ import Table from "../../components/admin/Table";
 import Pagination from "../../components/admin/Pagination";
 import Modal from "../../components/admin/Modal";
 import SearchInput from "../../components/admin/SearchInput";
-
 import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
 import {
   fetchCandidates,
@@ -35,20 +34,13 @@ const AdminCandidates: React.FC = () => {
   const itemsPerPage = 5;
 
   useEffect(() => {
-    console.log("AdminCandidates - Dispatching fetchCandidates:", {
-      page: currentPage,
-      limit: itemsPerPage,
-      search: searchTerm,
-    });
     dispatch(
       fetchCandidates({
         page: currentPage,
         limit: itemsPerPage,
         search: searchTerm,
       }),
-    ).then((result) => {
-      console.log("AdminCandidates - fetchCandidates result:", result);
-    });
+    ).then(() => {});
   }, [dispatch, currentPage, searchTerm]);
 
   const openModal = (id: string, name: string, blocked: boolean) => {
@@ -90,7 +82,7 @@ const AdminCandidates: React.FC = () => {
           Candidate Management
         </h1>
         <p className="text-gray-600">
-          Manage and monitor all registered candidates on your platform.
+          Manage and monitor all registered Candidates on this platform.
         </p>
       </div>
 
@@ -150,7 +142,6 @@ const AdminCandidates: React.FC = () => {
         </div>
       </div>
 
-      {/* Search + Filter */}
       <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
         <SearchInput
           value={searchTerm}
@@ -164,7 +155,6 @@ const AdminCandidates: React.FC = () => {
         </div>
       </div>
 
-      {/* Table */}
       {loading ? (
         <p>Loading...</p>
       ) : (
@@ -175,7 +165,21 @@ const AdminCandidates: React.FC = () => {
               { key: "name", label: "Candidate" },
               { key: "email", label: "Email" },
               { key: "resume", label: "Resume" },
-              { key: "status", label: "Status" },
+              {
+                key: "status",
+                label: "Status",
+                render: (value: any, row: any) => (
+                  <span
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      row.blocked
+                        ? "bg-red-100 text-red-800"
+                        : "bg-green-100 text-green-800"
+                    }`}
+                  >
+                    {row.blocked ? "Blocked" : "Active"}
+                  </span>
+                ),
+              },
             ]}
             renderActions={(candidate: any) => (
               <div className="flex items-center space-x-2">

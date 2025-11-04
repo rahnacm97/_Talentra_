@@ -1,6 +1,6 @@
 import { api } from "../../api/api";
 import type { AdminLoginRequest } from "../../types/admin/admin.types";
-import { API_ROUTES } from "../../shared/constants";
+import { API_ROUTES } from "../../shared/constants/constants";
 import type {
   Candidate,
   CandidateListResponse,
@@ -10,7 +10,10 @@ import type {
   GetAllEmployersResponse,
   GetAllEmployersParams,
 } from "../../types/admin/admin.employer.types";
-
+import type {
+  GetAdminJobsParams,
+  AdminJobsResponse,
+} from "../../types/admin/admin.jobs.types";
 export const loginAdmin = async (data: AdminLoginRequest) => {
   const response = await api.post(API_ROUTES.ADMIN.ADMINLOGIN, data);
   return response.data;
@@ -83,7 +86,23 @@ export const verifyEmployerApi = async (
   employerId: string,
 ): Promise<{ employer: EmployerResponseDTO; message: string }> => {
   const response = await api.patch(
-    `${API_ROUTES.ADMIN.VERIFY_EMPLOYER}/${employerId}`,
+    `${API_ROUTES.ADMIN.VERIFY_EMPLOYER}/${employerId}/verify`,
   );
   return response.data;
 };
+
+export const rejectEmployerApi = async (
+  employerId: string,
+  reason: string,
+): Promise<{ employer: EmployerResponseDTO; message: string }> => {
+  const response = await api.patch(
+    `${API_ROUTES.ADMIN.EMPLOYERS}/${employerId}/reject`,
+    { reason },
+  );
+  return response.data;
+};
+
+export const getAdminJobs = (
+  params: GetAdminJobsParams,
+): Promise<AdminJobsResponse> =>
+  api.get(API_ROUTES.ADMIN.JOBS, { params }).then((res) => res.data);

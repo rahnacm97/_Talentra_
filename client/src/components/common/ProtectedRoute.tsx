@@ -1,7 +1,7 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../app/store";
-import { FRONTEND_ROUTES } from "../../shared/constants";
+import { FRONTEND_ROUTES } from "../../shared/constants/constants";
 
 export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, accessToken, isInitialized, error } = useSelector(

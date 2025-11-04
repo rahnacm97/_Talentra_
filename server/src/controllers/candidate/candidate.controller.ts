@@ -9,13 +9,18 @@ import {
   UpdateProfileResponse,
 } from "../../interfaces/users/candidate/ICandidateController";
 import { ICandidateService } from "../../interfaces/users/candidate/ICandidateService";
+import { IApplicationService } from "../../interfaces/applications/IApplicationService";
 import { logger } from "../../shared/utils/logger";
 import { ApiError } from "../../shared/utils/ApiError";
 import { error } from "console";
 import { ProfileData } from "../../types/candidate/candidate.types";
+import { ApplicationResponseDto } from "../../dto/application/application.dto";
 
 export class CandidateController implements ICandidateController {
-  constructor(private _candidateService: ICandidateService) {}
+  constructor(
+    private _candidateService: ICandidateService,
+    private _applicationService: IApplicationService,
+  ) {}
   async getProfile(
     req: Request<{ id: string }>,
     res: Response,
@@ -103,6 +108,48 @@ export class CandidateController implements ICandidateController {
           ? err
           : new ApiError(HTTP_STATUS.INTERNAL_SERVER_ERROR, message),
       );
+    }
+  }
+
+  async applyJob(
+    req: Request<{ candidateId: string; jobId: string }>,
+    res: Response<{ message: string; data: ApplicationResponseDto }>,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const { jobId } = req.params;
+      const candidateId = (req.user as { id: string; role: string }).id;
+
+      if (req.params.candidateId !== candidateId) {
+        throw new ApiError(HTTP_STATUS.FORBIDDEN, ERROR_MESSAGES.NOT_AUTHENTICATED);
+      }
+
+      const { fullName, email, phone, coverLetter } = req.body;
+      const resumeFile = req.file as Express.Multer.File;
+
+      if (!resumeFile) {
+        throw new ApiError(HTTP_STATUS.BAD_REQUEST, ERROR_MESSAGES.RESUME_REQUIRED);
+      }
+
+      const application = await this._applicationService.apply(
+        jobId,
+        candidateId,
+        {
+          fullName,
+          email,
+          phone,
+          coverLetter,
+          resumeFile,
+        },
+      );
+
+      res.status(HTTP_STATUS.CREATED).json({
+        message: SUCCESS_MESSAGES.APPLICATION_CREATED,
+        data: application,
+      });
+    } catch (err) {
+      logger.error("Apply job failed", { error: err });
+      next(err);
     }
   }
 }

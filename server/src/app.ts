@@ -6,6 +6,7 @@ import candidateRoute from "./routes/candidate/candidate.routes";
 import authRoute from "./routes/auth/auth.routes";
 import adminRoute from "./routes/admin/admin.routes";
 import employerRoute from "./routes/employer/employer.routes";
+import jobRoutes from "./routes/job/job.routes";
 import { errorHandler } from "./middlewares/errorHandler";
 import dotenv from "dotenv";
 
@@ -29,6 +30,7 @@ app.use("/api/auth", authRoute);
 app.use("/api/admin", adminRoute);
 app.use("/api/candidate", candidateRoute);
 app.use("/api/employer", employerRoute);
+app.use("/api/jobs", jobRoutes);
 
 app.use(errorHandler);
 

@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { useAppDispatch } from "../../hooks/hooks";
 import { logout } from "../../features/auth/authSlice";
-import { FRONTEND_ROUTES } from "../../shared/constants";
+import { FRONTEND_ROUTES } from "../../shared/constants/constants";
 
 interface SidebarItem {
   id: string;

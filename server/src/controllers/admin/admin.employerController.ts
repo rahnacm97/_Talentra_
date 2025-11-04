@@ -140,4 +140,34 @@ export class AdminEmployerController implements IAdminEmployerController {
       );
     }
   };
+
+  rejectEmployer = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+      const { reason } = req.body;
+
+      if (!id || !reason?.trim()) {
+        return res
+          .status(HTTP_STATUS.BAD_REQUEST)
+          .json({ message: "Employer ID and reason are required" });
+      }
+
+      const employer = await this._employerService.rejectEmployer(id, reason);
+      res
+        .status(HTTP_STATUS.OK)
+        .json({ employer, message: "Employer verification rejected" });
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : ERROR_MESSAGES.SERVER_ERROR;
+      logger.error("Failed to reject employer", {
+        error: message,
+        id: req.params.id,
+      });
+      next(
+        error instanceof ApiError
+          ? error
+          : new ApiError(HTTP_STATUS.INTERNAL_SERVER_ERROR, message),
+      );
+    }
+  };
 }

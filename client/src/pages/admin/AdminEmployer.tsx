@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
 import { fetchEmployers, blockUnblockEmployer } from "../../thunks/admin.thunk";
-import FilterListIcon from "@mui/icons-material/FilterList";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import BlockIcon from "@mui/icons-material/Block";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -10,11 +9,12 @@ import BusinessIcon from "@mui/icons-material/Business";
 import EmailIcon from "@mui/icons-material/Email";
 import VerifiedIcon from "@mui/icons-material/Verified";
 import WarningIcon from "@mui/icons-material/Warning";
-import AddIcon from "@mui/icons-material/Add";
+//import AddIcon from "@mui/icons-material/Add";
 import Table from "../../components/admin/Table";
 import Pagination from "../../components/admin/Pagination";
 import Modal from "../../components/admin/Modal";
 import SearchInput from "../../components/admin/SearchInput";
+import { CountCard } from "../../components/admin/CountCard";
 
 const AdminEmployers: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -84,62 +84,49 @@ const AdminEmployers: React.FC = () => {
           Manage and monitor all registered Employers on this platform.
         </p>
       </div>
+
       <div className="mb-8 grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex items-center">
-          <div className="p-3 rounded-lg bg-blue-100">
-            <BusinessIcon sx={{ fontSize: 24, color: "#2563eb" }} />
-          </div>
-          <div className="ml-4">
-            <h3 className="text-2xl font-bold text-gray-900">{total}</h3>
-            <p className="text-gray-600 text-sm">Total Employers</p>
-          </div>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex items-center">
-          <div className="p-3 rounded-lg bg-green-100">
-            <VerifiedIcon sx={{ fontSize: 24, color: "#10b981" }} />
-          </div>
-          <div className="ml-4">
-            <h3 className="text-2xl font-bold text-gray-900">
-              {verifiedCount}
-            </h3>
-            <p className="text-gray-600 text-sm">Verified Employers</p>
-          </div>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex items-center">
-          <div className="p-3 rounded-lg bg-red-100">
-            <BlockIcon sx={{ fontSize: 24, color: "#ef4444" }} />
-          </div>
-          <div className="ml-4">
-            <h3 className="text-2xl font-bold text-gray-900">{blockedCount}</h3>
-            <p className="text-gray-600 text-sm">Blocked Employers</p>
-          </div>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex items-center">
-          <div className="p-3 rounded-lg bg-orange-100">
-            <WarningIcon sx={{ fontSize: 24, color: "#f59e0b" }} />
-          </div>
-          <div className="ml-4">
-            <h3 className="text-2xl font-bold text-gray-900">{pendingCount}</h3>
-            <p className="text-gray-600 text-sm">Pending Verification</p>
-          </div>
-        </div>
+        <CountCard
+          label="Total Employers"
+          count={total}
+          icon={BusinessIcon}
+          iconBg="bg-blue-100"
+          iconColor="#2563eb"
+        />
+        <CountCard
+          label="Verified Employers"
+          count={verifiedCount}
+          icon={VerifiedIcon}
+          iconBg="bg-green-100"
+          iconColor="#10b981"
+        />
+        <CountCard
+          label="Blocked Employers"
+          count={blockedCount}
+          icon={BlockIcon}
+          iconBg="bg-red-100"
+          iconColor="#ef4444"
+        />
+        <CountCard
+          label="Pending Verification"
+          count={pendingCount}
+          icon={WarningIcon}
+          iconBg="bg-orange-100"
+          iconColor="#f59e0b"
+        />
       </div>
 
-      {/* Search and Actions */}
       <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
         <SearchInput
           value={searchTerm}
           onChange={(e: any) => setSearchTerm(e.target.value)}
+          placeholder="Search by company name or email…"
         />
         <div className="flex items-center space-x-3">
-          <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors duration-200">
-            <FilterListIcon sx={{ fontSize: 18, marginRight: 1 }} />
-            Filter
-          </button>
-          <button className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
+          {/* <button className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
             <AddIcon sx={{ fontSize: 18, marginRight: 1 }} />
             Add Employer
-          </button>
+          </button> */}
         </div>
       </div>
 

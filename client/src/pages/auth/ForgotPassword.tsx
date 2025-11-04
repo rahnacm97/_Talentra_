@@ -7,7 +7,7 @@ import { sendOtpApi } from "../../features/auth/authApi";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { setForgotPasswordEmail } from "../../features/auth/authSlice";
-import { FRONTEND_ROUTES } from "../../shared/constants";
+import { FRONTEND_ROUTES } from "../../shared/constants/constants";
 
 const ForgotPassword: React.FC = () => {
   const [email, setEmail] = useState("");

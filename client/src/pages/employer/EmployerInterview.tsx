@@ -22,7 +22,7 @@ import type {
   Interview,
   EmployerState,
 } from "../../types/employer/employer.types";
-import { FRONTEND_ROUTES } from "../../shared/constants";
+import { FRONTEND_ROUTES } from "../../shared/constants/constants";
 import { useNavigate } from "react-router-dom";
 
 const EmployerInterview: React.FC = () => {

@@ -1,11 +1,17 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { getEmployerProfileApi } from "../features/employer/employerApi";
+import {
+  getEmployerProfileApi,
+  updateEmployerProfileApi,
+  fetchEmployerJobsApi,
+  postJobApi,
+  updateJobApi,
+  closeJobApi,
+  fetchInterviewsApi,
+  updateInterviewStatusApi,
+  fetchNotificationsApi,
+  markNotificationAsReadApi,
+} from "../features/employer/employerApi";
 import { toast } from "react-toastify";
-import api from "../api/api";
-import type { Interview } from "../types/employer/employer.types";
-import axios from "axios";
-import { API_ROUTES } from "../shared/constants";
-const API_URL = "http://your-api-base-url/api";
 
 export const fetchEmployerProfile = createAsyncThunk(
   "employer/fetchProfile",
@@ -15,7 +21,6 @@ export const fetchEmployerProfile = createAsyncThunk(
       return response;
     } catch (error: any) {
       if (error.response?.status === 403) {
-        //toast.error("You have been blocked by admin");
       } else {
         toast.error("Failed to load profile");
       }
@@ -31,17 +36,91 @@ export const updateEmployerProfile = createAsyncThunk(
     { rejectWithValue },
   ) => {
     try {
-      const response = await api.put(
-        API_ROUTES.EMPLOYER.PROFILE(employerId),
-        data,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        },
-      );
-      return response.data.data;
+      return await updateEmployerProfileApi(employerId, data);
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to update profile");
       return rejectWithValue(error.response?.data || error.message);
+    }
+  },
+);
+
+export const fetchEmployerJobs = createAsyncThunk(
+  "employer/fetchJobs",
+  async (
+    {
+      employerId,
+      page = 1,
+      limit = 3,
+      search = "",
+      status = "all",
+    }: {
+      employerId: string;
+      page?: number;
+      limit?: number;
+      search?: string;
+      status?: string;
+    },
+    { rejectWithValue },
+  ) => {
+    try {
+      return await fetchEmployerJobsApi(employerId, {
+        page,
+        limit,
+        search,
+        status,
+      });
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to fetch jobs",
+      );
+    }
+  },
+);
+
+export const postJob = createAsyncThunk(
+  "employer/postJob",
+  async (
+    { employerId, job }: { employerId: string; job: any },
+    { rejectWithValue },
+  ) => {
+    try {
+      return await postJobApi(employerId, job);
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to post job",
+      );
+    }
+  },
+);
+
+export const updateJob = createAsyncThunk(
+  "employer/updateJob",
+  async (
+    { employerId, jobId, job }: { employerId: string; jobId: string; job: any },
+    { rejectWithValue },
+  ) => {
+    try {
+      return await updateJobApi(employerId, jobId, job);
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to update job",
+      );
+    }
+  },
+);
+
+export const closeJob = createAsyncThunk(
+  "employer/closeJob",
+  async (
+    { employerId, jobId }: { employerId: string; jobId: string },
+    { rejectWithValue },
+  ) => {
+    try {
+      return await closeJobApi(employerId, jobId);
+    } catch (err: any) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to close job",
+      );
     }
   },
 );
@@ -50,8 +129,7 @@ export const fetchInterviews = createAsyncThunk(
   "employer/fetchInterviews",
   async (employerId: string, { rejectWithValue }) => {
     try {
-      const response = await api.get(`/employer/${employerId}/interviews`);
-      return response.data as Interview[];
+      return await fetchInterviewsApi(employerId);
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch interviews",
@@ -71,11 +149,7 @@ export const updateInterviewStatus = createAsyncThunk(
     { rejectWithValue },
   ) => {
     try {
-      const response = await api.put(
-        `/employer/${employerId}/interviews/${interviewId}`,
-        { status },
-      );
-      return response.data as Interview;
+      return await updateInterviewStatusApi(employerId, interviewId, status);
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to update interview status",
@@ -84,15 +158,11 @@ export const updateInterviewStatus = createAsyncThunk(
   },
 );
 
-// Fetch notifications for an employer
 export const fetchNotifications = createAsyncThunk(
   "employer/fetchNotifications",
   async (employerId: string, { rejectWithValue }) => {
     try {
-      const response = await axios.get(
-        `${API_URL}/notifications/${employerId}`,
-      );
-      return response.data;
+      return await fetchNotificationsApi(employerId);
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch notifications",
@@ -101,7 +171,6 @@ export const fetchNotifications = createAsyncThunk(
   },
 );
 
-// Mark a notification as read
 export const markNotificationAsRead = createAsyncThunk(
   "employer/markNotificationAsRead",
   async (
@@ -112,11 +181,7 @@ export const markNotificationAsRead = createAsyncThunk(
     { rejectWithValue },
   ) => {
     try {
-      const response = await axios.patch(
-        `${API_URL}/notifications/${notificationId}/read`,
-        { employerId },
-      );
-      return response.data;
+      return await markNotificationAsReadApi(notificationId, employerId);
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to mark notification as read",

@@ -20,7 +20,7 @@ import {
 } from "../../thunks/employer.thunk";
 import type { EmployerProfileData } from "../../types/employer/employer.types";
 import { useNavigate } from "react-router-dom";
-import { FRONTEND_ROUTES } from "../../shared/constants";
+import { FRONTEND_ROUTES } from "../../shared/constants/constants";
 import EmployerModal from "../../components/employer/EmployerModal";
 import { toast } from "react-toastify";
 
@@ -76,7 +76,6 @@ const EmployerProfile: React.FC = () => {
             err?.status === 403 ||
             err?.message === "You have been blocked by admin"
           ) {
-            toast.error("You have been blocked by admin");
             navigate(FRONTEND_ROUTES.LOGIN);
           } else {
             toast.error("Failed to load profile");

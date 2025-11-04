@@ -8,10 +8,11 @@ import { HTTP_STATUS } from "../shared/httpStatus/httpStatusCode";
 import { ICandidate } from "../interfaces/users/candidate/ICandidate";
 import { IEmployer } from "../interfaces/users/employer/IEmployer";
 import { IAdmin } from "../interfaces/users/admin/IAdmin";
+import { USER_ROLES, UserRole } from "../shared/constants/constants";
 
 const tokenService = new TokenService();
 
-type UserRole = "Candidate" | "Employer" | "Admin";
+//type UserRole = "Candidate" | "Employer" | "Admin";
 type AuthUser = ICandidate | IEmployer | IAdmin;
 
 export const verifyAuth =

@@ -31,16 +31,14 @@ import type {
   Certification,
 } from "../../types/candidate/candidate.types";
 import { useNavigate } from "react-router-dom";
-import { FRONTEND_ROUTES } from "../../shared/constants";
+//import { FRONTEND_ROUTES } from "../../shared/constants/constants";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "react-toastify";
 import ProfileModal from "../../components/candidate/ProfileModal";
 
 const CandidateProfile: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { profile, loading, error } = useAppSelector(
-    (state) => state.candidate,
-  );
+  const { profile, loading } = useAppSelector((state) => state.candidate);
   const auth = useAppSelector((state) => state.auth);
   const navigate = useNavigate();
 
@@ -77,16 +75,16 @@ const CandidateProfile: React.FC = () => {
     if (auth.user?._id) {
       dispatch(fetchCandidateProfile(auth.user._id))
         .unwrap()
-        .catch((err: any) => {
-          if (
-            err?.message?.includes("blocked") ||
-            err?.status === 403 ||
-            err?.message === "You have been blocked by admin"
-          ) {
-            console.log(err);
-            navigate(FRONTEND_ROUTES.LOGIN);
-          }
-        });
+        // .catch((err: any) => {
+        //   if (
+        //     err?.message?.includes("blocked") ||
+        //     err?.status === 403 ||
+        //     err?.message === "You have been blocked by admin"
+        //   ) {
+        //     console.log(err);
+        //     navigate(FRONTEND_ROUTES.LOGIN);
+        //   }
+        // });
     }
   }, [auth.user, dispatch, navigate]);
 
@@ -108,12 +106,6 @@ const CandidateProfile: React.FC = () => {
       });
     }
   }, [profile]);
-
-  useEffect(() => {
-    if (error) {
-      toast.error(error);
-    }
-  }, [error]);
 
   const handleInputChange = (
     field: keyof ProfileData,

@@ -3,7 +3,7 @@ import type {
   ICandidate,
   ProfileData,
 } from "../../types/candidate/candidate.types";
-import { API_ROUTES } from "../../shared/constants";
+import { API_ROUTES } from "../../shared/constants/constants";
 
 export const getCandidateProfileApi = async (
   candidateId: string,
@@ -25,6 +25,19 @@ export const updateCandidateProfileApi = async (
         ? { "Content-Type": "multipart/form-data" }
         : undefined,
     },
+  );
+  return response.data.data;
+};
+
+export const applyJobApi = async (
+  candidateId: string,
+  jobId: string,
+  data: FormData,
+): Promise<any> => {
+  const response = await api.post(
+    API_ROUTES.CANDIDATE.APPLY(candidateId, jobId),
+    data,
+    { headers: { "Content-Type": "multipart/form-data" } },
   );
   return response.data.data;
 };

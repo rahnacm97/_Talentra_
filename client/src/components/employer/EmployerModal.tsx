@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { toast } from "react-toastify";
 import { api } from "../../api/api";
-import { API_ROUTES } from "../../shared/constants";
+import { API_ROUTES } from "../../shared/constants/constants";
 import { useAppSelector } from "../../hooks/hooks";
 import type { EmployerProfileData } from "../../types/employer/employer.types";
 
@@ -49,7 +49,7 @@ const EmployerModal: React.FC<EmployerModalProps> = ({
         toast.error("Please upload a PDF or DOC file");
         return;
       }
-      const maxSize = 5 * 1024 * 1024; // 5MB
+      const maxSize = 5 * 1024 * 1024;
       if (selectedFile.size > maxSize) {
         toast.error("File size must be less than 5MB");
         return;
@@ -62,7 +62,7 @@ const EmployerModal: React.FC<EmployerModalProps> = ({
         toast.error("Please upload a PNG, JPEG, or JPG file");
         return;
       }
-      const maxSize = 2 * 1024 * 1024; // 2MB
+      const maxSize = 2 * 1024 * 1024;
       if (selectedFile.size > maxSize) {
         toast.error("Image size must be less than 2MB");
         return;
@@ -116,7 +116,11 @@ const EmployerModal: React.FC<EmployerModalProps> = ({
     try {
       setIsUploading(true);
       const formData = new FormData();
-      formData.append(type, file);
+      if (type === "license") {
+        formData.append("businessLicense", file);
+      } else if (type === "profileImage") {
+        formData.append("profileImage", file);
+      }
       formData.append("name", profileData.name);
       formData.append("email", profileData.email);
       formData.append("phone", profileData.phone);

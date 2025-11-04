@@ -1,133 +1,72 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import FilterListIcon from "@mui/icons-material/FilterList";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import ToggleOnIcon from "@mui/icons-material/ToggleOn";
-import ToggleOffIcon from "@mui/icons-material/ToggleOff";
-import WorkIcon from "@mui/icons-material/Work";
-import BusinessIcon from "@mui/icons-material/Business";
-import ScheduleIcon from "@mui/icons-material/Schedule";
-import AddIcon from "@mui/icons-material/Add";
+import React, { useEffect, useState } from "react";
+import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
+import type { AdminJob } from "../../types/admin/admin.jobs.types";
+import { fetchAdminJobs } from "../../thunks/admin.thunk";
 import Table from "../../components/admin/Table";
 import Pagination from "../../components/admin/Pagination";
 import Modal from "../../components/admin/Modal";
 import SearchInput from "../../components/admin/SearchInput";
+import { CountCard } from "../../components/admin/CountCard";
+import ToggleOnIcon from "@mui/icons-material/ToggleOn";
+import ToggleOffIcon from "@mui/icons-material/ToggleOff";
+import WorkIcon from "@mui/icons-material/Work";
+import ScheduleIcon from "@mui/icons-material/Schedule";
+import { useDebounce } from "../../hooks/UseDebounce";
 
 const AdminJobs: React.FC = () => {
-  // Mock job data
-  const mockJobs = [
-    {
-      _id: "1",
-      title: "Software Engineer",
-      companyName: "Tech Corp",
-      jobType: "Full-time",
-      applications: 25,
-      isActive: true,
-    },
-    {
-      _id: "2",
-      title: "Product Manager",
-      companyName: "Innovate Inc",
-      jobType: "Part-time",
-      applications: 10,
-      isActive: false,
-    },
-    {
-      _id: "3",
-      title: "Data Analyst",
-      companyName: "Data Solutions",
-      jobType: "Full-time",
-      applications: 15,
-      isActive: true,
-    },
-    {
-      _id: "4",
-      title: "UX Designer",
-      companyName: "Creative Labs",
-      jobType: "Contract",
-      applications: 8,
-      isActive: false,
-    },
-    {
-      _id: "5",
-      title: "DevOps Engineer",
-      companyName: "Cloud Systems",
-      jobType: "Full-time",
-      applications: 20,
-      isActive: true,
-    },
-    {
-      _id: "6",
-      title: "Marketing Specialist",
-      companyName: "Grow Easy",
-      jobType: "Part-time",
-      applications: 12,
-      isActive: true,
-    },
-  ];
+  const dispatch = useAppDispatch();
+  const { jobs, total, page, limit, loading, error } = useAppSelector(
+    (state) => state.adminJobs,
+  );
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
-  const [jobs, setJobs] = useState(mockJobs);
+  const debouncedSearch = useDebounce(searchTerm, 450);
+  const [statusFilter, setStatusFilter] = useState<"active" | "closed" | "all">(
+    "all",
+  );
   const [showModal, setShowModal] = useState(false);
-  const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
-  const [selectedJobTitle, setSelectedJobTitle] = useState("");
-  const [isActivateAction, setIsActivateAction] = useState<boolean | null>(
-    null,
-  );
+  const [selectedJob, setSelectedJob] = useState<AdminJob | null>(null);
+  const [localPage, setLocalPage] = useState(page);
 
-  // Filter jobs based on search term
-  const filteredJobs = jobs.filter(
-    (job) =>
-      job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      job.companyName.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  useEffect(() => {
+    dispatch(
+      fetchAdminJobs({
+        page: localPage,
+        limit,
+        search: debouncedSearch || undefined,
+        status: statusFilter === "all" ? undefined : statusFilter,
+      }),
+    );
+  }, [dispatch, localPage, limit, debouncedSearch, statusFilter]);
 
-  // Calculate pagination
-  const total = filteredJobs.length;
-  const totalPages = Math.ceil(total / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedJobs = filteredJobs.slice(
-    startIndex,
-    startIndex + itemsPerPage,
-  );
+  useEffect(() => {
+    if (localPage !== 1) setLocalPage(1);
+  }, [debouncedSearch, statusFilter]);
 
-  // Calculate stats for header cards
-  const activeJobsCount = jobs.filter((j) => j.isActive).length;
-  const closedJobsCount = jobs.filter((j) => !j.isActive).length;
+  useEffect(() => {
+    setLocalPage(page);
+  }, [page]);
+
+  const totalPages = Math.ceil(total / limit);
+
+  const activeJobsCount = jobs.filter((j) => j.status === "active").length;
+  const closedJobsCount = jobs.filter((j) => j.status === "closed").length;
   const fullTimeCount = jobs.filter((j) => j.jobType === "Full-time").length;
-  //const partTimeCount = jobs.filter((j) => j.jobType === "Part-time").length;
 
-  const openModal = (id: string, title: string, isActive: boolean) => {
-    setSelectedJobId(id);
-    setSelectedJobTitle(title);
-    setIsActivateAction(!isActive);
+  const openModal = (job: AdminJob) => {
+    setSelectedJob(job);
     setShowModal(true);
   };
 
   const handleToggleStatus = () => {
-    if (selectedJobId && isActivateAction !== null) {
-      setJobs((prevJobs) =>
-        prevJobs.map((job) =>
-          job._id === selectedJobId
-            ? { ...job, isActive: isActivateAction }
-            : job,
-        ),
-      );
+    if (selectedJob) {
       setShowModal(false);
-      setSelectedJobId(null);
-      setSelectedJobTitle("");
-      setIsActivateAction(null);
+      setSelectedJob(null);
     }
   };
 
-  const handleCancel = () => {
-    setShowModal(false);
-    setSelectedJobId(null);
-    setSelectedJobTitle("");
-    setIsActivateAction(null);
-  };
+  if (loading) return <div className="p-6">Loading jobs...</div>;
+  if (error) return <div className="p-6 text-red-600">Error: {error}</div>;
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
@@ -139,81 +78,69 @@ const AdminJobs: React.FC = () => {
           Manage and monitor all registered Jobs on this platform.
         </p>
       </div>
-      {/* Header Cards */}
+
       <div className="mb-8 grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex items-center">
-          <div className="p-3 rounded-lg bg-blue-100">
-            <WorkIcon sx={{ fontSize: 24, color: "#2563eb" }} />
-          </div>
-          <div className="ml-4">
-            <h3 className="text-2xl font-bold text-gray-900">{total}</h3>
-            <p className="text-gray-600 text-sm">Total Jobs</p>
-          </div>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex items-center">
-          <div className="p-3 rounded-lg bg-green-100">
-            <ToggleOnIcon sx={{ fontSize: 24, color: "#10b981" }} />
-          </div>
-          <div className="ml-4">
-            <h3 className="text-2xl font-bold text-gray-900">
-              {activeJobsCount}
-            </h3>
-            <p className="text-gray-600 text-sm">Active Jobs</p>
-          </div>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex items-center">
-          <div className="p-3 rounded-lg bg-red-100">
-            <ToggleOffIcon sx={{ fontSize: 24, color: "#ef4444" }} />
-          </div>
-          <div className="ml-4">
-            <h3 className="text-2xl font-bold text-gray-900">
-              {closedJobsCount}
-            </h3>
-            <p className="text-gray-600 text-sm">Closed Jobs</p>
-          </div>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex items-center">
-          <div className="p-3 rounded-lg bg-orange-100">
-            <ScheduleIcon sx={{ fontSize: 24, color: "#f59e0b" }} />
-          </div>
-          <div className="ml-4">
-            <h3 className="text-2xl font-bold text-gray-900">
-              {fullTimeCount}
-            </h3>
-            <p className="text-gray-600 text-sm">Full-time Jobs</p>
-          </div>
-        </div>
+        <CountCard
+          label="Total Jobs"
+          count={total}
+          icon={WorkIcon}
+          iconBg="bg-blue-100"
+          iconColor="#2563eb"
+        />
+        <CountCard
+          label="Active Jobs"
+          count={activeJobsCount}
+          icon={ToggleOnIcon}
+          iconBg="bg-green-100"
+          iconColor="#10b981"
+        />
+        <CountCard
+          label="Closed Jobs"
+          count={closedJobsCount}
+          icon={ToggleOffIcon}
+          iconBg="bg-red-100"
+          iconColor="#ef4444"
+        />
+        <CountCard
+          label="Full-time Jobs"
+          count={fullTimeCount}
+          icon={ScheduleIcon}
+          iconBg="bg-orange-100"
+          iconColor="#f59e0b"
+        />
       </div>
 
-      {/* Search and Actions */}
       <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
         <SearchInput
           value={searchTerm}
           onChange={(e: any) => setSearchTerm(e.target.value)}
+          placeholder="Search jobs by name, company..."
         />
-        <div className="flex items-center space-x-3">
-          <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors duration-200">
-            <FilterListIcon sx={{ fontSize: 18, marginRight: 1 }} />
-            Filter
-          </button>
-          <Link
-            to="/admin-jobs/create"
-            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
-          >
-            <AddIcon sx={{ fontSize: 18, marginRight: 1 }} />
-            Add Job
-          </Link>
-        </div>
+        {debouncedSearch !== searchTerm && (
+          <p className="absolute -bottom-5 left-0 text-xs text-gray-500 animate-pulse">
+            Searching…
+          </p>
+        )}
+        {/* <select
+          value={statusFilter}
+          onChange={(e) =>
+            setStatusFilter(e.target.value as "active" | "closed" | "all")
+          }
+          className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 bg-white"
+        >
+          <option value="all">All Status</option>
+          <option value="active">Active</option>
+          <option value="closed">Closed</option>
+        </select> */}
       </div>
 
-      {/* Jobs Table */}
       <Table
-        data={paginatedJobs}
+        data={jobs}
         columns={[
           {
             key: "title",
             label: "Job Title",
-            render: (value: string, job: any) => (
+            render: (value: string, job: AdminJob) => (
               <div className="flex items-center">
                 <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
                   <WorkIcon sx={{ fontSize: 20, color: "#2563eb" }} />
@@ -226,93 +153,81 @@ const AdminJobs: React.FC = () => {
             ),
           },
           {
-            key: "companyName",
+            key: "employer.companyName",
             label: "Company",
-            render: (value: string) => (
+            render: (_: any, job: AdminJob) => (
               <div className="flex items-center">
-                <BusinessIcon
-                  sx={{ fontSize: 16, color: "#6b7280", marginRight: 1 }}
+                <img
+                  src={job.employer.logo || "/default-logo.png"}
+                  alt={job.employer.companyName}
+                  className="w-6 h-6 rounded-full mr-2 object-cover"
                 />
-                {value}
+                {job.employer.companyName}
               </div>
             ),
           },
           {
-            key: "jobType",
+            key: "type",
             label: "Type",
             render: (value: string) => (
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                {value || "N/A"}
+                {value}
               </span>
             ),
           },
           {
-            key: "applications",
+            key: "applicants",
             label: "Applications",
             render: (value: number) => (
-              <span className="font-medium text-gray-900">{value || 0}</span>
+              <span className="font-medium text-gray-900">{value}</span>
             ),
           },
           {
-            key: "isActive",
+            key: "status",
             label: "Status",
-            render: (value: boolean) => (
+            render: (value: "active" | "closed" | "draft") => (
               <span
                 className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                  value
+                  value === "active"
                     ? "bg-green-100 text-green-800"
                     : "bg-red-100 text-red-800"
                 }`}
               >
-                {value ? "Active" : "Closed"}
+                {value.charAt(0).toUpperCase() + value.slice(1)}
               </span>
             ),
           },
         ]}
-        renderActions={(job: any) => (
+        renderActions={(job: AdminJob) => (
           <div className="flex items-center space-x-2">
             <button
-              onClick={() => openModal(job._id, job.title, job.isActive)}
-              className={`inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium transition-colors duration-200 ${
-                job.isActive
+              onClick={() => openModal(job)}
+              className={`inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                job.status === "active"
                   ? "bg-red-100 text-red-700 hover:bg-red-200"
                   : "bg-green-100 text-green-700 hover:bg-green-200"
               }`}
             >
-              {job.isActive ? (
-                <ToggleOffIcon sx={{ fontSize: 16, marginRight: 0.5 }} />
-              ) : (
-                <ToggleOnIcon sx={{ fontSize: 16, marginRight: 0.5 }} />
-              )}
-              {job.isActive ? "Close" : "Activate"}
+              {job.status === "active" ? "Close" : "Activate"}
             </button>
-            <Link
-              to={`/admin-jobs/view/${job._id}`}
-              className="inline-flex items-center px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-200 transition-colors duration-200"
-            >
-              <VisibilityIcon sx={{ fontSize: 16, marginRight: 0.5 }} />
-              View
-            </Link>
           </div>
         )}
       />
 
-      {/* Pagination */}
       <Pagination
-        currentPage={currentPage}
+        currentPage={localPage}
         totalPages={totalPages}
-        paginate={setCurrentPage}
+        paginate={(newPage: number) => setLocalPage(newPage)}
         totalItems={total}
-        itemsPerPage={itemsPerPage}
+        itemsPerPage={limit}
       />
 
-      {/* Toggle Status Modal */}
       <Modal
         isOpen={showModal}
         onApprove={handleToggleStatus}
-        onCancel={handleCancel}
-        actionType={isActivateAction ? "block" : "unblock"}
-        name={selectedJobTitle}
+        onCancel={() => setShowModal(false)}
+        actionType={selectedJob?.status === "active" ? "block" : "unblock"}
+        name={selectedJob?.title || ""}
       />
     </div>
   );

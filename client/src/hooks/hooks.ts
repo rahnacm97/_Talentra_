@@ -8,7 +8,7 @@ import {
   logout,
   setInitialized,
 } from "../features/auth/authSlice";
-import { API_ROUTES } from "../shared/constants";
+import { API_ROUTES } from "../shared/constants/constants";
 import axios from "axios";
 
 export const useAppDispatch: () => AppDispatch = useDispatch;

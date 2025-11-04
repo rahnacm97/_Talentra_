@@ -24,7 +24,7 @@ import AdminCandidateView from "./pages/admin/AdminCandidateView";
 import AdminEmployerView from "./pages/admin/AdminEmployerView";
 import { ProtectedRoute } from "./components/common/ProtectedRoute";
 import { AdminProtectedRoute } from "./components/admin/AdminProtectedRoute";
-import { FRONTEND_ROUTES } from "./shared/constants";
+import { FRONTEND_ROUTES } from "./shared/constants/constants";
 import AuthRouteGuard from "./components/common/AuthRouteGuard";
 import NavigationProvider from "./components/common/NavigationProvider";
 import EmployerJobs from "./pages/employer/EmployerJobs";
@@ -41,7 +41,9 @@ import CandidateInterviews from "./pages/candidate/CandidateInterviews";
 import AdminJobs from "./pages/admin/AdminJobs";
 import AdminNotifications from "./pages/admin/AdminNotifications";
 import AdminSettings from "./pages/admin/AdminSettings";
+import JobsView from "./pages/job/JobView";
 import NotFound from "./pages/common/NotFound";
+import JobDetails from "./pages/job/JobDetails";
 
 const App: React.FC = () => {
   useAuthInitialiazer();
@@ -108,7 +110,22 @@ const App: React.FC = () => {
               path={FRONTEND_ROUTES.AUTHSUCCESS}
               element={<AuthSuccess />}
             />
-
+            <Route
+              path={FRONTEND_ROUTES.JOBVIEW}
+              element={
+                <ProtectedRoute>
+                  <JobsView />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={FRONTEND_ROUTES.JOBDETAILS}
+              element={
+                <ProtectedRoute>
+                  <JobDetails />
+                </ProtectedRoute>
+              }
+            />
             <Route
               element={
                 <ProtectedRoute>

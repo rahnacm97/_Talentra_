@@ -9,6 +9,7 @@ import {
   blockUnblockEmployer,
   fetchEmployerById,
   verifyEmployer,
+  rejectEmployer,
 } from "../../thunks/admin.thunk";
 import { toast } from "react-toastify";
 
@@ -102,6 +103,29 @@ const adminEmployerSlice = createSlice({
       )
       .addCase(verifyEmployer.rejected, (state, action: PayloadAction<any>) => {
         state.error = action.payload?.message || "Failed to verify employer";
+        toast.error(state.error);
+      })
+      .addCase(
+        rejectEmployer.fulfilled,
+        (
+          state,
+          action: PayloadAction<{
+            employer: EmployerResponseDTO;
+            message: string;
+          }>,
+        ) => {
+          const updated = action.payload.employer;
+          state.employers = state.employers.map((emp) =>
+            emp.id === updated.id ? updated : emp,
+          );
+          if (state.selectedEmployer?.id === updated.id) {
+            state.selectedEmployer = updated;
+          }
+          toast.success(`${updated.name}'s verification has been rejected`);
+        },
+      )
+      .addCase(rejectEmployer.rejected, (state, action) => {
+        state.error = action.payload as string;
         toast.error(state.error);
       });
   },

@@ -18,7 +18,7 @@ import {
   Users,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { FRONTEND_ROUTES } from "../../shared/constants";
+import { FRONTEND_ROUTES } from "../../shared/constants/constants";
 
 interface SavedJob {
   id: string;

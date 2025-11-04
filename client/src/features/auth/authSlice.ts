@@ -19,6 +19,7 @@ const initialState: AuthState = {
   error: null,
   forgotPasswordEmail: null,
   isInitialized: false,
+  blocked: false,
 };
 
 const authSlice = createSlice({
@@ -37,6 +38,14 @@ const authSlice = createSlice({
     },
     setInitialized: (state, action: PayloadAction<boolean>) => {
       state.isInitialized = action.payload;
+    },
+    setBlocked: (state, action: PayloadAction<boolean>) => {
+      state.blocked = action.payload;
+      if (action.payload) {
+        state.user = null;
+        state.accessToken = null;
+        state.refreshToken = null;
+      }
     },
     loginSuccess: (
       state,
@@ -160,6 +169,6 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, setForgotPasswordEmail, loginSuccess, setInitialized } =
+export const { logout, setForgotPasswordEmail, loginSuccess, setInitialized, setBlocked } =
   authSlice.actions;
 export default authSlice.reducer;

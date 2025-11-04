@@ -11,7 +11,7 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import PersonSearchRoundedIcon from "@mui/icons-material/PersonSearchRounded";
 import LogoutIcon from "@mui/icons-material/Logout";
-import { FRONTEND_ROUTES } from "../../shared/constants";
+import { FRONTEND_ROUTES } from "../../shared/constants/constants";
 
 const Sidebar: React.FC = () => {
   const location = useLocation();

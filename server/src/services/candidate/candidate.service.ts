@@ -32,7 +32,7 @@ export class CandidateService implements ICandidateService {
         {
           resource_type: file.mimetype.startsWith("image/") ? "image" : "raw",
           folder: "candidate_uploads",
-          access_mode: "authenticated",
+          access_mode: "public",
           ...(transformation ? { transformation } : {}),
         },
       );

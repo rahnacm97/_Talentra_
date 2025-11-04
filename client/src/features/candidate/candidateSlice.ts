@@ -3,6 +3,7 @@ import type { ICandidate } from "../../types/candidate/candidate.types";
 import {
   fetchCandidateProfile,
   updateCandidateProfile,
+  applyJob,
 } from "../../thunks/candidate.thunks";
 
 interface CandidateState {
@@ -50,6 +51,17 @@ const candidateSlice = createSlice({
           action.payload instanceof Error
             ? action.payload.message
             : String(action.payload);
+      })
+      .addCase(applyJob.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(applyJob.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(applyJob.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       });
   },
 });

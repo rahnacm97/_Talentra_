@@ -8,6 +8,7 @@ export interface AuthResponse {
     role: UserType;
     blocked: boolean;
     emailVerified?: boolean;
+    verified?: boolean;
   };
   accessToken: string;
   refreshToken: string;
@@ -22,6 +23,7 @@ export interface RefreshTokenResponse {
     role: UserType;
     blocked: boolean;
     emailVerified?: boolean;
+    verified?: boolean;
   };
 }
 

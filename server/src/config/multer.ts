@@ -3,14 +3,14 @@ import { Request } from "express";
 
 const storage = multer.diskStorage({
   destination: (
-    req: Request,
+    _req: Request,
     file: Express.Multer.File,
     cb: (error: Error | null, destination: string) => void,
   ) => {
     cb(null, "uploads/");
   },
   filename: (
-    req: Request,
+    _req: Request,
     file: Express.Multer.File,
     cb: (error: Error | null, filename: string) => void,
   ) => {
@@ -19,7 +19,7 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (
-  req: Request,
+  _req: Request,
   file: Express.Multer.File,
   cb: FileFilterCallback,
 ): void => {
@@ -34,7 +34,9 @@ const fileFilter = (
     (file.fieldname === "resume" &&
       allowedResumeTypes.includes(file.mimetype)) ||
     (file.fieldname === "profileImage" &&
-      allowedImageTypes.includes(file.mimetype))
+      allowedImageTypes.includes(file.mimetype)) ||
+    (file.fieldname === "businessLicense" &&
+      allowedResumeTypes.includes(file.mimetype))
   ) {
     cb(null, true);
   } else {

@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import Header from "../../pages/common/Header";
 import EmployerSidebar from "./EmployerSidebar";
-import { FRONTEND_ROUTES } from "../../shared/constants";
+import { FRONTEND_ROUTES } from "../../shared/constants/constants";
 
 interface SidebarItem {
   id: string;

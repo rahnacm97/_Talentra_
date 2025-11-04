@@ -16,7 +16,7 @@ import { login } from "../../thunks/auth.thunk";
 import type { LoginErrors } from "../../types/auth/Auth";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { FRONTEND_ROUTES } from "../../shared/constants";
+import { FRONTEND_ROUTES } from "../../shared/constants/constants";
 
 const LoginForm = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -56,7 +56,6 @@ const LoginForm = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log("Form submitted", formData);
     if (!validateForm()) return;
 
     dispatch(login(formData))

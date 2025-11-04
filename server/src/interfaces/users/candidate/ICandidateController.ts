@@ -3,6 +3,7 @@ import {
   ProfileData,
   ICandidate,
 } from "../../../types/candidate/candidate.types";
+import { ApplicationResponseDto } from "../../../dto/application/application.dto";
 
 export interface UpdateProfileResponse {
   message: string;
@@ -18,6 +19,11 @@ export interface ICandidateController {
   updateProfile(
     req: Request<{ id: string }, UpdateProfileResponse, ProfileData>,
     res: Response,
+    next: NextFunction,
+  ): Promise<void>;
+  applyJob(
+    req: Request<{ candidateId: string; jobId: string }>,
+    res: Response<{ message: string; data: ApplicationResponseDto }>,
     next: NextFunction,
   ): Promise<void>;
 }

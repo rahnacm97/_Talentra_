@@ -6,7 +6,9 @@ export const API_ROUTES = {
     BLOCK_UNBLOCK_CANDIDATE: "/admin/candidates/block-unblock",
     EMPLOYERS: "/admin/employers",
     BLOCK_UNBLOCK_EMPLOYER: "/admin/employers/block-unblock",
-    VERIFY_EMPLOYER: "/verify-employer",
+    VERIFY_EMPLOYER: "/admin/employers",
+    REJECT_EMPLOYER: (id: string) => `/admin/employers/${id}/reject`,
+    JOBS: "/admin/jobs",
   },
   AUTH: {
     SIGNUP: "/auth/signup",
@@ -21,9 +23,20 @@ export const API_ROUTES = {
   },
   CANDIDATE: {
     PROFILE: (id: string) => `/candidate/${id}`,
+    JOBS: "/jobs",
+    APPLY: (candidateId: string, jobId: string) =>
+      `/candidate/${candidateId}/jobs/${jobId}/apply`,
   },
   EMPLOYER: {
     PROFILE: (id: string) => `/employer/${id}`,
+    JOBS: (id: string) => `/employer/jobs/${id}`,
+    JOB: (id: string, jobId: string) => `/employer/jobs/${id}/${jobId}`,
+    JOB_CLOSE: (employerId: string, jobId: string) =>
+      `/employer/jobs/${employerId}/${jobId}/close`,
+  },
+  JOBS: {
+    PUBLIC: "/jobs",
+    PUBLIC_BY_ID: (id: string) => `/jobs/public/${id}`,
   },
 } as const;
 
@@ -39,6 +52,8 @@ export const FRONTEND_ROUTES = {
   AUTHSUCCESS: "/auth-success",
   CANDIDATEPROFILE: "/candidate-profile",
   EMPLOYERPROFILE: "/employer-profile",
+  JOBVIEW: "/jobs",
+  JOBDETAILS: "/jobs/:id",
   EMPLOYERJOBS: "/employer/jobs",
   EMPLOYERAPPLICANTS: "/employer/applicants",
   EMPLOYERANALYTICS: "/employer/analytics",

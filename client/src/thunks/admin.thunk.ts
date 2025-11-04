@@ -7,6 +7,8 @@ import {
   getCandidateByIdApi,
   getEmployerByIdApi,
   verifyEmployerApi,
+  rejectEmployerApi,
+  getAdminJobs,
 } from "../features/admin/adminApi";
 import type { Candidate } from "../types/admin/admin.candidate.types";
 import type { EmployerResponseDTO } from "../types/admin/admin.employer.types";
@@ -107,5 +109,34 @@ export const verifyEmployer = createAsyncThunk(
         error.response?.data?.message || "Failed to verify employer",
       );
     }
+  },
+);
+
+export const rejectEmployer = createAsyncThunk(
+  "adminEmployers/rejectEmployer",
+  async (
+    { employerId, reason }: { employerId: string; reason: string },
+    { rejectWithValue },
+  ) => {
+    try {
+      return await rejectEmployerApi(employerId, reason);
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to reject employer",
+      );
+    }
+  },
+);
+
+export const fetchAdminJobs = createAsyncThunk(
+  "adminJobs/fetch",
+  async (params: {
+    page: number;
+    limit: number;
+    search?: string;
+    status?: "active" | "closed" | "all";
+  }) => {
+    const response = await getAdminJobs(params);
+    return response;
   },
 );

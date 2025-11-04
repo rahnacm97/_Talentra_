@@ -60,6 +60,8 @@ export interface EmployerProfileData {
   postedJobs: PostedJob[];
   cinNumber: string;
   businessLicense: string;
+  isVerified?: boolean;
+  verificationStatus?: "pending" | "verified" | "rejected";
   profileImage: string;
   stats: {
     totalJobs: number;
@@ -93,4 +95,18 @@ export interface Notification {
   jobTitle?: string;
   timestamp: string;
   isRead: boolean;
+}
+
+export interface FetchJobsParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: string;
+}
+
+export interface FetchJobsResponse {
+  jobs: any[];
+  total: number;
+  page: number;
+  limit: number;
 }

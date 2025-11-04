@@ -1,8 +1,8 @@
 import axios from "axios";
 import { toast } from "react-toastify";
 import { store } from "../app/store";
-import { logout } from "../features/auth/authSlice";
-import { FRONTEND_ROUTES } from "../shared/constants";
+import { logout, setBlocked } from "../features/auth/authSlice";
+import { FRONTEND_ROUTES } from "../shared/constants/constants";
 import { useNavigationStore } from "../utils/navigate";
 
 export const api = axios.create({
@@ -13,9 +13,9 @@ export const api = axios.create({
 api.interceptors.request.use((config) => {
   const state = store.getState();
   const accessToken = state.auth.accessToken;
-  if (config.url?.includes("/auth/refresh-token")) {
-    return config;
-  }
+
+  if (config.url?.includes("/auth/refresh-token")) return config;
+
   if (accessToken && !config.headers.Authorization) {
     config.headers.Authorization = `Bearer ${accessToken}`;
   }
@@ -26,31 +26,44 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    const message = error.response?.data?.message;
+    const resp = error.response;
     const navigate = useNavigationStore.getState().navigate;
-    if (message === "You have been blocked by admin") {
-      store.dispatch(logout());
 
+    const isBlocked =
+      resp?.status === 403 &&
+      (resp?.data?.blocked === true ||
+        resp?.data?.message?.toLowerCase().includes("block"));
+
+    // if (isBlocked || resp?.data?.message === "You have been blocked by admin") {
+    //   store.dispatch(logout());
+    //   toast.error(
+    //     resp?.data?.message ||
+    //       "Your account has been blocked by admin. Please contact support.",
+    //   );
+
+    //   document.cookie.split(";").forEach((c) => {
+    //     document.cookie = c
+    //       .replace(/^ +/, "")
+    //       .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+    //   });
+
+    //   if (navigate) {
+    //     navigate(FRONTEND_ROUTES.LOGIN, { replace: true });
+    //   } else {
+    //     window.location.href = FRONTEND_ROUTES.LOGIN;
+    //   }
+    //   return Promise.reject(error);
+    // }
+
+    if (isBlocked) {
+      store.dispatch(setBlocked(true));
       toast.error(
-        "Your account has been blocked by admin. Please contact support.",
+        resp?.data?.message || "Your account has been blocked by admin.",
       );
-
-      document.cookie.split(";").forEach((c) => {
-        document.cookie = c
-          .replace(/^ +/, "")
-          .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-      });
-      if (navigate) {
-        navigate(FRONTEND_ROUTES.LOGIN, { replace: true });
-      } else {
-        window.location.href = FRONTEND_ROUTES.LOGIN;
-      }
-
       return Promise.reject(error);
     }
-
     if (
-      error.response?.status === 401 &&
+      resp?.status === 401 &&
       !originalRequest._retry &&
       !originalRequest.url?.includes("/auth/refresh-token") &&
       !originalRequest.url?.includes("/auth/logout") &&
@@ -59,19 +72,15 @@ api.interceptors.response.use(
       !originalRequest.url?.includes("/auth/login")
     ) {
       originalRequest._retry = true;
-
       try {
         const refreshResponse = await axios.post(
           `${import.meta.env.VITE_API_BASE_URL}/auth/refresh-token`,
           {},
           {
             withCredentials: true,
-            headers: {
-              "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
           },
         );
-
         const { accessToken, user } = refreshResponse.data;
         store.dispatch({
           type: "auth/loginSuccess",
@@ -81,12 +90,10 @@ api.interceptors.response.use(
             refreshToken: null,
           },
         });
-
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return api(originalRequest);
-      } catch (refreshError: unknown) {
+      } catch (refreshError) {
         store.dispatch(logout());
-
         document.cookie.split(";").forEach((c) => {
           document.cookie = c
             .replace(/^ +/, "")
@@ -95,21 +102,15 @@ api.interceptors.response.use(
               "=;expires=" + new Date().toUTCString() + ";path=/",
             );
         });
-        if (navigate) {
-          navigate(FRONTEND_ROUTES.LOGIN, { replace: true });
-        } else {
-          window.location.href = FRONTEND_ROUTES.LOGIN;
-        }
+        if (navigate) navigate(FRONTEND_ROUTES.LOGIN, { replace: true });
+        else window.location.href = FRONTEND_ROUTES.LOGIN;
         return Promise.reject(refreshError);
       }
     }
 
-    if (originalRequest.url?.includes("/auth/login")) {
-      return Promise.reject(error);
-    }
-
-    if (message !== "You have been blocked by admin") {
-      toast.error(message || "An error occurred");
+    if (!originalRequest.url?.includes("/auth/login")) {
+      const msg = resp?.data?.message || "An error occurred";
+      toast.error(msg);
     }
 
     return Promise.reject(error);

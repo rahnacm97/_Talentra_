@@ -6,8 +6,7 @@ import EmailIcon from "@mui/icons-material/Email";
 import PhoneIcon from "@mui/icons-material/Phone";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import LanguageIcon from "@mui/icons-material/Language";
-import BlockIcon from "@mui/icons-material/Block";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CloseIcon from "@mui/icons-material/Close";
 import VerifiedIcon from "@mui/icons-material/Verified";
 import WarningIcon from "@mui/icons-material/Warning";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
@@ -15,12 +14,14 @@ import WorkIcon from "@mui/icons-material/Work";
 import PeopleIcon from "@mui/icons-material/People";
 import DescriptionIcon from "@mui/icons-material/Description";
 import Modal from "../../components/admin/Modal";
+import { toast } from "react-toastify";
 
 import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
 import {
   fetchEmployerById,
   blockUnblockEmployer,
   verifyEmployer,
+  rejectEmployer,
 } from "../../thunks/admin.thunk";
 
 const AdminEmployerView: React.FC = () => {
@@ -32,8 +33,14 @@ const AdminEmployerView: React.FC = () => {
     (state) => state.adminEmployers,
   );
 
+  const canVerify =
+    selectedEmployer?.cinNumber?.trim() &&
+    selectedEmployer?.businessLicense?.trim();
+
   const [showBlockModal, setShowBlockModal] = useState(false);
   const [showVerifyModal, setShowVerifyModal] = useState(false);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState("");
   const [isBlockAction, setIsBlockAction] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -42,20 +49,13 @@ const AdminEmployerView: React.FC = () => {
     }
   }, [dispatch, id]);
 
-  useEffect(() => {
-    if (id) {
-      dispatch(fetchEmployerById(id)).then((result) => {
-        console.log("fetchEmployerById result:", result);
-      });
-    }
-  }, [dispatch, id]);
-
-  const openBlockModal = (blocked: boolean) => {
-    setIsBlockAction(!blocked);
-    setShowBlockModal(true);
-  };
-
   const openVerifyModal = () => {
+    if (!canVerify) {
+      toast.warn(
+        "Employer cannot be verified - CIN number and Business License are required.",
+      );
+      return;
+    }
     setShowVerifyModal(true);
   };
 
@@ -85,6 +85,31 @@ const AdminEmployerView: React.FC = () => {
       });
     }
     setShowVerifyModal(false);
+  };
+  const handleRejectApprove = () => {
+    if (!rejectionReason.trim()) {
+      toast.warn("Please provide a reason for rejection.");
+      return;
+    }
+
+    if (!selectedEmployer) {
+      toast.error("Employer data is missing.");
+      return;
+    }
+
+    dispatch(
+      rejectEmployer({
+        employerId: selectedEmployer.id,
+        reason: rejectionReason,
+      }),
+    ).then(() => {
+      if (id) {
+        dispatch(fetchEmployerById(id));
+      }
+    });
+
+    setShowRejectModal(false);
+    setRejectionReason("");
   };
 
   const handleCancel = () => {
@@ -132,7 +157,6 @@ const AdminEmployerView: React.FC = () => {
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      {/* Header */}
       <div className="mb-6">
         <button
           onClick={() => navigate("/admin-employers")}
@@ -152,38 +176,36 @@ const AdminEmployerView: React.FC = () => {
           </div>
           <div className="flex space-x-3">
             {!selectedEmployer.verified && (
-              <button
-                onClick={openVerifyModal}
-                className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors duration-200"
-              >
-                <VerifiedIcon sx={{ fontSize: 18, marginRight: 1 }} />
-                Verify Employer
-              </button>
+              <>
+                <button
+                  onClick={openVerifyModal}
+                  disabled={!canVerify}
+                  className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    canVerify
+                      ? "bg-green-600 text-white hover:bg-green-700"
+                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  }`}
+                >
+                  <VerifiedIcon sx={{ fontSize: 18, marginRight: 1 }} />
+                  Verify
+                </button>
+
+                <button
+                  onClick={() => setShowRejectModal(true)}
+                  className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
+                >
+                  <CloseIcon sx={{ fontSize: 18, marginRight: 1 }} />
+                  Reject
+                </button>
+              </>
             )}
-            <button
-              onClick={() => openBlockModal(selectedEmployer.blocked)}
-              className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
-                selectedEmployer.blocked
-                  ? "bg-green-600 text-white hover:bg-green-700"
-                  : "bg-red-600 text-white hover:bg-red-700"
-              }`}
-            >
-              {selectedEmployer.blocked ? (
-                <CheckCircleIcon sx={{ fontSize: 18, marginRight: 1 }} />
-              ) : (
-                <BlockIcon sx={{ fontSize: 18, marginRight: 1 }} />
-              )}
-              {selectedEmployer.blocked ? "Unblock Employer" : "Block Employer"}
-            </button>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Info Card */}
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            {/* Company Header */}
             <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-12">
               <div className="flex items-center">
                 <div className="w-24 h-24 bg-white rounded-lg flex items-center justify-center shadow-lg">
@@ -344,8 +366,6 @@ const AdminEmployerView: React.FC = () => {
               </div>
             </div>
 
-            {/* Company Description */}
-            {/* Company Description */}
             {selectedEmployer.description && (
               <div className="px-8 py-6 bg-gray-50 rounded-xl border border-gray-200">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
@@ -685,35 +705,26 @@ const AdminEmployerView: React.FC = () => {
         name={selectedEmployer.name}
       />
 
-      {/* Verify Modal */}
-      {showVerifyModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">
-              Verify Employer
-            </h3>
-            <p className="text-gray-600 mb-6">
-              Are you sure you want to verify{" "}
-              <strong>{selectedEmployer.name}</strong>? This will mark them as a
-              verified employer on the platform.
-            </p>
-            <div className="flex space-x-3">
-              <button
-                onClick={handleCancel}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleVerifyApprove}
-                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200"
-              >
-                Verify
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <Modal
+        isOpen={showVerifyModal}
+        onApprove={handleVerifyApprove}
+        onCancel={handleCancel}
+        actionType="verify"
+        name={selectedEmployer?.name ?? ""}
+      />
+
+      <Modal
+        isOpen={showRejectModal}
+        onApprove={handleRejectApprove}
+        onCancel={() => {
+          setShowRejectModal(false);
+          setRejectionReason("");
+        }}
+        actionType="reject"
+        name={selectedEmployer.name}
+        reason={rejectionReason}
+        onReasonChange={setRejectionReason}
+      />
     </div>
   );
 };

@@ -2,8 +2,12 @@ import { BaseRepository } from "../base.repository";
 import Employer from "../../models/Employer.model";
 import { IEmployer } from "../../interfaces/users/employer/IEmployer";
 import { EmployerDataDTO } from "../../dto/employer/employer.dto";
+import { IEmployerVerificationRepo } from "../../interfaces/users/employer/IEmployerVerifyRepo";
 
-export class EmployerRepository extends BaseRepository<IEmployer> {
+export class EmployerRepository
+  extends BaseRepository<IEmployer>
+  implements IEmployerVerificationRepo
+{
   constructor() {
     super(Employer);
   }
@@ -53,5 +57,15 @@ export class EmployerRepository extends BaseRepository<IEmployer> {
         { new: true },
       )
       .exec();
+  }
+
+  async isVerified(employerId: string): Promise<boolean> {
+    const employer = await this.model
+      .findById(employerId)
+      .select("verified")
+      .lean()
+      .exec();
+
+    return employer?.verified ?? false;
   }
 }

@@ -10,9 +10,9 @@ import Table from "../../components/admin/Table";
 import Pagination from "../../components/admin/Pagination";
 import Modal from "../../components/admin/Modal";
 import SearchInput from "../../components/admin/SearchInput";
+import { CountCard } from "../../components/admin/CountCard";
 
 const AdminNotifications: React.FC = () => {
-  // Mock notification data
   const mockNotifications = [
     {
       _id: "1",
@@ -78,14 +78,12 @@ const AdminNotifications: React.FC = () => {
     "read" | "unread" | "delete" | null
   >(null);
 
-  // Filter notifications based on search term
   const filteredNotifications = notifications.filter(
     (notification) =>
       notification.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       notification.message.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  // Calculate pagination
   const total = filteredNotifications.length;
   const totalPages = Math.ceil(total / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -93,8 +91,6 @@ const AdminNotifications: React.FC = () => {
     startIndex,
     startIndex + itemsPerPage,
   );
-
-  // Calculate stats for header cards
   const unreadCount = notifications.filter((n) => !n.isRead).length;
   const readCount = notifications.filter((n) => n.isRead).length;
   //   const jobNotificationsCount = notifications.filter(
@@ -158,35 +154,29 @@ const AdminNotifications: React.FC = () => {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Notifications</h1>
       </div>
-      {/* Header Cards */}
+
       <div className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex items-center">
-          <div className="p-3 rounded-lg bg-blue-100">
-            <NotificationsNoneIcon sx={{ fontSize: 24, color: "#2563eb" }} />
-          </div>
-          <div className="ml-4">
-            <h3 className="text-2xl font-bold text-gray-900">{total}</h3>
-            <p className="text-gray-600 text-sm">Total Notifications</p>
-          </div>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex items-center">
-          <div className="p-3 rounded-lg bg-green-100">
-            <MarkEmailReadIcon sx={{ fontSize: 24, color: "#10b981" }} />
-          </div>
-          <div className="ml-4">
-            <h3 className="text-2xl font-bold text-gray-900">{readCount}</h3>
-            <p className="text-gray-600 text-sm">Read Notifications</p>
-          </div>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex items-center">
-          <div className="p-3 rounded-lg bg-orange-100">
-            <MarkEmailUnreadIcon sx={{ fontSize: 24, color: "#f59e0b" }} />
-          </div>
-          <div className="ml-4">
-            <h3 className="text-2xl font-bold text-gray-900">{unreadCount}</h3>
-            <p className="text-gray-600 text-sm">Unread Notifications</p>
-          </div>
-        </div>
+        <CountCard
+          label="Total Notifications"
+          count={total}
+          icon={NotificationsNoneIcon}
+          iconBg="bg-blue-100"
+          iconColor="#2563eb"
+        />
+        <CountCard
+          label="Read Notifications"
+          count={readCount}
+          icon={MarkEmailReadIcon}
+          iconBg="bg-green-100"
+          iconColor="#10b981"
+        />
+        <CountCard
+          label="Unread Notifications"
+          count={unreadCount}
+          icon={MarkEmailUnreadIcon}
+          iconBg="bg-orange-100"
+          iconColor="#f59e0b"
+        />
       </div>
 
       {/* Search and Actions */}

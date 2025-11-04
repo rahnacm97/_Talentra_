@@ -76,6 +76,9 @@ export class AuthController implements IAuthController {
           email: result.user.email,
           name: result.user.name,
           role: result.user.role,
+          ...(result.user.role === "Employer" && {
+            verified: result.user.verified,
+          }),
         },
         accessToken: result.accessToken,
       });
@@ -114,6 +117,9 @@ export class AuthController implements IAuthController {
           email: result.user.email,
           name: result.user.name,
           role: result.user.role,
+          ...(result.user.role === "Employer" && {
+            verified: result.user.verified,
+          }),
         },
       });
     } catch (error: unknown) {

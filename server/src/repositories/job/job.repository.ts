@@ -46,6 +46,7 @@ export class JobRepository implements IJobRepository {
     const skip = (page - 1) * limit;
 
     const query: FilterQuery<IJob> = { employerId };
+
     if (search) {
       query.$or = [
         { title: { $regex: search, $options: "i" } },

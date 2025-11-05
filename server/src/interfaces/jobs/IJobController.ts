@@ -7,4 +7,5 @@ export interface IJobController {
   closeJob(req: Request, res: Response, next: NextFunction): Promise<void>;
   getPublicJobs(req: Request, res: Response, next: NextFunction): Promise<void>;
   getJobById(req: Request, res: Response, next: NextFunction): Promise<void>;
+  getAdminJobs(req: Request, res: Response, next: NextFunction): Promise<void>;
 }

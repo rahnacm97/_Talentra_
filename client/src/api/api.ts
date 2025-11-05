@@ -34,27 +34,6 @@ api.interceptors.response.use(
       (resp?.data?.blocked === true ||
         resp?.data?.message?.toLowerCase().includes("block"));
 
-    // if (isBlocked || resp?.data?.message === "You have been blocked by admin") {
-    //   store.dispatch(logout());
-    //   toast.error(
-    //     resp?.data?.message ||
-    //       "Your account has been blocked by admin. Please contact support.",
-    //   );
-
-    //   document.cookie.split(";").forEach((c) => {
-    //     document.cookie = c
-    //       .replace(/^ +/, "")
-    //       .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-    //   });
-
-    //   if (navigate) {
-    //     navigate(FRONTEND_ROUTES.LOGIN, { replace: true });
-    //   } else {
-    //     window.location.href = FRONTEND_ROUTES.LOGIN;
-    //   }
-    //   return Promise.reject(error);
-    // }
-
     if (isBlocked) {
       store.dispatch(setBlocked(true));
       toast.error(

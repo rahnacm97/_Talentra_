@@ -24,6 +24,8 @@ import { FRONTEND_ROUTES } from "../../shared/constants/constants";
 import EmployerModal from "../../components/employer/EmployerModal";
 import { toast } from "react-toastify";
 
+const CIN_REGEX = /^[LU][0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$/;
+
 const EmployerProfile: React.FC = () => {
   const dispatch = useAppDispatch();
   const { profile, loading } = useAppSelector((state) => state.employer);
@@ -33,6 +35,7 @@ const EmployerProfile: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState("company");
   const [newBenefit, setNewBenefit] = useState("");
+  const [cinError, setCinError] = useState<string | null>(null);
   const [licenseFile, setLicenseFile] = useState<File | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState<"license" | "profileImage" | null>(
@@ -150,6 +153,13 @@ const EmployerProfile: React.FC = () => {
     }));
   };
 
+  const validateCIN = (cin: string): string | null => {
+    if (!cin) return null;
+    if (!CIN_REGEX.test(cin.trim())) {
+      return "Invalid CIN format. Example: L12345MH2023PLC123456";
+    }
+    return null;
+  };
   const openModal = (type: "license" | "profileImage") => {
     setModalType(type);
     setModalOpen(true);
@@ -172,9 +182,16 @@ const EmployerProfile: React.FC = () => {
     }
   };
 
+  const isFormValid = () => {
+    return !cinError;
+  };
   const handleSave = async () => {
     if (!auth.user?._id) {
       toast.error("User not authenticated");
+      return;
+    }
+    if (!isFormValid()) {
+      toast.error("Please fix the CIN number before saving.");
       return;
     }
     try {
@@ -320,7 +337,10 @@ const EmployerProfile: React.FC = () => {
                   <>
                     <button
                       onClick={handleSave}
-                      className="bg-green-600 hover:bg-green-700 text-white font-medium px-6 py-3 rounded-lg transition-all duration-200 flex items-center space-x-2"
+                      disabled={!isFormValid()}
+                      className={`bg-green-600 hover:bg-green-700 text-white font-medium px-6 py-3 rounded-lg transition-all duration-200 flex items-center space-x-2 ${
+                        !isFormValid() ? "opacity-50 cursor-not-allowed" : ""
+                      }`}
                     >
                       <Save className="w-5 h-5" />
                       <span>Save</span>
@@ -347,7 +367,6 @@ const EmployerProfile: React.FC = () => {
           </div>
         </div>
 
-        {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-600">
             <div className="flex items-center justify-between">
@@ -507,19 +526,31 @@ const EmployerProfile: React.FC = () => {
                     <p className="text-sm text-gray-500 font-medium mb-1">
                       CIN Number
                     </p>
+
                     {isEditing ? (
-                      <input
-                        type="text"
-                        value={profileData.cinNumber}
-                        onChange={(e) =>
-                          handleInputChange("cinNumber", e.target.value)
-                        }
-                        placeholder="Company CIN Number"
-                        className="w-full bg-white border border-gray-300 rounded px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      />
+                      <div className="space-y-1">
+                        <input
+                          type="text"
+                          value={profileData.cinNumber}
+                          onChange={(e) => {
+                            const val = e.target.value.toUpperCase(); 
+                            handleInputChange("cinNumber", val);
+                            setCinError(validateCIN(val));
+                          }}
+                          placeholder="L12345MH2023PLC123456"
+                          className={`w-full bg-white border rounded px-3 py-2 text-gray-900 focus:outline-none focus:ring-2 ${
+                            cinError
+                              ? "border-red-500 focus:ring-red-500"
+                              : "border-gray-300 focus:ring-indigo-500"
+                          }`}
+                        />
+                        {cinError && (
+                          <p className="text-xs text-red-600">{cinError}</p>
+                        )}
+                      </div>
                     ) : (
                       <p className="text-lg font-semibold text-gray-900">
-                        {profileData.cinNumber}
+                        {profileData.cinNumber || "—"}
                       </p>
                     )}
                   </div>

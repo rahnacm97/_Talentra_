@@ -69,7 +69,7 @@ const adminCandidateController = new AdminCandidateController(
 const adminEmployerController = new AdminEmployerController(
   adminEmployerService,
 );
-const jobController = new JobController(jobService);
+const jobController = new JobController(jobService, jobService, jobService);
 
 // Routes
 router.post("/login", adminAuthController.login);

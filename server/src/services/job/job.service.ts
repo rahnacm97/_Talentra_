@@ -1,4 +1,8 @@
-import { IJobService } from "../../interfaces/jobs/IJobService";
+import {
+  IAdminJobService,
+  IEmployerJobService,
+  IPublicJobService,
+} from "../../interfaces/jobs/IJobService";
 import { IJobRepository } from "../../interfaces/jobs/IJobRepository";
 import { IJobMapper } from "../../interfaces/jobs/IJobMapper";
 import { IEmployerVerificationRepo } from "../../interfaces/users/employer/IEmployerVerifyRepo";
@@ -10,7 +14,9 @@ import { ApiError } from "../../shared/utils/ApiError";
 import { HTTP_STATUS } from "../../shared/httpStatus/httpStatusCode";
 import { ERROR_MESSAGES } from "../../shared/constants/constants";
 
-export class JobService implements IJobService {
+export class JobService
+  implements IEmployerJobService, IPublicJobService, IAdminJobService
+{
   constructor(
     private readonly _repository: IJobRepository,
     private readonly _mapper: IJobMapper,

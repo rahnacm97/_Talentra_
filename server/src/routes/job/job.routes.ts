@@ -19,7 +19,8 @@ const service = new JobService(
   employerRepo,
   applicationRepo,
 );
-const jobcontroller = new JobController(service);
+
+const jobcontroller = new JobController(service, service, service);
 
 router.post(
   "/:id",

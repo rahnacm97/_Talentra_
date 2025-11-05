@@ -1,6 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import { IJobController } from "../../interfaces/jobs/IJobController";
-import { IJobService } from "../../interfaces/jobs/IJobService";
+import {
+  IEmployerJobService,
+  IAdminJobService,
+  IPublicJobService,
+} from "../../interfaces/jobs/IJobService";
 import { CreateJobDto } from "../../shared/validations/job.validation";
 import { createJobSchema } from "../../shared/validations/job.validation";
 import { ApiError } from "../../shared/utils/ApiError";
@@ -13,7 +17,11 @@ import {
 import { ZodError } from "zod";
 
 export class JobController implements IJobController {
-  constructor(private readonly _service: IJobService) {}
+  constructor(
+    private readonly _employerService: IEmployerJobService,
+    private readonly _publicService: IPublicJobService,
+    private readonly _adminService: IAdminJobService,
+  ) {}
 
   private getEmployerId(req: Request): string {
     const id = req.params.id;
@@ -41,7 +49,7 @@ export class JobController implements IJobController {
       logger.info("Posting new job", { employerId, body: req.body });
 
       const validated = createJobSchema.parse(req.body);
-      const job = await this._service.createJob(employerId, validated);
+      const job = await this._employerService.createJob(employerId, validated);
 
       res.status(HTTP_STATUS.CREATED).json({
         message: SUCCESS_MESSAGES.JOB_POST_SUCCESS,
@@ -90,7 +98,7 @@ export class JobController implements IJobController {
           ? (rawStatus as Status)
           : "all";
 
-      const data = await this._service.getJobsPaginated(
+      const data = await this._employerService.getJobsPaginated(
         employerId,
         page,
         limit,
@@ -128,7 +136,7 @@ export class JobController implements IJobController {
         Object.entries(raw).filter(([v]) => v !== undefined),
       ) as Partial<CreateJobDto>;
 
-      const job = await this._service.updateJob(employerId, jobId, validated);
+      const job = await this._employerService.updateJob(employerId, jobId, validated);
 
       res.json({ message: SUCCESS_MESSAGES.JOB_UPDATED, job });
     } catch (err: unknown) {
@@ -163,7 +171,7 @@ export class JobController implements IJobController {
     try {
       logger.info("Closing job", { employerId, jobId });
 
-      const job = await this._service.closeJob(employerId, jobId);
+      const job = await this._employerService.closeJob(employerId, jobId);
 
       res.json({ message: "Job closed", job });
     } catch (err: unknown) {
@@ -209,7 +217,7 @@ export class JobController implements IJobController {
       if (type && type !== "all") serviceParams.type = type;
       if (experience) serviceParams.experience = experience;
 
-      const result = await this._service.getPublicJobs(serviceParams);
+      const result = await this._publicService.getPublicJobs(serviceParams);
       logger.info("Jobs fetched", { result });
       res.json(result);
     } catch (err) {
@@ -227,7 +235,7 @@ export class JobController implements IJobController {
 
       const candidateId = (req.user as { id: string; role: string })?.id;
 
-      const job = await this._service.getJobById(id, candidateId);
+      const job = await this._publicService.getJobById(id, candidateId);
       logger.info("Job details fetched", { jobId: id, candidateId });
       res.json({
         success: true,
@@ -243,11 +251,6 @@ export class JobController implements IJobController {
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
       const search = req.query.search as string | undefined;
-      // const status = req.query.status as
-      //   | "active"
-      //   | "closed"
-      //   | "all"
-      //   | undefined;
 
       const serviceParams: {
         page: number;
@@ -259,7 +262,7 @@ export class JobController implements IJobController {
         serviceParams.search = search.trim();
       }
 
-      const result = await this._service.getAllJobsForAdmin(serviceParams);
+      const result = await this._adminService.getAllJobsForAdmin(serviceParams);
       logger.info("Admin side Job details fetched", { result });
 
       res.json(result);

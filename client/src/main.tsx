@@ -7,7 +7,7 @@ import App from "./App.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-   <Provider store={store}>
+    <Provider store={store}>
       <App />
     </Provider>
   </StrictMode>,

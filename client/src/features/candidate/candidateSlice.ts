@@ -2,7 +2,6 @@ import { createSlice } from "@reduxjs/toolkit";
 import type { ICandidate } from "../../types/candidate/candidate.types";
 import { fetchCandidateProfile } from "../../thunks/candidate.thunks";
 
-
 interface CandidateState {
   profile: ICandidate | null;
   loading: boolean;
@@ -14,7 +13,6 @@ const initialState: CandidateState = {
   loading: false,
   error: null,
 };
-
 
 const candidateSlice = createSlice({
   name: "candidate",
@@ -32,7 +30,8 @@ const candidateSlice = createSlice({
       })
       .addCase(fetchCandidateProfile.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || "Failed to fetch candidate profile";
+        state.error =
+          action.error.message || "Failed to fetch candidate profile";
       });
   },
 });

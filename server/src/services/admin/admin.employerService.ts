@@ -1,12 +1,21 @@
+import { FilterQuery } from "mongoose";
 import { EmployerRepository } from "../../repositories/employer/employer.repository";
 import { IAdminEmployerService } from "../../interfaces/users/admin/IAdminEmployerService";
-import { BlockEmployerDTO, EmployerResponseDTO } from "../../dto/admin/employer.dto";
+import {
+  BlockEmployerDTO,
+  EmployerResponseDTO,
+} from "../../dto/admin/employer.dto";
+import { IEmployer } from "../../interfaces/users/employer/IEmployer";
 
 export class AdminEmployerService implements IAdminEmployerService {
-  constructor(private employerRepo: EmployerRepository) {}
+  constructor(private _employerRepo: EmployerRepository) {}
 
-  async getAllEmployers(page: number, limit: number, search?: string): Promise<{ data: EmployerResponseDTO[]; total: number }> {
-    const query: any = {};
+  async getAllEmployers(
+    page: number,
+    limit: number,
+    search?: string,
+  ): Promise<{ data: EmployerResponseDTO[]; total: number }> {
+    const query: FilterQuery<IEmployer> = {};
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: "i" } },
@@ -14,8 +23,8 @@ export class AdminEmployerService implements IAdminEmployerService {
       ];
     }
 
-    const employers = await this.employerRepo.findAll(query, page, limit);
-    const total = await this.employerRepo.count(query);
+    const employers = await this._employerRepo.findAll(query, page, limit);
+    const total = await this._employerRepo.count(query);
 
     return {
       data: employers.map((e) => ({
@@ -31,8 +40,13 @@ export class AdminEmployerService implements IAdminEmployerService {
     };
   }
 
-  async blockUnblockEmployer(data: BlockEmployerDTO): Promise<EmployerResponseDTO> {
-    const employer = await this.employerRepo.updateBlockStatus(data.employerId, data.block);
+  async blockUnblockEmployer(
+    data: BlockEmployerDTO,
+  ): Promise<EmployerResponseDTO> {
+    const employer = await this._employerRepo.updateBlockStatus(
+      data.employerId,
+      data.block,
+    );
     if (!employer) throw new Error("Employer not found");
 
     return {
@@ -47,7 +61,7 @@ export class AdminEmployerService implements IAdminEmployerService {
   }
 
   async getEmployerById(id: string): Promise<EmployerResponseDTO | null> {
-    const employer = await this.employerRepo.findById(id);
+    const employer = await this._employerRepo.findById(id);
     if (!employer) return null;
 
     return {

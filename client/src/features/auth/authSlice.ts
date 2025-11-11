@@ -1,18 +1,25 @@
-import { createSlice, } from "@reduxjs/toolkit";
-import type {
-  AuthState,
-} from "../../types/auth/Auth";
-import { signup, login, sendOtp } from "../../thunks/auth.thunk";
+import { createSlice } from "@reduxjs/toolkit";
+import type { PayloadAction } from "@reduxjs/toolkit";
+import {
+  signup,
+  login,
+  sendOtp,
+  adminLogin,
+  serverLogout,
+  refreshToken,
+} from "../../thunks/auth.thunk";
+import type { AuthState, AuthResponse } from "../../types/auth/Auth";
+import Cookies from "js-cookie";
 
 const initialState: AuthState = {
-  user: JSON.parse(localStorage.getItem("user") || "null"),
-  accessToken: localStorage.getItem("accessToken") || null,
-  refreshToken: localStorage.getItem("refreshToken") || null,
+  user: null,
+  accessToken: null,
+  refreshToken: null,
   loading: false,
   error: null,
   forgotPasswordEmail: null,
+  isInitialized: false,
 };
-
 
 const authSlice = createSlice({
   name: "auth",
@@ -22,22 +29,33 @@ const authSlice = createSlice({
       state.user = null;
       state.accessToken = null;
       state.refreshToken = null;
-      localStorage.removeItem("user"); 
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
+      state.error = "User blocked or session expired";
+      state.isInitialized = true;
     },
-    setForgotPasswordEmail: (state, action: { payload: string }) => {
+    setForgotPasswordEmail: (state, action: PayloadAction<string>) => {
       state.forgotPasswordEmail = action.payload;
     },
-    loginSuccess: (state, action: { payload: { user: any; accessToken: string; refreshToken: string } }) => {
+    setInitialized: (state, action: PayloadAction<boolean>) => {
+      state.isInitialized = action.payload;
+    },
+    loginSuccess: (
+      state,
+      action: PayloadAction<{
+        user: any;
+        accessToken: string;
+        refreshToken?: string | null;
+      }>,
+    ) => {
       const { user, accessToken, refreshToken } = action.payload;
       state.user = user;
       state.accessToken = accessToken;
-      state.refreshToken = refreshToken;
-
-      localStorage.setItem("user", JSON.stringify(user));
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("refreshToken", refreshToken);
+      state.refreshToken = refreshToken || null;
+      if (refreshToken && refreshToken !== "http-only") {
+        Cookies.set("refreshToken", refreshToken, {
+          expires: 7,
+          sameSite: "Lax",
+        });
+      }
     },
   },
   extraReducers: (builder) => {
@@ -46,15 +64,15 @@ const authSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(signup.fulfilled, (state, action) => {
-        state.loading = false;
-        state.user = action.payload.user;
-        state.accessToken = action.payload.accessToken;
-        state.refreshToken = action.payload.refreshToken;
-        localStorage.setItem("user", JSON.stringify(action.payload.user)); 
-        localStorage.setItem("accessToken", action.payload.accessToken);
-        localStorage.setItem("refreshToken", action.payload.refreshToken);
-      })
+      .addCase(
+        signup.fulfilled,
+        (state, action: PayloadAction<AuthResponse>) => {
+          state.loading = false;
+          state.user = action.payload.user;
+          state.accessToken = action.payload.accessToken;
+          state.refreshToken = null;
+        },
+      )
       .addCase(signup.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
@@ -63,32 +81,85 @@ const authSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(login.fulfilled, (state, action) => {
-        state.loading = false;
-        state.user = action.payload.user;
-        state.accessToken = action.payload.accessToken;
-        state.refreshToken = action.payload.refreshToken;
-        localStorage.setItem("user", JSON.stringify(action.payload.user)); 
-        localStorage.setItem("accessToken", action.payload.accessToken);
-        localStorage.setItem("refreshToken", action.payload.refreshToken);
-      })
+      .addCase(
+        login.fulfilled,
+        (state, action: PayloadAction<AuthResponse>) => {
+          state.loading = false;
+          state.user = action.payload.user;
+          state.accessToken = action.payload.accessToken;
+          state.refreshToken = null;
+        },
+      )
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
-      .addCase(sendOtp.pending, (state) => { 
-        state.loading = true; 
-        state.error = null; 
+      .addCase(adminLogin.pending, (state) => {
+        state.loading = true;
+        state.error = null;
       })
-      .addCase(sendOtp.fulfilled, (state) => { 
-        state.loading = false; 
+      .addCase(
+        adminLogin.fulfilled,
+        (state, action: PayloadAction<AuthResponse>) => {
+          state.loading = false;
+          state.user = action.payload.user;
+          state.accessToken = action.payload.accessToken;
+          state.refreshToken = null;
+        },
+      )
+      .addCase(adminLogin.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       })
-      .addCase(sendOtp.rejected, (state, action) => { 
-        state.loading = false; 
-        state.error = action.payload as string; 
+      .addCase(sendOtp.pending, (state) => {
+        state.loading = true;
+        state.error = null;
       })
+      .addCase(sendOtp.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(sendOtp.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(serverLogout.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(serverLogout.fulfilled, (state) => {
+        state.user = null;
+        state.accessToken = null;
+        state.refreshToken = null;
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(serverLogout.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(refreshToken.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(
+        refreshToken.fulfilled,
+        (state, action: PayloadAction<{ accessToken: string }>) => {
+          state.accessToken = action.payload.accessToken;
+          state.loading = false;
+          state.error = null;
+        },
+      )
+      .addCase(refreshToken.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+        state.user = null;
+        state.accessToken = null;
+        state.refreshToken = null;
+        Cookies.remove("refreshToken");
+      });
   },
 });
 
-export const { logout, setForgotPasswordEmail, loginSuccess } = authSlice.actions;
+export const { logout, setForgotPasswordEmail, loginSuccess, setInitialized } =
+  authSlice.actions;
 export default authSlice.reducer;

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import {
   BrowserRouter as Router,
   Route,
@@ -6,12 +6,9 @@ import {
   Navigate,
 } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import { useAppDispatch } from "./hooks/hooks";
-import { loginSuccess } from "./features/auth/authSlice";
-import { adminLoginSuccess } from "./features/admin/adminAuthSlice";
+import { useAuthInitialiazer } from "./hooks/hooks";
 import "react-toastify/dist/ReactToastify.css";
 import PublicRoute from "./components/common/PublicRoute";
-import AdminProtectedRoute from "./components/admin/AdminProtectedRoute";
 import Homepage from "./pages/common/HomePage";
 import AdminSignIn from "./pages/admin/AdminSignin";
 import Signup from "./pages/auth/SignUp";
@@ -26,148 +23,116 @@ import AdminEmployers from "./pages/admin/AdminEmployer";
 import AuthSuccess from "./pages/auth/AuthSuccess";
 import CandidateProfile from "./pages/candidate/CandidateProfile";
 import EmployerProfile from "./pages/employer/EmployerProfile";
-import ProtectedRoute from "./components/common/ProtectedRoute";
+import { ProtectedRoute } from "./components/common/ProtectedRoute";
+import { AdminProtectedRoute } from "./components/admin/AdminProtectedRoute";
+import { FRONTEND_ROUTES } from "./shared/constants";
+import AuthRouteGuard from "./components/common/AuthRouteGuard";
+import NavigationProvider from "./components/common/NavigationProvider";
 
 const App: React.FC = () => {
-  const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user") || "null");
-    const accessToken = localStorage.getItem("accessToken");
-    const refreshToken = localStorage.getItem("refreshToken");
-
-    if (user && accessToken && refreshToken) {
-      dispatch(loginSuccess({ user, accessToken, refreshToken }));
-    }
-  }, [dispatch]);
-
-  useEffect(() => {
-    const admin = JSON.parse(localStorage.getItem("admin") || "null");
-    const accessToken = localStorage.getItem("adminAccessToken");
-    const refreshToken = localStorage.getItem("adminRefreshToken");
-
-    if (admin && accessToken && refreshToken) {
-      dispatch(
-        adminLoginSuccess({
-          admin,
-          accessToken,
-          refreshToken,
-        }),
-      );
-    }
-  }, [dispatch]);
-
+  useAuthInitialiazer();
   return (
     <>
       <Router>
-        <ToastContainer
-          position="top-right"
-          autoClose={1500}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="colored"
-          style={{ width: "320px" }}
-          toastStyle={{
-            borderRadius: "0.75rem",
-            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.2)",
-          }}
-        />
+        <NavigationProvider />
+        <AuthRouteGuard>
+          <ToastContainer
+            position="top-right"
+            autoClose={1500}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="colored"
+            style={{ width: "320px" }}
+            toastStyle={{
+              borderRadius: "0.75rem",
+              boxShadow: "0 4px 6px rgba(0, 0, 0, 0.2)",
+            }}
+          />
 
-        <Routes>
-          {/* Public Routes */}
-          <Route
-            path="/login"
-            element={
-              <PublicRoute>
-                <Login />
-              </PublicRoute>
-            }
-          />
-          <Route
-            path="/signup"
-            element={
-              <PublicRoute>
-                <Signup />
-              </PublicRoute>
-            }
-          />
-          <Route
-            path="/verify"
-            element={
-              <PublicRoute>
-                <VerifyOtp />
-              </PublicRoute>               
-            }
-          />
-          <Route
-            path="/forgot-password"
-            element={
-              <PublicRoute>
-                <ForgotPassword />
-              </PublicRoute>
-            }
-          />
-          <Route
-            path="/reset-password"
-            element={
-              <PublicRoute>
-                <ResetPassword />
-              </PublicRoute>
-            }
-          />
-          <Route
-            path="/admin-signin"
-            element={
-              <PublicRoute>
-                <AdminSignIn />
-              </PublicRoute>
-            }
-          />
-          <Route
-            path="/"
-            element={
-              <PublicRoute>
-                <Homepage />
-              </PublicRoute>
-            }
-          />
-          <Route
-          path="/candidate-profile"
-          element={
-            <ProtectedRoute>
-              <CandidateProfile/>
-            </ProtectedRoute>
-              
-            
-          }
-          />
-          <Route
-          path="/employer-profile"
-          element={
-            
-              <EmployerProfile/>
-            
-          }
-          />
-          <Route path="/auth-success" element={<AuthSuccess />} />
-          <Route
-            element={
-              <AdminProtectedRoute>
-                <AdminLayout />
-              </AdminProtectedRoute>
-            }
-          >
-            <Route path="/admin-dashboard" element={<AdminDashboard />} />
-            <Route path="/admin-candidates" element={<AdminCandidates />} />
-            <Route path="/admin-employers" element={<AdminEmployers />} />
-          </Route>
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
+          <Routes>
+            <Route path={FRONTEND_ROUTES.LOGIN} element={<Login />} />
+            <Route path={FRONTEND_ROUTES.SIGNUP} element={<Signup />} />
+            <Route path={FRONTEND_ROUTES.VERIFY_OTP} element={<VerifyOtp />} />
+            <Route
+              path={FRONTEND_ROUTES.FORGOT_PASSWORD}
+              element={
+                <PublicRoute>
+                  <ForgotPassword />
+                </PublicRoute>
+              }
+            />
+            <Route
+              path={FRONTEND_ROUTES.RESET_PASSWORD}
+              element={
+                <PublicRoute>
+                  <ResetPassword />
+                </PublicRoute>
+              }
+            />
+            <Route
+              path={FRONTEND_ROUTES.ADMINLOGIN}
+              element={
+                <PublicRoute>
+                  <AdminSignIn />
+                </PublicRoute>
+              }
+            />
+            <Route
+              path={FRONTEND_ROUTES.HOME}
+              element={
+                <PublicRoute>
+                  <Homepage />
+                </PublicRoute>
+              }
+            />
+            <Route
+              path={FRONTEND_ROUTES.CANDIDATEPROFILE}
+              element={
+                <ProtectedRoute>
+                  <CandidateProfile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={FRONTEND_ROUTES.EMPLOYERPROFILE}
+              element={
+                <ProtectedRoute>
+                  <EmployerProfile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={FRONTEND_ROUTES.AUTHSUCCESS}
+              element={<AuthSuccess />}
+            />
+            <Route
+              element={
+                <AdminProtectedRoute>
+                  <AdminLayout />
+                </AdminProtectedRoute>
+              }
+            >
+              <Route
+                path={FRONTEND_ROUTES.ADMIN_DASHBOARD}
+                element={<AdminDashboard />}
+              />
+              <Route
+                path={FRONTEND_ROUTES.ADMINCANDIDATES}
+                element={<AdminCandidates />}
+              />
+              <Route
+                path={FRONTEND_ROUTES.ADMINEMPLOYERS}
+                element={<AdminEmployers />}
+              />
+            </Route>
+            <Route path="*" element={<Navigate to={FRONTEND_ROUTES.HOME} />} />
+          </Routes>
+        </AuthRouteGuard>
       </Router>
     </>
   );

@@ -1,7 +1,7 @@
-import { Document, Types } from "mongoose";
+import { Document } from "mongoose";
 
 export interface IEmployer extends Document {
-  _id: Types.ObjectId;
+  _id: string;
   email: string;
   password: string;
   name: string;

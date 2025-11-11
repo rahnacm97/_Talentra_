@@ -2,38 +2,9 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import {
   getAllCandidatesApi,
   blockUnblockCandidateApi,
-} from "../features/admin/adminCandidateApi";
-import {
   getAllEmployersApi,
   blockUnblockEmployerApi,
-} from "../features/admin/adminEmployerApi";
-import type { AdminLoginRequest } from "../types/admin/admin.types";
-import { loginAdmin, adminLogoutApi } from "../features/admin/adminAuthApi";
-
-
-export const adminLogin = createAsyncThunk(
-  "admin/login",
-  async (data: AdminLoginRequest, { rejectWithValue }) => {
-    try {
-      return await loginAdmin(data);
-    } catch (error: any) {
-      const message = error.response?.data?.message || "Admin login failed";
-      return rejectWithValue(message);
-    }
-  },
-);
-
-export const serverAdminLogout = createAsyncThunk(
-  "admin/logout",
-  async (refreshToken: string, { rejectWithValue }) => {
-    try {
-      return await adminLogoutApi(refreshToken);
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || "Admin logout failed");
-    }
-  }
-);
-
+} from "../features/admin/adminApi";
 
 export const fetchCandidates = createAsyncThunk(
   "adminCandidates/fetchAll",
@@ -71,7 +42,6 @@ export const fetchEmployers = createAsyncThunk(
   },
 );
 
-// Block/Unblock employer
 export const blockUnblockEmployer = createAsyncThunk(
   "adminEmployers/blockUnblockEmployer",
   async (

@@ -1,16 +1,17 @@
 import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
-import { adminLogin } from "../../thunks/admin.thunk";
+import { adminLogin } from "../../thunks/auth.thunk";
+import { loginSuccess } from "../../features/auth/authSlice";
 import type { AdminLoginErrors } from "../../types/admin/admin.types";
 import { Eye, EyeOff, Building2 } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { FRONTEND_ROUTES } from "../../shared/constants";
+import Cookies from "js-cookie";
 import ScreenLeft from "../../components/common/AuthLeft";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
-
 
 const AdminSignIn: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { loading, error } = useAppSelector((state) => state.adminAuth);
+  const { loading, error } = useAppSelector((state) => state.auth);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -19,7 +20,6 @@ const AdminSignIn: React.FC = () => {
   const [errors, setErrors] = useState<AdminLoginErrors>({});
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-
 
   const validate = () => {
     const newErrors: AdminLoginErrors = {};
@@ -38,17 +38,25 @@ const AdminSignIn: React.FC = () => {
     e.preventDefault();
     if (!validate()) return;
     dispatch(adminLogin(formData))
-  .unwrap()
-  .then((res) => {
-    localStorage.setItem("adminAccessToken", res.accessToken); 
-    localStorage.setItem("admin", JSON.stringify(res.admin));
-    navigate("/admin-dashboard");
-  })
-  .catch((error) => {
-    console.error("Login failed:", error);
-    setErrors({ email: error, password: error });
-  });
-
+      .unwrap()
+      .then((res) => {
+        dispatch(
+          loginSuccess({
+            user: res.user,
+            accessToken: res.accessToken,
+            refreshToken: res.refreshToken,
+          }),
+        );
+        Cookies.set("refreshToken", res.refreshToken, {
+          expires: 7,
+          sameSite: "Lax",
+        });
+        navigate(FRONTEND_ROUTES.ADMIN_DASHBOARD);
+      })
+      .catch((error) => {
+        console.error("Login failed:", error);
+        setErrors({ email: error, password: error });
+      });
   };
 
   return (
@@ -68,9 +76,7 @@ const AdminSignIn: React.FC = () => {
             </p>
           </div>
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-            {/* Email */}
             <div>
               <label
                 htmlFor="email"
@@ -93,7 +99,6 @@ const AdminSignIn: React.FC = () => {
               )}
             </div>
 
-            {/* Password */}
             <div>
               <label
                 htmlFor="password"
@@ -129,7 +134,6 @@ const AdminSignIn: React.FC = () => {
               )}
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
@@ -145,13 +149,9 @@ const AdminSignIn: React.FC = () => {
               )}
             </button>
 
-            {/* Error message */}
-            {error && (
-              <p className="text-red-500 text-center text-sm mt-2">{error}</p>
-            )}
+            {error && <p className="text-red-500 text-center text-sm mt-2"></p>}
           </form>
 
-          {/* Footer */}
           <div className="mt-6 lg:mt-8 text-center">
             <p className="text-sm sm:text-base text-gray-600">
               Need user access?{" "}
@@ -164,7 +164,6 @@ const AdminSignIn: React.FC = () => {
             </p>
           </div>
 
-          {/* Security Notice */}
           <div className="mt-4 lg:mt-6 p-3 sm:p-4 bg-amber-50 border border-amber-200 rounded-lg">
             <p className="text-xs text-amber-800 text-center">
               🔒 This is a secure admin portal. All activities are monitored and

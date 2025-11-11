@@ -10,11 +10,11 @@ export const fetchEmployerProfile = createAsyncThunk(
       return response;
     } catch (error: any) {
       if (error.response?.status === 403) {
-        toast.error("You have been blocked by admin");
+        //toast.error("You have been blocked by admin");
       } else {
         toast.error("Failed to load profile");
       }
       return rejectWithValue(error.response?.data || error.message);
     }
-  }
+  },
 );

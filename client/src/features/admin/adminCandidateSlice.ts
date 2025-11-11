@@ -1,5 +1,8 @@
-import { createSlice, } from "@reduxjs/toolkit";
-import { fetchCandidates, toggleBlockCandidate } from "../../thunks/admin.thunk";
+import { createSlice } from "@reduxjs/toolkit";
+import {
+  fetchCandidates,
+  toggleBlockCandidate,
+} from "../../thunks/admin.thunk";
 import type { Candidate } from "../../types/admin/admin.candidate.types";
 import { toast } from "react-toastify";
 
@@ -16,7 +19,6 @@ const initialState: CandidateState = {
   loading: false,
   error: null,
 };
-
 
 const adminCandidateSlice = createSlice({
   name: "adminCandidates",

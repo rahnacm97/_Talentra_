@@ -14,13 +14,20 @@ import { PasswordService } from "../../services/auth/password.service";
 import passport from "passport";
 import { GoogleAuthService } from "../../services/auth/googleAuth.service";
 import { GoogleAuthController } from "../../controllers/auth/googleAuth.controller";
+import { UserRepoMap } from "../../types/types";
+import { GoogleAuthUserRepoMap } from "../../types/types";
 
 const router = Router();
 
-const userRepos = {
+const userRepos: UserRepoMap = {
   Candidate: new CandidateRepository(),
   Employer: new EmployerRepository(),
   Admin: new AdminRepository(),
+};
+
+const googleUserRepos: GoogleAuthUserRepoMap = {
+  Candidate: userRepos.Candidate,
+  Employer: userRepos.Employer,
 };
 
 const otpRepository = new OtpRepository();
@@ -35,7 +42,7 @@ const authController = new AuthController(authService);
 const otpController = new OtpController(otpService);
 const passwordController = new PasswordController(passwordService);
 
-new GoogleAuthService(userRepos);
+new GoogleAuthService(googleUserRepos);
 const googleAuthController = new GoogleAuthController();
 
 router.get("/google", (req, res, next) => {
@@ -45,16 +52,15 @@ router.get("/google", (req, res, next) => {
   passport.authenticate("google", {
     scope: ["profile", "email"],
     state: stateParam,
-  })(req, res, next); 
+  })(req, res, next);
 });
-
 router.get(
   "/google/callback",
   passport.authenticate("google", { session: false }),
-  googleAuthController.loginSuccess
+  googleAuthController.loginSuccess,
 );
-router.get("/me", authController.getMe);
 
+router.get("/me", authController.getMe);
 router.post("/signup", authController.signup);
 router.post("/login", authController.login);
 router.post("/send-otp", otpController.sendOtp);
@@ -65,4 +71,3 @@ router.post("/refresh-token", authController.refreshToken);
 router.post("/logout", authController.logout);
 
 export default router;
-

@@ -1,20 +1,33 @@
-import { Navigate } from "react-router-dom";
-import { useAppSelector } from "../../hooks/hooks";
+import { Navigate, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
+import type { RootState } from "../../app/store";
+import { FRONTEND_ROUTES } from "../../shared/constants";
 
-interface Props {
+export const AdminProtectedRoute = ({
+  children,
+}: {
   children: React.ReactNode;
-}
+}) => {
+  const { user, accessToken, error } = useSelector(
+    (state: RootState) => state.auth,
+  );
+  const location = useLocation();
 
-const AdminProtectedRoute: React.FC<Props> = ({ children }) => {
-  const { admin, accessToken } = useAppSelector((state) => state.adminAuth);
-  const storedAdmin = localStorage.getItem("admin");
-  const storedToken = localStorage.getItem("adminAccessToken");
+  if (error && (error.includes("blocked") || error.includes("expired"))) {
+    return <Navigate to={FRONTEND_ROUTES.LOGIN} replace />;
+  }
 
-  if ((!admin || !accessToken) && (!storedAdmin || !storedToken)) {
-    return <Navigate to="/admin-signin" replace />;
+  const isAdmin = user && accessToken && !error && user.role === "Admin";
+
+  if (!isAdmin) {
+    return (
+      <Navigate
+        to={FRONTEND_ROUTES.ADMINLOGIN}
+        state={{ from: location }}
+        replace
+      />
+    );
   }
 
   return <>{children}</>;
 };
-
-export default AdminProtectedRoute;

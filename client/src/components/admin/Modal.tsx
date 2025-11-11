@@ -6,7 +6,7 @@ interface ModalProps {
   onApprove: () => void;
   onCancel: () => void;
   actionType: "block" | "unblock";
-  name: string; // generic name prop
+  name: string;
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -35,8 +35,7 @@ const Modal: React.FC<ModalProps> = ({
 
           <p className="text-gray-600 text-center mb-6">
             Are you sure you want to {actionType}{" "}
-            <span className="font-semibold">{name}</span>? This action
-            will{" "}
+            <span className="font-semibold">{name}</span>? This action will{" "}
             {actionType === "block"
               ? "prevent them from accessing the platform"
               : "restore their access to the platform"}

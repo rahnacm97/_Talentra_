@@ -6,7 +6,6 @@ export interface Employer {
   blocked: boolean;
 }
 
-
 export interface EmployerResponseDTO {
   id: string;
   name: string;
@@ -27,4 +26,15 @@ export interface EmployersState {
   total: number;
   loading: boolean;
   error: string | null;
+}
+
+export interface GetAllEmployersParams {
+  page: number;
+  limit: number;
+  search?: string;
+}
+
+export interface GetAllEmployersResponse {
+  data: EmployerResponseDTO[];
+  total: number;
 }

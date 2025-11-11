@@ -1,51 +1,50 @@
 import React from "react";
 import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
-import { adminLogout } from "../../features/admin/adminAuthSlice";
-import { serverAdminLogout } from "../../thunks/admin.thunk";
+import { logout } from "../../features/auth/authSlice";
+import { serverLogout } from "../../thunks/auth.thunk";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PersonIcon from "@mui/icons-material/Person";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import WorkIcon from "@mui/icons-material/Work";
 import SettingsIcon from "@mui/icons-material/Settings";
+import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import PersonSearchRoundedIcon from "@mui/icons-material/PersonSearchRounded";
 import LogoutIcon from "@mui/icons-material/Logout";
+import { FRONTEND_ROUTES } from "../../shared/constants";
 
 const Sidebar: React.FC = () => {
   const location = useLocation();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const refreshToken = useAppSelector((state) => state.adminAuth.refreshToken);
-  
+  const user = useAppSelector((state) => state.auth.user);
+
   const handleLogout = async () => {
-  if (refreshToken) {
     try {
-      await dispatch(serverAdminLogout(refreshToken)).unwrap();
+      await dispatch(serverLogout({ role: user?.role })).unwrap();
     } catch (error) {
       console.error("Server logout failed:", error);
     }
-  }
 
-  dispatch(adminLogout());
-  navigate("/admin-signin");
-};
-
+    dispatch(logout());
+    navigate(FRONTEND_ROUTES.ADMINLOGIN);
+  };
 
   const menuItems = [
     {
-      path: "/admin-dashboard",
+      path: FRONTEND_ROUTES.ADMIN_DASHBOARD,
       label: "Dashboard",
       icon: DashboardIcon,
       description: "Overview & Analytics",
     },
     {
-      path: "/admin-candidates",
+      path: FRONTEND_ROUTES.ADMINCANDIDATES,
       label: "Candidates",
       icon: PersonIcon,
       description: "Manage Job Seekers",
     },
     {
-      path: "/admin-employers",
+      path: FRONTEND_ROUTES.ADMINEMPLOYERS,
       label: "Employers",
       icon: AccountBoxIcon,
       description: "Manage Companies",
@@ -61,6 +60,12 @@ const Sidebar: React.FC = () => {
       label: "Settings",
       icon: SettingsIcon,
       description: "System Configuration",
+    },
+    {
+      path: "/admin-notification",
+      label: "Notifications",
+      icon: NotificationsNoneIcon,
+      description: "Notifications",
     },
   ];
 
@@ -169,11 +174,8 @@ const Sidebar: React.FC = () => {
           </div>
         </div>
       </div>
-      
 
       <div className="p-4 border-t border-gray-200">
-        <div className="flex items-center space-x-3">
-        <div className="p-4 border-t border-gray-200">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
@@ -183,9 +185,7 @@ const Sidebar: React.FC = () => {
               <div className="text-sm font-medium text-gray-900">
                 Admin User
               </div>
-              <div className="text-xs text-gray-500">
-                System Administrator
-              </div>
+              <div className="text-xs text-gray-500">System Administrator</div>
             </div>
           </div>
 
@@ -196,8 +196,6 @@ const Sidebar: React.FC = () => {
           >
             <LogoutIcon />
           </button>
-        </div>
-      </div>
         </div>
       </div>
     </aside>

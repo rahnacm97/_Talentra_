@@ -1,36 +1,95 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { IAdminAuthService } from "../../interfaces/users/admin/IAdminAuthService";
 import { AdminLoginDTO } from "../../dto/admin/admin.dto";
+import {
+  SUCCESS_MESSAGES,
+  ERROR_MESSAGES,
+} from "../../shared/constants/constants";
+import { HTTP_STATUS } from "../../shared/httpStatus/httpStatus";
+import { IAdminAuthController } from "../../interfaces/users/admin/IAdminAuthController";
+import {
+  setAuthCookies,
+  clearAuthCookies,
+} from "../../shared/utils/cookie.utils";
+import { logger } from "../../shared/utils/logger";
+import { ApiError } from "../../shared/utils/ApiError";
 
-export class AdminAuthController {
-  constructor(private adminAuthService: IAdminAuthService) {}
+export class AdminAuthController implements IAdminAuthController {
+  constructor(private _adminAuthService: IAdminAuthService) {}
 
-  login = async (req: Request, res: Response) => {
+  login = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     try {
       const data: AdminLoginDTO = req.body;
-      const result = await this.adminAuthService.login(data);
+      logger.info("Starting admin login process", { email: data.email });
+      const result = await this._adminAuthService.login(data);
 
-      res.status(200).json({
-        message: "Admin login successful",
-        admin: result.admin,
-        accessToken: result.accessToken,
-        refreshToken: result.refreshToken,
+      setAuthCookies(res, result.refreshToken);
+
+      logger.info("Admin login successful", {
+        userId: result.user._id,
+        email: data.email,
       });
-    } catch (error: any) {
-      res.status(400).json({ message: error.message });
+
+      res.status(HTTP_STATUS.OK).json({
+        message: SUCCESS_MESSAGES.LOGIN_SUCCESS,
+        user: {
+          _id: result.user._id,
+          email: result.user.email,
+          name: result.user.name,
+          role: result.user.role,
+        },
+        accessToken: result.accessToken,
+      });
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : ERROR_MESSAGES.INVALID_CREDENTIALS;
+      logger.error("Admin login failed", {
+        error: message,
+        email: req.body.email,
+      });
+      next(
+        error instanceof ApiError
+          ? error
+          : new ApiError(HTTP_STATUS.UNAUTHORIZED, message),
+      );
     }
   };
 
-  logout = async (req: Request, res: Response) => {
+  logout = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     try {
-      const { refreshToken } = req.body;
-      if (!refreshToken) return res.status(400).json({ message: "Refresh token required" });
+      const refreshToken = req.cookies.refreshToken;
 
-      const result = await this.adminAuthService.logout(refreshToken);
-      res.status(200).json(result);
-    } catch (error: any) {
-      res.status(400).json({ message: error.message });
+      if (refreshToken) {
+        await this._adminAuthService.logout(refreshToken);
+        logger.info("Admin logout successful");
+      }
+
+      clearAuthCookies(res);
+
+      res.status(HTTP_STATUS.OK).json({
+        message: SUCCESS_MESSAGES.LOGOUT_SUCCESS,
+      });
+    } catch (error: unknown) {
+      clearAuthCookies(res);
+
+      const message =
+        error instanceof Error ? error.message : ERROR_MESSAGES.SERVER_ERROR;
+      logger.error("Admin logout failed", { error: message });
+      next(
+        error instanceof ApiError
+          ? error
+          : new ApiError(HTTP_STATUS.INTERNAL_SERVER_ERROR, message),
+      );
     }
   };
 }
-

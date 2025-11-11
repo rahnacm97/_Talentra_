@@ -1,8 +1,8 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Search, MapPin } from "lucide-react";
 
 // Search Component
-const SearchAppBar = () => {
+const SearchAppBar: React.FC = () => {
   const [searchType, setSearchType] = useState("jobs");
   const [location, setLocation] = useState("");
   const [keyword, setKeyword] = useState("");

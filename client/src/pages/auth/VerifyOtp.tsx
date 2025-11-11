@@ -14,6 +14,8 @@ import { useSelector } from "react-redux";
 import type { RootState } from "../../app/store";
 
 import { useLocation, useNavigate } from "react-router-dom";
+import { FRONTEND_ROUTES } from "../../shared/constants";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 const VerifyOtp: React.FC = () => {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
@@ -27,9 +29,8 @@ const VerifyOtp: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
-
   const storedEmail = useSelector(
-    (state: RootState) => state.auth.forgotPasswordEmail
+    (state: RootState) => state.auth.forgotPasswordEmail,
   );
 
   const { email: locationEmail, purpose } = location.state || {
@@ -38,8 +39,6 @@ const VerifyOtp: React.FC = () => {
   };
 
   const email = locationEmail || storedEmail;
-
- // const { email, purpose } = location.state || { email: "", purpose: "signup" };
 
   useEffect(() => {
     setOtpExpiration(60);
@@ -137,14 +136,16 @@ const VerifyOtp: React.FC = () => {
         toast.success("Successfully verified OTP!");
 
         if (purpose === "forgot-password") {
-          navigate("/reset-password", { state: { email, purpose: "forgot-password" } });
+          navigate(FRONTEND_ROUTES.RESET_PASSWORD, {
+            state: { email, purpose: "forgot-password" },
+          });
         } else {
-          navigate("/login", { state: { email } });
+          navigate(FRONTEND_ROUTES.LOGIN, { state: { email } });
         }
       } else {
         setError((resultAction.payload as string) || "Invalid OTP");
       }
-    } catch (err) {
+    } catch {
       setLoading(false);
       setError("Something went wrong. Try again!");
     }
@@ -169,7 +170,7 @@ const VerifyOtp: React.FC = () => {
       } else {
         setError((resultAction.payload as string) || "Failed to resend OTP");
       }
-    } catch (err) {
+    } catch {
       setIsResending(false);
       setError("Something went wrong. Try again!");
     }
@@ -195,7 +196,14 @@ const VerifyOtp: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
       <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] p-4">
-        <div className="w-full max-w-max">
+        <div className="w-full max-w-fit">
+          <button
+            onClick={() => navigate(FRONTEND_ROUTES.LOGIN)}
+            className="flex items-center text-gray-600 hover:text-gray-800 mb-6 transition-colors duration-200 group"
+          >
+            <ArrowBackIcon className="mr-2 group-hover:-translate-x-1 transition-transform duration-200" />
+            <span className="font-medium">Back to Sign In</span>
+          </button>
           <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
             <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-8 text-center">
               <div className="bg-white/20 p-3 rounded-full inline-block mb-4">

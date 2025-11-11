@@ -1,0 +1,64 @@
+import { api } from "../../api/api";
+import type { AdminLoginRequest } from "../../types/admin/admin.types";
+import { API_ROUTES } from "../../shared/constants";
+import type {
+  Candidate,
+  CandidateListResponse,
+} from "../../types/admin/admin.candidate.types";
+import type {
+  EmployerResponseDTO,
+  GetAllEmployersResponse,
+  GetAllEmployersParams,
+} from "../../types/admin/admin.employer.types";
+
+export const loginAdmin = async (data: AdminLoginRequest) => {
+  const response = await api.post(API_ROUTES.ADMIN.ADMINLOGIN, data);
+  return response.data;
+};
+
+export const adminLogoutApi = async (refreshToken: string) => {
+  const response = await api.post(API_ROUTES.ADMIN.ADMINLOGOUT, {
+    refreshToken,
+  });
+  return response.data;
+};
+
+export const getAllCandidatesApi = async (
+  page: number,
+  limit: number,
+  search: string = "",
+): Promise<CandidateListResponse> => {
+  const response = await api.get(API_ROUTES.ADMIN.CANDIDATES, {
+    params: { page, limit, search },
+  });
+  return response.data.data;
+};
+
+export const blockUnblockCandidateApi = async (
+  candidateId: string,
+  block: boolean,
+): Promise<{ candidate: Candidate; message: string }> => {
+  const response = await api.patch(API_ROUTES.ADMIN.BLOCK_UNBLOCK_CANDIDATE, {
+    candidateId,
+    block,
+  });
+  return response.data;
+};
+
+export const getAllEmployersApi = async (
+  params: GetAllEmployersParams,
+): Promise<GetAllEmployersResponse> => {
+  const response = await api.get(API_ROUTES.ADMIN.EMPLOYERS, { params });
+  return response.data.data;
+};
+
+export const blockUnblockEmployerApi = async (
+  employerId: string,
+  block: boolean,
+): Promise<{ employer: EmployerResponseDTO; message: string }> => {
+  const response = await api.patch(API_ROUTES.ADMIN.BLOCK_UNBLOCK_EMPLOYER, {
+    employerId,
+    block,
+  });
+  return response.data;
+};

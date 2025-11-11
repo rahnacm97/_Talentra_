@@ -1,17 +1,13 @@
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import passport from "passport";
-import { detectUserByEmail } from "../../utils/user.utils";
-import {
-  IUserReader,
-  IUserWriter,
-} from "../../interfaces/auth/IAuthRepository";
+import { detectUserByEmailForGoogle } from "../../shared/utils/user.utils";
+import { GoogleAuthUserRepoMap } from "../../types/types";
 import jwt from "jsonwebtoken";
 import type { UserType } from "../../interfaces/auth/IAuthService";
+import type { GoogleAuthUser, GoogleAuthUserData } from "../../types/types";
 
 export class GoogleAuthService {
-  constructor(
-    private repos: Record<UserType, IUserReader<any> & IUserWriter<any>>,
-  ) {
+  constructor(private _repos: GoogleAuthUserRepoMap) {
     this.setupStrategy();
   }
 
@@ -26,7 +22,7 @@ export class GoogleAuthService {
         },
         async (req, accessToken, refreshToken, profile, done) => {
           try {
-            const roleParam = (req.query.state as string) || "Candidate"; 
+            const roleParam = (req.query.state as string) || "Candidate";
             const email = profile.emails?.[0]?.value;
 
             if (!email)
@@ -35,51 +31,55 @@ export class GoogleAuthService {
                 undefined,
               );
 
-            const detected = await detectUserByEmail(email, this.repos);
+            const detected = await detectUserByEmailForGoogle(
+              email,
+              this._repos,
+            );
 
-            let foundUser: any;
-            //let role: UserType = (roleParam as UserType) || "Candidate";
-            let role: UserType = roleParam.toLowerCase() === "employer" ? "Employer" : "Candidate";
-
-            console.log("user role before narrowing", role);
+            let foundUser: GoogleAuthUser;
+            let role: UserType =
+              roleParam.toLowerCase() === "employer" ? "Employer" : "Candidate";
 
             if (role !== "Candidate" && role !== "Employer") {
               role = "Candidate";
             }
 
-            console.log("final user role", role);
-
             if (!detected) {
-              const repo = this.repos[role];
-              foundUser = await repo.create({
+              const repo = this._repos[role];
+              foundUser = (await repo.create({
                 name: profile.displayName,
                 email,
                 password: "",
                 phoneNumber: "",
                 userType: role,
                 emailVerified: true,
-              });
+              })) as GoogleAuthUser;
             } else {
-              foundUser = detected.user;
+              foundUser = detected.user as GoogleAuthUser;
               role = detected.userType;
             }
 
-            const payload = { id: foundUser._id, email: foundUser.email, role };
+            const userData: GoogleAuthUserData = {
+              _id: foundUser._id,
+              email: foundUser.email,
+              name: foundUser.name,
+              role,
+            };
 
-            const accessTokenJwt = jwt.sign(payload, process.env.JWT_SECRET!, {
-              expiresIn: process.env.JWT_ACCESS_EXPIRY || "1h",
-            });
+            const accessTokenJwt = jwt.sign(
+              { id: userData._id, email: userData.email, role },
+              process.env.JWT_SECRET!,
+              { expiresIn: process.env.JWT_ACCESS_EXPIRY || "1h" },
+            );
 
             const refreshTokenJwt = jwt.sign(
-              payload,
+              { id: userData._id, email: userData.email, role },
               process.env.JWT_REFRESH_SECRET!,
-              {
-                expiresIn: process.env.JWT_REFRESH_EXPIRY || "7d",
-              },
+              { expiresIn: process.env.JWT_REFRESH_EXPIRY || "7d" },
             );
 
             return done(null, {
-              user: foundUser,
+              user: userData,
               role,
               accessToken: accessTokenJwt,
               refreshToken: refreshTokenJwt,

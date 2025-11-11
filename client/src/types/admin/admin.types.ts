@@ -1,8 +1,7 @@
-export interface AdminLoginRequest{
-    email: string;
-    password: string;
+export interface AdminLoginRequest {
+  email: string;
+  password: string;
 }
-
 
 export interface AdminAuthResponse {
   accessToken: string;
@@ -14,8 +13,7 @@ export interface AdminAuthResponse {
   };
 }
 
-
-export interface AdminLoginErrors{
-    email?: string;
-    password?: string;
+export interface AdminLoginErrors {
+  email?: string;
+  password?: string;
 }

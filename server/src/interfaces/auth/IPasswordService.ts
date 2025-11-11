@@ -1,6 +1,14 @@
-import { ForgotPasswordDTO, ResetPasswordDTO } from "../../dto/auth/password.dto";
+import {
+  ForgotPasswordDTO,
+  ResetPasswordDTO,
+} from "../../dto/auth/password.dto";
 
-export interface IPasswordService{
-    requestReset(data: ForgotPasswordDTO): Promise<any>;
-    resetPassword(data: ResetPasswordDTO): Promise<any>;
+export interface PasswordResponse {
+  message: string;
+  success: boolean;
+}
+
+export interface IPasswordService {
+  requestReset(data: ForgotPasswordDTO): Promise<PasswordResponse>;
+  resetPassword(data: ResetPasswordDTO): Promise<PasswordResponse>;
 }

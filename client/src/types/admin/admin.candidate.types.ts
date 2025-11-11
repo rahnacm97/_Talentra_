@@ -5,3 +5,8 @@ export interface Candidate {
   resume?: string;
   blocked: boolean;
 }
+
+export interface CandidateListResponse {
+  data: Candidate[];
+  total: number;
+}

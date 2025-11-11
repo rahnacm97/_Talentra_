@@ -16,14 +16,13 @@ import {
 //   </SvgIcon>
 // );
 
- 
 const GoogleLogin: React.FC = () => {
   const [open, setOpen] = useState(false);
 
   const handleGoogleLogin = (role: "candidate" | "employer") => {
-    const encodedRole = encodeURIComponent(role); 
+    const encodedRole = encodeURIComponent(role);
     window.location.href = `${import.meta.env.VITE_API_URL}/api/auth/google?state=${encodedRole}`;
-    console.log("Uri", window.location.href)
+    console.log("Uri", window.location.href);
     setOpen(false);
   };
 
@@ -88,5 +87,3 @@ const GoogleLogin: React.FC = () => {
 };
 
 export default GoogleLogin;
-
-

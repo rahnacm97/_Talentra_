@@ -29,7 +29,7 @@ const Homepage: React.FC = () => {
     { icon: Building2, title: "Business", jobCount: "3,200+", color: "orange" },
     { icon: Heart, title: "Healthcare", jobCount: "900+", color: "pink" },
     { icon: Shield, title: "Finance", jobCount: "1,500+", color: "indigo" },
-  ];
+  ] as const;
 
   const featuredJobs = [
     {

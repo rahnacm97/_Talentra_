@@ -1,67 +1,51 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import PersonSearchRoundedIcon from "@mui/icons-material/PersonSearchRounded";
 import { useAppSelector, useAppDispatch } from "../../hooks/hooks";
-import {
-  logout,
-  loginSuccess,
-} from "../../features/auth/authSlice";
+import { logout } from "../../features/auth/authSlice";
 import { serverLogout } from "../../thunks/auth.thunk";
 import { toast } from "react-toastify";
-
+import { FRONTEND_ROUTES } from "../../shared/constants";
+import Cookies from "js-cookie";
 
 const Header: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const refreshToken = useAppSelector((state: any) => state.auth.refreshToken);
-  const auth = useAppSelector((state) => state.auth);
+  const { user, accessToken } = useAppSelector((state) => {
+    return state.auth;
+  });
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  useEffect(() => {
-    if (!auth.user) {
-      const storedUser = localStorage.getItem("user");
-      const accessToken = localStorage.getItem("accessToken");
-      const refreshToken = localStorage.getItem("refreshToken");
-
-      if (storedUser && accessToken && refreshToken) {
-        dispatch(
-          loginSuccess({
-            user: JSON.parse(storedUser),
-            accessToken,
-            refreshToken,
-          }),
-        );
-      }
-    }
-  }, [auth.user, dispatch]);
+  const hasShownBlockedToast = useRef(false);
 
   useEffect(() => {
-    if (auth.user?.blocked) {
+    if (user?.blocked && !hasShownBlockedToast.current) {
+      hasShownBlockedToast.current = true;
       toast.error("Your account has been blocked by the admin.");
-
       setTimeout(() => {
-        //dispatch(logout());
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
+        dispatch(logout());
+        navigate(FRONTEND_ROUTES.LOGIN);
       }, 4500);
     }
-  }, [auth.user, dispatch, navigate]);
-
+  }, [user?.blocked, dispatch, navigate]);
 
   const handleLogout = async () => {
-    try {    
-      if(refreshToken){
-        await dispatch(serverLogout(refreshToken)).unwrap();
+    try {
+      if (!user || !user.role || !accessToken) {
         dispatch(logout());
-        navigate("/login");
-        // localStorage.removeItem("accessToken");
-        // localStorage.removeItem("refreshToken");
-        setDropdownOpen(false);
-        setMobileMenuOpen(false);
+        Cookies.remove("refreshToken", { sameSite: "Lax" });
+        navigate(FRONTEND_ROUTES.LOGIN);
+        return;
       }
-    } catch (err: any) {
-      console.error("Logout failed", err);
+      await dispatch(serverLogout({ role: user.role })).unwrap();
+      dispatch(logout());
+      navigate(FRONTEND_ROUTES.LOGIN);
+      setDropdownOpen(false);
+      setMobileMenuOpen(false);
+    } catch {
+      dispatch(logout());
+      navigate(FRONTEND_ROUTES.LOGIN);
     }
   };
 
@@ -91,7 +75,7 @@ const Header: React.FC = () => {
               Home
             </Link>
 
-            {!auth.user ? (
+            {!user ? (
               <>
                 <Link
                   to="/login"
@@ -112,8 +96,8 @@ const Header: React.FC = () => {
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                   className="flex items-center space-x-2 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg transition-colors duration-200"
                 >
-                  <span className="font-medium">{auth.user.name}</span>
-                  {auth.user.role === "Employer" && (
+                  <span className="font-medium">{user.name}</span>
+                  {user.role === "Employer" && (
                     <span className="text-xs bg-blue-600 text-white px-2 py-0.5 rounded-full">
                       Employer
                     </span>
@@ -139,20 +123,26 @@ const Header: React.FC = () => {
                   <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
                     <button
                       className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                      style={{ pointerEvents: "auto", cursor: "pointer" }}
                       onClick={() => {
                         setDropdownOpen(false);
-                        if (auth.user?.role === "Candidate") {
-                          navigate("/candidate-profile");
-                        } else if (auth.user?.role === "Employer") {
-                          navigate("/employer-profile");
+                        if (user.role === "Candidate") {
+                          navigate(FRONTEND_ROUTES.CANDIDATEPROFILE);
+                        } else if (user.role === "Employer") {
+                          navigate(FRONTEND_ROUTES.EMPLOYERPROFILE);
+                        } else if (user.role === "Admin") {
+                          navigate(FRONTEND_ROUTES.ADMIN_DASHBOARD);
                         }
                       }}
                     >
-                      Profile
+                      {user.role === "Admin" ? "Dashboard" : "Profile"}
                     </button>
                     <button
                       className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
-                      onClick={handleLogout}
+                      style={{ pointerEvents: "auto", cursor: "pointer" }}
+                      onClick={() => {
+                        handleLogout();
+                      }}
                     >
                       Logout
                     </button>
@@ -193,7 +183,7 @@ const Header: React.FC = () => {
               Home
             </Link>
 
-            {!auth.user ? (
+            {!user ? (
               <>
                 <Link
                   to="/login"
@@ -213,22 +203,30 @@ const Header: React.FC = () => {
             ) : (
               <div className="space-y-1">
                 <div className="px-4 py-2 bg-gray-100 rounded-lg flex items-center justify-between">
-                  <span className="font-medium">{auth.user.name}</span>
-                  {auth.user.role === "Employer" && (
+                  <span className="font-medium">{user.name}</span>
+                  {user.role === "Employer" && (
                     <span className="text-xs bg-blue-600 text-white px-2 py-0.5 rounded-full">
                       Employer
                     </span>
                   )}
                 </div>
                 <Link
-                  to="/profile"
+                  to={
+                    user.role === "Candidate"
+                      ? FRONTEND_ROUTES.CANDIDATEPROFILE
+                      : user.role === "Employer"
+                        ? FRONTEND_ROUTES.EMPLOYERPROFILE
+                        : FRONTEND_ROUTES.ADMIN_DASHBOARD
+                  }
                   className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+                  style={{ pointerEvents: "auto", cursor: "pointer" }}
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Profile
+                  {user.role === "Admin" ? "Dashboard" : "Profile"}
                 </Link>
                 <button
                   className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+                  style={{ pointerEvents: "auto", cursor: "pointer" }}
                   onClick={handleLogout}
                 >
                   Logout

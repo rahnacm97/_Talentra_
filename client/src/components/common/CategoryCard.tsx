@@ -1,7 +1,18 @@
 import { ArrowRight } from "lucide-react";
 
-// Job Category Card Component
-const CategoryCard = ({ icon: Icon, title, jobCount, color = "blue" }) => {
+interface CategoryCardProps {
+  icon: React.FC<React.SVGProps<SVGSVGElement>>;
+  title: string;
+  jobCount: number | string;
+  color?: "blue" | "green" | "purple" | "orange" | "pink" | "indigo";
+}
+
+const CategoryCard: React.FC<CategoryCardProps> = ({
+  icon: Icon,
+  title,
+  jobCount,
+  color = "blue",
+}) => {
   const colorClasses = {
     blue: "from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700",
     green:

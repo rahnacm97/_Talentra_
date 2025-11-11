@@ -19,11 +19,14 @@ export const JobApplyModal: React.FC<JobApplyModalProps> = ({
   onClose,
   onSubmit,
 }) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [file, setFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const timeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (!isOpen) {
@@ -33,8 +36,20 @@ export const JobApplyModal: React.FC<JobApplyModalProps> = ({
     }
   }, [isOpen]);
 
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current !== null) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (isSubmitting || submitted) return;
+
+    setIsSubmitting(true);
 
     const form = e.currentTarget;
     const data: JobApplyFormData = {
@@ -48,19 +63,36 @@ export const JobApplyModal: React.FC<JobApplyModalProps> = ({
     const validationErrors = validateJobApplyForm(data);
     if (Object.keys(validationErrors).length) {
       setErrors(validationErrors);
+      setIsSubmitting(false);
       return;
     }
+
     const formData = new FormData(form);
     if (file) formData.set("resume", file);
 
-    setErrors({});
-    if (onSubmit) await onSubmit(formData);
+    try {
+      setErrors({});
+      if (onSubmit) {
+        await onSubmit(formData);
+      }
 
-    setSubmitted(true);
-    setTimeout(() => {
-      setSubmitted(false);
-      onClose();
-    }, 2000);
+      setSubmitted(true);
+      if (timeoutRef.current !== null) {
+        clearTimeout(timeoutRef.current);
+      }
+
+      timeoutRef.current = setTimeout(() => {
+        setSubmitted(false);
+        setIsSubmitting(false);
+        onClose();
+        timeoutRef.current = null;
+      }, 2000);
+    } catch (error: any) {
+      console.error("Application failed:", error);
+      setErrors({ resume: error.message || "Failed to apply" });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleDrag = (e: React.DragEvent) => {

@@ -5,7 +5,6 @@ import {
   Phone,
   MapPin,
   Globe,
-  Users,
   Edit3,
   Save,
   X,
@@ -367,52 +366,6 @@ const EmployerProfile: React.FC = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-600">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-500 text-sm font-medium">Total Jobs</p>
-                <h3 className="text-3xl font-bold text-gray-900 mt-1">
-                  {profileData.stats.totalJobs}
-                </h3>
-              </div>
-              <div className="bg-blue-100 p-3 rounded-lg">
-                <Building2 className="w-6 h-6 text-blue-600" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-600">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-500 text-sm font-medium">Active Jobs</p>
-                <h3 className="text-3xl font-bold text-gray-900 mt-1">
-                  {profileData.stats.activeJobs}
-                </h3>
-              </div>
-              <div className="bg-green-100 p-3 rounded-lg">
-                <Users className="w-6 h-6 text-green-600" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-purple-600">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-500 text-sm font-medium">
-                  Total Applicants
-                </p>
-                <h3 className="text-3xl font-bold text-gray-900 mt-1">
-                  {profileData.stats.totalApplicants}
-                </h3>
-              </div>
-              <div className="bg-purple-100 p-3 rounded-lg">
-                <Users className="w-6 h-6 text-purple-600" />
-              </div>
-            </div>
-          </div>
-        </div>
-
         <div className="bg-white rounded-2xl shadow-lg mb-6 overflow-hidden">
           <div className="flex border-b border-gray-200 overflow-x-auto">
             {[
@@ -533,7 +486,7 @@ const EmployerProfile: React.FC = () => {
                           type="text"
                           value={profileData.cinNumber}
                           onChange={(e) => {
-                            const val = e.target.value.toUpperCase(); 
+                            const val = e.target.value.toUpperCase();
                             handleInputChange("cinNumber", val);
                             setCinError(validateCIN(val));
                           }}

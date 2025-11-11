@@ -44,6 +44,8 @@ import AdminSettings from "./pages/admin/AdminSettings";
 import JobsView from "./pages/job/JobView";
 import NotFound from "./pages/common/NotFound";
 import JobDetails from "./pages/job/JobDetails";
+import ChatPage from "./pages/common/Chat";
+import VideoCallPage from "./pages/common/VideoCall";
 
 const App: React.FC = () => {
   useAuthInitialiazer();
@@ -123,6 +125,22 @@ const App: React.FC = () => {
               element={
                 <ProtectedRoute>
                   <JobDetails />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={FRONTEND_ROUTES.CHAT}
+              element={
+                <ProtectedRoute>
+                  <ChatPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={FRONTEND_ROUTES.VIDEOCALL}
+              element={
+                <ProtectedRoute>
+                  <VideoCallPage />
                 </ProtectedRoute>
               }
             />

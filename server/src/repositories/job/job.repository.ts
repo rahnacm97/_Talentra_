@@ -230,4 +230,86 @@ export class JobRepository implements IJobRepository {
   async countAll(): Promise<number> {
     return await Job.countDocuments({});
   }
+
+  async findAllAdminPaginated(params: {
+    page: number;
+    limit: number;
+    search?: string;
+    status?: "active" | "closed" | "draft" | "all";
+  }): Promise<{ jobs: (IJob & { employer?: IEmployer })[]; total: number }> {
+    const { page, limit, search, status } = params;
+    const skip = (page - 1) * limit;
+
+    const pipeline: PipelineStage[] = [
+      {
+        $lookup: {
+          from: "employers",
+          let: { employerId: "$employerId" },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ["$_id", { $toObjectId: "$$employerId" }] },
+              },
+            },
+            {
+              $project: {
+                name: "$name",
+                profileImage: "$profileImage",
+                _id: 1,
+              },
+            },
+          ],
+          as: "employer",
+        },
+      },
+      { $unwind: { path: "$employer", preserveNullAndEmptyArrays: true } },
+    ];
+
+    const matchConditions: Record<string, unknown> = {};
+
+    if (search) {
+      matchConditions.$or = [
+        { title: { $regex: search, $options: "i" } },
+        { "employer.name": { $regex: search, $options: "i" } },
+      ];
+    }
+
+    if (status && status !== "all") {
+      matchConditions.status = status;
+    }
+
+    if (Object.keys(matchConditions).length > 0) {
+      pipeline.push({ $match: matchConditions });
+    }
+
+    const totalPipeline = [...pipeline, { $count: "total" }];
+    const jobsPipeline = [
+      ...pipeline,
+      { $sort: { postedDate: -1 } as const },
+      { $skip: skip },
+      { $limit: limit },
+    ];
+
+    const [totalResult, jobs] = await Promise.all([
+      Job.aggregate(totalPipeline).exec(),
+      Job.aggregate(jobsPipeline).exec(),
+    ]);
+
+    const formattedJobs = jobs.map((job) => ({
+      ...job,
+      _id: job._id.toString(),
+      employerId: job.employerId.toString(),
+      employer: job.employer
+        ? {
+            ...job.employer,
+            _id: job.employer._id.toString(),
+          }
+        : null,
+    }));
+
+    return {
+      jobs: formattedJobs as (IJob & { employer?: IEmployer })[],
+      total: totalResult[0]?.total ?? 0,
+    };
+  }
 }

@@ -19,8 +19,8 @@ export interface Job {
 
 export interface EmployerInfoDto {
   id: string;
-  companyName: string;
-  logo?: string;
+  name: string;
+  profileImage?: string;
   companySize?: string;
   industry?: string;
   website?: string;

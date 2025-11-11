@@ -9,7 +9,7 @@ import { ApplicationRepository } from "../../repositories/application/applicatio
 import { JobRepository } from "../../repositories/job/job.repository";
 import { ApplicationMapper } from "../../mappers/application/application.mapper";
 import { upload } from "../../config/multer";
-import { USER_ROLES } from "../../shared/constants/constants";
+import { USER_ROLES } from "../../shared/enums/enums";
 
 const router = Router();
 const candidateMapper = new CandidateMapper();

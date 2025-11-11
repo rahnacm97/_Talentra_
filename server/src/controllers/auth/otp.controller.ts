@@ -1,9 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { IOtpService } from "../../interfaces/auth/IOtpService";
-import {
-  SUCCESS_MESSAGES,
-  ERROR_MESSAGES,
-} from "../../shared/constants/constants";
+import { SUCCESS_MESSAGES, ERROR_MESSAGES } from "../../shared/enums/enums";
 import { HTTP_STATUS } from "../../shared/httpStatus/httpStatusCode";
 import { IOtpController } from "../../interfaces/auth/IOtpController";
 import { logger } from "../../shared/utils/logger";

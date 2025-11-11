@@ -4,7 +4,7 @@ import { ICandidate } from "../../interfaces/users/candidate/ICandidate";
 import { ICandidateMapper } from "../../interfaces/users/candidate/ICandidateMapper";
 import { ApiError } from "../../shared/utils/ApiError";
 import { HTTP_STATUS } from "../../shared/httpStatus/httpStatusCode";
-import { ERROR_MESSAGES } from "../../shared/constants/constants";
+import { ERROR_MESSAGES } from "../../shared/enums/enums";
 import { logger } from "../../shared/utils/logger";
 import { ProfileDataDTO } from "../../dto/candidate/candidate.dto";
 import cloudinary from "../../config/cloudinary";

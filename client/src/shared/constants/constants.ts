@@ -73,4 +73,6 @@ export const FRONTEND_ROUTES = {
   ADMINJOBS: "/admin-jobs",
   ADMINNOTIFICATIONS: "/admin-notifications",
   ADMINSETTINGS: "/admin-settings",
+  CHAT: "/chat",
+  VIDEOCALL: "/video",
 } as const;

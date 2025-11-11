@@ -1,10 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { IAdminEmployerService } from "../../interfaces/users/admin/IAdminEmployerService";
 import { BlockEmployerDTO } from "../../dto/admin/employer.dto";
-import {
-  SUCCESS_MESSAGES,
-  ERROR_MESSAGES,
-} from "../../shared/constants/constants";
+import { SUCCESS_MESSAGES, ERROR_MESSAGES } from "../../shared/enums/enums";
 import { HTTP_STATUS } from "../../shared/httpStatus/httpStatusCode";
 import { IAdminEmployerController } from "../../interfaces/users/admin/IAdminEmployerController";
 import { logger } from "../../shared/utils/logger";

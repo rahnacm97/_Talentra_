@@ -94,7 +94,7 @@ const EmployerJobs: React.FC = () => {
         setLoading(false);
       })
       .catch((err) => {
-        console.log("error in employer jobs", err)
+        console.log("error in employer jobs", err);
         setLoading(false);
       });
   }, [dispatch, user, page, debouncedSearch, filterStatus]);

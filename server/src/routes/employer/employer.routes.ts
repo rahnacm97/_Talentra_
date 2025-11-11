@@ -6,7 +6,7 @@ import { EmployerMapper } from "../../mappers/employer/employer.mapper";
 import { EmployerRepository } from "../../repositories/employer/employer.repository";
 import { upload } from "../../config/multer";
 import jobRoutes from "../job/job.routes";
-import { USER_ROLES } from "../../shared/constants/constants";
+import { USER_ROLES } from "../../shared/enums/enums";
 
 const router = Router();
 const employerMapper = new EmployerMapper();

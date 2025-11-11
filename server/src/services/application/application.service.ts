@@ -7,7 +7,7 @@ import { IApplicationMapper } from "../../interfaces/applications/IApplicationMa
 import { ApplicationResponseDto } from "../../dto/application/application.dto";
 import { ApiError } from "../../shared/utils/ApiError";
 import { HTTP_STATUS } from "../../shared/httpStatus/httpStatusCode";
-import { ERROR_MESSAGES } from "../../shared/constants/constants";
+import { ERROR_MESSAGES } from "../../shared/enums/enums";
 import { logger } from "../../shared/utils/logger";
 import { IJobRepository } from "../../interfaces/jobs/IJobRepository";
 import { uploadResumeFile } from "../../shared/utils/fileUpload";
@@ -37,7 +37,7 @@ export class ApplicationService implements IApplicationService {
       candidateId,
     );
     if (existing)
-      throw new ApiError(HTTP_STATUS.CONFLICT, ERROR_MESSAGES.JOB_INACTIVE);
+      throw new ApiError(HTTP_STATUS.CONFLICT, ERROR_MESSAGES.JOB_CONFLICT);
 
     const resumeUrl = await uploadResumeFile(payload.resumeFile);
 

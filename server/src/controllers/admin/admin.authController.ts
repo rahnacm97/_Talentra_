@@ -1,10 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { IAdminAuthService } from "../../interfaces/users/admin/IAdminAuthService";
 import { AdminLoginDTO } from "../../dto/admin/admin.dto";
-import {
-  SUCCESS_MESSAGES,
-  ERROR_MESSAGES,
-} from "../../shared/constants/constants";
+import { SUCCESS_MESSAGES, ERROR_MESSAGES } from "../../shared/enums/enums";
 import { HTTP_STATUS } from "../../shared/httpStatus/httpStatusCode";
 import { IAdminAuthController } from "../../interfaces/users/admin/IAdminAuthController";
 import {

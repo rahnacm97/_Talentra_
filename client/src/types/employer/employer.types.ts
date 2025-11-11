@@ -26,6 +26,11 @@ export interface IEmployer {
     hiredThisMonth: number;
   };
   blocked: boolean;
+  jobsPosted: number;
+  activeJobs: number;
+  closedJobs: number;
+  totalApplications: number;
+  hiredCandidates: number;
 }
 
 export interface PostedJob {

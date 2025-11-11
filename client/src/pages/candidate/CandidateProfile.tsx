@@ -73,18 +73,17 @@ const CandidateProfile: React.FC = () => {
 
   useEffect(() => {
     if (auth.user?._id) {
-      dispatch(fetchCandidateProfile(auth.user._id))
-        .unwrap()
-        // .catch((err: any) => {
-        //   if (
-        //     err?.message?.includes("blocked") ||
-        //     err?.status === 403 ||
-        //     err?.message === "You have been blocked by admin"
-        //   ) {
-        //     console.log(err);
-        //     navigate(FRONTEND_ROUTES.LOGIN);
-        //   }
-        // });
+      dispatch(fetchCandidateProfile(auth.user._id)).unwrap();
+      // .catch((err: any) => {
+      //   if (
+      //     err?.message?.includes("blocked") ||
+      //     err?.status === 403 ||
+      //     err?.message === "You have been blocked by admin"
+      //   ) {
+      //     console.log(err);
+      //     navigate(FRONTEND_ROUTES.LOGIN);
+      //   }
+      // });
     }
   }, [auth.user, dispatch, navigate]);
 

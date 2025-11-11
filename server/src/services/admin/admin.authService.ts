@@ -7,7 +7,7 @@ import { IUserReader } from "../../interfaces/auth/IAuthRepository";
 import { IAdminMapper } from "../../interfaces/users/admin/IAdminMapper";
 import { ApiError } from "../../shared/utils/ApiError";
 import { HTTP_STATUS } from "../../shared/httpStatus/httpStatusCode";
-import { ERROR_MESSAGES } from "../../shared/constants/constants";
+import { ERROR_MESSAGES } from "../../shared/enums/enums";
 
 export class AdminAuthService implements IAdminAuthService {
   constructor(

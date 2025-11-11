@@ -169,6 +169,11 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, setForgotPasswordEmail, loginSuccess, setInitialized, setBlocked } =
-  authSlice.actions;
+export const {
+  logout,
+  setForgotPasswordEmail,
+  loginSuccess,
+  setInitialized,
+  setBlocked,
+} = authSlice.actions;
 export default authSlice.reducer;

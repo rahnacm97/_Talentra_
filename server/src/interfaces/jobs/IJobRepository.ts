@@ -35,4 +35,11 @@ export interface IJobRepository {
   findById(id: string): Promise<(IJob & { employer?: IEmployer }) | null>;
 
   countAll(): Promise<number>;
+
+  findAllAdminPaginated(params: {
+    page: number;
+    limit: number;
+    search?: string;
+    status?: "active" | "closed" | "draft" | "all";
+  }): Promise<{ jobs: (IJob & { employer?: IEmployer })[]; total: number }>;
 }

@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import PersonIcon from "@mui/icons-material/Person";
-//import WorkIcon from "@mui/icons-material/Work";
+import WorkIcon from "@mui/icons-material/Work";
 import BusinessIcon from "@mui/icons-material/Business";
 //import AssignmentIcon from "@mui/icons-material/Assignment";
 import NotificationsIcon from "@mui/icons-material/Notifications";
@@ -12,16 +12,14 @@ import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
 
 import { fetchCandidates } from "../../thunks/admin.thunk";
 import { fetchEmployers } from "../../thunks/admin.thunk";
-// import {
-//   fetchJobs,
-// } from "../../thunks/admin.thunk";
+import { fetchAdminJobs } from "../../thunks/admin.thunk";
 // import {
 //   fetchNotifications,
 // } from "../../thunks/admin.thunk";
 
 const selectCandidates = (state: any) => state.adminCandidates;
 const selectEmployers = (state: any) => state.adminEmployers;
-//const selectJobs = (state: any) => state.adminJobs;
+const selectJobs = (state: any) => state.adminJobs;
 //const selectNotifications = (state: any) => state.adminNotifications;
 
 const AdminDashboard: React.FC = () => {
@@ -30,7 +28,7 @@ const AdminDashboard: React.FC = () => {
   useEffect(() => {
     dispatch(fetchCandidates({ page: 1, limit: 1, search: "" }));
     dispatch(fetchEmployers({ page: 1, limit: 1, search: "" }));
-    // dispatch(fetchJobs?.({ page: 1, limit: 1 }) ?? Promise.resolve());
+    dispatch(fetchAdminJobs?.({ page: 1, limit: 1 }) ?? Promise.resolve());
     // dispatch(fetchNotifications?.({ page: 1, limit: 1 }) ?? Promise.resolve());
   }, [dispatch]);
 
@@ -39,10 +37,7 @@ const AdminDashboard: React.FC = () => {
 
   const { total: totalEmployers } = useAppSelector(selectEmployers);
 
-  // const {
-  //   total: totalJobs = 0,
-  //   jobs = [],
-  // } = useAppSelector(selectJobs);
+  const { total: totalJobs = 0 } = useAppSelector(selectJobs);
 
   // const {
   //   total: totalNotifications = 0,
@@ -64,14 +59,6 @@ const AdminDashboard: React.FC = () => {
       iconBg: "bg-blue-100",
       iconColor: "#2563eb",
     },
-    // {
-    //   title: "Active Jobs",
-    //   value: totalJobs?.toLocaleString() ?? "0",
-    //   change: "+8%",
-    //   icon: WorkIcon,
-    //   iconBg: "bg-green-100",
-    //   iconColor: "#059669",
-    // },
     {
       title: "Employers",
       value: totalEmployers?.toLocaleString() ?? "0",
@@ -79,6 +66,14 @@ const AdminDashboard: React.FC = () => {
       icon: BusinessIcon,
       iconBg: "bg-purple-100",
       iconColor: "#7c3aed",
+    },
+    {
+      title: "Total Jobs",
+      value: totalJobs?.toLocaleString() ?? "0",
+      change: "+8%",
+      icon: WorkIcon,
+      iconBg: "bg-green-100",
+      iconColor: "#059669",
     },
     // {
     //   title: "Applications",
@@ -212,19 +207,17 @@ const AdminDashboard: React.FC = () => {
               </div>
             </button>
 
-            {/* <button className="w-full text-left p-4 bg-green-50 hover:bg-green-100 rounded-lg transition-colors duration-200 group">
+            <button className="w-full text-left p-4 bg-green-50 hover:bg-green-100 rounded-lg transition-colors duration-200 group">
               <div className="flex items-center">
                 <WorkIcon sx={{ marginRight: 2, color: "#059669" }} />
                 <div>
                   <div className="font-medium text-gray-900 group-hover:text-green-700">
-                    Approve Jobs
+                    Total Jobs
                   </div>
-                  <div className="text-sm text-gray-500">
-                    {totalJobs} awaiting approval
-                  </div>
+                  <div className="text-sm text-gray-500">{totalJobs}</div>
                 </div>
               </div>
-            </button> */}
+            </button>
 
             <button className="w-full text-left p-4 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors duration-200 group">
               <div className="flex items-center">

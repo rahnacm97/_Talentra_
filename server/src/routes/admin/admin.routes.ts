@@ -20,10 +20,11 @@ import { EmployerMapper } from "../../mappers/admin/adminEmployer.mapper";
 import { EmailService } from "../../services/auth/email.service";
 import { JobService } from "../../services/job/job.service";
 import { JobMapper } from "../../mappers/job/job.mapper";
+import { AdminJobMapper } from "../../mappers/admin/adminJob.mapper";
 import { JobRepository } from "../../repositories/job/job.repository";
 import { ApplicationRepository } from "../../repositories/application/application.repository";
 import { IEmployerVerificationRepo } from "../../interfaces/users/employer/IEmployerVerifyRepo";
-import { USER_ROLES } from "../../shared/constants/constants";
+import { USER_ROLES } from "../../shared/enums/enums";
 
 const router = Router();
 const adminRepository: IUserReader<IAdmin> = new AdminRepository();
@@ -33,6 +34,7 @@ const candidateMapper = new CandidateMapper();
 const employerMapper = new EmployerMapper();
 const emailService = new EmailService();
 const jobMapper = new JobMapper();
+const adminJobMapper = new AdminJobMapper();
 const jobRepo = new JobRepository();
 const employerRepository = new EmployerRepository();
 const applicationRepo = new ApplicationRepository();
@@ -59,6 +61,7 @@ const jobService = new JobService(
   jobMapper,
   employerVerificationRepo,
   applicationRepo,
+  adminJobMapper,
 );
 
 // Controllers

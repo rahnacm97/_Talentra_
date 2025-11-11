@@ -1,8 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import {
-  SUCCESS_MESSAGES,
-  ERROR_MESSAGES,
-} from "../../shared/constants/constants";
+import { SUCCESS_MESSAGES, ERROR_MESSAGES } from "../../shared/enums/enums";
 import { HTTP_STATUS } from "../../shared/httpStatus/httpStatusCode";
 import {
   ICandidateController,
@@ -121,14 +118,20 @@ export class CandidateController implements ICandidateController {
       const candidateId = (req.user as { id: string; role: string }).id;
 
       if (req.params.candidateId !== candidateId) {
-        throw new ApiError(HTTP_STATUS.FORBIDDEN, ERROR_MESSAGES.NOT_AUTHENTICATED);
+        throw new ApiError(
+          HTTP_STATUS.FORBIDDEN,
+          ERROR_MESSAGES.NOT_AUTHENTICATED,
+        );
       }
 
       const { fullName, email, phone, coverLetter } = req.body;
       const resumeFile = req.file as Express.Multer.File;
 
       if (!resumeFile) {
-        throw new ApiError(HTTP_STATUS.BAD_REQUEST, ERROR_MESSAGES.RESUME_REQUIRED);
+        throw new ApiError(
+          HTTP_STATUS.BAD_REQUEST,
+          ERROR_MESSAGES.RESUME_REQUIRED,
+        );
       }
 
       const application = await this._applicationService.apply(

@@ -3,7 +3,7 @@ import fs from "fs/promises";
 import { UploadApiResponse } from "cloudinary";
 import { ApiError } from "../../shared/utils/ApiError";
 import { HTTP_STATUS } from "../../shared/httpStatus/httpStatusCode";
-import { ERROR_MESSAGES } from "../../shared/constants/constants";
+import { ERROR_MESSAGES } from "../enums/enums";
 import { logger } from "../../shared/utils/logger";
 
 export async function uploadResumeFile(

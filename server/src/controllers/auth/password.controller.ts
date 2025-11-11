@@ -1,9 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { IPasswordService } from "../../interfaces/auth/IPasswordService";
-import {
-  SUCCESS_MESSAGES,
-  ERROR_MESSAGES,
-} from "../../shared/constants/constants";
+import { SUCCESS_MESSAGES, ERROR_MESSAGES } from "../../shared/enums/enums";
 import { HTTP_STATUS } from "../../shared/httpStatus/httpStatusCode";
 import { IPasswordController } from "../../interfaces/auth/IPasswordController";
 import { logger } from "../../shared/utils/logger";

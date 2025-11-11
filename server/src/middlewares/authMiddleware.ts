@@ -3,16 +3,15 @@ import { TokenService } from "../services/auth/token.service";
 import { CandidateRepository } from "../repositories/candidate/candidate.repository";
 import { EmployerRepository } from "../repositories/employer/employer.repository";
 import { AdminRepository } from "../repositories/admin/admin.repository";
-import { ERROR_MESSAGES } from "../shared/constants/constants";
+import { ERROR_MESSAGES } from "../shared/enums/enums";
 import { HTTP_STATUS } from "../shared/httpStatus/httpStatusCode";
 import { ICandidate } from "../interfaces/users/candidate/ICandidate";
 import { IEmployer } from "../interfaces/users/employer/IEmployer";
 import { IAdmin } from "../interfaces/users/admin/IAdmin";
-import { USER_ROLES, UserRole } from "../shared/constants/constants";
+import { UserRole } from "../shared/enums/enums";
 
 const tokenService = new TokenService();
 
-//type UserRole = "Candidate" | "Employer" | "Admin";
 type AuthUser = ICandidate | IEmployer | IAdmin;
 
 export const verifyAuth =

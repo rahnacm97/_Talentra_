@@ -15,7 +15,10 @@ dotenv.config();
 app.use(cookieParser());
 app.use(
   cors({
-    origin: [process.env.FRONTEND_URL! , "https://g8npcp31-5173.inc1.devtunnels.ms"],
+    origin: [
+      process.env.FRONTEND_URL!,
+      "https://g8npcp31-5173.inc1.devtunnels.ms",
+    ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],

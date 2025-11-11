@@ -19,17 +19,6 @@ const Header: React.FC = () => {
 
   const hasShownBlockedToast = useRef(false);
 
-  // useEffect(() => {
-  //   if (user?.blocked && !hasShownBlockedToast.current) {
-  //     hasShownBlockedToast.current = true;
-  //     toast.error("Your account has been blocked by the admin.");
-  //     setTimeout(() => {
-  //       dispatch(logout());
-  //       navigate(FRONTEND_ROUTES.LOGIN);
-  //     }, 4500);
-  //   }
-  // }, [user?.blocked, dispatch, navigate]);
-
   useEffect(() => {
     if (blocked && !hasShownBlockedToast.current) {
       hasShownBlockedToast.current = true;

@@ -1,10 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { IAuthService } from "../../interfaces/auth/IAuthService";
 import { AuthSignupDTO, AuthLoginDTO } from "../../dto/auth/auth.dto";
-import {
-  ERROR_MESSAGES,
-  SUCCESS_MESSAGES,
-} from "../../shared/constants/constants";
+import { ERROR_MESSAGES, SUCCESS_MESSAGES } from "../../shared/enums/enums";
 import { HTTP_STATUS } from "../../shared/httpStatus/httpStatusCode";
 import { IAuthController } from "../../interfaces/auth/IAuthController";
 import {

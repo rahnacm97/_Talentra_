@@ -4,7 +4,6 @@ import type { AdminJob } from "../../types/admin/admin.jobs.types";
 import { fetchAdminJobs } from "../../thunks/admin.thunk";
 import Table from "../../components/admin/Table";
 import Pagination from "../../components/admin/Pagination";
-import Modal from "../../components/admin/Modal";
 import SearchInput from "../../components/admin/SearchInput";
 import { CountCard } from "../../components/admin/CountCard";
 import ToggleOnIcon from "@mui/icons-material/ToggleOn";
@@ -12,6 +11,7 @@ import ToggleOffIcon from "@mui/icons-material/ToggleOff";
 import WorkIcon from "@mui/icons-material/Work";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import { useDebounce } from "../../hooks/UseDebounce";
+import { JobDetailsModal } from "../../components/admin/JobDetailModal";
 
 const AdminJobs: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -21,18 +21,17 @@ const AdminJobs: React.FC = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearch = useDebounce(searchTerm, 450);
-  const [statusFilter, setStatusFilter] = useState<"active" | "closed" | "all">(
-    "all",
-  );
-  const [showModal, setShowModal] = useState(false);
-  const [selectedJob, setSelectedJob] = useState<AdminJob | null>(null);
+  const [statusFilter] = useState<"active" | "closed" | "all">("all");
   const [localPage, setLocalPage] = useState(page);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedJobForDetails, setSelectedJobForDetails] =
+    useState<AdminJob | null>(null);
 
   useEffect(() => {
     dispatch(
       fetchAdminJobs({
         page: localPage,
-        limit,
+        limit: 5,
         search: debouncedSearch || undefined,
         status: statusFilter === "all" ? undefined : statusFilter,
       }),
@@ -51,18 +50,11 @@ const AdminJobs: React.FC = () => {
 
   const activeJobsCount = jobs.filter((j) => j.status === "active").length;
   const closedJobsCount = jobs.filter((j) => j.status === "closed").length;
-  const fullTimeCount = jobs.filter((j) => j.jobType === "Full-time").length;
+  const fullTimeCount = jobs.filter((j) => j.type === "Full-time").length;
 
-  const openModal = (job: AdminJob) => {
-    setSelectedJob(job);
-    setShowModal(true);
-  };
-
-  const handleToggleStatus = () => {
-    if (selectedJob) {
-      setShowModal(false);
-      setSelectedJob(null);
-    }
+  const openDetailsModal = (job: AdminJob) => {
+    setSelectedJobForDetails(job);
+    setShowDetailsModal(true);
   };
 
   if (loading) return <div className="p-6">Loading jobs...</div>;
@@ -121,17 +113,6 @@ const AdminJobs: React.FC = () => {
             Searching…
           </p>
         )}
-        {/* <select
-          value={statusFilter}
-          onChange={(e) =>
-            setStatusFilter(e.target.value as "active" | "closed" | "all")
-          }
-          className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 bg-white"
-        >
-          <option value="all">All Status</option>
-          <option value="active">Active</option>
-          <option value="closed">Closed</option>
-        </select> */}
       </div>
 
       <Table
@@ -153,16 +134,16 @@ const AdminJobs: React.FC = () => {
             ),
           },
           {
-            key: "employer.companyName",
+            key: "employer.name",
             label: "Company",
             render: (_: any, job: AdminJob) => (
               <div className="flex items-center">
                 <img
-                  src={job.employer.logo || "/default-logo.png"}
-                  alt={job.employer.companyName}
+                  src={job.employer.profileImage || "/default-logo.png"}
+                  alt={job.employer.name}
                   className="w-6 h-6 rounded-full mr-2 object-cover"
                 />
-                {job.employer.companyName}
+                {job.employer.name}
               </div>
             ),
           },
@@ -201,14 +182,10 @@ const AdminJobs: React.FC = () => {
         renderActions={(job: AdminJob) => (
           <div className="flex items-center space-x-2">
             <button
-              onClick={() => openModal(job)}
-              className={`inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                job.status === "active"
-                  ? "bg-red-100 text-red-700 hover:bg-red-200"
-                  : "bg-green-100 text-green-700 hover:bg-green-200"
-              }`}
+              onClick={() => openDetailsModal(job)}
+              className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition-colors"
             >
-              {job.status === "active" ? "Close" : "Activate"}
+              View Details
             </button>
           </div>
         )}
@@ -222,12 +199,13 @@ const AdminJobs: React.FC = () => {
         itemsPerPage={limit}
       />
 
-      <Modal
-        isOpen={showModal}
-        onApprove={handleToggleStatus}
-        onCancel={() => setShowModal(false)}
-        actionType={selectedJob?.status === "active" ? "block" : "unblock"}
-        name={selectedJob?.title || ""}
+      <JobDetailsModal
+        job={selectedJobForDetails}
+        isOpen={showDetailsModal}
+        onClose={() => {
+          setShowDetailsModal(false);
+          setSelectedJobForDetails(null);
+        }}
       />
     </div>
   );

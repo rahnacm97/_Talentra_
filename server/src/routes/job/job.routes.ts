@@ -5,11 +5,13 @@ import { EmployerRepository } from "../../repositories/employer/employer.reposit
 import { JobRepository } from "../../repositories/job/job.repository";
 import { verifyAuth } from "../../middlewares/authMiddleware";
 import { JobMapper } from "../../mappers/job/job.mapper";
+import { AdminJobMapper } from "../../mappers/admin/adminJob.mapper";
 import { ApplicationRepository } from "../../repositories/application/application.repository";
-import { USER_ROLES } from "../../shared/constants/constants";
+import { USER_ROLES } from "../../shared/enums/enums";
 
 const router = Router();
 const mapper = new JobMapper();
+const adminMapper = new AdminJobMapper();
 const repository = new JobRepository();
 const employerRepo = new EmployerRepository();
 const applicationRepo = new ApplicationRepository();
@@ -18,6 +20,7 @@ const service = new JobService(
   mapper,
   employerRepo,
   applicationRepo,
+  adminMapper,
 );
 
 const jobcontroller = new JobController(service, service, service);

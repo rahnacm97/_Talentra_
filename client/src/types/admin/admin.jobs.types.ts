@@ -3,12 +3,17 @@ import type { EmployerInfoDto } from "../job/job.types";
 export interface AdminJob {
   _id: string;
   title: string;
-  companyName: string;
-  jobType: string;
+  name: string;
+  type: string;
   applications: number;
   isActive: boolean;
   status: "active" | "closed" | "draft";
   employer: EmployerInfoDto;
+  createdAt: Date;
+  description: string;
+  location: string;
+  requirements: [];
+  responsibilities: [];
 }
 
 export interface GetAdminJobsParams {

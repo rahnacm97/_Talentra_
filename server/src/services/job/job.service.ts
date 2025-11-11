@@ -12,7 +12,9 @@ import { JobResponseDto } from "../../dto/job/job.dto";
 import { IApplicationRepository } from "../../interfaces/applications/IApplicationRepository";
 import { ApiError } from "../../shared/utils/ApiError";
 import { HTTP_STATUS } from "../../shared/httpStatus/httpStatusCode";
-import { ERROR_MESSAGES } from "../../shared/constants/constants";
+import { ERROR_MESSAGES } from "../../shared/enums/enums";
+import { AdminJob } from "../../types/admin/admin.types";
+import { IAdminJobMapper } from "../../interfaces/users/admin/IAdminJobMapper";
 
 export class JobService
   implements IEmployerJobService, IPublicJobService, IAdminJobService
@@ -22,6 +24,7 @@ export class JobService
     private readonly _mapper: IJobMapper,
     private readonly _employerVerifier: IEmployerVerificationRepo,
     private readonly _applicationRepo: IApplicationRepository,
+    private readonly _adminmapper: IAdminJobMapper,
   ) {}
 
   private parseDeadline(dateStr: string): Date {
@@ -201,36 +204,28 @@ export class JobService
     page: number;
     limit: number;
     search?: string;
-    status?: "active" | "closed" | "all";
+    status?: "active" | "closed" | "draft" | "all";
   }): Promise<{
-    jobs: JobResponseDto[];
+    jobs: AdminJob[];
     total: number;
     page: number;
     limit: number;
   }> {
-    const { page, limit, search, status } = params;
+    const { page, limit, search, status = "all" } = params;
+
     const repoParams = {
       page,
       limit,
       ...(search ? { search } : {}),
     };
 
-    const result = await this._repository.findPublicPaginated(repoParams);
+    const result = await this._repository.findAllAdminPaginated(repoParams);
 
-    let filteredJobs = result.jobs;
-
-    if (status && status !== "all") {
-      filteredJobs = result.jobs.filter((job) => job.status === status);
-    }
-
-    const total =
-      status === "all"
-        ? await this._repository.countAll()
-        : filteredJobs.length;
+    const filteredJobs = status === "all" ? result.jobs : result.jobs;
 
     return {
-      jobs: this._mapper.toResponseDtoList(filteredJobs),
-      total,
+      jobs: this._adminmapper.toAdminJobDtoList(filteredJobs),
+      total: result.total,
       page,
       limit,
     };

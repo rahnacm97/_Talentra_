@@ -1,10 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { IAdminCandidateService } from "../../interfaces/users/admin/IAdminCandidateService";
 import { BlockCandidateDTO } from "../../dto/admin/candidate.dto";
-import {
-  SUCCESS_MESSAGES,
-  ERROR_MESSAGES,
-} from "../../shared/constants/constants";
+import { SUCCESS_MESSAGES, ERROR_MESSAGES } from "../../shared/enums/enums";
 import { HTTP_STATUS } from "../../shared/httpStatus/httpStatusCode";
 import { IAdminCandidateController } from "../../interfaces/users/admin/IAdminCandidateController";
 import { logger } from "../../shared/utils/logger";

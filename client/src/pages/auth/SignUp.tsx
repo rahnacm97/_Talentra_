@@ -26,7 +26,7 @@ import type { SignupRequest } from "../../types/auth/Auth";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { sendOtp } from "../../thunks/auth.thunk";
-import { FRONTEND_ROUTES } from "../../shared/constants";
+import { FRONTEND_ROUTES } from "../../shared/constants/constants";
 
 const Signup: React.FC = () => {
   const [userType, setUserType] =

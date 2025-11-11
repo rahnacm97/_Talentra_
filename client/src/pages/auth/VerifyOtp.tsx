@@ -14,7 +14,7 @@ import { useSelector } from "react-redux";
 import type { RootState } from "../../app/store";
 
 import { useLocation, useNavigate } from "react-router-dom";
-import { FRONTEND_ROUTES } from "../../shared/constants";
+import { FRONTEND_ROUTES } from "../../shared/constants/constants";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 const VerifyOtp: React.FC = () => {

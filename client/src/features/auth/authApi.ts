@@ -4,7 +4,7 @@ import type {
   LoginRequest,
   AuthResponse,
 } from "../../types/auth/Auth";
-import { API_ROUTES } from "../../shared/constants";
+import { API_ROUTES } from "../../shared/constants/constants";
 
 export const signupApi = async (data: SignupRequest): Promise<AuthResponse> => {
   const response = await api.post(API_ROUTES.AUTH.SIGNUP, data);

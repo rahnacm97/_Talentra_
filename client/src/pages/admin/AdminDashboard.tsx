@@ -1,46 +1,88 @@
-import React from "react";
+import React, { useEffect } from "react";
 import PersonIcon from "@mui/icons-material/Person";
 import WorkIcon from "@mui/icons-material/Work";
 import BusinessIcon from "@mui/icons-material/Business";
+//import AssignmentIcon from "@mui/icons-material/Assignment";
+import NotificationsIcon from "@mui/icons-material/Notifications";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import VisibilityIcon from "@mui/icons-material/Visibility";
-import AssignmentIcon from "@mui/icons-material/Assignment";
-import NotificationsIcon from "@mui/icons-material/Notifications";
+
+import { StatCard } from "../../components/admin/Statcard";
+import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
+
+import { fetchCandidates } from "../../thunks/admin.thunk";
+import { fetchEmployers } from "../../thunks/admin.thunk";
+import { fetchAdminJobs } from "../../thunks/admin.thunk";
+// import {
+//   fetchNotifications,
+// } from "../../thunks/admin.thunk";
+
+const selectCandidates = (state: any) => state.adminCandidates;
+const selectEmployers = (state: any) => state.adminEmployers;
+const selectJobs = (state: any) => state.adminJobs;
+//const selectNotifications = (state: any) => state.adminNotifications;
 
 const AdminDashboard: React.FC = () => {
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(fetchCandidates({ page: 1, limit: 1, search: "" }));
+    dispatch(fetchEmployers({ page: 1, limit: 1, search: "" }));
+    dispatch(fetchAdminJobs?.({ page: 1, limit: 1 }) ?? Promise.resolve());
+    // dispatch(fetchNotifications?.({ page: 1, limit: 1 }) ?? Promise.resolve());
+  }, [dispatch]);
+
+  const { total: totalCandidates, candidates } =
+    useAppSelector(selectCandidates);
+
+  const { total: totalEmployers } = useAppSelector(selectEmployers);
+
+  const { total: totalJobs = 0 } = useAppSelector(selectJobs);
+
+  // const {
+  //   total: totalNotifications = 0,
+  // } = useAppSelector(selectNotifications);
+
+  const activeCandidates =
+    candidates?.filter((c: any) => !c.blocked).length ?? 0;
+  // const totalApplications = jobs.reduce(
+  //   (sum: number, j: any) => sum + (j.applications ?? 0),
+  //   0
+  // );
+
   const stats = [
     {
       title: "Total Candidates",
-      value: "5,847",
+      value: totalCandidates?.toLocaleString() ?? "0",
       change: "+12%",
-      trend: "up",
       icon: PersonIcon,
-      color: "blue",
-    },
-    {
-      title: "Active Jobs",
-      value: "1,247",
-      change: "+8%",
-      trend: "up",
-      icon: WorkIcon,
-      color: "green",
+      iconBg: "bg-blue-100",
+      iconColor: "#2563eb",
     },
     {
       title: "Employers",
-      value: "324",
+      value: totalEmployers?.toLocaleString() ?? "0",
       change: "+15%",
-      trend: "up",
       icon: BusinessIcon,
-      color: "purple",
+      iconBg: "bg-purple-100",
+      iconColor: "#7c3aed",
     },
     {
-      title: "Applications",
-      value: "18,932",
-      change: "+23%",
-      trend: "up",
-      icon: AssignmentIcon,
-      color: "orange",
+      title: "Total Jobs",
+      value: totalJobs?.toLocaleString() ?? "0",
+      change: "+8%",
+      icon: WorkIcon,
+      iconBg: "bg-green-100",
+      iconColor: "#059669",
     },
+    // {
+    //   title: "Applications",
+    //   value: totalApplications?.toLocaleString() ?? "0",
+    //   change: "+23%",
+    //   icon: AssignmentIcon,
+    //   iconBg: "bg-orange-100",
+    //   iconColor: "#ea580c",
+    // },
   ];
 
   const recentActivity = [
@@ -100,16 +142,6 @@ const AdminDashboard: React.FC = () => {
     },
   ];
 
-  const getColorClasses = (color: string) => {
-    const colors = {
-      blue: "bg-blue-500 text-blue-600 bg-blue-50",
-      green: "bg-green-500 text-green-600 bg-green-50",
-      purple: "bg-purple-500 text-purple-600 bg-purple-50",
-      orange: "bg-orange-500 text-orange-600 bg-orange-50",
-    };
-    return colors[color as keyof typeof colors] || colors.blue;
-  };
-
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       <div className="mb-8">
@@ -122,39 +154,11 @@ const AdminDashboard: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {stats.map((stat, index) => {
-          const IconComponent = stat.icon;
-          const colorClasses = getColorClasses(stat.color).split(" ");
-
-          return (
-            <div
-              key={index}
-              className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <div className={`p-3 rounded-lg ${colorClasses[2]}`}>
-                  <IconComponent
-                    sx={{
-                      fontSize: 24,
-                      color: colorClasses[0].replace("bg-", "#"),
-                    }}
-                  />
-                </div>
-                <div className="flex items-center text-green-600 text-sm font-medium">
-                  <TrendingUpIcon sx={{ fontSize: 16, marginRight: 0.5 }} />
-                  {stat.change}
-                </div>
-              </div>
-              <div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-1">
-                  {stat.value}
-                </h3>
-                <p className="text-gray-600 text-sm">{stat.title}</p>
-              </div>
-            </div>
-          );
-        })}
+        {stats.map((s, i) => (
+          <StatCard key={i} {...s} />
+        ))}
       </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200">
           <div className="p-6 border-b border-gray-200">
@@ -165,19 +169,19 @@ const AdminDashboard: React.FC = () => {
           </div>
           <div className="p-6">
             <div className="space-y-4">
-              {recentActivity.map((activity, index) => (
+              {recentActivity.map((a, i) => (
                 <div
-                  key={index}
+                  key={i}
                   className="flex items-center space-x-4 p-3 hover:bg-gray-50 rounded-lg transition-colors duration-200"
                 >
                   <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-900">
-                      {activity.action}
+                      {a.action}
                     </p>
-                    <p className="text-sm text-gray-500">{activity.user}</p>
+                    <p className="text-sm text-gray-500">{a.user}</p>
                   </div>
-                  <div className="text-xs text-gray-400">{activity.time}</div>
+                  <div className="text-xs text-gray-400">{a.time}</div>
                 </div>
               ))}
             </div>
@@ -197,7 +201,7 @@ const AdminDashboard: React.FC = () => {
                     Review Candidates
                   </div>
                   <div className="text-sm text-gray-500">
-                    23 pending reviews
+                    {activeCandidates} pending reviews
                   </div>
                 </div>
               </div>
@@ -208,11 +212,9 @@ const AdminDashboard: React.FC = () => {
                 <WorkIcon sx={{ marginRight: 2, color: "#059669" }} />
                 <div>
                   <div className="font-medium text-gray-900 group-hover:text-green-700">
-                    Approve Jobs
+                    Total Jobs
                   </div>
-                  <div className="text-sm text-gray-500">
-                    15 awaiting approval
-                  </div>
+                  <div className="text-sm text-gray-500">{totalJobs}</div>
                 </div>
               </div>
             </button>
@@ -225,7 +227,7 @@ const AdminDashboard: React.FC = () => {
                     Verify Employers
                   </div>
                   <div className="text-sm text-gray-500">
-                    8 new registrations
+                    {totalEmployers} new registrations
                   </div>
                 </div>
               </div>
@@ -263,9 +265,9 @@ const AdminDashboard: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {topJobs.map((job, index) => (
+              {topJobs.map((job, i) => (
                 <tr
-                  key={index}
+                  key={i}
                   className="border-t border-gray-200 hover:bg-gray-50"
                 >
                   <td className="py-4 px-6">

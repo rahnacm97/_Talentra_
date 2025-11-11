@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { api } from "../api/api";
-import { API_ROUTES } from "../shared/constants";
+import { API_ROUTES } from "../shared/constants/constants";
 import type {
   LoginRequest,
   SignupRequest,
@@ -46,6 +46,9 @@ export const login = createAsyncThunk<
         role: response.data.user.role,
         blocked: response.data.user.blocked || false,
         emailVerified: response.data.user.emailVerified || false,
+        ...(response.data.user.role === "Employer" && {
+          verified: response.data.user.verified ?? false,
+        }),
       },
       accessToken: response.data.accessToken,
       refreshToken: response.data.refreshToken,

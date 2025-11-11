@@ -16,4 +16,14 @@ export interface IAdminEmployerController {
     res: Response,
     next: NextFunction,
   ): Promise<void>;
+  verifyEmployer(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void>;
+  // rejectEmployer(
+  //   req: Request,
+  //   res: Response,
+  //   next: NextFunction,
+  // ): Promise<void>;
 }

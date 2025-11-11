@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  BrowserRouter as Router,
-  Route,
-  Routes,
-  Navigate,
-} from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import { useAuthInitialiazer } from "./hooks/hooks";
 import "react-toastify/dist/ReactToastify.css";
@@ -17,17 +12,40 @@ import VerifyOtp from "./pages/auth/VerifyOtp";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import ResetPassword from "./pages/auth/ResetPassword";
 import AdminLayout from "./layout/admin/AdminLayout";
+import CandidateLayout from "./layout/candidate/CandidateLayout";
+import EmployerLayout from "./layout/employer/EmployerLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminCandidates from "./pages/admin/AdminCandidate";
 import AdminEmployers from "./pages/admin/AdminEmployer";
 import AuthSuccess from "./pages/auth/AuthSuccess";
 import CandidateProfile from "./pages/candidate/CandidateProfile";
 import EmployerProfile from "./pages/employer/EmployerProfile";
+import AdminCandidateView from "./pages/admin/AdminCandidateView";
+import AdminEmployerView from "./pages/admin/AdminEmployerView";
 import { ProtectedRoute } from "./components/common/ProtectedRoute";
 import { AdminProtectedRoute } from "./components/admin/AdminProtectedRoute";
-import { FRONTEND_ROUTES } from "./shared/constants";
+import { FRONTEND_ROUTES } from "./shared/constants/constants";
 import AuthRouteGuard from "./components/common/AuthRouteGuard";
 import NavigationProvider from "./components/common/NavigationProvider";
+import EmployerJobs from "./pages/employer/EmployerJobs";
+import EmployerApplicants from "./pages/employer/EmployerApplicants";
+import EmployerAnalytics from "./pages/employer/EmployerAnalytics";
+import CandidateApplications from "./pages/candidate/CandidateApplications";
+import EmployerSettings from "./pages/employer/EmployerSettings";
+import CandidateSavedJobs from "./pages/candidate/CandidateSavedjobs";
+import CandidateNotifications from "./pages/candidate/CandidateNotifications";
+import CandidateSettings from "./pages/candidate/CandidateSettings";
+import EmployerInterview from "./pages/employer/EmployerInterview";
+import EmployerNotifications from "./pages/employer/EmployerNotifications";
+import CandidateInterviews from "./pages/candidate/CandidateInterviews";
+import AdminJobs from "./pages/admin/AdminJobs";
+import AdminNotifications from "./pages/admin/AdminNotifications";
+import AdminSettings from "./pages/admin/AdminSettings";
+import JobsView from "./pages/job/JobView";
+import NotFound from "./pages/common/NotFound";
+import JobDetails from "./pages/job/JobDetails";
+import ChatPage from "./pages/common/Chat";
+import VideoCallPage from "./pages/common/VideoCall";
 
 const App: React.FC = () => {
   useAuthInitialiazer();
@@ -91,25 +109,111 @@ const App: React.FC = () => {
               }
             />
             <Route
-              path={FRONTEND_ROUTES.CANDIDATEPROFILE}
-              element={
-                <ProtectedRoute>
-                  <CandidateProfile />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path={FRONTEND_ROUTES.EMPLOYERPROFILE}
-              element={
-                <ProtectedRoute>
-                  <EmployerProfile />
-                </ProtectedRoute>
-              }
-            />
-            <Route
               path={FRONTEND_ROUTES.AUTHSUCCESS}
               element={<AuthSuccess />}
             />
+            <Route
+              path={FRONTEND_ROUTES.JOBVIEW}
+              element={
+                <ProtectedRoute>
+                  <JobsView />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={FRONTEND_ROUTES.JOBDETAILS}
+              element={
+                <ProtectedRoute>
+                  <JobDetails />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={FRONTEND_ROUTES.CHAT}
+              element={
+                <ProtectedRoute>
+                  <ChatPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path={FRONTEND_ROUTES.VIDEOCALL}
+              element={
+                <ProtectedRoute>
+                  <VideoCallPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              element={
+                <ProtectedRoute>
+                  <CandidateLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route
+                path={FRONTEND_ROUTES.CANDIDATEPROFILE}
+                element={<CandidateProfile />}
+              />
+              <Route
+                path={FRONTEND_ROUTES.CANDIDATEAPPLICATIONS}
+                element={<CandidateApplications />}
+              />
+              <Route
+                path={FRONTEND_ROUTES.CANDIDATEINTERVIEW}
+                element={<CandidateInterviews />}
+              />
+              <Route
+                path={FRONTEND_ROUTES.CANDIDATESAVEDJOBS}
+                element={<CandidateSavedJobs />}
+              />
+              <Route
+                path={FRONTEND_ROUTES.CANDIDATENOTIFICATIONS}
+                element={<CandidateNotifications />}
+              />
+              <Route
+                path={FRONTEND_ROUTES.CANDIDATESETTINGS}
+                element={<CandidateSettings />}
+              />
+            </Route>
+
+            <Route
+              element={
+                <ProtectedRoute>
+                  <EmployerLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route
+                path={FRONTEND_ROUTES.EMPLOYERPROFILE}
+                element={<EmployerProfile />}
+              />
+              <Route
+                path={FRONTEND_ROUTES.EMPLOYERJOBS}
+                element={<EmployerJobs />}
+              />
+              <Route
+                path={FRONTEND_ROUTES.EMPLOYERAPPLICANTS}
+                element={<EmployerApplicants />}
+              />
+              <Route
+                path={FRONTEND_ROUTES.EMPLOYERANALYTICS}
+                element={<EmployerAnalytics />}
+              />
+              <Route
+                path={FRONTEND_ROUTES.EMPLOYERINTERVIEWS}
+                element={<EmployerInterview />}
+              />
+              <Route
+                path={FRONTEND_ROUTES.EMPLOYERNOTIFICATIONS}
+                element={<EmployerNotifications />}
+              />
+              <Route
+                path={FRONTEND_ROUTES.EMPLOYERSETTINGS}
+                element={<EmployerSettings />}
+              />
+            </Route>
+
             <Route
               element={
                 <AdminProtectedRoute>
@@ -129,8 +233,26 @@ const App: React.FC = () => {
                 path={FRONTEND_ROUTES.ADMINEMPLOYERS}
                 element={<AdminEmployers />}
               />
+              <Route
+                path={FRONTEND_ROUTES.ADMINCANDIDATEVIEW}
+                element={<AdminCandidateView />}
+              />
+              <Route
+                path={FRONTEND_ROUTES.ADMINEMPLOYERVIEW}
+                element={<AdminEmployerView />}
+              />
+              <Route path={FRONTEND_ROUTES.ADMINJOBS} element={<AdminJobs />} />
+              <Route
+                path={FRONTEND_ROUTES.ADMINNOTIFICATIONS}
+                element={<AdminNotifications />}
+              />
+              <Route
+                path={FRONTEND_ROUTES.ADMINSETTINGS}
+                element={<AdminSettings />}
+              />
             </Route>
-            <Route path="*" element={<Navigate to={FRONTEND_ROUTES.HOME} />} />
+
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthRouteGuard>
       </Router>

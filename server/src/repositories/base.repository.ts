@@ -57,3 +57,9 @@ export class BaseRepository<T extends Document, TCreate = Partial<T>>
       .exec();
   }
 }
+
+// export class AuthRepository implements IAuthRepository{
+//   async createUser(data: any): Promise<void> {
+//       await new this.
+//   }
+// }

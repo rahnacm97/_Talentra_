@@ -11,4 +11,6 @@ export interface IAdminEmployerService {
   ): Promise<{ data: EmployerResponseDTO[]; total: number }>;
   blockUnblockEmployer(data: BlockEmployerDTO): Promise<EmployerResponseDTO>;
   getEmployerById(id: string): Promise<EmployerResponseDTO | null>;
+  verifyEmployer(id: string): Promise<EmployerResponseDTO>;
+  rejectEmployer(id: string, reason: string): Promise<EmployerResponseDTO>;
 }

@@ -1,11 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { IAuthService } from "../../interfaces/auth/IAuthService";
 import { AuthSignupDTO, AuthLoginDTO } from "../../dto/auth/auth.dto";
-import {
-  ERROR_MESSAGES,
-  SUCCESS_MESSAGES,
-} from "../../shared/constants/constants";
-import { HTTP_STATUS } from "../../shared/httpStatus/httpStatus";
+import { ERROR_MESSAGES, SUCCESS_MESSAGES } from "../../shared/enums/enums";
+import { HTTP_STATUS } from "../../shared/httpStatus/httpStatusCode";
 import { IAuthController } from "../../interfaces/auth/IAuthController";
 import {
   setAuthCookies,
@@ -76,6 +73,9 @@ export class AuthController implements IAuthController {
           email: result.user.email,
           name: result.user.name,
           role: result.user.role,
+          ...(result.user.role === "Employer" && {
+            verified: result.user.verified,
+          }),
         },
         accessToken: result.accessToken,
       });
@@ -114,6 +114,9 @@ export class AuthController implements IAuthController {
           email: result.user.email,
           name: result.user.name,
           role: result.user.role,
+          ...(result.user.role === "Employer" && {
+            verified: result.user.verified,
+          }),
         },
       });
     } catch (error: unknown) {

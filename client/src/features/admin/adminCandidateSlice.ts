@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import {
   fetchCandidates,
   toggleBlockCandidate,
+  fetchCandidateById,
 } from "../../thunks/admin.thunk";
 import type { Candidate } from "../../types/admin/admin.candidate.types";
 import { toast } from "react-toastify";
@@ -9,6 +10,7 @@ import { toast } from "react-toastify";
 interface CandidateState {
   candidates: Candidate[];
   total: number;
+  selectedCandidate: Candidate | null;
   loading: boolean;
   error: string | null;
 }
@@ -18,6 +20,7 @@ const initialState: CandidateState = {
   total: 0,
   loading: false,
   error: null,
+  selectedCandidate: null,
 };
 
 const adminCandidateSlice = createSlice({
@@ -46,6 +49,18 @@ const adminCandidateSlice = createSlice({
         toast.success(
           `${updated.name} has been ${updated.blocked ? "blocked" : "unblocked"}`,
         );
+      })
+      .addCase(fetchCandidateById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchCandidateById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.selectedCandidate = action.payload;
+      })
+      .addCase(fetchCandidateById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload?.message || "Failed to fetch candidate";
       });
   },
 });

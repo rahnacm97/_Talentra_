@@ -1,11 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { IAdminCandidateService } from "../../interfaces/users/admin/IAdminCandidateService";
 import { BlockCandidateDTO } from "../../dto/admin/candidate.dto";
-import {
-  SUCCESS_MESSAGES,
-  ERROR_MESSAGES,
-} from "../../shared/constants/constants";
-import { HTTP_STATUS } from "../../shared/httpStatus/httpStatus";
+import { SUCCESS_MESSAGES, ERROR_MESSAGES } from "../../shared/enums/enums";
+import { HTTP_STATUS } from "../../shared/httpStatus/httpStatusCode";
 import { IAdminCandidateController } from "../../interfaces/users/admin/IAdminCandidateController";
 import { logger } from "../../shared/utils/logger";
 import { ApiError } from "../../shared/utils/ApiError";
@@ -58,11 +55,9 @@ export class AdminCandidateController implements IAdminCandidateController {
     try {
       const { id } = req.params;
       if (!id) {
-        res
-          .status(HTTP_STATUS.BAD_REQUEST)
-          .json({ message: ERROR_MESSAGES.REQUIRED_ID });
-        return;
+        throw new ApiError(HTTP_STATUS.BAD_REQUEST, ERROR_MESSAGES.REQUIRED_ID);
       }
+      logger.info("Fetching candidate by ID", { candidateId: id });
       const candidate = await this._candidateService.getCandidateById(id);
       if (!candidate) {
         throw new ApiError(
@@ -70,11 +65,17 @@ export class AdminCandidateController implements IAdminCandidateController {
           ERROR_MESSAGES.EMAIL_NOT_EXIST,
         );
       }
-
-      res.status(HTTP_STATUS.OK).json(candidate);
+      res.status(HTTP_STATUS.OK).json({
+        message: SUCCESS_MESSAGES.FETCH_SUCCESS,
+        data: candidate,
+      });
     } catch (error: unknown) {
       const message =
         error instanceof Error ? error.message : ERROR_MESSAGES.SERVER_ERROR;
+      logger.error("Failed to fetch candidate by ID", {
+        error: message,
+        candidateId: req.params.id,
+      });
       next(
         error instanceof ApiError
           ? error

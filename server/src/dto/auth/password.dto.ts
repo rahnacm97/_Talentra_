@@ -8,3 +8,13 @@ export interface ResetPasswordDTO {
   newPassword: string;
   userType: "Candidate" | "Employer";
 }
+
+export interface RequestResetResponseDTO {
+  success: boolean;
+  message: string;
+}
+
+export interface ResetPasswordResponseDTO {
+  success: boolean;
+  message: string;
+}

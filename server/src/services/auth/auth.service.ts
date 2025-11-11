@@ -45,6 +45,7 @@ export class AuthService implements IAuthService {
         role: data.userType,
         blocked,
         emailVerified: false,
+        ...(data.userType === "Employer" && { verified: false }),
       },
       accessToken: this._tokenService.generateAccessToken({
         id: user._id,
@@ -106,6 +107,7 @@ export class AuthService implements IAuthService {
         role,
         blocked,
         emailVerified,
+        ...(role === "Employer" && { verified: (user as IEmployer).verified }),
       },
       accessToken: this._tokenService.generateAccessToken({
         id: user._id,
@@ -157,6 +159,9 @@ export class AuthService implements IAuthService {
           decoded.role !== "Admin"
             ? (user as ICandidate | IEmployer).blocked || false
             : false,
+        ...(decoded.role === "Employer" && {
+          verified: (user as IEmployer).verified,
+        }),
       },
     };
   }

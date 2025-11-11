@@ -4,6 +4,8 @@ import adminCandidateReducer from "../features/admin/adminCandidateSlice";
 import adminEmployerReducer from "../features/admin/adminEmployerSlice";
 import candidateReducer from "../features/candidate/candidateSlice";
 import employerReducer from "../features/employer/employerSlice";
+import candidateJobReducer from "../features/job/jobSlice";
+import adminJobsReducer from "../features/admin/adminJobSlice";
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +14,8 @@ export const store = configureStore({
     adminEmployers: adminEmployerReducer,
     candidate: candidateReducer,
     employer: employerReducer,
+    candidateJobs: candidateJobReducer,
+    adminJobs: adminJobsReducer,
   },
 });
 

@@ -35,7 +35,7 @@ const Homepage: React.FC = () => {
     {
       title: "Senior React Developer",
       company: "TechCorp Inc.",
-      salary: "$120K - $150K",
+      salary: "₹120K - ₹150K",
       location: "San Francisco, CA",
       type: "Full-time",
       posted: "2 days ago",
@@ -44,7 +44,7 @@ const Homepage: React.FC = () => {
     {
       title: "Product Manager",
       company: "Innovation Labs",
-      salary: "$100K - $130K",
+      salary: "₹100K - ₹130K",
       location: "Remote",
       type: "Full-time",
       posted: "1 day ago",
@@ -53,7 +53,7 @@ const Homepage: React.FC = () => {
     {
       title: "UX Designer",
       company: "Design Studio",
-      salary: "$80K - $110K",
+      salary: "₹80K - ₹110K",
       location: "New York, NY",
       type: "Full-time",
       posted: "3 days ago",
@@ -62,7 +62,7 @@ const Homepage: React.FC = () => {
     {
       title: "Data Scientist",
       company: "Analytics Pro",
-      salary: "$110K - $140K",
+      salary: "₹110K - ₹140K",
       location: "Seattle, WA",
       type: "Full-time",
       posted: "1 day ago",

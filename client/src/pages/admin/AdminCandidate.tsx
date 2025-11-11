@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import FilterListIcon from "@mui/icons-material/FilterList";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import BlockIcon from "@mui/icons-material/Block";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -9,8 +8,8 @@ import DescriptionIcon from "@mui/icons-material/Description";
 import Table from "../../components/admin/Table";
 import Pagination from "../../components/admin/Pagination";
 import Modal from "../../components/admin/Modal";
+import { CountCard } from "../../components/admin/CountCard";
 import SearchInput from "../../components/admin/SearchInput";
-
 import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
 import {
   fetchCandidates,
@@ -35,20 +34,13 @@ const AdminCandidates: React.FC = () => {
   const itemsPerPage = 5;
 
   useEffect(() => {
-    console.log("AdminCandidates - Dispatching fetchCandidates:", {
-      page: currentPage,
-      limit: itemsPerPage,
-      search: searchTerm,
-    });
     dispatch(
       fetchCandidates({
         page: currentPage,
         limit: itemsPerPage,
         search: searchTerm,
       }),
-    ).then((result) => {
-      console.log("AdminCandidates - fetchCandidates result:", result);
-    });
+    ).then(() => {});
   }, [dispatch, currentPage, searchTerm]);
 
   const openModal = (id: string, name: string, blocked: boolean) => {
@@ -90,81 +82,50 @@ const AdminCandidates: React.FC = () => {
           Candidate Management
         </h1>
         <p className="text-gray-600">
-          Manage and monitor all registered candidates on your platform.
+          Manage and monitor all registered Candidates on this platform.
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center">
-            <div className="p-3 rounded-lg bg-blue-100">
-              <PersonIcon sx={{ fontSize: 24, color: "#2563eb" }} />
-            </div>
-            <div className="ml-4">
-              <h3 className="text-2xl font-bold text-gray-900">{total}</h3>
-              <p className="text-gray-600 text-sm">Total Candidates</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center">
-            <div className="p-3 rounded-lg bg-green-100">
-              <CheckCircleIcon sx={{ fontSize: 24, color: "#10b981" }} />
-            </div>
-            <div className="ml-4">
-              <h3 className="text-2xl font-bold text-gray-900">
-                {verifiedCount}
-              </h3>
-              <p className="text-gray-600 text-sm">Active Candidates</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center">
-            <div className="p-3 rounded-lg bg-red-100">
-              <BlockIcon sx={{ fontSize: 24, color: "#ef4444" }} />
-            </div>
-            <div className="ml-4">
-              <h3 className="text-2xl font-bold text-gray-900">
-                {blockedCount}
-              </h3>
-              <p className="text-gray-600 text-sm">Blocked Candidates</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center">
-            <div className="p-3 rounded-lg bg-purple-100">
-              <DescriptionIcon sx={{ fontSize: 24, color: "#7c3aed" }} />
-            </div>
-            <div className="ml-4">
-              <h3 className="text-2xl font-bold text-gray-900">
-                {candidates.filter((c) => c.resume).length}
-              </h3>
-              <p className="text-gray-600 text-sm">Resumes Submitted</p>
-            </div>
-          </div>
-        </div>
+        <CountCard
+          label="Total Candidates"
+          count={total}
+          icon={PersonIcon}
+          iconBg="bg-blue-100"
+          iconColor="#2563eb"
+        />
+        <CountCard
+          label="Active Candidates"
+          count={verifiedCount}
+          icon={CheckCircleIcon}
+          iconBg="bg-green-100"
+          iconColor="#10b981"
+        />
+        <CountCard
+          label="Blocked Candidates"
+          count={blockedCount}
+          icon={BlockIcon}
+          iconBg="bg-red-100"
+          iconColor="#ef4444"
+        />
+        <CountCard
+          label="Resumes Submitted"
+          count={candidates.filter((c) => c.resume).length}
+          icon={DescriptionIcon}
+          iconBg="bg-purple-100"
+          iconColor="#7c3aed"
+        />
       </div>
 
-      {/* Search + Filter */}
       <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
         <SearchInput
           value={searchTerm}
           onChange={(e: any) => setSearchTerm(e.target.value)}
+          placeholder="Search candidates by name, email..."
         />
-        <div className="flex items-center space-x-3">
-          <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors duration-200">
-            <FilterListIcon sx={{ fontSize: 18, marginRight: 1 }} />
-            Filter
-          </button>
-        </div>
+        {/*  */}
       </div>
 
-      {/* Table */}
       {loading ? (
         <p>Loading...</p>
       ) : (
@@ -175,7 +136,21 @@ const AdminCandidates: React.FC = () => {
               { key: "name", label: "Candidate" },
               { key: "email", label: "Email" },
               { key: "resume", label: "Resume" },
-              { key: "status", label: "Status" },
+              {
+                key: "status",
+                label: "Status",
+                render: (value: any, row: any) => (
+                  <span
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      row.blocked
+                        ? "bg-red-100 text-red-800"
+                        : "bg-green-100 text-green-800"
+                    }`}
+                  >
+                    {row.blocked ? "Blocked" : "Active"}
+                  </span>
+                ),
+              },
             ]}
             renderActions={(candidate: any) => (
               <div className="flex items-center space-x-2">

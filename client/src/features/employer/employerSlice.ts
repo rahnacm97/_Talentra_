@@ -1,17 +1,24 @@
 import { createSlice } from "@reduxjs/toolkit";
-import type { IEmployer } from "../../types/employer/employer.types";
-import { fetchEmployerProfile } from "../../thunks/employer.thunk";
+import type { IEmployer, Interview } from "../../types/employer/employer.types";
+import {
+  fetchEmployerProfile,
+  updateEmployerProfile,
+} from "../../thunks/employer.thunk";
 
 interface EmployerState {
   profile: IEmployer | null;
   loading: boolean;
   error: string | null;
+  interviews: Interview[];
+  notifications: [];
 }
 
 const initialState: EmployerState = {
+  interviews: [],
   profile: null,
   loading: false,
   error: null,
+  notifications: [],
 };
 
 const employerSlice = createSlice({
@@ -32,6 +39,19 @@ const employerSlice = createSlice({
         state.loading = false;
         state.error =
           action.error.message || "Failed to fetch employer profile";
+      })
+      .addCase(updateEmployerProfile.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateEmployerProfile.fulfilled, (state, action) => {
+        state.loading = false;
+        state.profile = { ...state.profile, ...action.payload };
+      })
+      .addCase(updateEmployerProfile.rejected, (state, action) => {
+        state.loading = false;
+        state.error =
+          action.error.message || "Failed to update employer profile";
       });
   },
 });

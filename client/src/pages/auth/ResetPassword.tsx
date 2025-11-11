@@ -12,7 +12,7 @@ import { useSelector } from "react-redux";
 import type { RootState } from "../../app/store";
 import { useDispatch } from "react-redux";
 import { loginApi } from "../../features/auth/authApi";
-import { FRONTEND_ROUTES } from "../../shared/constants";
+import { FRONTEND_ROUTES } from "../../shared/constants/constants";
 
 const ResetPassword: React.FC = () => {
   const [newPassword, setNewPassword] = useState("");

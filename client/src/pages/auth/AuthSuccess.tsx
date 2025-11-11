@@ -4,7 +4,7 @@ import { useAppDispatch } from "../../hooks/hooks";
 import { loginSuccess } from "../../features/auth/authSlice";
 import api from "../../api/api";
 import Cookies from "js-cookie";
-import { API_ROUTES, FRONTEND_ROUTES } from "../../shared/constants";
+import { API_ROUTES, FRONTEND_ROUTES } from "../../shared/constants/constants";
 
 const AuthSuccess: React.FC = () => {
   const navigate = useNavigate();

@@ -11,3 +11,11 @@ export const formatExperience = (exp: ExperienceLevel): string => {
   };
   return map[exp] || exp;
 };
+
+export const formatFullName = (name: any) =>
+  name
+    .split(" ")
+    .map(
+      (word: any) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
+    )
+    .join(" ");

@@ -26,6 +26,8 @@ export const API_ROUTES = {
     JOBS: "/jobs",
     APPLY: (candidateId: string, jobId: string) =>
       `/candidate/${candidateId}/jobs/${jobId}/apply`,
+    APPLICATIONS: "/candidate/applications",
+    APPLICATION_BY_ID: (id: string) => `/candidate/applications/${id}`,
   },
   EMPLOYER: {
     PROFILE: (id: string) => `/employer/${id}`,
@@ -33,10 +35,22 @@ export const API_ROUTES = {
     JOB: (id: string, jobId: string) => `/employer/jobs/${id}/${jobId}`,
     JOB_CLOSE: (employerId: string, jobId: string) =>
       `/employer/jobs/${employerId}/${jobId}/close`,
+    APPLICATIONS: (employerId: string) =>
+      `/employer/${employerId}/applications`,
+    UPDATE_APPLICATION_STATUS: (employerId: string, applicationId: string) =>
+      `/employer/${employerId}/applications/${applicationId}/status`,
   },
   JOBS: {
     PUBLIC: "/jobs",
     PUBLIC_BY_ID: (id: string) => `/jobs/public/${id}`,
+    SAVE: (jobId: string) => `/jobs/save/${jobId}`,
+    UNSAVE: (jobId: string) => `/jobs/save/${jobId}`,
+    SAVED: "/jobs/saved",
+  },
+  SUBSCRIPTION: {
+    CREATE: "/subscription/create",
+    CURRENT: "/subscription/current",
+    CANCEL: "/subscription/cancel",
   },
 } as const;
 
@@ -57,11 +71,13 @@ export const FRONTEND_ROUTES = {
   EMPLOYERJOBS: "/employer/jobs",
   EMPLOYERAPPLICANTS: "/employer/applicants",
   EMPLOYERANALYTICS: "/employer/analytics",
+  EMPLOYERRBILLING: "/employer/subscription",
   EMPLOYERINTERVIEWS: "/employer/interviews",
   EMPLOYERREPORTS: "/employer/reports",
   EMPLOYERSETTINGS: "/employer/settings",
   EMPLOYERNOTIFICATIONS: "/employer/notifications",
   CANDIDATEAPPLICATIONS: "/candidate/applications",
+  APPLICATIONDETAILS: "/candidate/applications/:id",
   CANDIDATENOTIFICATIONS: "/candidate/notifications",
   CANDIDATESAVEDJOBS: "/candidate/saved-jobs",
   CANDIDATESETTINGS: "/candidate/settings",

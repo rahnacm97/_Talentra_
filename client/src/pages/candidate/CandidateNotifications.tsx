@@ -16,7 +16,7 @@ import {
   Filter,
   ChevronDown,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+//import { useNavigate } from "react-router-dom";
 //import { FRONTEND_ROUTES } from "../../shared/constants";
 
 interface Notification {
@@ -43,7 +43,7 @@ interface Notification {
 
 const CandidateNotifications: React.FC = () => {
   //const dispatch = useAppDispatch();
-  const navigate = useNavigate();
+  //const navigate = useNavigate();
   //const auth = useAppSelector((state) => state.auth);
 
   const [notifications, setNotifications] = useState<Notification[]>([

@@ -1,19 +1,23 @@
-import React from "react";
+import React, { useState } from "react";
 import Sidebar from "./SideBar";
 import { Outlet } from "react-router-dom";
 
 const AdminLayout: React.FC = () => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   return (
-    <div className="flex flex-col h-screen w-screen">
-      <div className="flex flex-1 overflow-hidden">
-        <Sidebar />
-        <main
-          className="flex-1 p-6 bg-gray-100 overflow-auto"
-          style={{ minWidth: 0 }}
-        >
-          <Outlet />
-        </main>
-      </div>
+    <div className="flex h-screen w-screen bg-gray-50">
+      <Sidebar
+        isSidebarOpen={isSidebarOpen}
+        setIsSidebarOpen={setIsSidebarOpen}
+      />
+
+      <main
+        className="flex-1 overflow-auto bg-gray-100 p-4 lg:p-8"
+        style={{ minWidth: 0 }}
+      >
+        <Outlet />
+      </main>
     </div>
   );
 };

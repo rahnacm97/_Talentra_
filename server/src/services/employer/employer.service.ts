@@ -69,6 +69,7 @@ export class EmployerService implements IEmployerService {
     if (employer.blocked) {
       throw new ApiError(HTTP_STATUS.FORBIDDEN, "User is blocked");
     }
+
     if (typeof data.benefits === "string") {
       try {
         data.benefits = JSON.parse(data.benefits);
@@ -94,6 +95,7 @@ export class EmployerService implements IEmployerService {
       employerId,
       data,
     );
+
     if (!updatedEmployer) {
       throw new ApiError(
         HTTP_STATUS.INTERNAL_SERVER_ERROR,

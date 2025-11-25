@@ -41,3 +41,27 @@ export const applyJobApi = async (
   );
   return response.data.data;
 };
+
+export const getMyApplications = async (filters?: {
+  status?: string;
+  search?: string;
+  page?: number;
+  limit?: number;
+}) => {
+  const params = new URLSearchParams();
+  if (filters?.status) params.append("status", filters.status);
+  if (filters?.search) params.append("search", filters.search);
+  if (filters?.page) params.append("page", String(filters.page));
+  if (filters?.limit) params.append("limit", String(filters.limit));
+
+  const url = `${API_ROUTES.CANDIDATE.APPLICATIONS}?${params.toString()}`;
+  const { data } = await api.get(url);
+  return data;
+};
+
+export const getApplicationByIdApi = async (applicationId: string) => {
+  const response = await api.get(
+    `${API_ROUTES.CANDIDATE.APPLICATIONS}/${applicationId}`,
+  );
+  return response.data.data;
+};

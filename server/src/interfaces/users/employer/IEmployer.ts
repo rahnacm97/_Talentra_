@@ -11,6 +11,9 @@ export interface IEmployer extends Document {
   updatedAt: Date;
   blocked: boolean;
   verified: boolean;
+  rejected?: boolean;
+  rejectionReason?: string;
+  rejectionCreatedAt?: Date;
   emailVerified: boolean;
   joinDate?: Date;
   jobsPosted: number;
@@ -42,6 +45,7 @@ export interface IEmployer extends Document {
     totalApplicants: number;
     hiredThisMonth: number;
   };
+  subscription: EmployerCurrentSubscription;
 }
 
 export interface PostedJob {
@@ -55,4 +59,19 @@ export interface PostedJob {
   applicants: number;
   status: string;
   description: string;
+}
+
+export interface EmployerCurrentSubscription {
+  active: boolean;
+  plan: "free" | "professional" | "enterprise";
+  status:
+    | "active"
+    | "cancelled"
+    | "past_due"
+    | "trialing"
+    | "incomplete"
+    | "inactive";
+  currentPeriodEnd?: Date | null;
+  razorpaySubscriptionId?: string | null;
+  trialEndsAt?: Date | null;
 }

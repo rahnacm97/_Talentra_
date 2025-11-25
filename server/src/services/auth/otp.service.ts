@@ -3,7 +3,7 @@ import { INotificationService } from "../../interfaces/auth/INotificationService
 import crypto from "crypto";
 import { detectUserByEmail } from "../../shared/utils/user.utils";
 import { IOtpService } from "../../interfaces/auth/IOtpService";
-import { UserRepoMap } from "../../types/types";
+import { UserRepoMap } from "../../type/types";
 import { SendOtpDTO, VerifyOtpDTO } from "../../dto/auth/otp.dto";
 import { IOtpMapper } from "../../interfaces/auth/IOtpMapper";
 

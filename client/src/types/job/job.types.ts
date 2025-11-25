@@ -20,6 +20,8 @@ export interface Job {
 export interface EmployerInfoDto {
   id: string;
   name: string;
+  logo: string;
+  companyName: string;
   profileImage?: string;
   companySize?: string;
   industry?: string;
@@ -47,4 +49,5 @@ export interface JobResponseDto {
   postedDate: string;
   employer: EmployerInfoDto;
   hasApplied: boolean;
+  skills: string[];
 }

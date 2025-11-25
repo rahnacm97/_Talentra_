@@ -14,8 +14,8 @@ import { PasswordService } from "../../services/auth/password.service";
 import passport from "passport";
 import { GoogleAuthService } from "../../services/auth/googleAuth.service";
 import { GoogleAuthController } from "../../controllers/auth/googleAuth.controller";
-import { UserRepoMap } from "../../types/types";
-import { GoogleAuthUserRepoMap } from "../../types/types";
+import { UserRepoMap } from "../../type/types";
+import { GoogleAuthUserRepoMap } from "../../type/types";
 import { OtpMapper } from "../../mappers/auth/otp.mapper";
 import { PasswordMapper } from "../../mappers/auth/password.mapper";
 

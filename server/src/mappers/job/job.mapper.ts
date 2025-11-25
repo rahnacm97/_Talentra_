@@ -4,7 +4,9 @@ import { JobResponseDto, EmployerInfoDto } from "../../dto/job/job.dto";
 import { IEmployer } from "../../interfaces/users/employer/IEmployer";
 
 export class JobMapper implements IJobMapper {
-  toResponseDto(job: IJob & { employer?: IEmployer }): JobResponseDto {
+  toResponseDto(
+    job: IJob & { employer?: IEmployer; extractedSkills?: string[] },
+  ): JobResponseDto {
     const employerInfo: EmployerInfoDto = {
       id: job.employer?._id?.toString() ?? job.employerId,
       companyName: job.employer?.name ?? "Unknown Company",
@@ -35,6 +37,7 @@ export class JobMapper implements IJobMapper {
       postedDate: new Date(job.postedDate).toISOString().split("T")[0] || "",
       employer: employerInfo,
       hasApplied: job.hasApplied || false,
+      skills: job.extractedSkills || [],
     };
   }
 

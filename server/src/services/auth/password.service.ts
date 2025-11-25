@@ -8,7 +8,7 @@ import {
 import { detectUserByEmail } from "../../shared/utils/user.utils";
 import bcrypt from "bcryptjs";
 import { IPasswordService } from "../../interfaces/auth/IPasswordService";
-import { UserRepoMap } from "../../types/types";
+import { UserRepoMap } from "../../type/types";
 import { IPasswordMapper } from "../../interfaces/auth/IPasswordMapper";
 
 export class PasswordService implements IPasswordService {

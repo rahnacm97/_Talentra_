@@ -36,10 +36,10 @@ const AdminJobs: React.FC = () => {
         status: statusFilter === "all" ? undefined : statusFilter,
       }),
     );
-  }, [dispatch, localPage, limit, debouncedSearch, statusFilter]);
+  }, [dispatch, limit, debouncedSearch, statusFilter, localPage]);
 
   useEffect(() => {
-    if (localPage !== 1) setLocalPage(1);
+    setLocalPage(1);
   }, [debouncedSearch, statusFilter]);
 
   useEffect(() => {

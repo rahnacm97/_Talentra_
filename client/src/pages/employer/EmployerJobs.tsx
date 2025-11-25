@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
+import SearchIcon from "@mui/icons-material/Search";
+import CloseIcon from "@mui/icons-material/Close";
 import {
   Plus,
   Briefcase,
@@ -9,12 +11,10 @@ import {
   Calendar,
   Eye,
   Edit3,
-  Search,
   Filter,
   Building2,
-  X,
 } from "lucide-react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import Pagination from "../../components/common/Pagination";
 import ConfirmModal from "../../components/common/ConfirmModal";
 import { StatCard } from "../../components/employer/StatCard";
 import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
@@ -39,7 +39,7 @@ const EmployerJobs: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
-  const limit = 3;
+  const limit = 5;
 
   const [showCloseModal, setShowCloseModal] = useState<Job | null>(null);
   const [viewingJob, setViewingJob] = useState<Job | null>(null);
@@ -192,9 +192,7 @@ const EmployerJobs: React.FC = () => {
   };
 
   const totalPages = Math.ceil(total / limit);
-  const goToPage = (p: number) => setPage(p);
 
-  // Clear search
   const clearSearch = () => {
     setSearchInput("");
   };
@@ -274,7 +272,7 @@ const EmployerJobs: React.FC = () => {
           {/* Search & Filter */}
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
                 placeholder="Search jobs by title or department..."
@@ -285,9 +283,9 @@ const EmployerJobs: React.FC = () => {
               {searchInput && (
                 <button
                   onClick={clearSearch}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
                 >
-                  <X className="w-5 h-5" />
+                  <CloseIcon className="w-5 h-5" />
                 </button>
               )}
             </div>
@@ -436,31 +434,12 @@ const EmployerJobs: React.FC = () => {
           )}
         </div>
 
-        {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between mt-8">
-            <button
-              onClick={() => goToPage(page - 1)}
-              disabled={page === 1}
-              className="flex items-center space-x-1 px-4 py-2 rounded-lg bg-white border disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <ChevronLeft className="w-5 h-5" />
-              <span>Previous</span>
-            </button>
-
-            <span className="text-sm text-gray-600">
-              Page {page} of {totalPages} ({total} jobs)
-            </span>
-
-            <button
-              onClick={() => goToPage(page + 1)}
-              disabled={page === totalPages}
-              className="flex items-center space-x-1 px-4 py-2 rounded-lg bg-white border disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <span>Next</span>
-              <ChevronRight className="w-5 h-5" />
-            </button>
-          </div>
+          <Pagination
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+          />
         )}
       </div>
 

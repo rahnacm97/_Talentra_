@@ -2,7 +2,7 @@ import { Router } from "express";
 import { AdminAuthController } from "../../controllers/admin/admin.authController";
 import { AdminCandidateController } from "../../controllers/admin/admin.candidateController";
 import { AdminEmployerController } from "../../controllers/admin/admin.employerController";
-import { JobController } from "../../controllers/job/job.controller";
+import { AdminJobController } from "../../controllers/job/job.controller";
 import { AdminAuthService } from "../../services/admin/admin.authService";
 import { AdminCandidateService } from "../../services/admin/admin.candidateService";
 import { AdminEmployerService } from "../../services/admin/admin.employerService";
@@ -18,12 +18,9 @@ import { AdminMapper } from "../../mappers/admin/admin.mapper";
 import { CandidateMapper } from "../../mappers/admin/adminCandidate.mapper";
 import { EmployerMapper } from "../../mappers/admin/adminEmployer.mapper";
 import { EmailService } from "../../services/auth/email.service";
-import { JobService } from "../../services/job/job.service";
-import { JobMapper } from "../../mappers/job/job.mapper";
+import { AdminJobService } from "../../services/job/job.service";
 import { AdminJobMapper } from "../../mappers/admin/adminJob.mapper";
 import { JobRepository } from "../../repositories/job/job.repository";
-import { ApplicationRepository } from "../../repositories/application/application.repository";
-import { IEmployerVerificationRepo } from "../../interfaces/users/employer/IEmployerVerifyRepo";
 import { USER_ROLES } from "../../shared/enums/enums";
 
 const router = Router();
@@ -33,13 +30,8 @@ const adminMapper = new AdminMapper();
 const candidateMapper = new CandidateMapper();
 const employerMapper = new EmployerMapper();
 const emailService = new EmailService();
-const jobMapper = new JobMapper();
 const adminJobMapper = new AdminJobMapper();
 const jobRepo = new JobRepository();
-const employerRepository = new EmployerRepository();
-const applicationRepo = new ApplicationRepository();
-
-const employerVerificationRepo: IEmployerVerificationRepo = employerRepository;
 
 // Services
 const adminAuthService = new AdminAuthService(
@@ -56,13 +48,7 @@ const adminEmployerService = new AdminEmployerService(
   employerMapper,
   emailService,
 );
-const jobService = new JobService(
-  jobRepo,
-  jobMapper,
-  employerVerificationRepo,
-  applicationRepo,
-  adminJobMapper,
-);
+const jobService = new AdminJobService(jobRepo, adminJobMapper);
 
 // Controllers
 const adminAuthController = new AdminAuthController(adminAuthService);
@@ -72,7 +58,7 @@ const adminCandidateController = new AdminCandidateController(
 const adminEmployerController = new AdminEmployerController(
   adminEmployerService,
 );
-const jobController = new JobController(jobService, jobService, jobService);
+const jobController = new AdminJobController(jobService);
 
 // Routes
 router.post("/login", adminAuthController.login);

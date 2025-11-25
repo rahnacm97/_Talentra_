@@ -27,3 +27,5 @@ export const createJobSchema = z.object({
 });
 
 export type CreateJobDto = z.infer<typeof createJobSchema>;
+export const updateJobSchema = createJobSchema.partial();
+export type UpdateJobDto = z.infer<typeof updateJobSchema>;

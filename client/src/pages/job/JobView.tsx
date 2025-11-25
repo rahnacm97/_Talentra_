@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
 import { fetchJobsForCandidate } from "../../thunks/job.thunk";
+import { toggleSkill, clearSkills } from "../../features/job/jobSlice";
 import { formatExperience } from "../../utils/formatters";
+import SearchIcon from "@mui/icons-material/Search";
+import CloseIcon from "@mui/icons-material/Close";
 import {
-  Search,
   MapPin,
   Briefcase,
   IndianRupee,
@@ -15,6 +17,7 @@ import {
   Bookmark,
   BookmarkCheck,
 } from "lucide-react";
+import Pagination from "../../components/common/Pagination";
 import { Link } from "react-router-dom";
 import Header from "../common/Header";
 import { FRONTEND_ROUTES } from "../../shared/constants/constants";
@@ -25,6 +28,9 @@ const JobView: React.FC = () => {
   const dispatch = useAppDispatch();
   const { jobs, total, loading } = useAppSelector(
     (state) => state.candidateJobs,
+  );
+  const { availableSkills, selectedSkills } = useAppSelector(
+    (s) => s.candidateJobs,
   );
 
   const [page, setPage] = useState(1);
@@ -59,9 +65,18 @@ const JobView: React.FC = () => {
         location: location || undefined,
         type: jobType === "all" ? undefined : jobType,
         experience: experience === "all" ? undefined : experience,
+        skills: selectedSkills.length ? selectedSkills : undefined,
       }),
     );
-  }, [dispatch, page, debouncedSearch, location, jobType, experience]);
+  }, [
+    dispatch,
+    page,
+    debouncedSearch,
+    location,
+    jobType,
+    experience,
+    selectedSkills,
+  ]);
 
   const totalPages = Math.ceil(total / limit);
 
@@ -82,6 +97,7 @@ const JobView: React.FC = () => {
     setLocation("");
     setJobType("all");
     setExperience("all");
+    dispatch(clearSkills());
   };
 
   if (loading && jobs.length === 0) {
@@ -125,10 +141,10 @@ const JobView: React.FC = () => {
           <div className="bg-white rounded-2xl shadow-lg p-3">
             <div className="flex flex-col md:flex-row gap-3">
               <div className="flex-1 flex items-center px-4 py-3 bg-gray-50 rounded-xl">
-                <Search className="w-5 h-5 text-gray-400 mr-3" />
+                <SearchIcon className="w-5 h-5 text-gray-400 mr-3" />
                 <input
                   type="text"
-                  placeholder="Job title, company, or skill..."
+                  placeholder="Job title, company"
                   className="w-full bg-transparent outline-none text-gray-700"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
@@ -136,9 +152,9 @@ const JobView: React.FC = () => {
                 {search && (
                   <button
                     onClick={() => setSearch("")}
-                    className="ml-2 text-gray-400 hover:text-gray-600"
+                    className="ml-2 text-gray-400 hover:text-gray-600 cursor-pointer"
                   >
-                    <X className="w-4 h-4" />
+                    <CloseIcon className="w-4 h-4" />
                   </button>
                 )}
               </div>
@@ -152,6 +168,14 @@ const JobView: React.FC = () => {
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                 />
+                {location && (
+                  <button
+                    onClick={() => setLocation("")}
+                    className="ml-2 text-gray-400 hover:text-gray-600 transition cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
               </div>
 
               <button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-3 rounded-xl font-semibold transition-all cursor-pointer">
@@ -232,6 +256,58 @@ const JobView: React.FC = () => {
                   )}
                 </div>
               </div>
+
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="font-semibold text-gray-900">Skills</h4>
+                  {selectedSkills.length > 0 && (
+                    <button
+                      onClick={() => dispatch(clearSkills())}
+                      className="text-sm text-indigo-600 hover:text-indigo-700"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+
+                <div className="space-y-2 max-h-48 overflow-y-auto">
+                  {availableSkills.map((skill) => (
+                    <label
+                      key={skill}
+                      className="flex items-center cursor-pointer hover:bg-gray-50 p-1 rounded"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedSkills.includes(skill)}
+                        onChange={() => dispatch(toggleSkill(skill))}
+                        className="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
+                      />
+                      <span className="ml-3 text-sm text-gray-700 capitalize">
+                        {skill}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+
+                {selectedSkills.length > 0 && (
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {selectedSkills.map((skill) => (
+                      <span
+                        key={skill}
+                        className="inline-flex items-center gap-1 bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-xs font-medium"
+                      >
+                        {skill}
+                        <button
+                          onClick={() => dispatch(toggleSkill(skill))}
+                          className="hover:text-indigo-900"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -255,7 +331,6 @@ const JobView: React.FC = () => {
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex items-start space-x-4 flex-1">
-                        {/* Company Logo */}
                         {company.logo ? (
                           <img
                             src={company.logo}
@@ -394,7 +469,7 @@ const JobView: React.FC = () => {
             {jobs.length === 0 && !loading && (
               <div className="bg-white rounded-xl shadow-sm p-12 text-center">
                 <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Search className="w-10 h-10 text-gray-400" />
+                  <SearchIcon className="w-10 h-10 text-gray-400" />
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">
                   No jobs found
@@ -412,25 +487,11 @@ const JobView: React.FC = () => {
             )}
 
             {totalPages > 1 && (
-              <div className="flex justify-center items-center gap-3 mt-10">
-                <button
-                  onClick={() => setPage(Math.max(1, page - 1))}
-                  disabled={page === 1}
-                  className="px-5 py-2 rounded-lg border disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition"
-                >
-                  Previous
-                </button>
-                <span className="px-4 py-2 text-sm font-medium">
-                  Page {page} of {totalPages}
-                </span>
-                <button
-                  onClick={() => setPage(Math.min(totalPages, page + 1))}
-                  disabled={page === totalPages}
-                  className="px-5 py-2 rounded-lg border disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition"
-                >
-                  Next
-                </button>
-              </div>
+              <Pagination
+                currentPage={page}
+                totalPages={totalPages}
+                onPageChange={setPage}
+              />
             )}
           </div>
         </div>

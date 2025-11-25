@@ -86,3 +86,8 @@ export interface CandidateResponseDTO {
   education?: Education[] | null;
   certifications?: Certification[] | null;
 }
+
+export interface UpdateProfileResponse {
+  message: string;
+  data: ICandidate;
+}

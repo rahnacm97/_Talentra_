@@ -30,6 +30,7 @@ export interface IJobRepository {
     location?: string;
     type?: string;
     experience?: ExperienceLevel;
+    skills?: string[];
   }): Promise<{ jobs: (IJob & { employer?: IEmployer })[]; total: number }>;
 
   findById(id: string): Promise<(IJob & { employer?: IEmployer }) | null>;
@@ -42,4 +43,7 @@ export interface IJobRepository {
     search?: string;
     status?: "active" | "closed" | "draft" | "all";
   }): Promise<{ jobs: (IJob & { employer?: IEmployer })[]; total: number }>;
+
+  getAvailableSkills(): Promise<string[]>;
+  incrementApplicants(jobId: string): Promise<void>;
 }

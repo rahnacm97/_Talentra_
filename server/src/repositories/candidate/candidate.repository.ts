@@ -1,52 +1,29 @@
 import { BaseRepository } from "../base.repository";
 import Candidate from "../../models/Candidate.model";
 import { ICandidate } from "../../interfaces/users/candidate/ICandidate";
-import { ProfileData } from "../../types/candidate/candidate.types";
+import { ProfileData } from "../../type/candidate/candidate.types";
+import { ICandidateRepo } from "../../interfaces/users/candidate/ICandidateRepository";
 
-export class CandidateRepository extends BaseRepository<ICandidate> {
+export class CandidateRepository
+  extends BaseRepository<ICandidate>
+  implements ICandidateRepo
+{
   constructor() {
     super(Candidate);
   }
 
-  async findByEmail(email: string): Promise<ICandidate | null> {
+  findByEmail(email: string) {
     return this.model.findOne({ email }).select("+password").exec();
   }
 
-  async updateBlockStatus(candidateId: string, block: boolean) {
-    return this.model
-      .findByIdAndUpdate(
-        candidateId,
-        { blocked: block, updatedAt: new Date() },
-        { new: true },
-      )
-      .lean()
-      .exec();
+  updateBlockStatus(id: string, block: boolean) {
+    return this.update(id, {
+      blocked: block,
+      updatedAt: new Date(),
+    }) as Promise<ICandidate | null>;
   }
-  async updateProfile(
-    id: string,
-    data: ProfileData,
-  ): Promise<ICandidate | null> {
-    return this.model
-      .findByIdAndUpdate(
-        id,
-        {
-          name: data.name,
-          email: data.email,
-          phoneNumber: data.phoneNumber,
-          location: data.location,
-          title: data.title,
-          about: data.about,
-          skills: data.skills,
-          experience: data.experience,
-          education: data.education,
-          certifications: data.certifications,
-          resume: data.resume,
-          profileImage: data.profileImage,
-          updatedAt: new Date(),
-        },
-        { new: true },
-      )
-      .lean()
-      .exec();
+
+  updateProfile(id: string, data: ProfileData) {
+    return this.update(id, { ...data, updatedAt: new Date() });
   }
 }

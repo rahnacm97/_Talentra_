@@ -1,10 +1,10 @@
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import passport from "passport";
 import { detectUserByEmailForGoogle } from "../../shared/utils/user.utils";
-import { GoogleAuthUserRepoMap } from "../../types/types";
+import { GoogleAuthUserRepoMap } from "../../type/types";
 import jwt, { SignOptions } from "jsonwebtoken";
 import type { UserType } from "../../interfaces/auth/IAuthService";
-import type { GoogleAuthUser, GoogleAuthUserData } from "../../types/types";
+import type { GoogleAuthUser, GoogleAuthUserData } from "../../type/types";
 
 export class GoogleAuthService {
   constructor(private _repos: GoogleAuthUserRepoMap) {

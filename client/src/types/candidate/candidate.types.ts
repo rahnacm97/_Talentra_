@@ -69,29 +69,3 @@ export interface ProfileData {
   certifications: Certification[];
   profileImage?: string | null;
 }
-
-// export interface CandidateSignupDTO {
-//   email: string;
-//   password: string;
-//   name: string;
-//   phoneNumber: string;
-// }
-
-// export interface CandidateResponseDTO {
-//   id: string;
-//   email: string;
-//   name: string;
-//   phoneNumber?: string | null;
-//   emailVerified: boolean;
-//   resume?: string | null;
-//   createdAt: string;
-//   updatedAt: string;
-//   blocked: boolean;
-//   location?: string | null;
-//   title?: string | null;
-//   about?: string | null;
-//   skills?: string[] | null;
-//   experience?: Experience[] | null;
-//   education?: Education[] | null;
-//   certifications?: Certification[] | null;
-// }

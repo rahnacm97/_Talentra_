@@ -7,21 +7,34 @@ export interface IApplicationDocument
   _id: mongoose.Types.ObjectId;
 }
 
-const ApplicationSchema = new Schema<IApplicationDocument>({
-  jobId: { type: String, required: true },
-  candidateId: { type: String, required: true },
-  fullName: { type: String, required: true },
-  email: { type: String, required: true },
-  phone: { type: String, required: true },
-  resume: { type: String, required: true },
-  coverLetter: { type: String },
-  appliedAt: { type: Date, default: Date.now },
-  status: {
-    type: String,
-    enum: ["pending", "reviewed", "rejected", "accepted"],
-    default: "pending",
+const ApplicationSchema = new Schema<IApplicationDocument>(
+  {
+    jobId: { type: String, required: true },
+    candidateId: { type: String, required: true },
+    fullName: { type: String, required: true },
+    email: { type: String, required: true },
+    phone: { type: String, required: true },
+    resume: { type: String, required: true },
+    coverLetter: { type: String },
+    appliedAt: { type: Date, default: Date.now },
+    interviewDate: { type: Date },
+    status: {
+      type: String,
+      enum: [
+        "pending",
+        "reviewed",
+        "rejected",
+        "accepted",
+        "interview",
+        "shortlisted",
+      ],
+      default: "pending",
+    },
   },
-});
+  {
+    timestamps: true,
+  },
+);
 
 ApplicationSchema.index({ jobId: 1, candidateId: 1 }, { unique: true });
 

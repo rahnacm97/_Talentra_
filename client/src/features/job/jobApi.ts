@@ -9,7 +9,36 @@ export const getPublicJobs = (params?: {
   location?: string;
   type?: string;
   experience?: ExperienceLevel;
-}) => api.get(API_ROUTES.JOBS.PUBLIC, { params });
+  skills?: string[];
+}) => {
+  const queryParams = new URLSearchParams();
+  if (params?.page) queryParams.append("page", params.page.toString());
+  if (params?.limit) queryParams.append("limit", params.limit.toString());
+  if (params?.search) queryParams.append("search", params.search);
+  if (params?.location) queryParams.append("location", params.location);
+  if (params?.type) queryParams.append("type", params.type);
+  if (params?.experience) queryParams.append("experience", params.experience);
+  if (params?.skills?.length) {
+    queryParams.append("skills", params.skills.join(","));
+  }
 
-export const getJobById = (id: string) =>
-  api.get(API_ROUTES.JOBS.PUBLIC_BY_ID(id));
+  const url = `${API_ROUTES.JOBS.PUBLIC}?${queryParams.toString()}`;
+  return api.get(url);
+};
+
+export const getJobById = (id: string, candidateId?: string) =>
+  api.get(API_ROUTES.JOBS.PUBLIC_BY_ID(id), {
+    params: candidateId ? { candidateId } : {},
+  });
+
+export const saveJob = (jobId: string) => {
+  return api.post(API_ROUTES.JOBS.SAVE(jobId));
+};
+
+export const unsaveJob = (jobId: string) => {
+  return api.delete(API_ROUTES.JOBS.UNSAVE(jobId));
+};
+
+export const getSavedJobs = () => {
+  return api.get(API_ROUTES.JOBS.SAVED);
+};

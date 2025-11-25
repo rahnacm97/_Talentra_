@@ -5,7 +5,7 @@ export interface AdminJob {
   title: string;
   name: string;
   type: string;
-  applications: number;
+  applicants: number;
   isActive: boolean;
   status: "active" | "closed" | "draft";
   employer: EmployerInfoDto;

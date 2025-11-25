@@ -3,20 +3,23 @@ import { SUCCESS_MESSAGES, ERROR_MESSAGES } from "../../shared/enums/enums";
 import { HTTP_STATUS } from "../../shared/httpStatus/httpStatusCode";
 import {
   ICandidateController,
-  UpdateProfileResponse,
+  ICandidateApplicationController,
 } from "../../interfaces/users/candidate/ICandidateController";
+import { UpdateProfileResponse } from "../../type/candidate/candidate.types";
 import { ICandidateService } from "../../interfaces/users/candidate/ICandidateService";
-import { IApplicationService } from "../../interfaces/applications/IApplicationService";
+import { IApplicationQueryParams } from "../../interfaces/applications/IApplication";
+import { ApplyJobPayload } from "../../interfaces/applications/IApplicationService";
+import { ICandidateApplicationService } from "../../interfaces/applications/IApplicationService";
 import { logger } from "../../shared/utils/logger";
 import { ApiError } from "../../shared/utils/ApiError";
-import { error } from "console";
-import { ProfileData } from "../../types/candidate/candidate.types";
+import { ALLOWED_APPLICATION_STATUSES } from "../../shared/constants/constants";
+import { ProfileData } from "../../type/candidate/candidate.types";
 import { ApplicationResponseDto } from "../../dto/application/application.dto";
 
 export class CandidateController implements ICandidateController {
   constructor(
     private _candidateService: ICandidateService,
-    private _applicationService: IApplicationService,
+    private _applicationService: ICandidateApplicationService,
   ) {}
   async getProfile(
     req: Request<{ id: string }>,
@@ -59,8 +62,8 @@ export class CandidateController implements ICandidateController {
         candidateId: req.params.id,
       });
       next(
-        error instanceof ApiError
-          ? error
+        err instanceof ApiError
+          ? err
           : new ApiError(HTTP_STATUS.INTERNAL_SERVER_ERROR, message),
       );
       return;
@@ -114,20 +117,23 @@ export class CandidateController implements ICandidateController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      const { jobId } = req.params;
-      const candidateId = (req.user as { id: string; role: string }).id;
+      const { jobId, candidateId } = req.params;
+      const { fullName, email, phone, coverLetter, useExistingResume } =
+        req.body;
+      const resumeFile = req.file as Express.Multer.File | undefined;
 
-      if (req.params.candidateId !== candidateId) {
-        throw new ApiError(
-          HTTP_STATUS.FORBIDDEN,
-          ERROR_MESSAGES.NOT_AUTHENTICATED,
-        );
-      }
+      const payload: ApplyJobPayload = {
+        fullName,
+        email,
+        phone,
+        coverLetter: coverLetter || "",
+      };
 
-      const { fullName, email, phone, coverLetter } = req.body;
-      const resumeFile = req.file as Express.Multer.File;
-
-      if (!resumeFile) {
+      if (resumeFile) {
+        payload.resumeFile = resumeFile;
+      } else if (useExistingResume === "true" || useExistingResume === true) {
+        payload.useExistingResume = true;
+      } else {
         throw new ApiError(
           HTTP_STATUS.BAD_REQUEST,
           ERROR_MESSAGES.RESUME_REQUIRED,
@@ -137,13 +143,7 @@ export class CandidateController implements ICandidateController {
       const application = await this._applicationService.apply(
         jobId,
         candidateId,
-        {
-          fullName,
-          email,
-          phone,
-          coverLetter,
-          resumeFile,
-        },
+        payload,
       );
 
       res.status(HTTP_STATUS.CREATED).json({
@@ -152,6 +152,95 @@ export class CandidateController implements ICandidateController {
       });
     } catch (err) {
       logger.error("Apply job failed", { error: err });
+      next(err);
+    }
+  }
+}
+
+export class CandidateApplicationsController
+  implements ICandidateApplicationController
+{
+  constructor(private readonly _service: ICandidateApplicationService) {}
+
+  async getMyApplications(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const candidateId = (req.user as { id: string }).id;
+
+      const {
+        status,
+        search,
+        page = "1",
+        limit = "10",
+      } = req.query as IApplicationQueryParams;
+
+      let pageNum = parseInt(page, 10);
+      let limitNum = parseInt(limit, 10);
+
+      if (isNaN(pageNum) || pageNum < 1) pageNum = 1;
+      if (isNaN(limitNum) || limitNum < 1) limitNum = 10;
+
+      const filters: Parameters<
+        ICandidateApplicationService["getApplicationsForCandidate"]
+      >[1] = {
+        page: pageNum,
+        limit: limitNum,
+      };
+
+      if (search) filters.search = search;
+      if (status && ALLOWED_APPLICATION_STATUSES.includes(status)) {
+        filters.status = status;
+      }
+
+      const result = await this._service.getApplicationsForCandidate(
+        candidateId,
+        filters,
+      );
+
+      res.status(HTTP_STATUS.OK).json({
+        message: SUCCESS_MESSAGES.APPLICATIONS_FETCHED,
+        ...result,
+      });
+    } catch (err) {
+      logger.error("Failed to fetch candidate applications", { error: err });
+      next(err);
+    }
+  }
+
+  async getApplicationById(
+    req: Request<{ applicationId: string }>,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const { applicationId } = req.params;
+      const candidateId = (req.user as { id: string }).id;
+
+      if (!applicationId) {
+        throw new ApiError(
+          HTTP_STATUS.BAD_REQUEST,
+          ERROR_MESSAGES.VALIDATION_ERROR,
+        );
+      }
+
+      const application = await this._service.getApplicationById(
+        applicationId,
+        candidateId,
+      );
+
+      res.status(HTTP_STATUS.OK).json({
+        success: true,
+        message: SUCCESS_MESSAGES.APPLICATIONS_FETCHED,
+        data: application,
+      });
+    } catch (err) {
+      logger.error("Failed to fetch application by ID", {
+        applicationId: req.params.applicationId,
+        error: err,
+      });
       next(err);
     }
   }

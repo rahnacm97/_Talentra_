@@ -4,6 +4,7 @@ import { IAdmin } from "../interfaces/users/admin/IAdmin";
 import { IUserReader, IUserWriter } from "../interfaces/auth/IAuthRepository";
 import { Document } from "mongoose";
 import { IUserRepository } from "../interfaces/auth/IAuthRepository";
+import { USER_ROLES } from "../shared/enums/enums";
 
 export type UserRepoMap = {
   Candidate: IUserRepository<ICandidate>;
@@ -13,7 +14,7 @@ export type UserRepoMap = {
 
 export type UserType = "Candidate" | "Employer" | "Admin";
 
-export interface User extends Document {
+export interface IUserEntity extends Document {
   _id: string;
   name: string;
   email: string;
@@ -23,7 +24,7 @@ export interface User extends Document {
   blocked: boolean;
 }
 
-export type AnyUser = User | ICandidate | IEmployer | IAdmin;
+export type AnyUser = IUserEntity | ICandidate | IEmployer | IAdmin;
 
 export type GoogleAuthUser = ICandidate | IEmployer;
 
@@ -46,3 +47,22 @@ export function hasEmailVerification(
 ): user is ICandidate | IEmployer {
   return user && "emailVerified" in user;
 }
+
+export type FullyAuthenticatedRequest = Request & {
+  user: {
+    _id: string;
+    id: string;
+    role: USER_ROLES;
+    email: string;
+    blocked?: boolean;
+    subscription?: {
+      active: boolean;
+      plan: "free" | "professional" | "enterprise";
+      status: string;
+      currentPeriodEnd?: Date | null;
+      razorpaySubscriptionId?: string | null;
+      trialEndsAt?: Date | null;
+    };
+  };
+  maskApplications?: boolean;
+};

@@ -1,267 +1,173 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState, useMemo } from "react";
+import { Calendar, User, Briefcase, Search, Eye } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
-import {
-  Calendar,
-  Clock,
-  User,
-  Briefcase,
-  CheckCircle,
-  XCircle,
-  RefreshCw,
-  Trash2,
-  Filter,
-  Search,
-  Check,
-} from "lucide-react";
-import { toast } from "react-toastify";
-import {
-  fetchInterviews,
-  updateInterviewStatus,
-} from "../../thunks/employer.thunk";
-import type {
-  Interview,
-  EmployerState,
-} from "../../types/employer/employer.types";
-import { FRONTEND_ROUTES } from "../../shared/constants/constants";
-import { useNavigate } from "react-router-dom";
+import { fetchEmployerApplications } from "../../thunks/employer.thunk";
+import { formatFullName } from "../../utils/formatters";
+import EmployerInterviewDetailsModal from "../../components/employer/InterviewModal";
+
+interface Interview {
+  id: string;
+  applicationId: string;
+  candidateName: string;
+  jobTitle: string;
+  interviewDate: string;
+  candidate: { profileImage?: string };
+}
 
 const EmployerInterview: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { interviews, loading, error } = useAppSelector(
-    (state) => state.employer as EmployerState,
-  );
-  const auth = useAppSelector((state) => state.auth);
-  const navigate = useNavigate();
+  const { applications, appLoading } = useAppSelector((s) => s.employer);
+  const { user } = useAppSelector((s) => s.auth);
 
-  const [activeTab, setActiveTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredInterviews, setFilteredInterviews] = useState<Interview[]>([]);
-  const [successMessage, setSuccessMessage] = useState("");
+  const [selectedInterview, setSelectedInterview] = useState<Interview | null>(
+    null,
+  );
 
   useEffect(() => {
-    if (auth.user?._id) {
-      dispatch(fetchInterviews(auth.user._id))
-        .unwrap()
-        .catch((err: any) => {
-          if (
-            err?.message?.includes("blocked") ||
-            err?.status === 403 ||
-            err?.message === "You have been blocked by admin"
-          ) {
-            navigate(FRONTEND_ROUTES.LOGIN);
-          }
-          toast.error(err?.message || "Failed to fetch interviews");
-        });
-    }
-  }, [auth.user, dispatch, navigate]);
-
-  useEffect(() => {
-    if (error) {
-      toast.error(error);
-    }
-  }, [error]);
-
-  useEffect(() => {
-    // Filter interviews based on active tab and search query
-    let filtered = interviews;
-    if (activeTab !== "all") {
-      filtered = interviews.filter(
-        (interview: Interview) => interview.status === activeTab,
-      );
-    }
-    if (searchQuery) {
-      filtered = filtered.filter(
-        (interview: Interview) =>
-          interview.candidateName
-            .toLowerCase()
-            .includes(searchQuery.toLowerCase()) ||
-          interview.jobTitle.toLowerCase().includes(searchQuery.toLowerCase()),
-      );
-    }
-    setFilteredInterviews(filtered);
-  }, [interviews, activeTab, searchQuery]);
-
-  const handleStatusUpdate = async (interviewId: string, status: string) => {
-    if (!auth.user?._id) {
-      toast.error("User not authenticated");
-      return;
-    }
-    try {
-      await dispatch(
-        updateInterviewStatus({
-          interviewId,
-          status,
-          employerId: auth.user._id,
+    if (user?._id) {
+      dispatch(
+        fetchEmployerApplications({
+          employerId: user._id,
+          status: "interview",
+          limit: 100,
         }),
-      ).unwrap();
-      setSuccessMessage(`Interview ${status.toLowerCase()} successfully!`);
-      setTimeout(() => setSuccessMessage(""), 3000);
-    } catch (err: any) {
-      toast.error(
-        err?.message || `Failed to ${status.toLowerCase()} interview`,
       );
     }
-  };
+  }, [dispatch, user]);
 
-  const formatDateTime = (date: string, time: string) => {
-    const dateObj = new Date(`${date}T${time}`);
-    return dateObj.toLocaleString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    });
-  };
+  const interviews = useMemo(() => {
+    return applications
+      .filter((app) => app.status === "interview" && app.interviewDate)
+      .map((app) => ({
+        id: app.id,
+        applicationId: app.id,
+        candidateName: app.fullName,
+        jobTitle: app.jobTitle,
+        interviewDate: app.interviewDate!,
+        candidate: app.candidate || {},
+      }));
+  }, [applications]);
 
-  const tabs = [
-    { id: "all", label: "All Interviews", icon: Calendar },
-    { id: "Scheduled", label: "Scheduled", icon: Clock },
-    { id: "Completed", label: "Completed", icon: CheckCircle },
-    { id: "Canceled", label: "Canceled", icon: XCircle },
-  ];
+  const filteredInterviews = interviews.filter(
+    (i) =>
+      i.candidateName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      i.jobTitle.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
+
+  if (appLoading) {
+    return (
+      <div className="py-20 text-center text-gray-600">
+        Loading interviews...
+      </div>
+    );
+  }
 
   return (
     <div className="bg-gray-50 min-h-screen py-8 px-4">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Interviews</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Scheduled Interviews
+          </h1>
           <p className="text-gray-600">
-            Manage your scheduled interviews with candidates
+            View and manage your upcoming candidate interviews
           </p>
         </div>
 
-        {/* Success Message */}
-        {successMessage && (
-          <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4 flex items-center space-x-3">
-            <Check className="w-5 h-5 text-green-600" />
-            <p className="text-green-800 font-medium">{successMessage}</p>
+        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search candidate or job title..."
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+            />
           </div>
-        )}
-
-        {/* Top Bar Navigation */}
-        <div className="bg-white rounded-lg shadow-md mb-6">
-          <nav className="flex flex-wrap border-b border-gray-200">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center space-x-2 px-6 py-4 text-sm font-medium transition-colors ${
-                  activeTab === tab.id
-                    ? "border-b-2 border-indigo-600 text-indigo-600"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                }`}
-              >
-                <tab.icon className="w-5 h-5" />
-                <span>{tab.label}</span>
-              </button>
-            ))}
-          </nav>
         </div>
 
-        {/* Main Content */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          {/* Search and Filter */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="relative w-full max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search by candidate or job title"
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
-            <button className="flex items-center space-x-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
-              <Filter className="w-4 h-4" />
-              <span>Filter</span>
-            </button>
-          </div>
-
-          {/* Interviews List */}
-          {loading ? (
-            <div className="text-center text-gray-600">
-              Loading interviews...
-            </div>
-          ) : filteredInterviews.length === 0 ? (
-            <div className="text-center text-gray-600">
-              No interviews found for the selected filter
+        <div className="space-y-6">
+          {filteredInterviews.length === 0 ? (
+            <div className="text-center py-24 bg-white rounded-2xl shadow-lg">
+              <Calendar className="w-24 h-24 text-gray-300 mx-auto mb-6" />
+              <h3 className="text-2xl font-semibold text-gray-700">
+                No interviews scheduled
+              </h3>
+              <p className="text-gray-500 mt-2">
+                Interviews will appear here once scheduled
+              </p>
             </div>
           ) : (
-            <div className="space-y-4">
-              {filteredInterviews.map((interview: Interview) => (
-                <div
-                  key={interview.id}
-                  className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors"
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-3">
-                        <div className="bg-indigo-100 p-2 rounded-lg">
-                          <User className="w-5 h-5 text-indigo-600" />
-                        </div>
-                        <div>
-                          <h3 className="text-lg font-bold text-gray-900">
-                            {interview.candidateName}
-                          </h3>
-                          <div className="flex items-center space-x-2 text-gray-600">
-                            <Briefcase className="w-4 h-4" />
-                            <span>{interview.jobTitle}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="mt-2 flex flex-wrap gap-4 text-gray-500 text-sm">
-                        <div className="flex items-center space-x-1">
-                          <Calendar className="w-4 h-4" />
-                          <span>
-                            {formatDateTime(interview.date, interview.time)}
-                          </span>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <CheckCircle className="w-4 h-4" />
-                          <span className="capitalize">{interview.status}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex space-x-2">
-                      {interview.status === "Scheduled" && (
-                        <>
-                          <button
-                            onClick={() =>
-                              handleStatusUpdate(interview.id, "Reschedule")
-                            }
-                            className="flex items-center space-x-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                          >
-                            <RefreshCw className="w-4 h-4" />
-                            <span>Reschedule</span>
-                          </button>
-                          <button
-                            onClick={() =>
-                              handleStatusUpdate(interview.id, "Canceled")
-                            }
-                            className="flex items-center space-x-1 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                            <span>Cancel</span>
-                          </button>
-                        </>
-                      )}
-                      {interview.status === "Completed" && (
-                        <button className="flex items-center space-x-1 px-3 py-2 bg-gray-200 text-gray-700 rounded-lg cursor-not-allowed">
-                          <CheckCircle className="w-4 h-4" />
-                          <span>Completed</span>
-                        </button>
-                      )}
+            filteredInterviews.map((interview) => (
+              <div
+                key={interview.id}
+                className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-xl transition-shadow duration-300 cursor-pointer"
+                onClick={() => setSelectedInterview(interview)}
+              >
+                <div className="flex items-center gap-6">
+                  <div className="w-16 h-16 bg-gray-200 border-1 rounded-full overflow-hidden flex-shrink-0">
+                    {interview.candidate.profileImage ? (
+                      <img
+                        src={interview.candidate.profileImage}
+                        alt={interview.candidateName}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <User className="w-8 h-8 text-gray-400 m-auto mt-4" />
+                    )}
+                  </div>
+
+                  <div className="flex-1">
+                    <h3 className="text-2xl font-bold text-gray-900">
+                      {formatFullName(interview.candidateName)}
+                    </h3>
+                    <p className="text-lg text-gray-600 mt-1 flex items-center gap-2">
+                      <Briefcase className="w-5 h-5" />
+                      {interview.jobTitle}
+                    </p>
+                    <div className="mt-3 flex items-center gap-3 text-gray-700">
+                      <Calendar className="w-5 h-5 text-indigo-600" />
+                      <span className="font-medium">
+                        {new Date(interview.interviewDate).toLocaleDateString(
+                          "en-US",
+                          {
+                            weekday: "long",
+                            month: "long",
+                            day: "numeric",
+                            hour: "numeric",
+                            minute: "2-digit",
+                            hour12: true,
+                          },
+                        )}
+                      </span>
                     </div>
                   </div>
+
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedInterview(interview);
+                    }}
+                    className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition flex items-center gap-2 font-medium"
+                  >
+                    <Eye className="w-5 h-5" />
+                    View Details
+                  </button>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))
           )}
         </div>
+
+        {/* Reusable Modal */}
+        {selectedInterview && (
+          <EmployerInterviewDetailsModal
+            interview={selectedInterview}
+            onClose={() => setSelectedInterview(null)}
+          />
+        )}
       </div>
     </div>
   );

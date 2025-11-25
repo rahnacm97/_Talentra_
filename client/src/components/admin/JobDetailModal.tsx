@@ -82,7 +82,7 @@ export const JobDetailsModal: React.FC<JobDetailsModalProps> = ({
                 </span>
               </div>
               <p className="text-sm font-medium text-gray-900">
-                {job.applications ?? 0}
+                {job.applicants ?? 0}
               </p>
             </div>
 

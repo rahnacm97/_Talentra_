@@ -1,4 +1,4 @@
-import { GoogleAuthUserData } from "../../types/types";
+import { GoogleAuthUserData } from "../../type/types";
 
 export interface GoogleUser {
   id: string;

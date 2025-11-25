@@ -21,3 +21,21 @@ export interface IJob extends Document {
   updatedAt: Date;
   hasApplied?: boolean;
 }
+
+export interface JobQueryParams {
+  page: number;
+  limit: number;
+  search?: string;
+  location?: string;
+  type?: string;
+  experience?: ExperienceLevel;
+  skills?: string[];
+  status?: "active" | "closed" | "draft" | "all";
+}
+
+export interface AdminJobQueryParams {
+  page: number;
+  limit: number;
+  search?: string;
+  status?: "active" | "closed" | "all";
+}

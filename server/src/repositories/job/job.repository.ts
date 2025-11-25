@@ -6,6 +6,55 @@ import mongoose from "mongoose";
 import { IEmployer } from "../../interfaces/users/employer/IEmployer";
 
 export class JobRepository implements IJobRepository {
+  private readonly _SKILL_KEYWORDS = [
+    "react",
+    "node",
+    "javascript",
+    "typescript",
+    "python",
+    "java",
+    "aws",
+    "docker",
+    "mongodb",
+    "postgresql",
+    "mysql",
+    "redis",
+    "graphql",
+    "next.js",
+    "vue",
+    "angular",
+    "git",
+    "ci/cd",
+    "kubernetes",
+    "html",
+    "css",
+  ];
+
+  private _extractSkills(requirements: string[]): string[] {
+    const found = new Set<string>();
+    const text = requirements
+      .join(" ")
+      .toLowerCase()
+      .replace(/[^\w\s+]/g, " ")
+      .replace(/\s+/g, " ");
+
+    for (const keyword of this._SKILL_KEYWORDS) {
+      const variants = [
+        keyword,
+        keyword.replace(".", ""),
+        keyword.replace(/\//g, ""),
+        keyword.replace(/\s/g, ""),
+      ];
+
+      const regex = new RegExp(`\\b(${variants.join("|")})\\b`, "i");
+      if (regex.test(text)) {
+        found.add(keyword);
+      }
+    }
+
+    return Array.from(found);
+  }
+
   async create(jobData: Partial<IJob>): Promise<IJob> {
     return await Job.create(jobData);
   }
@@ -74,11 +123,16 @@ export class JobRepository implements IJobRepository {
     location?: string;
     type?: string;
     experience?: ExperienceLevel;
-  }): Promise<{ jobs: (IJob & { employer?: IEmployer })[]; total: number }> {
-    const { page, limit, search, location, type, experience } = params;
+    skills?: string[];
+  }): Promise<{
+    jobs: (IJob & { employer?: IEmployer; extractedSkills?: string[] })[];
+    total: number;
+  }> {
+    const { page, limit, search, location, type, experience, skills } = params;
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+
     const pipeline: PipelineStage[] = [
       {
         $match: {
@@ -115,6 +169,7 @@ export class JobRepository implements IJobRepository {
     ];
 
     const matchConditions: Record<string, unknown> = {};
+
     if (search) {
       matchConditions.$or = [
         { title: { $regex: search, $options: "i" } },
@@ -142,6 +197,19 @@ export class JobRepository implements IJobRepository {
       }
     }
 
+    if (skills?.length) {
+      const pattern = skills
+        .map((s) => `\\b${s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`)
+        .join("|");
+
+      matchConditions.requirements = {
+        $elemMatch: {
+          $regex: pattern,
+          $options: "i",
+        },
+      };
+    }
+
     if (Object.keys(matchConditions).length > 0) {
       pipeline.push({ $match: matchConditions });
     }
@@ -149,9 +217,9 @@ export class JobRepository implements IJobRepository {
     const totalPipeline = [...pipeline, { $count: "total" }];
     const jobsPipeline = [
       ...pipeline,
+      { $sort: { postedDate: -1 } as const },
       { $skip: (page - 1) * limit },
       { $limit: limit },
-      { $sort: { postedDate: -1 } as const },
     ];
 
     const [totalResult, jobs] = await Promise.all([
@@ -159,7 +227,12 @@ export class JobRepository implements IJobRepository {
       Job.aggregate(jobsPipeline).exec(),
     ]);
 
-    const formattedJobs = jobs.map((job) => ({
+    const jobsWithSkills = jobs.map((job) => ({
+      ...job,
+      extractedSkills: this._extractSkills(job.requirements ?? []),
+    }));
+
+    const formattedJobs = jobsWithSkills.map((job) => ({
       ...job,
       _id: job._id.toString(),
       employerId: job.employerId.toString(),
@@ -172,9 +245,50 @@ export class JobRepository implements IJobRepository {
     }));
 
     return {
-      jobs: formattedJobs as (IJob & { employer?: IEmployer })[],
+      jobs: formattedJobs as (IJob & {
+        employer?: IEmployer;
+        extractedSkills?: string[];
+      })[],
       total: totalResult[0]?.total ?? 0,
     };
+  }
+
+  async getAvailableSkills(): Promise<string[]> {
+    const escaped = this._SKILL_KEYWORDS.map((k) =>
+      k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+    );
+    const pattern = escaped.map((k) => `\\b${k}\\b`).join("|");
+
+    const pipeline = [
+      { $match: { deadline: { $gte: new Date() } } },
+      { $unwind: "$requirements" },
+      {
+        $match: {
+          $expr: {
+            $regexMatch: {
+              input: { $toLower: "$requirements" },
+              regex: pattern,
+              options: "i",
+            },
+          },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          skills: { $addToSet: { $toLower: "$requirements" } },
+        },
+      },
+    ];
+
+    const result = await Job.aggregate(pipeline);
+    const raw = result[0]?.skills ?? [];
+
+    return this._SKILL_KEYWORDS
+      .filter((kw) =>
+        raw.some((s: string) => new RegExp(`\\b${kw}\\b`, "i").test(s)),
+      )
+      .sort();
   }
 
   async findById(
@@ -311,5 +425,12 @@ export class JobRepository implements IJobRepository {
       jobs: formattedJobs as (IJob & { employer?: IEmployer })[],
       total: totalResult[0]?.total ?? 0,
     };
+  }
+
+  async incrementApplicants(jobId: string): Promise<void> {
+    await Job.updateOne(
+      { _id: new Object(jobId) },
+      { $inc: { applicants: 1 } },
+    );
   }
 }

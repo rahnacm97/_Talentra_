@@ -7,10 +7,10 @@ import type {
 } from "../../interfaces/auth/IAuthService";
 import { detectUserByEmail } from "../../shared/utils/user.utils";
 import { ITokenService } from "../../interfaces/auth/ITokenService";
-import { UserRepoMap } from "../../types/types";
+import { UserRepoMap } from "../../type/types";
 import { ICandidate } from "../../interfaces/users/candidate/ICandidate";
 import { IEmployer } from "../../interfaces/users/employer/IEmployer";
-import { hasEmailVerification } from "../../types/types";
+import { hasEmailVerification } from "../../type/types";
 
 export class AuthService implements IAuthService {
   constructor(
@@ -29,7 +29,6 @@ export class AuthService implements IAuthService {
     if (detected) {
       throw new Error("Email already exists in another account");
     }
-
     const repo = this.getRepository(data.userType);
 
     const hashedPassword = await bcrypt.hash(data.password, 10);

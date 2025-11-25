@@ -51,6 +51,7 @@ export enum SUCCESS_MESSAGES {
   JOB_POST_SUCCESS = "Job posted successfully",
   JOB_UPDATED = "Job updated",
   APPLICATION_CREATED = "Application submitted successfully",
+  APPLICATIONS_FETCHED = "Application fetched successfully",
 }
 
 export enum USER_ROLES {

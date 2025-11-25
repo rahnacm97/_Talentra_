@@ -86,4 +86,24 @@ const AuthRouteGuard: React.FC<AuthRouteGuardProps> = ({ children }) => {
   return <>{children}</>;
 };
 
+export const HistoryLock = () => {
+  const { user, accessToken } = useSelector((state: RootState) => state.auth);
+
+  useEffect(() => {
+    if (!user || !accessToken) return;
+
+    window.history.pushState(null, "", window.location.href);
+    window.history.pushState(null, "", window.location.href);
+
+    const handleBack = () => {
+      window.history.pushState(null, "", window.location.href);
+    };
+
+    window.addEventListener("popstate", handleBack);
+    return () => window.removeEventListener("popstate", handleBack);
+  }, [user, accessToken]);
+
+  return null;
+};
+
 export default AuthRouteGuard;

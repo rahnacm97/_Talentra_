@@ -14,8 +14,10 @@ const employerSchema = new Schema<IEmployer>({
   cinNumber: { type: String },
   profileImage: { type: String },
   verified: { type: Boolean, default: false },
+  rejected: { type: Boolean, default: false },
+  rejectionReason: { type: String, default: null },
+  rejectionCreatedAt: { type: Date },
   emailVerified: { type: Boolean, default: false },
-  joinDate: { type: Date, default: Date.now },
   jobsPosted: { type: Number, default: 0 },
   location: { type: String },
   website: { type: String },
@@ -33,6 +35,26 @@ const employerSchema = new Schema<IEmployer>({
   totalApplications: { type: Number, default: 0 },
   hiredCandidates: { type: Number, default: 0 },
   profileViews: { type: Number, default: 0 },
+
+  subscription: {
+    active: { type: Boolean, default: false },
+    plan: {
+      type: String,
+      enum: ["free", "professional", "enterprise"],
+      default: "free",
+    },
+    status: {
+      type: String,
+      enum: ["active", "cancelled", "past_due", "trialing", "incomplete"],
+      default: "inactive",
+    },
+    currentPeriodEnd: { type: Date },
+    razorpaySubscriptionId: { type: String },
+    trialEndsAt: { type: Date },
+  },
 });
+
+employerSchema.index({ "subscription.active": 1 });
+employerSchema.index({ "subscription.plan": 1 });
 
 export default model<IEmployer>("Employer", employerSchema);

@@ -8,6 +8,7 @@ import {
   BarChart3,
   Calendar,
   BellIcon,
+  CreditCard,
 } from "lucide-react";
 import Header from "../../pages/common/Header";
 import EmployerSidebar from "./EmployerSidebar";
@@ -38,7 +39,7 @@ const EmployerLayout: React.FC = () => {
     },
     {
       id: "applicants",
-      label: "Applicants",
+      label: "Applications",
       icon: Users,
       path: FRONTEND_ROUTES.EMPLOYERAPPLICANTS,
     },
@@ -53,6 +54,12 @@ const EmployerLayout: React.FC = () => {
       label: "Interviews",
       icon: Calendar,
       path: FRONTEND_ROUTES.EMPLOYERINTERVIEWS,
+    },
+    {
+      id: "subscriptions",
+      label: "Subscriptions",
+      icon: CreditCard,
+      path: FRONTEND_ROUTES.EMPLOYERRBILLING,
     },
     {
       id: "notifications",

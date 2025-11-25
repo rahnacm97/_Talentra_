@@ -1,21 +1,22 @@
 import { createSlice } from "@reduxjs/toolkit";
-import type { ICandidate } from "../../types/candidate/candidate.types";
 import {
   fetchCandidateProfile,
   updateCandidateProfile,
   applyJob,
+  fetchMyApplications,
+  fetchApplicationById,
 } from "../../thunks/candidate.thunks";
-
-interface CandidateState {
-  profile: ICandidate | null;
-  loading: boolean;
-  error: string | null;
-}
+import type { CandidateState } from "../../types/application/application.types";
 
 const initialState: CandidateState = {
   profile: null,
   loading: false,
   error: null,
+  applications: [],
+  pagination: { page: 1, limit: 10, total: 0, totalPages: 0 },
+  appsLoading: false,
+  currentApplication: null,
+  currentAppLoading: false,
 };
 
 const candidateSlice = createSlice({
@@ -62,6 +63,29 @@ const candidateSlice = createSlice({
       .addCase(applyJob.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+      })
+      .addCase(fetchMyApplications.pending, (s) => {
+        s.appsLoading = true;
+      })
+      .addCase(fetchMyApplications.fulfilled, (s, a) => {
+        s.appsLoading = false;
+        s.applications = a.payload.data;
+        s.pagination = a.payload.pagination ?? s.pagination;
+      })
+      .addCase(fetchMyApplications.rejected, (s) => {
+        s.appsLoading = false;
+      })
+      .addCase(fetchApplicationById.pending, (state) => {
+        state.currentAppLoading = true;
+        state.currentApplication = null;
+      })
+      .addCase(fetchApplicationById.fulfilled, (state, action) => {
+        state.currentAppLoading = false;
+        state.currentApplication = action.payload;
+      })
+      .addCase(fetchApplicationById.rejected, (state) => {
+        state.currentAppLoading = false;
+        state.currentApplication = null;
       });
   },
 });

@@ -57,6 +57,10 @@ export interface EmployerResponseDTO {
   totalApplications?: number;
   hiredCandidates?: number;
   profileViews?: number;
+  rejected?: boolean;
+  rejectionReason?: string;
+  rejectionCreatedAt?: string;
+  updatedAt?: string;
 }
 
 export interface BlockEmployerDTO {

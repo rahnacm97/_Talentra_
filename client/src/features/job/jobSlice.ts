@@ -1,6 +1,13 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-import { fetchJobsForCandidate, fetchJobById } from "../../thunks/job.thunk";
+import {
+  fetchJobsForCandidate,
+  fetchJobById,
+  fetchSavedJobs,
+  saveJob,
+  unsaveJob,
+} from "../../thunks/job.thunk";
+import { applyJob } from "../../thunks/candidate.thunks";
 import type { EmployerInfoDto } from "../../types/job/job.types";
 
 export interface JobResponse {
@@ -20,6 +27,7 @@ export interface JobResponse {
   experience: "0" | "1-2" | "3-5" | "6-8" | "9-12" | "13+";
   employer: EmployerInfoDto;
   hasApplied: boolean;
+  skills: string[];
 }
 
 interface CandidateJobState {
@@ -30,6 +38,10 @@ interface CandidateJobState {
   loadingJobId: string | null;
   loading: boolean;
   error: string | null;
+  availableSkills: string[];
+  selectedSkills: string[];
+  savedJobs: JobResponse[];
+  savedJobsLoading: boolean;
 }
 
 const initialState: CandidateJobState = {
@@ -40,14 +52,33 @@ const initialState: CandidateJobState = {
   loading: false,
   loadingJobId: null,
   error: null,
+  availableSkills: [],
+  selectedSkills: [],
+  savedJobs: [],
+  savedJobsLoading: false,
 };
 
 const candidateJobSlice = createSlice({
   name: "candidateJobs",
   initialState,
-  reducers: {},
+  reducers: {
+    setSelectedSkills: (state, action: PayloadAction<string[]>) => {
+      state.selectedSkills = action.payload;
+    },
+    toggleSkill: (state, action: PayloadAction<string>) => {
+      const skill = action.payload;
+      state.selectedSkills = state.selectedSkills.includes(skill)
+        ? state.selectedSkills.filter((s) => s !== skill)
+        : [...state.selectedSkills, skill];
+    },
+    clearSkills: (state) => {
+      state.selectedSkills = [];
+    },
+  },
+
   extraReducers: (builder) => {
     builder
+
       .addCase(fetchJobsForCandidate.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -61,6 +92,7 @@ const candidateJobSlice = createSlice({
             total: number;
             page: number;
             limit: number;
+            availableSkills: string[];
           }>,
         ) => {
           state.loading = false;
@@ -68,6 +100,7 @@ const candidateJobSlice = createSlice({
           state.total = action.payload.total;
           state.page = action.payload.page;
           state.limit = action.payload.limit;
+          state.availableSkills = action.payload.availableSkills;
         },
       )
       .addCase(fetchJobsForCandidate.rejected, (state, action) => {
@@ -77,20 +110,91 @@ const candidateJobSlice = createSlice({
       .addCase(fetchJobById.pending, (state, action) => {
         state.loadingJobId = action.meta.arg;
       })
+
       .addCase(fetchJobById.fulfilled, (state, action) => {
         state.loadingJobId = null;
-        const job = action.payload;
-        const existing = state.jobs.find((j) => j.id === job.id);
-        if (existing) {
-          Object.assign(existing, job);
+        const fetchedJob = action.payload.data;
+
+        const idx = state.jobs.findIndex((j) => j.id === fetchedJob.id);
+        if (idx !== -1) {
+          state.jobs[idx] = { ...state.jobs[idx], ...fetchedJob };
         } else {
-          state.jobs.push(job);
+          state.jobs.push(fetchedJob);
         }
       })
       .addCase(fetchJobById.rejected, (state) => {
         state.loadingJobId = null;
+      })
+      .addCase(applyJob.fulfilled, (state, action) => {
+        const { jobId, alreadyApplied } = action.payload;
+
+        const job = state.jobs.find((j) => j.id === jobId);
+
+        if (job) {
+          job.hasApplied = true;
+          if (!alreadyApplied) {
+            job.applicants += 1;
+          }
+        } else {
+          state.jobs.push({
+            id: jobId,
+            title: "Loading...",
+            department: "",
+            location: "",
+            type: "",
+            salary: "",
+            description: "",
+            requirements: [],
+            responsibilities: [],
+            status: "active",
+            applicants: alreadyApplied ? 0 : 1,
+            postedDate: new Date().toISOString(),
+            deadline: "",
+            experience: "0",
+            hasApplied: true,
+            skills: [],
+            employer: {
+              id: "",
+              name: "Loading...",
+              logo: "",
+              companyName: "Loading...",
+            },
+          } as JobResponse);
+        }
+      })
+      .addCase(applyJob.rejected, (state, action) => {
+        state.error = (action.payload as string) || "Failed to apply";
+      })
+      .addCase(fetchSavedJobs.pending, (state) => {
+        state.savedJobsLoading = true;
+        state.error = null;
+      })
+      .addCase(
+        fetchSavedJobs.fulfilled,
+        (state, action: PayloadAction<JobResponse[]>) => {
+          state.savedJobsLoading = false;
+          state.savedJobs = action.payload;
+        },
+      )
+      .addCase(fetchSavedJobs.rejected, (state, action) => {
+        state.savedJobsLoading = false;
+        state.error = action.payload as string;
+      })
+
+      .addCase(saveJob.fulfilled, (state, action) => {
+        const { jobId } = action.payload;
+        const job = state.jobs.find((j) => j.id === jobId);
+        if (job && !state.savedJobs.some((j) => j.id === jobId)) {
+          state.savedJobs.push(job);
+        }
+      })
+      .addCase(unsaveJob.fulfilled, (state, action) => {
+        const { jobId } = action.payload;
+        state.savedJobs = state.savedJobs.filter((j) => j.id !== jobId);
       });
   },
 });
 
+export const { setSelectedSkills, toggleSkill, clearSkills } =
+  candidateJobSlice.actions;
 export default candidateJobSlice.reducer;

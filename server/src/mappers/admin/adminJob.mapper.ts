@@ -1,5 +1,5 @@
 import { IAdminJobMapper } from "../../interfaces/users/admin/IAdminJobMapper";
-import { AdminJob, AdminJobEmployer } from "../../types/admin/admin.types";
+import { AdminJob, AdminJobEmployer } from "../../type/admin/admin.types";
 import { IJob } from "../../interfaces/jobs/IJob";
 import { IEmployer } from "../../interfaces/users/employer/IEmployer";
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   Calendar,
   Clock,
@@ -9,19 +9,12 @@ import {
   XCircle,
   Search,
 } from "lucide-react";
+import CloseIcon from "@mui/icons-material/Close";
 import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
-import { fetchMyApplications } from "../../thunks/candidate.thunks";
+import { fetchCandidateInterviews } from "../../thunks/interview.thunks";
 import InterviewDetailsModal from "../../components/candidate/InterviewModal";
-
-interface CandidateInterview {
-  id: string;
-  applicationId: string;
-  jobTitle: string;
-  employerName: string;
-  location: string;
-  interviewDate: string;
-  status: "Scheduled" | "Completed" | "Canceled";
-}
+import type { Interview } from "../../types/interview/interview.types";
+import Pagination from "../../components/candidate/CandidatePagination";
 
 const formatDateTime = (dateIso: string) => {
   const date = new Date(dateIso);
@@ -43,60 +36,54 @@ const formatDateTime = (dateIso: string) => {
 
 const CandidateInterviews: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { applications, appsLoading } = useAppSelector((s) => s.candidate);
+  const { interviews, loading, pagination } = useAppSelector(
+    (s) => s.interview,
+  );
 
   const [activeTab, setActiveTab] = useState<
-    "all" | "Scheduled" | "Completed" | "Canceled"
+    "all" | "scheduled" | "completed" | "cancelled"
   >("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedInterview, setSelectedInterview] =
-    useState<CandidateInterview | null>(null);
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [selectedInterview, setSelectedInterview] = useState<Interview | null>(
+    null,
+  );
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const interviews = useMemo(() => {
-    return applications
-      .filter((app) => app.status === "interview" && app.interviewDate)
-      .map((app) => ({
-        id: app.id,
-        applicationId: app.id,
-        jobTitle: app.jobTitle,
-        employerName: app.name,
-        location: app.location || "Not specified",
-        interviewDate: app.interviewDate!,
-        status: "Scheduled" as const,
-      }));
-  }, [applications]);
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      setCurrentPage(1);
+    }, 500);
 
-  const filteredInterviews = useMemo(() => {
-    let filtered = [...interviews];
-
-    if (activeTab !== "all") {
-      filtered = filtered.filter((i) => i.status === activeTab);
-    }
-
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      filtered = filtered.filter(
-        (i) =>
-          i.jobTitle.toLowerCase().includes(q) ||
-          i.employerName.toLowerCase().includes(q),
-      );
-    }
-
-    return filtered;
-  }, [interviews, activeTab, searchQuery]);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   useEffect(() => {
-    dispatch(fetchMyApplications({ limit: 100 }));
-  }, [dispatch]);
+    dispatch(
+      fetchCandidateInterviews({
+        page: currentPage,
+        limit: 5,
+        search: debouncedSearch || undefined,
+        status: activeTab === "all" ? undefined : activeTab,
+      }),
+    );
+  }, [dispatch, currentPage, debouncedSearch, activeTab]);
+
+  const handlePageChange = useCallback((newPage: number) => {
+    setCurrentPage(newPage);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
 
   const tabs = [
     { value: "all", label: "All Interviews", icon: Calendar },
-    { value: "Scheduled", label: "Scheduled", icon: Clock },
-    { value: "Completed", label: "Completed", icon: CheckCircle },
-    { value: "Canceled", label: "Canceled", icon: XCircle },
+    { value: "scheduled", label: "Scheduled", icon: Clock },
+    { value: "completed", label: "Completed", icon: CheckCircle },
+    { value: "cancelled", label: "Cancelled", icon: XCircle },
   ];
 
-  if (appsLoading) {
+  if (loading && interviews.length === 0) {
     return (
       <div className="bg-gray-50 min-h-screen py-8 px-4">
         <div className="max-w-7xl mx-auto">
@@ -126,15 +113,13 @@ const CandidateInterviews: React.FC = () => {
         <div className="bg-white rounded-lg shadow-md mb-6 overflow-hidden">
           <nav className="flex flex-wrap border-b border-gray-200">
             {tabs.map((tab) => {
-              const count =
-                tab.value === "all"
-                  ? interviews.length
-                  : interviews.filter((i) => i.status === tab.value).length;
-
               return (
                 <button
                   key={tab.value}
-                  onClick={() => setActiveTab(tab.value as any)}
+                  onClick={() => {
+                    setActiveTab(tab.value as any);
+                    setCurrentPage(1);
+                  }}
                   className={`flex items-center space-x-3 px-6 py-4 text-sm font-medium transition-colors relative ${
                     activeTab === tab.value
                       ? "border-b-2 border-indigo-600 text-indigo-600"
@@ -143,9 +128,11 @@ const CandidateInterviews: React.FC = () => {
                 >
                   <tab.icon className="w-5 h-5" />
                   <span>{tab.label}</span>
-                  <span className="ml-2 bg-indigo-100 text-indigo-700 text-xs font-semibold px-2.5 py-1 rounded-full">
-                    {count}
-                  </span>
+                  {activeTab === tab.value && (
+                    <span className="ml-2 bg-indigo-100 text-indigo-700 text-xs font-semibold px-2.5 py-1 rounded-full">
+                      {pagination.total}
+                    </span>
+                  )}
                 </button>
               );
             })}
@@ -163,12 +150,20 @@ const CandidateInterviews: React.FC = () => {
               placeholder="Search by job title or company..."
               className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
             />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition cursor-pointer"
+              >
+                <CloseIcon className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </div>
 
-        {/* Interviews List - Same as before */}
+        {/* Interviews List */}
         <div className="space-y-6">
-          {filteredInterviews.length === 0 ? (
+          {interviews.length === 0 ? (
             <div className="text-center py-20 bg-white rounded-lg shadow">
               <Calendar className="w-20 h-20 text-gray-300 mx-auto mb-4" />
               <p className="text-xl text-gray-600 font-medium">
@@ -181,62 +176,77 @@ const CandidateInterviews: React.FC = () => {
               </p>
             </div>
           ) : (
-            filteredInterviews.map((interview) => (
-              <div
-                key={interview.id}
-                className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-xl transition-shadow duration-300"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-4">
-                      <div className="bg-indigo-100 p-4 rounded-xl">
-                        <Briefcase className="w-7 h-7 text-indigo-600" />
-                      </div>
-                      <div>
-                        <h3 className="text-2xl font-bold text-gray-900">
-                          {interview.jobTitle}
-                        </h3>
+            <>
+              {interviews.map((interview) => (
+                <div
+                  key={interview.id}
+                  className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-xl transition-shadow duration-300"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-4">
+                        <div className="bg-indigo-100 p-4 rounded-xl">
+                          <Briefcase className="w-7 h-7 text-indigo-600" />
+                        </div>
+                        <div>
+                          <h3 className="text-2xl font-bold text-gray-900">
+                            {interview.job.title}
+                          </h3>
 
-                        <p className="text-gray-600 flex items-center gap-2 mt-1 text-lg">
-                          <User className="w-5 h-5" />
-                          {interview.employerName}
-                        </p>
+                          <p className="text-gray-600 flex items-center gap-2 mt-1 text-lg">
+                            <User className="w-5 h-5" />
+                            {interview.employer.name}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mt-6 flex flex-wrap gap-8 text-base">
+                        {interview.interviewDate && (
+                          <div className="flex items-center gap-3 text-gray-700">
+                            <Calendar className="w-6 h-6 text-indigo-600" />
+                            <span className="font-semibold">
+                              {formatDateTime(interview.interviewDate)}
+                            </span>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-3">
+                          <CheckCircle className="w-6 h-6 text-green-600" />
+                          <span className="font-semibold text-green-700 capitalize">
+                            {interview.status}
+                          </span>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="mt-6 flex flex-wrap gap-8 text-base">
-                      <div className="flex items-center gap-3 text-gray-700">
-                        <Calendar className="w-6 h-6 text-indigo-600" />
-                        <span className="font-semibold">
-                          {formatDateTime(interview.interviewDate)}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <CheckCircle className="w-6 h-6 text-green-600" />
-                        <span className="font-semibold text-green-700">
-                          {interview.status}
-                        </span>
-                      </div>
+                    <div className="mt-4 sm:mt-0">
+                      <button
+                        onClick={() => setSelectedInterview(interview)}
+                        className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition flex items-center gap-2 font-medium shadow-md cursor-pointer"
+                      >
+                        <Eye className="w-5 h-5" />
+                        View Details
+                      </button>
                     </div>
-                  </div>
-
-                  <div className="mt-4 sm:mt-0">
-                    <button
-                      onClick={() => setSelectedInterview(interview)}
-                      className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition flex items-center gap-2 font-medium shadow-md cursor-pointer"
-                    >
-                      <Eye className="w-5 h-5" />
-                      View Details
-                    </button>
                   </div>
                 </div>
-              </div>
-            ))
+              ))}
+
+              {pagination.totalPages > 1 && (
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={pagination.totalPages}
+                  onPageChange={handlePageChange}
+                  showPageNumbers={true}
+                  className="mt-8"
+                />
+              )}
+            </>
           )}
         </div>
+
         {selectedInterview && (
           <InterviewDetailsModal
-            interview={selectedInterview}
+            interview={selectedInterview as any}
             onClose={() => setSelectedInterview(null)}
           />
         )}

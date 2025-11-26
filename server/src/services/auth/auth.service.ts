@@ -23,7 +23,7 @@ export class AuthService implements IAuthService {
     if (!repo) throw new Error("Invalid user type");
     return repo;
   }
-
+  //Signup
   async signup(data: AuthSignupDTO) {
     const detected = await detectUserByEmail(data.email, this._repos);
     if (detected) {
@@ -58,7 +58,7 @@ export class AuthService implements IAuthService {
       }),
     };
   }
-
+  //Login
   async login(data: AuthLoginDTO) {
     const detected = await detectUserByEmail(data.email, this._repos);
     if (!detected) throw new Error("User not found");
@@ -164,7 +164,7 @@ export class AuthService implements IAuthService {
       },
     };
   }
-
+  //Logout
   async logout(refreshToken: string): Promise<void> {
     this._tokenService.invalidateToken(refreshToken);
   }

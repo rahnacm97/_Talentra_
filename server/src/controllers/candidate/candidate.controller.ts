@@ -21,6 +21,7 @@ export class CandidateController implements ICandidateController {
     private _candidateService: ICandidateService,
     private _applicationService: ICandidateApplicationService,
   ) {}
+  //Fetching candidate profile
   async getProfile(
     req: Request<{ id: string }>,
     res: Response,
@@ -69,7 +70,7 @@ export class CandidateController implements ICandidateController {
       return;
     }
   }
-
+  //Updating candidate profile
   async updateProfile(
     req: Request<{ id: string }, UpdateProfileResponse, ProfileData>,
     res: Response,
@@ -110,7 +111,7 @@ export class CandidateController implements ICandidateController {
       );
     }
   }
-
+  //Apply job
   async applyJob(
     req: Request<{ candidateId: string; jobId: string }>,
     res: Response<{ message: string; data: ApplicationResponseDto }>,
@@ -161,7 +162,7 @@ export class CandidateApplicationsController
   implements ICandidateApplicationController
 {
   constructor(private readonly _service: ICandidateApplicationService) {}
-
+  //Get applications of candidate
   async getMyApplications(
     req: Request,
     res: Response,
@@ -209,7 +210,7 @@ export class CandidateApplicationsController
       next(err);
     }
   }
-
+  //Fetch single application
   async getApplicationById(
     req: Request<{ applicationId: string }>,
     res: Response,

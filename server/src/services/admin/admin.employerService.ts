@@ -19,7 +19,7 @@ export class AdminEmployerService implements IAdminEmployerService {
     private _employerMapper: IEmployerMapper,
     private _emailService: INotificationService,
   ) {}
-
+  //Fecthing all employers
   async getAllEmployers(
     page: number,
     limit: number,
@@ -41,7 +41,7 @@ export class AdminEmployerService implements IAdminEmployerService {
       total,
     };
   }
-
+  //Block or unblock employers
   async blockUnblockEmployer(
     data: BlockEmployerDTO,
   ): Promise<EmployerResponseDTO> {
@@ -54,14 +54,14 @@ export class AdminEmployerService implements IAdminEmployerService {
 
     return this._employerMapper.toEmployerResponseDTO(employer);
   }
-
+  //Fetching single employer
   async getEmployerById(id: string): Promise<EmployerResponseDTO | null> {
     const employer = await this._employerRepo.findById(id);
     if (!employer) return null;
 
     return this._employerMapper.toEmployerResponseDTO(employer);
   }
-
+  //Verify employer approval
   async verifyEmployer(id: string): Promise<EmployerResponseDTO> {
     const employer = await this._employerRepo.findById(id);
     if (!employer) throw new Error("Employer Not Found");
@@ -99,7 +99,7 @@ export class AdminEmployerService implements IAdminEmployerService {
     }
     return dto;
   }
-
+  //Rejecting employer verification
   async rejectEmployer(
     id: string,
     reason: string,

@@ -29,6 +29,7 @@ export interface ICandidateApplicationService {
         | "reviewed"
         | "rejected"
         | "accepted"
+        | "interview"
         | "shortlisted"
         | "all"
         | undefined;

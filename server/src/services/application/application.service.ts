@@ -4,8 +4,12 @@ import {
   IEmployerApplicationService,
   IApplicationUpdate,
 } from "../../interfaces/applications/IApplicationService";
+import { IInterviewService } from "../../interfaces/interviews/IInterviewService";
 import { GetApplicationsFilters } from "../../type/application/application.type";
-import { IApplicationRepository } from "../../interfaces/applications/IApplicationRepository";
+import {
+  ICandidateApplicationRepository,
+  IEmployerApplicationRepository,
+} from "../../interfaces/applications/IApplicationRepository";
 import {
   IApplicationMapper,
   IEmployerApplicationMapper,
@@ -30,12 +34,12 @@ export class CandidateApplicationService
   implements ICandidateApplicationService
 {
   constructor(
-    private readonly _appRepo: IApplicationRepository,
+    private readonly _appRepo: ICandidateApplicationRepository,
     private readonly _jobRepo: IJobRepository,
     private readonly _mapper: IApplicationMapper,
     private readonly _candidateService: ICandidateService,
   ) {}
-
+  //Candidate Job apply
   async apply(
     jobId: string,
     candidateId: string,
@@ -102,7 +106,7 @@ export class CandidateApplicationService
 
     return this._mapper.toResponseDto(application);
   }
-
+  //Fetching candidate applications
   async getApplicationsForCandidate(
     candidateId: string,
     filters?: {
@@ -111,6 +115,7 @@ export class CandidateApplicationService
         | "reviewed"
         | "rejected"
         | "accepted"
+        | "interview"
         | "shortlisted"
         | "all";
       search?: string;
@@ -142,13 +147,6 @@ export class CandidateApplicationService
       ...(filters?.search && { search: filters.search }),
     });
 
-    if (filters?.search) {
-      const regex = new RegExp(filters.search, "i");
-      apps = apps.filter(
-        (a) => regex.test(a.job.title) || regex.test(a.employer?.name ?? ""),
-      );
-    }
-
     const total = await this._appRepo.countByCandidateId(candidateId, {
       ...(filters?.status &&
         filters.status !== "all" && { status: filters.status }),
@@ -156,7 +154,7 @@ export class CandidateApplicationService
     });
 
     const page = query.page ?? 1;
-    const limit = query.limit ?? 10;
+    const limit = query.limit ?? 5;
     const totalPages = Math.ceil(total / limit);
 
     return {
@@ -164,7 +162,7 @@ export class CandidateApplicationService
       pagination: { page, limit, total, totalPages },
     };
   }
-
+  //Fetch single candidate application
   async getApplicationById(
     applicationId: string,
     candidateId: string,
@@ -185,11 +183,11 @@ export class CandidateApplicationService
 
 export class EmployerApplicationService implements IEmployerApplicationService {
   constructor(
-    private readonly _appRepo: IApplicationRepository,
-    private readonly _jobRepo: IJobRepository,
+    private readonly _appRepo: IEmployerApplicationRepository,
     private readonly _mapper: IEmployerApplicationMapper,
+    private readonly _interviewService?: IInterviewService,
   ) {}
-
+  //Fetching application in employer side
   async getApplicationsForEmployer(
     employerId: string,
     filters: GetApplicationsFilters = {},
@@ -200,7 +198,7 @@ export class EmployerApplicationService implements IEmployerApplicationService {
     ]);
 
     const page = Math.max(filters.page ?? 1, 1);
-    const limit = Math.max(filters.limit ?? 10, 1);
+    const limit = Math.max(filters.limit ?? 5, 1);
 
     const dtos = this._mapper.toDtoList(apps);
 
@@ -214,7 +212,7 @@ export class EmployerApplicationService implements IEmployerApplicationService {
       },
     };
   }
-
+  //Updating application status
   async updateApplicationStatus(
     employerId: string,
     applicationId: string,
@@ -223,7 +221,10 @@ export class EmployerApplicationService implements IEmployerApplicationService {
     const app = await this._appRepo.findOneWithJob(applicationId);
 
     if (!app)
-      throw new ApiError(HTTP_STATUS.NOT_FOUND, "Application not found");
+      throw new ApiError(
+        HTTP_STATUS.NOT_FOUND,
+        ERROR_MESSAGES.APPLICATION_NOT_FOUND,
+      );
 
     const updateData: IApplicationUpdate = { status: data.status };
 
@@ -232,6 +233,21 @@ export class EmployerApplicationService implements IEmployerApplicationService {
     }
 
     await this._appRepo.updateOne(applicationId, updateData);
+
+    if (data.status === "interview" && this._interviewService) {
+      try {
+        await this._interviewService.createInterviewFromApplication({
+          applicationId,
+          jobId: app.jobId,
+          candidateId: app.candidateId,
+          employerId,
+          ...(data.interviewDate && { interviewDate: data.interviewDate }),
+        });
+        logger.info("Interview created for application", { applicationId });
+      } catch (e) {
+        logger.error("Failed to create interview", e);
+      }
+    }
 
     if (data.status === "interview" && data.interviewDate) {
       try {
@@ -249,9 +265,13 @@ export class EmployerApplicationService implements IEmployerApplicationService {
     const apps = await this._appRepo.findByEmployerIdWithJob(employerId, {
       limit: 20,
     });
-    const fresh = apps.find((a) => a.id === applicationId);
-    if (!fresh) throw new ApiError(500, "Failed to load updated application");
+    const freshData = apps.find((a) => a.id === applicationId);
+    if (!freshData)
+      throw new ApiError(
+        HTTP_STATUS.INTERNAL_SERVER_ERROR,
+        ERROR_MESSAGES.FAILED_LOADING,
+      );
 
-    return this._mapper.toDto(fresh);
+    return this._mapper.toDto(freshData);
   }
 }

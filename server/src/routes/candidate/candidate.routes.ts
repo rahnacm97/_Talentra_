@@ -14,6 +14,7 @@ import { ApplicationMapper } from "../../mappers/application/application.mapper"
 import { upload } from "../../config/multer";
 import { USER_ROLES } from "../../shared/enums/enums";
 import { verifyCandidate } from "../../middlewares/validationMiddleware";
+import { candidateInterviewRouter } from "../interview/interview.routes";
 
 const router = Router();
 const candidateMapper = new CandidateMapper();
@@ -40,6 +41,9 @@ const candidateController = new CandidateController(
 const candidateApplicationsController = new CandidateApplicationsController(
   applicationService,
 );
+
+// Mount interview routes BEFORE parameterized routes
+router.use("/interviews", candidateInterviewRouter);
 
 router.get(
   "/applications",

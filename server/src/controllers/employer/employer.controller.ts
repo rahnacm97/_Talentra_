@@ -18,6 +18,7 @@ import {
 
 export class EmployerController implements IEmployerController {
   constructor(private _employerService: IEmployerService) {}
+  //Employer fetch profile
   async getProfile(
     req: Request<{ id: string }>,
     res: Response,
@@ -58,6 +59,7 @@ export class EmployerController implements IEmployerController {
       return;
     }
   }
+  //Employer profile update
   async updateProfile(
     req: Request<{ id: string }, UpdateProfileResponse, EmployerDataDTO>,
     res: Response,
@@ -98,7 +100,7 @@ export class EmployerApplicationsController
   implements IEmployerApplicationsController
 {
   constructor(private readonly _service: IEmployerApplicationService) {}
-
+  //Get applications
   async getApplications(
     req: Request,
     res: Response,
@@ -134,7 +136,7 @@ export class EmployerApplicationsController
       next(err);
     }
   }
-
+  //Update application status
   async updateApplicationStatus(
     req: Request,
     res: Response,
@@ -145,13 +147,6 @@ export class EmployerApplicationsController
       const employerId = req.params.id;
 
       const { status, interviewDate, interviewLink } = req.body;
-
-      if (!status || typeof status !== "string") {
-        throw new ApiError(
-          HTTP_STATUS.BAD_REQUEST,
-          "Status is required and must be a string",
-        );
-      }
 
       const payload: {
         status: string;

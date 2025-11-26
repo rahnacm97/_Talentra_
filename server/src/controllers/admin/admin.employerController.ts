@@ -9,7 +9,7 @@ import { ApiError } from "../../shared/utils/ApiError";
 
 export class AdminEmployerController implements IAdminEmployerController {
   constructor(private _employerService: IAdminEmployerService) {}
-
+  //fetching all employers
   getAllEmployers = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const page = Number(req.query.page) || 1;
@@ -42,7 +42,7 @@ export class AdminEmployerController implements IAdminEmployerController {
       );
     }
   };
-
+  //Fetch single employer
   getEmployerById = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;
@@ -75,7 +75,7 @@ export class AdminEmployerController implements IAdminEmployerController {
       );
     }
   };
-
+  //Block unblock employer
   blockUnblockEmployer = async (
     req: Request,
     res: Response,
@@ -102,6 +102,7 @@ export class AdminEmployerController implements IAdminEmployerController {
       );
     }
   };
+  //Employer verification
   verifyEmployer = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;
@@ -137,7 +138,7 @@ export class AdminEmployerController implements IAdminEmployerController {
       );
     }
   };
-
+  //Employer rejection
   rejectEmployer = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;

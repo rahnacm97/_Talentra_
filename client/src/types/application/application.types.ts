@@ -8,6 +8,10 @@ export type Status =
   | "rejected"
   | "hired";
 
+export type ExtendedStatus = Status | "accepted";
+
+export type AppStatus = Status | "accepted";
+
 export interface Application {
   id: string;
   jobId: string;

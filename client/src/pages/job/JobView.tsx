@@ -14,8 +14,6 @@ import {
   Building2,
   Users,
   X,
-  Bookmark,
-  BookmarkCheck,
 } from "lucide-react";
 import Pagination from "../../components/common/Pagination";
 import { Link } from "react-router-dom";
@@ -43,7 +41,7 @@ const JobView: React.FC = () => {
     "all" | "0" | "1-2" | "3-5" | "6-8" | "9-12" | "13+"
   >("all");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [savedJobs, setSavedJobs] = useState<Set<string>>(new Set());
+  //const [savedJobs, ] = useState<Set<string>>(new Set());
 
   const limit = 5;
 
@@ -79,18 +77,6 @@ const JobView: React.FC = () => {
   ]);
 
   const totalPages = Math.ceil(total / limit);
-
-  const toggleSaveJob = (jobId: string) => {
-    setSavedJobs((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(jobId)) {
-        newSet.delete(jobId);
-      } else {
-        newSet.add(jobId);
-      }
-      return newSet;
-    });
-  };
 
   const clearFilters = () => {
     setSearch("");
@@ -321,7 +307,6 @@ const JobView: React.FC = () => {
 
             <div className="space-y-4">
               {jobs.map((job: JobResponse) => {
-                const isSaved = savedJobs.has(job.id);
                 const company = job.employer;
 
                 return (
@@ -435,16 +420,6 @@ const JobView: React.FC = () => {
                               >
                                 View Details
                               </Link>
-                              <button
-                                onClick={() => toggleSaveJob(job.id)}
-                                className="p-2 border border-gray-200 rounded-lg hover:border-indigo-600 hover:bg-indigo-50 transition"
-                              >
-                                {isSaved ? (
-                                  <BookmarkCheck className="w-5 h-5 text-indigo-600" />
-                                ) : (
-                                  <Bookmark className="w-5 h-5 text-gray-600" />
-                                )}
-                              </button>
                             </div>
 
                             <div className="text-xs text-gray-500 flex items-center gap-4">

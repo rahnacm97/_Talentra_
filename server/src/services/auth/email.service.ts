@@ -10,7 +10,7 @@ export class EmailService implements INotificationService {
       pass: process.env.EMAIL_PASS,
     },
   });
-
+  //Otp sending
   async sendOtp(email: string, otp: string): Promise<void> {
     await this._transporter.sendMail({
       from: `"Talentra" <${process.env.EMAIL_USER}>`,
@@ -19,7 +19,7 @@ export class EmailService implements INotificationService {
       html: `<p>Your OTP code is <b>${otp}</b> for talentra verification. It will expire in 1 minute.</p>`,
     });
   }
-
+  //Employer verification email
   async sendEmployerVerificationEmail(params: {
     to: string;
     name: string;
@@ -63,7 +63,7 @@ export class EmailService implements INotificationService {
 
     logger.info("Employer verification email sent", { to, companyName });
   }
-
+  //Employer rejection mail
   async sendEmployerRejectionEmail(params: {
     to: string;
     name: string;

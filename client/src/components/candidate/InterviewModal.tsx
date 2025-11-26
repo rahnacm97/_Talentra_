@@ -1,13 +1,9 @@
 import React from "react";
 import { Calendar, CheckCircle, Building2, X } from "lucide-react";
+import type { Interview } from "../../types/interview/interview.types";
 
 interface InterviewDetailsModalProps {
-  interview: {
-    jobTitle: string;
-    employerName: string;
-    interviewDate: string;
-    status: "Scheduled" | "Completed" | "Canceled";
-  };
+  interview: Interview;
   onClose: () => void;
 }
 
@@ -41,11 +37,11 @@ const InterviewDetailsModal: React.FC<InterviewDetailsModalProps> = ({
           <div className="flex justify-between items-start mb-8">
             <div>
               <h2 className="text-3xl font-bold text-gray-900">
-                {interview.jobTitle}
+                {interview.job.title}
               </h2>
               <p className="text-xl text-gray-600 mt-3 flex items-center gap-3">
                 <Building2 className="w-6 h-6" />
-                {interview.employerName}
+                {interview.employer.name}
               </p>
             </div>
             <button
@@ -60,21 +56,23 @@ const InterviewDetailsModal: React.FC<InterviewDetailsModalProps> = ({
           {/* Content */}
           <div className="space-y-8">
             {/* Interview Date & Time */}
-            <div className="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-2xl p-6 border border-indigo-100">
-              <div className="flex items-center gap-5">
-                <div className="bg-indigo-100 p-4 rounded-xl">
-                  <Calendar className="w-10 h-10 text-indigo-600" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-indigo-700 uppercase tracking-wider">
-                    Scheduled Interview
-                  </p>
-                  <p className="text-xl font-bold text-gray-900 mt-1">
-                    {formatDateTime(interview.interviewDate)}
-                  </p>
+            {interview.interviewDate && (
+              <div className="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-2xl p-6 border border-indigo-100">
+                <div className="flex items-center gap-5">
+                  <div className="bg-indigo-100 p-4 rounded-xl">
+                    <Calendar className="w-10 h-10 text-indigo-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-indigo-700 uppercase tracking-wider">
+                      Scheduled Interview
+                    </p>
+                    <p className="text-xl font-bold text-gray-900 mt-1">
+                      {formatDateTime(interview.interviewDate)}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Status */}
             <div className="flex items-center gap-5">
@@ -83,7 +81,7 @@ const InterviewDetailsModal: React.FC<InterviewDetailsModalProps> = ({
               </div>
               <div>
                 <p className="text-sm text-gray-600">Status</p>
-                <p className="text-lg font-semibold text-green-700">
+                <p className="text-lg font-semibold text-green-700 capitalize">
                   {interview.status}
                 </p>
               </div>

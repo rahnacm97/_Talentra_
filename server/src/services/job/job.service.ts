@@ -39,7 +39,7 @@ export class EmployerJobService implements IEmployerJobService {
     }
     return date;
   }
-
+  //Employer verify service
   private async verifyEmployer(employerId: string): Promise<void> {
     const verified = await this._employerVerifier.isVerified(employerId);
     if (!verified) {
@@ -49,7 +49,7 @@ export class EmployerJobService implements IEmployerJobService {
       );
     }
   }
-
+  //Employer post job
   async createJob(
     employerId: string,
     dto: CreateJobDto,
@@ -63,13 +63,13 @@ export class EmployerJobService implements IEmployerJobService {
     });
     return this._mapper.toResponseDto(job);
   }
-
+  //Get employer posted jobs
   async getJobsByEmployer(employerId: string): Promise<JobResponseDto[]> {
     await this.verifyEmployer(employerId);
     const jobs = await this._repository.findByEmployerId(employerId);
     return this._mapper.toResponseDtoList(jobs);
   }
-
+  //job updation
   async updateJob(
     employerId: string,
     jobId: string,
@@ -99,7 +99,7 @@ export class EmployerJobService implements IEmployerJobService {
     const updated = await this._repository.update(jobId, updateData);
     return this._mapper.toResponseDto(updated!);
   }
-
+  //fetching jobs
   async getJobsPaginated(
     employerId: string,
     page: number,
@@ -122,7 +122,7 @@ export class EmployerJobService implements IEmployerJobService {
       limit: result.limit,
     };
   }
-
+  //job closing service
   async closeJob(employerId: string, jobId: string) {
     await this.verifyEmployer(employerId);
     const job = await this._repository.findByIdAndEmployer(jobId, employerId);
@@ -140,7 +140,7 @@ export class CandidateJobService implements ICandidateJobService {
     private readonly _mapper: IJobMapper,
     private readonly _applicationRepo: IApplicationRepository,
   ) {}
-
+  //fetching jobs in candidate side
   async getPublicJobs(params: {
     page: number;
     limit: number;
@@ -176,46 +176,89 @@ export class CandidateJobService implements ICandidateJobService {
       availableSkills,
     };
   }
-
+  //fetching single job in candidate side
   async getJobById(id: string, candidateId?: string): Promise<JobResponseDto> {
     const job = await this._repository.findById(id);
-    console.log(
-      "Raw job from repository:",
-      job ? "FOUND" : "NOT FOUND",
-      job?._id,
-    );
+
     if (!job) {
       throw new ApiError(HTTP_STATUS.NOT_FOUND, ERROR_MESSAGES.JOB_NOT_FOUND);
     }
 
     let hasApplied = false;
     if (candidateId) {
-      console.log("Checking application for candidate:", candidateId);
       const application = await this._applicationRepo.findByJobAndCandidate(
         id,
         candidateId,
       );
-      console.log("Application exists:", hasApplied, application?.id);
+
       hasApplied = !!application;
     } else {
-      console.log("No candidateId → hasApplied = false (public/guest)");
+      console.log("No candidateId hasApplied");
     }
 
     const dto = this._mapper.toResponseDto(job);
 
-    console.log("Mapped DTO (before hasApplied):", {
-      id: dto.id,
-      title: dto.title,
-      hasApplied: dto.hasApplied,
-    });
-
-    const finalResult = { ...dto, hasApplied };
-    console.log("Final response →", {
-      jobId: finalResult.id,
-      hasApplied: finalResult.hasApplied,
-      applicants: finalResult.applicants,
-    });
     return { ...dto, hasApplied };
+  }
+  //Job saving
+  async saveJob(candidateId: string, jobId: string): Promise<void> {
+    const job = await this._repository.findById(jobId);
+    if (!job) {
+      throw new ApiError(HTTP_STATUS.NOT_FOUND, ERROR_MESSAGES.JOB_NOT_FOUND);
+    }
+    await this._candRepository.saveJob(candidateId, jobId);
+  }
+  //Job unsaving
+  async unsaveJob(candidateId: string, jobId: string): Promise<void> {
+    await this._candRepository.unsaveJob(candidateId, jobId);
+  }
+  //get all the saved jobs
+  async getSavedJobs(
+    candidateId: string,
+    params?: {
+      page?: number;
+      limit?: number;
+      search?: string;
+      type?: string;
+    },
+  ): Promise<{
+    jobs: JobResponseDto[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
+    const page = params?.page || 1;
+    const limit = params?.limit || 10;
+    const skip = (page - 1) * limit;
+
+    let jobs = await this._candRepository.getSavedJobs(candidateId);
+
+    if (params?.search) {
+      const searchLower = params.search.toLowerCase();
+      jobs = jobs.filter((job) => {
+        const titleMatch = job.title?.toLowerCase().includes(searchLower);
+        const locationMatch = job.location?.toLowerCase().includes(searchLower);
+        const employer = job.employerId as { companyName?: string };
+        const employerMatch = employer.companyName
+          ?.toLowerCase()
+          .includes(searchLower);
+        return titleMatch || locationMatch || employerMatch;
+      });
+    }
+
+    if (params?.type && params.type !== "all") {
+      jobs = jobs.filter((job) => job.type === params.type);
+    }
+
+    const total = jobs.length;
+    const paginatedJobs = jobs.slice(skip, skip + limit);
+
+    return {
+      jobs: this._mapper.toResponseDtoList(paginatedJobs),
+      total,
+      page,
+      limit,
+    };
   }
 }
 
@@ -224,7 +267,7 @@ export class AdminJobService implements IAdminJobService {
     private readonly _repository: IJobRepository,
     private readonly _adminMapper: IAdminJobMapper,
   ) {}
-
+  //Fetching all jobs in admin side
   async getAllJobsForAdmin(params: {
     page: number;
     limit: number;

@@ -9,7 +9,7 @@ import { ApiError } from "../../shared/utils/ApiError";
 
 export class AdminCandidateController implements IAdminCandidateController {
   constructor(private _candidateService: IAdminCandidateService) {}
-
+  //Admin fetch all candidates
   getAllCandidates = async (
     req: Request,
     res: Response,
@@ -46,7 +46,7 @@ export class AdminCandidateController implements IAdminCandidateController {
       );
     }
   };
-
+  //fetch single candidate
   getCandidateById = async (
     req: Request,
     res: Response,
@@ -83,7 +83,7 @@ export class AdminCandidateController implements IAdminCandidateController {
       );
     }
   };
-
+  //Block unblock candidate
   blockUnblockCandidate = async (
     req: Request,
     res: Response,

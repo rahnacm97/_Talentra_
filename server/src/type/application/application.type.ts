@@ -10,6 +10,7 @@ export type ApplicationStatus =
   | "reviewed"
   | "rejected"
   | "accepted"
+  | "interview"
   | "shortlisted"
   | "all";
 

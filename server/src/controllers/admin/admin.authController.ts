@@ -13,7 +13,7 @@ import { ApiError } from "../../shared/utils/ApiError";
 
 export class AdminAuthController implements IAdminAuthController {
   constructor(private _adminAuthService: IAdminAuthService) {}
-
+  //Admin Login
   login = async (
     req: Request,
     res: Response,
@@ -57,7 +57,7 @@ export class AdminAuthController implements IAdminAuthController {
       );
     }
   };
-
+  //Admin logout
   logout = async (
     req: Request,
     res: Response,

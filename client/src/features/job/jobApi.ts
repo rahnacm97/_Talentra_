@@ -39,6 +39,18 @@ export const unsaveJob = (jobId: string) => {
   return api.delete(API_ROUTES.JOBS.UNSAVE(jobId));
 };
 
-export const getSavedJobs = () => {
-  return api.get(API_ROUTES.JOBS.SAVED);
+export const getSavedJobs = (params?: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  type?: string;
+}) => {
+  const queryParams = new URLSearchParams();
+  if (params?.page) queryParams.append("page", params.page.toString());
+  if (params?.limit) queryParams.append("limit", params.limit.toString());
+  if (params?.search) queryParams.append("search", params.search);
+  if (params?.type) queryParams.append("type", params.type);
+
+  const url = `${API_ROUTES.JOBS.SAVED}${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
+  return api.get(url);
 };

@@ -7,16 +7,24 @@ export class JobMapper implements IJobMapper {
   toResponseDto(
     job: IJob & { employer?: IEmployer; extractedSkills?: string[] },
   ): JobResponseDto {
+    const employerData =
+      job.employer ||
+      (typeof job.employerId === "object"
+        ? (job.employerId as unknown as IEmployer)
+        : undefined);
+
     const employerInfo: EmployerInfoDto = {
-      id: job.employer?._id?.toString() ?? job.employerId,
-      companyName: job.employer?.name ?? "Unknown Company",
-      logo: job.employer?.profileImage,
-      companySize: job.employer?.companySize,
-      industry: job.employer?.industry,
-      website: job.employer?.website,
-      about: job.employer?.about,
-      founded: job.employer?.founded,
-      benefits: job.employer?.benefits,
+      id:
+        employerData?._id?.toString() ??
+        (typeof job.employerId === "string" ? job.employerId : ""),
+      companyName: employerData?.name ?? "Unknown Company",
+      logo: employerData?.profileImage,
+      companySize: employerData?.companySize,
+      industry: employerData?.industry,
+      website: employerData?.website,
+      about: employerData?.about,
+      founded: employerData?.founded,
+      benefits: employerData?.benefits,
     };
 
     return {

@@ -49,8 +49,8 @@ const initialState: CandidateJobState = {
   total: 0,
   page: 1,
   limit: 5,
-  loading: false,
   loadingJobId: null,
+  loading: false,
   error: null,
   availableSkills: [],
   selectedSkills: [],
@@ -75,10 +75,8 @@ const candidateJobSlice = createSlice({
       state.selectedSkills = [];
     },
   },
-
   extraReducers: (builder) => {
     builder
-
       .addCase(fetchJobsForCandidate.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -110,11 +108,9 @@ const candidateJobSlice = createSlice({
       .addCase(fetchJobById.pending, (state, action) => {
         state.loadingJobId = action.meta.arg;
       })
-
       .addCase(fetchJobById.fulfilled, (state, action) => {
         state.loadingJobId = null;
         const fetchedJob = action.payload.data;
-
         const idx = state.jobs.findIndex((j) => j.id === fetchedJob.id);
         if (idx !== -1) {
           state.jobs[idx] = { ...state.jobs[idx], ...fetchedJob };
@@ -127,14 +123,10 @@ const candidateJobSlice = createSlice({
       })
       .addCase(applyJob.fulfilled, (state, action) => {
         const { jobId, alreadyApplied } = action.payload;
-
         const job = state.jobs.find((j) => j.id === jobId);
-
         if (job) {
           job.hasApplied = true;
-          if (!alreadyApplied) {
-            job.applicants += 1;
-          }
+          if (!alreadyApplied) job.applicants += 1;
         } else {
           state.jobs.push({
             id: jobId,
@@ -171,16 +163,26 @@ const candidateJobSlice = createSlice({
       })
       .addCase(
         fetchSavedJobs.fulfilled,
-        (state, action: PayloadAction<JobResponse[]>) => {
+        (
+          state,
+          action: PayloadAction<{
+            jobs: JobResponse[];
+            total: number;
+            page: number;
+            limit: number;
+          }>,
+        ) => {
           state.savedJobsLoading = false;
-          state.savedJobs = action.payload;
+          state.savedJobs = action.payload.jobs;
+          state.total = action.payload.total;
+          state.page = action.payload.page;
+          state.limit = action.payload.limit;
         },
       )
       .addCase(fetchSavedJobs.rejected, (state, action) => {
         state.savedJobsLoading = false;
         state.error = action.payload as string;
       })
-
       .addCase(saveJob.fulfilled, (state, action) => {
         const { jobId } = action.payload;
         const job = state.jobs.find((j) => j.id === jobId);

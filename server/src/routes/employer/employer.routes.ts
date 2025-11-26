@@ -14,8 +14,11 @@ import { USER_ROLES } from "../../shared/enums/enums";
 import { verifyEmployer } from "../../middlewares/validationMiddleware";
 import { EmployerApplicationService } from "../../services/application/application.service";
 import { EmployerApplicationMapper } from "../../mappers/application/application.mapper";
-import { JobRepository } from "../../repositories/job/job.repository";
 import { ApplicationRepository } from "../../repositories/application/application.repository";
+import { InterviewRepository } from "../../repositories/interview/interview.repository";
+import { InterviewService } from "../../services/interview/interview.service";
+import { InterviewMapper } from "../../mappers/interview/interview.mapper";
+import { employerInterviewRouter } from "../interview/interview.routes";
 
 const router = Router();
 const employerMapper = new EmployerMapper();
@@ -23,16 +26,20 @@ const employerRepository = new EmployerRepository();
 const employerService = new EmployerService(employerRepository, employerMapper);
 const employerController = new EmployerController(employerService);
 const applicationMapper = new EmployerApplicationMapper();
-const jobRepo = new JobRepository();
 const applicationRepo = new ApplicationRepository();
+const interviewRepo = new InterviewRepository();
+const interviewMapper = new InterviewMapper();
+const interviewService = new InterviewService(interviewRepo, interviewMapper);
 const employerApplicationService = new EmployerApplicationService(
   applicationRepo,
-  jobRepo,
   applicationMapper,
+  interviewService,
 );
 const employerApplicationsController = new EmployerApplicationsController(
   employerApplicationService,
 );
+
+router.use("/interviews", employerInterviewRouter);
 
 router.get(
   "/:id",

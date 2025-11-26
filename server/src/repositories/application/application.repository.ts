@@ -1,7 +1,10 @@
 import Application, {
   IApplicationDocument,
 } from "../../models/Application.model";
-import { IApplicationRepository } from "../../interfaces/applications/IApplicationRepository";
+import {
+  ICandidateApplicationRepository,
+  IEmployerApplicationRepository,
+} from "../../interfaces/applications/IApplicationRepository";
 import {
   IApplication,
   IApplicationQuery,
@@ -15,7 +18,9 @@ import { PipelineStage } from "mongoose";
 import mongoose from "mongoose";
 import JobModel from "../../models/Job.model";
 
-export class ApplicationRepository implements IApplicationRepository {
+export class ApplicationRepository
+  implements ICandidateApplicationRepository, IEmployerApplicationRepository
+{
   async create(data: Partial<IApplication>): Promise<IApplication> {
     const doc = await Application.create(data);
     return this.toDomain(doc);
@@ -69,7 +74,6 @@ export class ApplicationRepository implements IApplicationRepository {
       { $unwind: { path: "$employer", preserveNullAndEmptyArrays: true } },
     ];
 
-    // ADD SEARCH FILTER HERE
     if (filters.search?.trim()) {
       const searchRegex = new RegExp(filters.search.trim(), "i");
       pipeline.push({
@@ -128,7 +132,6 @@ export class ApplicationRepository implements IApplicationRepository {
       { $unwind: { path: "$employer", preserveNullAndEmptyArrays: true } },
     ];
 
-    // ADD SEARCH HERE (same as count)
     if (query.search?.trim()) {
       const searchRegex = new RegExp(query.search.trim(), "i");
       pipeline.push({

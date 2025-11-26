@@ -5,26 +5,25 @@ import {
   IEmployerApplicationResponse,
 } from "./IApplication";
 
-export interface IApplicationRepository {
+export interface ICandidateApplicationRepository {
   create(data: Partial<IApplication>): Promise<IApplication>;
   findByJobAndCandidate(
     jobId: string,
     candidateId: string,
   ): Promise<IApplication | null>;
-  countByJobId(jobId: string): Promise<number>;
-
   countByCandidateId(
     candidateId: string,
     filters?: Partial<Pick<IApplicationQuery, "status" | "search">>,
   ): Promise<number>;
-
   findByCandidateIdWithJob(
     candidateId: string,
     query: IApplicationQuery,
   ): Promise<IApplicationWithJob[]>;
-
   findOneWithJob(applicationId: string): Promise<IApplicationWithJob | null>;
+}
 
+export interface IEmployerApplicationRepository {
+  countByJobId(jobId: string): Promise<number>;
   findByEmployerIdWithJob(
     employerId: string,
     filters: {
@@ -35,7 +34,6 @@ export interface IApplicationRepository {
       jobTitle?: string;
     },
   ): Promise<IEmployerApplicationResponse[]>;
-
   countByEmployerId(
     employerId: string,
     filters: {
@@ -44,14 +42,17 @@ export interface IApplicationRepository {
       jobTitle?: string;
     },
   ): Promise<number>;
-
   updateOne(
     applicationId: string,
     data: { status?: string; notes?: string; rating?: number },
   ): Promise<IApplication | null>;
-
   findByIdAndEmployer(
     applicationId: string,
     employerId: string,
   ): Promise<IApplication | null>;
+  findOneWithJob(applicationId: string): Promise<IApplicationWithJob | null>;
 }
+
+export interface IApplicationRepository
+  extends ICandidateApplicationRepository,
+    IEmployerApplicationRepository {}

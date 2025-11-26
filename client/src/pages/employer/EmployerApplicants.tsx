@@ -33,7 +33,7 @@ const EmployerApplicants: React.FC = () => {
     (state: RootState) => state.employer,
   );
   const authUser = useSelector((state: RootState) => state.auth.user);
-  const employerId = authUser?._id as string; // Safe now with early return
+  const employerId = authUser?._id as string;
 
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
@@ -75,61 +75,6 @@ const EmployerApplicants: React.FC = () => {
     setSelectedApplicant(null);
   };
 
-  // REMOVED: handleStatusChange, isUpdating, selectedStatus — all unused
-
-  // const handleStatusUpdate = async (newStatus: string) => {
-  //   if (!selectedApplicant || !employerId) return;
-
-  //   // Fix 1: Properly typed payload
-  //   const payload: {
-  //     status: string;
-  //     interviewDate?: string;
-  //     interviewLink?: string;
-  //   } = { status: newStatus };
-
-  //   if (newStatus === "interview") {
-  //     const date = prompt(
-  //       "Enter interview date & time (e.g., 2025-04-05 10:00)",
-  //     );
-  //     const link = prompt("Enter Google Meet/Zoom link (optional)");
-
-  //     if (!date?.trim()) {
-  //       toast.error("Interview date is required");
-  //       return;
-  //     }
-
-  //     payload.interviewDate = date.trim();
-  //     if (link?.trim()) {
-  //       payload.interviewLink = link.trim();
-  //     }
-  //   }
-
-  //   try {
-  //     await updateApplicationStatusApi(
-  //       employerId,
-  //       selectedApplicant.id,
-  //       payload, // Now fully typed and valid
-  //     );
-
-  //     // Refresh applications
-  //     dispatch(
-  //       fetchEmployerApplications({
-  //         employerId,
-  //         page: currentPage,
-  //         limit: 5,
-  //         search: searchTerm || undefined,
-  //         status: filterStatus === "all" ? undefined : filterStatus,
-  //         jobTitle: filterJob === "all" ? undefined : filterJob,
-  //       }),
-  //     );
-
-  //     toast.success(`Application status updated to ${newStatus}!`);
-  //     closeModal();
-  //   } catch (err: any) {
-  //     toast.error(err.response?.data?.message || "Failed to update status");
-  //   }
-  // };
-
   const handleStatusUpdate = async (
     newStatus: string,
     interviewDateTime?: string,
@@ -142,10 +87,8 @@ const EmployerApplicants: React.FC = () => {
       interviewLink?: string;
     } = { status: newStatus };
 
-    // Only add interviewDate if provided (from modal)
     if (newStatus === "interview" && interviewDateTime) {
       payload.interviewDate = interviewDateTime;
-      // Optional: you can add a default link or ask separately later
     }
 
     try {

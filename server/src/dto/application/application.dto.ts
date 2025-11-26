@@ -20,6 +20,7 @@ export interface ApplicationsResponseDto {
     | "reviewed"
     | "rejected"
     | "accepted"
+    | "interview"
     | "shortlisted"
     | "all";
   page?: number;
@@ -52,6 +53,7 @@ export interface ApplicationResponseDto {
     | "reviewed"
     | "rejected"
     | "accepted"
+    | "interview"
     | "shortlisted"
     | "all";
 }

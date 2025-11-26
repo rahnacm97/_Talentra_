@@ -14,7 +14,7 @@ export class OtpService implements IOtpService {
     private _userRepos: UserRepoMap,
     private _otpMapper: IOtpMapper,
   ) {}
-
+  //Otp generation
   async generateOtp(
     email: string,
     purpose: "signup" | "forgot-password",
@@ -36,10 +36,9 @@ export class OtpService implements IOtpService {
 
     console.log("Otp", otp);
 
-    //return { message: "OTP sent successfully" };
     return this._otpMapper.toSendOtpDTO();
   }
-
+  //Otp verification
   async verifyOtp(
     email: string,
     purpose: string,

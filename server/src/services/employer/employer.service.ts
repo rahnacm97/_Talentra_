@@ -20,6 +20,7 @@ export class EmployerService implements IEmployerService {
   async getEmployerById(employerId: string): Promise<IEmployer | null> {
     return this._repository.findById(employerId);
   }
+  //File uploading
   async uploadFile(file: Express.Multer.File): Promise<string> {
     try {
       const transformation: UploadApiOptions["transformation"] | undefined =
@@ -55,7 +56,7 @@ export class EmployerService implements IEmployerService {
       );
     }
   }
-
+  //Employer profile updation
   async updateProfile(
     employerId: string,
     data: EmployerDataDTO,

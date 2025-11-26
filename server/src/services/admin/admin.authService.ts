@@ -15,7 +15,7 @@ export class AdminAuthService implements IAdminAuthService {
     private _tokenService: ITokenService,
     private _adminMapper: IAdminMapper,
   ) {}
-
+  //Admin login
   async login(data: AdminLoginDTO) {
     if (!data.email || !data.password) {
       throw new ApiError(
@@ -51,7 +51,7 @@ export class AdminAuthService implements IAdminAuthService {
       refreshToken,
     };
   }
-
+  //Admin logout
   async logout(refreshToken: string): Promise<{ message: string }> {
     this._tokenService.invalidateToken(refreshToken);
     return { message: "Admin logged out successfully" };

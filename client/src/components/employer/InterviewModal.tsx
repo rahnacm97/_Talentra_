@@ -1,15 +1,10 @@
-// src/components/modals/EmployerInterviewDetailsModal.tsx
 import React from "react";
 import { Calendar, X, Briefcase, User } from "lucide-react";
 import { formatFullName } from "../../utils/formatters";
+import type { Interview } from "../../types/interview/interview.types";
 
 interface InterviewDetailsModalProps {
-  interview: {
-    candidateName: string;
-    jobTitle: string;
-    interviewDate: string;
-    candidate: { profileImage?: string };
-  };
+  interview: Interview;
   onClose: () => void;
 }
 
@@ -40,7 +35,7 @@ const EmployerInterviewDetailsModal: React.FC<InterviewDetailsModalProps> = ({
                 {interview.candidate.profileImage ? (
                   <img
                     src={interview.candidate.profileImage}
-                    alt={interview.candidateName}
+                    alt={interview.candidate.fullName}
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -49,11 +44,11 @@ const EmployerInterviewDetailsModal: React.FC<InterviewDetailsModalProps> = ({
               </div>
               <div>
                 <h2 className="text-3xl font-bold text-gray-900">
-                  {formatFullName(interview.candidateName)}
+                  {formatFullName(interview.candidate.fullName)}
                 </h2>
                 <p className="text-xl text-gray-600 mt-2 flex items-center gap-2">
                   <Briefcase className="w-6 h-6" />
-                  {interview.jobTitle}
+                  {interview.job.title}
                 </p>
               </div>
             </div>
@@ -67,21 +62,23 @@ const EmployerInterviewDetailsModal: React.FC<InterviewDetailsModalProps> = ({
           </div>
 
           {/* Interview Date */}
-          <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl p-8 border border-indigo-100">
-            <div className="flex items-center gap-6">
-              <div className="bg-indigo-100 p-5 rounded-2xl">
-                <Calendar className="w-12 h-10 text-indigo-600" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-indigo-700 uppercase tracking-wider">
-                  Scheduled Interview
-                </p>
-                <p className="text-xl font-bold text-gray-900 mt-2">
-                  {formatDateTime(interview.interviewDate)}
-                </p>
+          {interview.interviewDate && (
+            <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl p-8 border border-indigo-100">
+              <div className="flex items-center gap-6">
+                <div className="bg-indigo-100 p-5 rounded-2xl">
+                  <Calendar className="w-12 h-10 text-indigo-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-indigo-700 uppercase tracking-wider">
+                    Scheduled Interview
+                  </p>
+                  <p className="text-xl font-bold text-gray-900 mt-2">
+                    {formatDateTime(interview.interviewDate)}
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Footer */}
           <div className="mt-10 text-center">

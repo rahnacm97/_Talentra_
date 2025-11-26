@@ -10,6 +10,9 @@ export interface IEmployerJobController {
 export interface ICandidateJobController {
   getPublicJobs(req: Request, res: Response, next: NextFunction): Promise<void>;
   getJobById(req: Request, res: Response, next: NextFunction): Promise<void>;
+  saveJob(req: Request, res: Response, next: NextFunction): Promise<void>;
+  unsaveJob(req: Request, res: Response, next: NextFunction): Promise<void>;
+  getSavedJobs(req: Request, res: Response, next: NextFunction): Promise<void>;
 }
 
 export interface IAdminJobController {

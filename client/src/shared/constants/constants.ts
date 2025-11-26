@@ -52,6 +52,10 @@ export const API_ROUTES = {
     CURRENT: "/subscription/current",
     CANCEL: "/subscription/cancel",
   },
+  INTERVIEWS: {
+    CANDIDATE: "/candidate/interviews",
+    EMPLOYER: "/employer/interviews",
+  },
 } as const;
 
 export const FRONTEND_ROUTES = {

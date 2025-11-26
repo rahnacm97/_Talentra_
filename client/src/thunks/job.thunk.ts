@@ -3,11 +3,14 @@ import {
   getPublicJobs,
   getJobById,
   getSavedJobs,
+  saveJob as saveJobApi,
+  unsaveJob as unsaveJobApi,
 } from "../features/job/jobApi";
 import type { ExperienceLevel } from "../shared/validations/JobFormValidation";
 import type { ApiError } from "../types/common/common.type";
 import type { RootState } from "../app/store";
 
+// Fetch public jobs with pagination, search, filters
 export const fetchJobsForCandidate = createAsyncThunk(
   "candidateJobs/fetch",
   async ({
@@ -40,6 +43,7 @@ export const fetchJobsForCandidate = createAsyncThunk(
   },
 );
 
+// Fetch a single job by ID
 export const fetchJobById = createAsyncThunk(
   "candidateJobs/fetchById",
   async (id: string, { getState, rejectWithValue }) => {
@@ -57,11 +61,12 @@ export const fetchJobById = createAsyncThunk(
   },
 );
 
+// Save a job
 export const saveJob = createAsyncThunk(
   "jobs/saveJob",
   async (jobId: string, { rejectWithValue }) => {
     try {
-      await saveJob(jobId);
+      await saveJobApi(jobId);
       return { jobId };
     } catch (err: any) {
       return rejectWithValue(
@@ -71,11 +76,12 @@ export const saveJob = createAsyncThunk(
   },
 );
 
+// Unsave a job
 export const unsaveJob = createAsyncThunk(
   "jobs/unsaveJob",
   async (jobId: string, { rejectWithValue }) => {
     try {
-      await unsaveJob(jobId);
+      await unsaveJobApi(jobId);
       return { jobId };
     } catch (err: any) {
       return rejectWithValue(
@@ -85,11 +91,20 @@ export const unsaveJob = createAsyncThunk(
   },
 );
 
+// Fetch saved jobs with pagination, search, and type filter
 export const fetchSavedJobs = createAsyncThunk(
   "jobs/fetchSavedJobs",
-  async (_, { rejectWithValue }) => {
+  async (
+    params: {
+      page?: number;
+      limit?: number;
+      search?: string;
+      type?: string;
+    } = {},
+    { rejectWithValue },
+  ) => {
     try {
-      const response = await getSavedJobs();
+      const response = await getSavedJobs(params);
       return response.data.data;
     } catch (err: any) {
       return rejectWithValue(

@@ -422,9 +422,6 @@ const ApplicationDetails: React.FC = () => {
                 >
                   View Job Posting
                 </ActionButton>
-                <ActionButton variant="danger" icon={XCircle}>
-                  Withdraw Application
-                </ActionButton>
               </div>
             </div>
 

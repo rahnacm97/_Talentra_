@@ -42,6 +42,30 @@ const candidateController = new CandidateJobController(candidateService);
 
 const router = Router();
 
+router.get("/", candidateController.getPublicJobs.bind(candidateController));
+router.get(
+  "/public/:id",
+  candidateController.getJobById.bind(candidateController),
+);
+
+router.get(
+  "/saved",
+  verifyAuth([USER_ROLES.CANDIDATE]),
+  candidateController.getSavedJobs.bind(candidateController),
+);
+
+router.post(
+  "/save/:jobId",
+  verifyAuth([USER_ROLES.CANDIDATE]),
+  candidateController.saveJob.bind(candidateController),
+);
+
+router.delete(
+  "/save/:jobId",
+  verifyAuth([USER_ROLES.CANDIDATE]),
+  candidateController.unsaveJob.bind(candidateController),
+);
+
 router.post(
   "/:id",
   verifyAuth([USER_ROLES.EMPLOYER]),
@@ -70,12 +94,6 @@ router.patch(
   verifyAuth([USER_ROLES.EMPLOYER]),
   verifyEmployer,
   employerController.closeJob.bind(employerController),
-);
-
-router.get("/", candidateController.getPublicJobs.bind(candidateController));
-router.get(
-  "/public/:id",
-  candidateController.getJobById.bind(candidateController),
 );
 
 export default router;

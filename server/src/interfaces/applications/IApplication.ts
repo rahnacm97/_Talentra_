@@ -14,6 +14,7 @@ export interface IApplication {
     | "reviewed"
     | "rejected"
     | "accepted"
+    | "interview"
     | "shortlisted"
     | "all";
 }
@@ -43,6 +44,7 @@ export interface IApplicationQuery {
     | "reviewed"
     | "rejected"
     | "accepted"
+    | "interview"
     | "shortlisted"
     | "all";
   sortBy?: string;

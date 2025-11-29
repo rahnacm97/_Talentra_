@@ -28,6 +28,10 @@ export class EmployerRepository
     return this.model.findByIdAndUpdate(id, { verified }, { new: true }).lean();
   }
 
+  async updateOne(id: string, data: Partial<IEmployer>) {
+    return await Employer.findByIdAndUpdate(id, data, { new: true });
+  }
+
   async updateProfile(
     employerId: string,
     data: EmployerDataDTO,

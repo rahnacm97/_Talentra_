@@ -8,14 +8,14 @@ import { HTTP_STATUS } from "../shared/httpStatus/httpStatusCode";
 import { ICandidate } from "../interfaces/users/candidate/ICandidate";
 import { IEmployer } from "../interfaces/users/employer/IEmployer";
 import { IAdmin } from "../interfaces/users/admin/IAdmin";
-import { UserRole } from "../shared/enums/enums";
+import { USER_ROLES } from "../shared/enums/enums";
 
 const tokenService = new TokenService();
 
-type AuthUser = ICandidate | IEmployer | IAdmin;
+export type AuthUser = ICandidate | IEmployer | IAdmin;
 
 export const verifyAuth =
-  (roles: UserRole[]) =>
+  (roles: string[]) =>
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const authHeader = req.headers.authorization;
@@ -27,7 +27,6 @@ export const verifyAuth =
       }
 
       const token = authHeader.split(" ")[1];
-
       if (!token) {
         return res.status(HTTP_STATUS.UNAUTHORIZED).json({
           success: false,
@@ -37,7 +36,7 @@ export const verifyAuth =
 
       const decoded = tokenService.verifyAccessToken(token) as {
         id: string;
-        role: UserRole;
+        role: string;
         email: string;
       };
 
@@ -50,13 +49,13 @@ export const verifyAuth =
 
       let user: AuthUser | null = null;
 
-      if (decoded.role === "Candidate") {
+      if (decoded.role === USER_ROLES.CANDIDATE) {
         const candidateRepo = new CandidateRepository();
         user = await candidateRepo.findById(decoded.id);
-      } else if (decoded.role === "Employer") {
+      } else if (decoded.role === USER_ROLES.EMPLOYER) {
         const employerRepo = new EmployerRepository();
         user = await employerRepo.findById(decoded.id);
-      } else if (decoded.role === "Admin") {
+      } else if (decoded.role === USER_ROLES.ADMIN) {
         const adminRepo = new AdminRepository();
         user = await adminRepo.findById(decoded.id);
       }
@@ -69,8 +68,9 @@ export const verifyAuth =
       }
 
       if (
-        decoded.role !== "Admin" &&
-        (user as ICandidate | IEmployer).blocked
+        decoded.role !== USER_ROLES.ADMIN &&
+        "blocked" in user &&
+        user.blocked
       ) {
         return res.status(HTTP_STATUS.FORBIDDEN).json({
           success: false,
@@ -78,9 +78,19 @@ export const verifyAuth =
         });
       }
 
-      req.user = { id: decoded.id, role: decoded.role };
+      req.user = {
+        id: user._id.toString(),
+        _id: user._id.toString(),
+        role: decoded.role as USER_ROLES,
+        email: decoded.email,
+        blocked: "blocked" in user ? user.blocked : false,
+        ...(decoded.role === USER_ROLES.EMPLOYER && {
+          subscription: (user as IEmployer).subscription,
+        }),
+      };
+
       next();
-    } catch (error: unknown) {
+    } catch (error) {
       console.error("Auth middleware error:", error);
       return res
         .status(HTTP_STATUS.UNAUTHORIZED)

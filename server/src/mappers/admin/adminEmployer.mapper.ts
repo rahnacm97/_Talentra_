@@ -24,6 +24,11 @@ export class EmployerMapper implements IEmployerMapper {
       profileImage: employer.profileImage,
       cinNumber: employer.cinNumber,
       verified: employer.verified,
+      rejected: employer.rejected ?? false,
+      rejectionReason: employer.rejectionReason ?? "",
+      rejectionCreatedAt: employer.rejectionCreatedAt
+        ? employer.rejectionCreatedAt.toISOString()
+        : new Date().toISOString(),
       socialLinks: employer.socialLinks || {
         linkedin: "",
         twitter: "",
@@ -32,6 +37,9 @@ export class EmployerMapper implements IEmployerMapper {
       blocked: employer.blocked,
       createdAt: employer.createdAt
         ? employer.createdAt.toISOString()
+        : new Date().toISOString(),
+      updatedAt: employer.updatedAt
+        ? employer.updatedAt.toISOString()
         : new Date().toISOString(),
       jobsPosted: employer.jobsPosted ?? 0,
       activeJobs: employer.stats?.activeJobs ?? 0,

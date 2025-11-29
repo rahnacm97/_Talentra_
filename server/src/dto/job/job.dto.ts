@@ -36,4 +36,5 @@ export interface JobResponseDto {
   postedDate: string;
   employer: EmployerInfoDto;
   hasApplied?: boolean;
+  skills: string[];
 }

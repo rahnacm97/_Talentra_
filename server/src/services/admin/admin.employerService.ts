@@ -19,7 +19,7 @@ export class AdminEmployerService implements IAdminEmployerService {
     private _employerMapper: IEmployerMapper,
     private _emailService: INotificationService,
   ) {}
-
+  //Fecthing all employers
   async getAllEmployers(
     page: number,
     limit: number,
@@ -41,7 +41,7 @@ export class AdminEmployerService implements IAdminEmployerService {
       total,
     };
   }
-
+  //Block or unblock employers
   async blockUnblockEmployer(
     data: BlockEmployerDTO,
   ): Promise<EmployerResponseDTO> {
@@ -54,14 +54,14 @@ export class AdminEmployerService implements IAdminEmployerService {
 
     return this._employerMapper.toEmployerResponseDTO(employer);
   }
-
+  //Fetching single employer
   async getEmployerById(id: string): Promise<EmployerResponseDTO | null> {
     const employer = await this._employerRepo.findById(id);
     if (!employer) return null;
 
     return this._employerMapper.toEmployerResponseDTO(employer);
   }
-
+  //Verify employer approval
   async verifyEmployer(id: string): Promise<EmployerResponseDTO> {
     const employer = await this._employerRepo.findById(id);
     if (!employer) throw new Error("Employer Not Found");
@@ -73,7 +73,11 @@ export class AdminEmployerService implements IAdminEmployerService {
       );
     }
 
-    const updated = await this._employerRepo.updateVerificationStatus(id, true);
+    const updated = await this._employerRepo.updateOne(id, {
+      verified: true,
+      rejected: false,
+      rejectionReason: "",
+    });
     if (!updated) throw new Error("Employer not found");
 
     const dto = this._employerMapper.toEmployerResponseDTO(updated);
@@ -95,7 +99,7 @@ export class AdminEmployerService implements IAdminEmployerService {
     }
     return dto;
   }
-
+  //Rejecting employer verification
   async rejectEmployer(
     id: string,
     reason: string,
@@ -103,10 +107,12 @@ export class AdminEmployerService implements IAdminEmployerService {
     const employer = await this._employerRepo.findById(id);
     if (!employer) throw new Error("Employer Not Found");
 
-    const updated = await this._employerRepo.updateVerificationStatus(
-      id,
-      false,
-    );
+    const updated = await this._employerRepo.updateOne(id, {
+      verified: false,
+      rejected: true,
+      rejectionReason: reason,
+      rejectionCreatedAt: new Date(),
+    });
     if (!updated) throw new Error("Failed to update employer");
 
     const dto = this._employerMapper.toEmployerResponseDTO(updated);

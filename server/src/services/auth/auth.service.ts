@@ -7,10 +7,10 @@ import type {
 } from "../../interfaces/auth/IAuthService";
 import { detectUserByEmail } from "../../shared/utils/user.utils";
 import { ITokenService } from "../../interfaces/auth/ITokenService";
-import { UserRepoMap } from "../../types/types";
+import { UserRepoMap } from "../../type/types";
 import { ICandidate } from "../../interfaces/users/candidate/ICandidate";
 import { IEmployer } from "../../interfaces/users/employer/IEmployer";
-import { hasEmailVerification } from "../../types/types";
+import { hasEmailVerification } from "../../type/types";
 
 export class AuthService implements IAuthService {
   constructor(
@@ -23,13 +23,12 @@ export class AuthService implements IAuthService {
     if (!repo) throw new Error("Invalid user type");
     return repo;
   }
-
+  //Signup
   async signup(data: AuthSignupDTO) {
     const detected = await detectUserByEmail(data.email, this._repos);
     if (detected) {
       throw new Error("Email already exists in another account");
     }
-
     const repo = this.getRepository(data.userType);
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
@@ -59,7 +58,7 @@ export class AuthService implements IAuthService {
       }),
     };
   }
-
+  //Login
   async login(data: AuthLoginDTO) {
     const detected = await detectUserByEmail(data.email, this._repos);
     if (!detected) throw new Error("User not found");
@@ -165,7 +164,7 @@ export class AuthService implements IAuthService {
       },
     };
   }
-
+  //Logout
   async logout(refreshToken: string): Promise<void> {
     this._tokenService.invalidateToken(refreshToken);
   }

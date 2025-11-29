@@ -6,6 +6,8 @@ import candidateReducer from "../features/candidate/candidateSlice";
 import employerReducer from "../features/employer/employerSlice";
 import candidateJobReducer from "../features/job/jobSlice";
 import adminJobsReducer from "../features/admin/adminJobSlice";
+import subscriptionReducer from "../features/subscription/subscriptionSlice";
+import interviewReducer from "../features/interview/interviewSlice";
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +18,8 @@ export const store = configureStore({
     employer: employerReducer,
     candidateJobs: candidateJobReducer,
     adminJobs: adminJobsReducer,
+    subscription: subscriptionReducer,
+    interview: interviewReducer,
   },
 });
 

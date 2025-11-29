@@ -47,6 +47,10 @@ const candidateSchema = new Schema<ICandidate>(
     certifications: [certificationSchema],
     emailVerified: { type: Boolean, default: false },
     blocked: { type: Boolean, default: false },
+    savedJobs: {
+      type: [{ type: Schema.Types.ObjectId, ref: "Job" }],
+      default: [],
+    },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
   },

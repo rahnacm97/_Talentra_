@@ -13,7 +13,7 @@ export class AdminCandidateService implements IAdminCandidateService {
     private _candidateRepo: CandidateRepository,
     private _candidateMapper: ICandidateMapper,
   ) {}
-
+  //Fetching all candidates
   async getAllCandidates(
     page: number,
     limit: number,
@@ -36,7 +36,7 @@ export class AdminCandidateService implements IAdminCandidateService {
       total,
     };
   }
-
+  //Block and unblocking candidates
   async blockUnblockCandidate(
     data: BlockCandidateDTO,
   ): Promise<CandidateResponseDTO> {
@@ -49,7 +49,7 @@ export class AdminCandidateService implements IAdminCandidateService {
 
     return this._candidateMapper.toCandidateResponseDTO(candidate);
   }
-
+  //Fetching single candidate
   async getCandidateById(id: string): Promise<CandidateResponseDTO | null> {
     const candidate = await this._candidateRepo.findById(id);
     if (!candidate) return null;

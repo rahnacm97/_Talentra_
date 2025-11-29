@@ -20,7 +20,7 @@ export class CandidateService implements ICandidateService {
   async getCandidateById(candidateId: string): Promise<ICandidate | null> {
     return this._repository.findById(candidateId);
   }
-
+  //File uploading
   async uploadFile(file: Express.Multer.File): Promise<string> {
     try {
       const transformation: UploadApiOptions["transformation"] | undefined =
@@ -55,7 +55,7 @@ export class CandidateService implements ICandidateService {
       );
     }
   }
-
+  //Candidate profile updation
   async updateProfile(
     userId: string,
     data: ProfileDataDTO,

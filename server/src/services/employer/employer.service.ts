@@ -20,6 +20,7 @@ export class EmployerService implements IEmployerService {
   async getEmployerById(employerId: string): Promise<IEmployer | null> {
     return this._repository.findById(employerId);
   }
+  //File uploading
   async uploadFile(file: Express.Multer.File): Promise<string> {
     try {
       const transformation: UploadApiOptions["transformation"] | undefined =
@@ -55,7 +56,7 @@ export class EmployerService implements IEmployerService {
       );
     }
   }
-
+  //Employer profile updation
   async updateProfile(
     employerId: string,
     data: EmployerDataDTO,
@@ -69,6 +70,7 @@ export class EmployerService implements IEmployerService {
     if (employer.blocked) {
       throw new ApiError(HTTP_STATUS.FORBIDDEN, "User is blocked");
     }
+
     if (typeof data.benefits === "string") {
       try {
         data.benefits = JSON.parse(data.benefits);
@@ -94,6 +96,7 @@ export class EmployerService implements IEmployerService {
       employerId,
       data,
     );
+
     if (!updatedEmployer) {
       throw new ApiError(
         HTTP_STATUS.INTERNAL_SERVER_ERROR,

@@ -114,18 +114,6 @@ const JobFormModal: React.FC<JobFormModalProps> = ({
               onChange={(v) => setValues((p) => ({ ...p, location: v }))}
               error={getArrayError(errors.location)}
             />
-            {/* <Select
-              label="Job Type *"
-              value={values.type}
-              onChange={(v) => setValues((p) => ({ ...p, type: v as any }))}
-              options={[
-                { value: "Full-time", label: "Full-time" },
-                { value: "Part-time", label: "Part-time" },
-                { value: "Contract", label: "Contract" },
-                { value: "Internship", label: "Internship" },
-              ]}
-              error={getArrayError(errors.type)}
-            /> */}
             <Input
               label="Salary Range"
               value={values.salary ?? ""}
@@ -140,22 +128,6 @@ const JobFormModal: React.FC<JobFormModalProps> = ({
               onChange={(v) => setValues((p) => ({ ...p, deadline: v }))}
               error={getArrayError(errors.deadline)}
             />
-            {/* <Select
-              label="Experience Level *"
-              value={values.experience}
-              onChange={updateExperience}
-              options={[
-                { value: "0", label: "Fresher (0 years)" },
-                { value: "1-2", label: "1-2 years" },
-                { value: "3-5", label: "3-5 years" },
-                { value: "6-8", label: "6-8 years" },
-                { value: "9-12", label: "9-12 years" },
-                { value: "13+", label: "13+ years" },
-              ]}
-              error={getArrayError(errors.experience)}
-            /> */}
-
-            {/* Job Type Select */}
             <Select
               label="Job Type *"
               value={values.type}
@@ -271,36 +243,6 @@ const Input: React.FC<{
     {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
   </div>
 );
-
-// const Select: React.FC<{
-//   label: string;
-//   value: string;
-//   onChange: (v: string) => void;
-//   options: { value: string; label: string }[];
-//   error?: string;
-// }> = ({ label, value, onChange, options, error }) => (
-//   <div>
-//     <label className="block text-sm font-medium text-gray-700 mb-2">
-//       {label}
-//     </label>
-//     <select
-//       value={value}
-//       onChange={(e) => onChange(e.target.value)}
-//       className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
-//         error
-//           ? "border-red-500 focus:ring-red-500"
-//           : "border-gray-300 focus:ring-indigo-500"
-//       }`}
-//     >
-//       {options.map((o) => (
-//         <option key={o.value} value={o.value}>
-//           {o.label}
-//         </option>
-//       ))}
-//     </select>
-//     {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
-//   </div>
-// );
 
 type SelectOption<T extends string> = { value: T; label: string };
 

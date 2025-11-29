@@ -8,7 +8,7 @@ import {
   UserType,
 } from "../../interfaces/auth/IAuthService";
 import { IAuthMapper } from "../../interfaces/auth/IAuthMapper";
-import { hasEmailVerification } from "../../types/types";
+import { hasEmailVerification } from "../../type/types";
 
 export class AuthMapper implements IAuthMapper {
   toAuthResponse(

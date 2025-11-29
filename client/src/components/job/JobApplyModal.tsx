@@ -1,16 +1,19 @@
 import React, { useState, useRef, useEffect } from "react";
 import { X, CheckCircle, Upload, FileText, AlertCircle } from "lucide-react";
-import { validateJobApplyForm } from "../../shared/validations/JobApplyValidation";
-import type {
-  FormErrors,
-  JobApplyFormData,
-} from "../../shared/validations/JobApplyValidation";
+import type { FormErrors } from "../../shared/validations/JobApplyValidation";
 
 interface JobApplyModalProps {
   jobTitle: string;
   isOpen: boolean;
   onClose: () => void;
   onSubmit?: (formData: FormData) => Promise<void>;
+  profile?: {
+    name?: string;
+    email?: string;
+    phoneNumber?: string;
+    resume?: string;
+    updatedAt?: string;
+  };
 }
 
 export const JobApplyModal: React.FC<JobApplyModalProps> = ({
@@ -18,13 +21,27 @@ export const JobApplyModal: React.FC<JobApplyModalProps> = ({
   isOpen,
   onClose,
   onSubmit,
+  profile,
 }) => {
+  console.log("Profile in JobApplyModal:", profile);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [file, setFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadNew, setUploadNew] = useState(false);
+  const formatDate = (dateStr: string | undefined) => {
+    if (!dateStr) return "Unknown";
+    return new Date(dateStr).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  };
+
+  const profileResumeUrl = profile?.resume;
+  const profileResumeDate = profile?.updatedAt;
 
   const timeoutRef = useRef<number | null>(null);
 
@@ -44,43 +61,66 @@ export const JobApplyModal: React.FC<JobApplyModalProps> = ({
     };
   }, []);
 
+  useEffect(() => {
+    if (profile?.resume && !uploadNew) {
+      setUploadNew(false);
+    }
+  }, [profile?.resume, uploadNew]);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (isSubmitting || submitted) return;
 
     setIsSubmitting(true);
+    setErrors({});
 
     const form = e.currentTarget;
-    const data: JobApplyFormData = {
-      fullName: (form.fullName.value ?? "").trim(),
-      email: (form.email.value ?? "").trim(),
-      phone: (form.phone.value ?? "").trim(),
-      resume: file,
-      coverLetter: form.coverLetter.value ?? "",
-    };
+    const fullName = (form.fullName.value ?? "").trim();
+    const email = (form.email.value ?? "").trim();
+    const phone = (form.phone.value ?? "").trim();
+    const coverLetter = form.coverLetter.value ?? "";
 
-    const validationErrors = validateJobApplyForm(data);
-    if (Object.keys(validationErrors).length) {
-      setErrors(validationErrors);
+    // Manual validation (skip resume check if using existing)
+    const newErrors: FormErrors = {};
+    if (!fullName) newErrors.fullName = "Full name is required";
+    if (!email) newErrors.email = "Email is required";
+    if (!phone) newErrors.phone = "Phone is required";
+
+    // Only validate resume if uploading new one
+    if (uploadNew && !file) {
+      newErrors.resume = "Please upload a resume";
+    }
+    // If not uploadNew → we use existing → no resume file needed
+    else if (!uploadNew && !profileResumeUrl) {
+      newErrors.resume = "No saved resume found. Please upload one.";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       setIsSubmitting(false);
       return;
     }
 
-    const formData = new FormData(form);
-    if (file) formData.set("resume", file);
+    const formData = new FormData();
+    formData.append("fullName", fullName);
+    formData.append("email", email);
+    formData.append("phone", phone);
+    if (coverLetter) formData.append("coverLetter", coverLetter);
+
+    if (uploadNew && file) {
+      formData.append("resume", file);
+    } else {
+      // Using existing resume
+      formData.append("useExistingResume", "true");
+    }
 
     try {
-      setErrors({});
       if (onSubmit) {
         await onSubmit(formData);
       }
 
       setSubmitted(true);
-      if (timeoutRef.current !== null) {
-        clearTimeout(timeoutRef.current);
-      }
-
       timeoutRef.current = setTimeout(() => {
         setSubmitted(false);
         setIsSubmitting(false);
@@ -89,7 +129,9 @@ export const JobApplyModal: React.FC<JobApplyModalProps> = ({
       }, 2000);
     } catch (error: any) {
       console.error("Application failed:", error);
-      setErrors({ resume: error.message || "Failed to apply" });
+      setErrors({
+        resume: error.message || "Failed to apply. Please try again.",
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -154,6 +196,7 @@ export const JobApplyModal: React.FC<JobApplyModalProps> = ({
                     name="fullName"
                     type="text"
                     placeholder="Full Name *"
+                    defaultValue={profile?.name || ""}
                     className={`w-full px-3 py-2.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
                       errors.fullName
                         ? "border-red-500 focus:ring-red-500"
@@ -173,6 +216,7 @@ export const JobApplyModal: React.FC<JobApplyModalProps> = ({
                     name="email"
                     type="email"
                     placeholder="Email *"
+                    defaultValue={profile?.email || ""}
                     className={`w-full px-3 py-2.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
                       errors.email
                         ? "border-red-500 focus:ring-red-500"
@@ -193,6 +237,7 @@ export const JobApplyModal: React.FC<JobApplyModalProps> = ({
                   name="phone"
                   type="tel"
                   placeholder="Phone *"
+                  defaultValue={profile?.phoneNumber || ""}
                   className={`w-full px-3 py-2.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
                     errors.phone
                       ? "border-red-500 focus:ring-red-500"
@@ -212,57 +257,126 @@ export const JobApplyModal: React.FC<JobApplyModalProps> = ({
                   Resume <span className="text-red-500">*</span>
                 </label>
 
-                {!file ? (
-                  <div
-                    onDragEnter={handleDrag}
-                    onDragLeave={handleDrag}
-                    onDragOver={handleDrag}
-                    onDrop={handleDrop}
-                    className={`border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors text-sm ${
-                      dragActive
-                        ? "border-indigo-500 bg-indigo-50"
-                        : "border-gray-300 hover:border-gray-400"
-                    }`}
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    <Upload className="w-8 h-8 mx-auto text-gray-400 mb-2" />
-                    <p className="text-xs">
-                      <span className="font-medium text-indigo-600">
-                        Click or drop
-                      </span>{" "}
-                      (PDF, DOC, DOCX, max 5 MB)
-                    </p>
+                {/* Option 1: Use existing resume (DEFAULT if exists) */}
+                {profileResumeUrl ? (
+                  <label className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 mb-3">
                     <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept=".pdf,.doc,.docx"
-                      className="hidden"
-                      onChange={(e) =>
-                        e.target.files?.[0] &&
-                        handleFileSelect(e.target.files[0])
-                      }
+                      type="radio"
+                      name="resumeOption"
+                      value="existing"
+                      checked={!uploadNew}
+                      onChange={() => setUploadNew(false)}
+                      className="w-4 h-4 text-indigo-600"
                     />
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-between p-3 border border-green-200 bg-green-50 rounded-lg text-sm">
-                    <div className="flex items-center gap-2">
-                      <FileText className="w-6 h-6 text-green-600" />
-                      <div>
-                        <p className="font-medium text-gray-900 truncate max-w-[180px]">
-                          {file.name}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          {(file.size / 1024 / 1024).toFixed(1)} MB
-                        </p>
-                      </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-900">
+                        Use saved resume
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        Last updated: {formatDate(profileResumeDate || "")}
+                      </p>
                     </div>
-                    <button
-                      type="button"
-                      onClick={removeFile}
-                      className="text-red-600 hover:text-red-700"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
+                    <FileText className="w-5 h-5 text-green-600" />
+                  </label>
+                ) : null}
+
+                {/* Show preview only when "use existing" is selected */}
+                {!uploadNew && profileResumeUrl && (
+                  <div className="mt-2 p-4 border-2 border-dashed border-green-300 bg-green-50 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <FileText className="w-10 h-10 text-green-600" />
+                        <div>
+                          <p className="font-semibold text-gray-900">
+                            Your current resume
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            Last updated: {formatDate(profileResumeDate || "")}
+                          </p>
+                        </div>
+                      </div>
+                      <a
+                        href={profileResumeUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-indigo-600 hover:underline text-sm font-medium"
+                      >
+                        View
+                      </a>
+                    </div>
+                  </div>
+                )}
+
+                {/* Option 2: Upload new */}
+                <label className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+                  <input
+                    type="radio"
+                    name="resumeOption"
+                    value="new"
+                    checked={uploadNew}
+                    onChange={() => setUploadNew(true)}
+                    className="w-4 h-4 text-indigo-600"
+                  />
+                  <span className="text-sm font-medium text-gray-900">
+                    Upload new resume
+                  </span>
+                </label>
+
+                {uploadNew && (
+                  <div className="mt-3">
+                    {!file ? (
+                      <div
+                        onDragEnter={handleDrag}
+                        onDragLeave={handleDrag}
+                        onDragOver={handleDrag}
+                        onDrop={handleDrop}
+                        className={`border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors text-sm ${
+                          dragActive
+                            ? "border-indigo-500 bg-indigo-50"
+                            : "border-gray-300 hover:border-gray-400"
+                        }`}
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        <Upload className="w-8 h-8 mx-auto text-gray-400 mb-2" />
+                        <p className="text-xs">
+                          <span className="font-medium text-indigo-600">
+                            Click or drop
+                          </span>{" "}
+                          (PDF, DOC, DOCX, max 5 MB)
+                        </p>
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          accept=".pdf,.doc,.docx"
+                          className="hidden"
+                          onChange={(e) =>
+                            e.target.files?.[0] &&
+                            handleFileSelect(e.target.files[0])
+                          }
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between p-3 border border-green-200 bg-green-50 rounded-lg text-sm">
+                        <div className="flex items-center gap-2">
+                          <FileText className="w-6 h-6 text-green-600" />
+                          <div>
+                            <p className="font-medium text-gray-900 truncate max-w-[180px]">
+                              {file.name}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {(file.size / 1024 / 1024).toFixed(1)} MB
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={removeFile}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
 

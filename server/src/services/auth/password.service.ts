@@ -8,7 +8,7 @@ import {
 import { detectUserByEmail } from "../../shared/utils/user.utils";
 import bcrypt from "bcryptjs";
 import { IPasswordService } from "../../interfaces/auth/IPasswordService";
-import { UserRepoMap } from "../../types/types";
+import { UserRepoMap } from "../../type/types";
 import { IPasswordMapper } from "../../interfaces/auth/IPasswordMapper";
 
 export class PasswordService implements IPasswordService {
@@ -17,7 +17,7 @@ export class PasswordService implements IPasswordService {
     private _userRepos: UserRepoMap,
     private _passwordMapper: IPasswordMapper,
   ) {}
-
+  //Password reset
   async requestReset(
     data: ForgotPasswordDTO,
   ): Promise<RequestResetResponseDTO> {
@@ -27,7 +27,7 @@ export class PasswordService implements IPasswordService {
     await this._otpService.generateOtp(data.email, "forgot-password");
     return this._passwordMapper.toRequestResetResponseDTO();
   }
-
+  //Resetting password
   async resetPassword(
     data: ResetPasswordDTO,
   ): Promise<ResetPasswordResponseDTO> {

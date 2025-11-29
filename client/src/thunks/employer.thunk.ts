@@ -6,11 +6,11 @@ import {
   postJobApi,
   updateJobApi,
   closeJobApi,
-  fetchInterviewsApi,
-  updateInterviewStatusApi,
+  fetchEmployerApplicationsApi,
   fetchNotificationsApi,
   markNotificationAsReadApi,
 } from "../features/employer/employerApi";
+import type { ApiError } from "../types/common/common.type";
 import { toast } from "react-toastify";
 
 export const fetchEmployerProfile = createAsyncThunk(
@@ -19,7 +19,8 @@ export const fetchEmployerProfile = createAsyncThunk(
     try {
       const response = await getEmployerProfileApi(employerId);
       return response;
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as ApiError;
       if (error.response?.status === 403) {
       } else {
         toast.error("Failed to load profile");
@@ -37,7 +38,8 @@ export const updateEmployerProfile = createAsyncThunk(
   ) => {
     try {
       return await updateEmployerProfileApi(employerId, data);
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as ApiError;
       toast.error(error.response?.data?.message || "Failed to update profile");
       return rejectWithValue(error.response?.data || error.message);
     }
@@ -69,9 +71,10 @@ export const fetchEmployerJobs = createAsyncThunk(
         search,
         status,
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err as ApiError;
       return rejectWithValue(
-        err.response?.data?.message || "Failed to fetch jobs",
+        error.response?.data?.message || "Failed to fetch jobs",
       );
     }
   },
@@ -85,9 +88,10 @@ export const postJob = createAsyncThunk(
   ) => {
     try {
       return await postJobApi(employerId, job);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err as ApiError;
       return rejectWithValue(
-        err.response?.data?.message || "Failed to post job",
+        error.response?.data?.message || "Failed to post job",
       );
     }
   },
@@ -101,9 +105,10 @@ export const updateJob = createAsyncThunk(
   ) => {
     try {
       return await updateJobApi(employerId, jobId, job);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err as ApiError;
       return rejectWithValue(
-        err.response?.data?.message || "Failed to update job",
+        error.response?.data?.message || "Failed to update job",
       );
     }
   },
@@ -117,42 +122,46 @@ export const closeJob = createAsyncThunk(
   ) => {
     try {
       return await closeJobApi(employerId, jobId);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err as ApiError;
       return rejectWithValue(
-        err.response?.data?.message || "Failed to close job",
+        error.response?.data?.message || "Failed to close job",
       );
     }
   },
 );
 
-export const fetchInterviews = createAsyncThunk(
-  "employer/fetchInterviews",
-  async (employerId: string, { rejectWithValue }) => {
-    try {
-      return await fetchInterviewsApi(employerId);
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message || "Failed to fetch interviews",
-      );
-    }
-  },
-);
-
-export const updateInterviewStatus = createAsyncThunk(
-  "employer/updateInterviewStatus",
+export const fetchEmployerApplications = createAsyncThunk(
+  "employer/fetchApplications",
   async (
     {
-      interviewId,
-      status,
       employerId,
-    }: { interviewId: string; status: string; employerId: string },
+      page = 1,
+      limit = 10,
+      search = "",
+      status = "all",
+      jobTitle = "all",
+    }: {
+      employerId: string;
+      page?: number;
+      limit?: number;
+      search?: string;
+      status?: string;
+      jobTitle?: string;
+    },
     { rejectWithValue },
   ) => {
     try {
-      return await updateInterviewStatusApi(employerId, interviewId, status);
-    } catch (error: any) {
+      return await fetchEmployerApplicationsApi(employerId, {
+        page,
+        limit,
+        search: search || undefined,
+        status: status === "all" ? undefined : status,
+        jobTitle: jobTitle === "all" ? undefined : jobTitle,
+      });
+    } catch (err: any) {
       return rejectWithValue(
-        error.response?.data?.message || "Failed to update interview status",
+        err.response?.data?.message || "Failed to fetch applications",
       );
     }
   },
@@ -163,7 +172,8 @@ export const fetchNotifications = createAsyncThunk(
   async (employerId: string, { rejectWithValue }) => {
     try {
       return await fetchNotificationsApi(employerId);
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as ApiError;
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch notifications",
       );
@@ -182,7 +192,8 @@ export const markNotificationAsRead = createAsyncThunk(
   ) => {
     try {
       return await markNotificationAsReadApi(notificationId, employerId);
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as ApiError;
       return rejectWithValue(
         error.response?.data?.message || "Failed to mark notification as read",
       );

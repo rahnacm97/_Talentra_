@@ -31,6 +31,9 @@ export enum ERROR_MESSAGES {
   DEADLINE_PASSED = "Application deadline has passed",
   JOB_INACTIVE = "Job is no longer active",
   JOB_CONFLICT = "Already applied to this job",
+  AUTHENTICATION = "Authentication required",
+  APPLICATION_NOT_FOUND = "Application not found",
+  FAILED_LOADING = "Failed to load updated application",
 }
 
 export enum SUCCESS_MESSAGES {
@@ -51,6 +54,10 @@ export enum SUCCESS_MESSAGES {
   JOB_POST_SUCCESS = "Job posted successfully",
   JOB_UPDATED = "Job updated",
   APPLICATION_CREATED = "Application submitted successfully",
+  APPLICATIONS_FETCHED = "Application fetched successfully",
+  INTERVIEWS_FETCHED = "Interviews fetched successfully",
+  INTERVIEW_CANCELLED = "Interview cancelled successfully",
+  INTERVIEW_RESCHEDULED = "Interview rescheduled successfully",
 }
 
 export enum USER_ROLES {

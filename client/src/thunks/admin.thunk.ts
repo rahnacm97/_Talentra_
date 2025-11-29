@@ -10,6 +10,7 @@ import {
   rejectEmployerApi,
   getAdminJobs,
 } from "../features/admin/adminApi";
+import type { ApiError } from "../types/common/common.type";
 import type { Candidate } from "../types/admin/admin.candidate.types";
 import type { EmployerResponseDTO } from "../types/admin/admin.employer.types";
 
@@ -46,7 +47,8 @@ export const fetchCandidateById = createAsyncThunk<
       return rejectWithValue({ message: "Candidate not found" });
     }
     return candidate;
-  } catch (error: any) {
+  } catch (err: unknown) {
+    const error = err as ApiError;
     return rejectWithValue({
       message: error.response?.data?.message || "Failed to fetch candidate",
     });
@@ -61,7 +63,8 @@ export const fetchEmployers = createAsyncThunk(
   ) => {
     try {
       return await getAllEmployersApi({ page, limit, search });
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as ApiError;
       return rejectWithValue(error.response?.data?.message || error.message);
     }
   },
@@ -78,7 +81,8 @@ export const fetchEmployerById = createAsyncThunk<
       return rejectWithValue({ message: "Employer not found" });
     }
     return employer;
-  } catch (error: any) {
+  } catch (err: unknown) {
+    const error = err as ApiError;
     return rejectWithValue({
       message: error.response?.data?.message || "Failed to fetch employer",
     });
@@ -93,7 +97,8 @@ export const blockUnblockEmployer = createAsyncThunk(
   ) => {
     try {
       return await blockUnblockEmployerApi(employerId, block);
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as ApiError;
       return rejectWithValue(error.response?.data?.message || error.message);
     }
   },
@@ -104,7 +109,8 @@ export const verifyEmployer = createAsyncThunk(
   async (employerId: string, { rejectWithValue }) => {
     try {
       return await verifyEmployerApi(employerId);
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as ApiError;
       return rejectWithValue(
         error.response?.data?.message || "Failed to verify employer",
       );
@@ -120,7 +126,8 @@ export const rejectEmployer = createAsyncThunk(
   ) => {
     try {
       return await rejectEmployerApi(employerId, reason);
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as ApiError;
       return rejectWithValue(
         error.response?.data?.message || "Failed to reject employer",
       );

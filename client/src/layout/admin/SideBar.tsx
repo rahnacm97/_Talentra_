@@ -1,8 +1,6 @@
 import React from "react";
-import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
-import { logout } from "../../features/auth/authSlice";
-import { serverLogout } from "../../thunks/auth.thunk";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { X, Menu } from "lucide-react";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PersonIcon from "@mui/icons-material/Person";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
@@ -11,198 +9,213 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import PersonSearchRoundedIcon from "@mui/icons-material/PersonSearchRounded";
 import LogoutIcon from "@mui/icons-material/Logout";
+import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
+import { logout } from "../../features/auth/authSlice";
+import { serverLogout } from "../../thunks/auth.thunk";
 import { FRONTEND_ROUTES } from "../../shared/constants/constants";
 
-const Sidebar: React.FC = () => {
+interface SidebarItem {
+  id: string;
+  label: string;
+  icon: React.ElementType;
+  path: string;
+  description?: string;
+}
+
+interface SidebarProps {
+  isSidebarOpen: boolean;
+  setIsSidebarOpen: (open: boolean) => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({
+  isSidebarOpen,
+  setIsSidebarOpen,
+}) => {
+  const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
   const user = useAppSelector((state) => state.auth.user);
+
+  const sidebarItems: SidebarItem[] = [
+    {
+      id: "dashboard",
+      label: "Dashboard",
+      icon: DashboardIcon,
+      path: FRONTEND_ROUTES.ADMIN_DASHBOARD,
+    },
+    {
+      id: "candidates",
+      label: "Candidates",
+      icon: PersonIcon,
+      path: FRONTEND_ROUTES.ADMINCANDIDATES,
+    },
+    {
+      id: "employers",
+      label: "Employers",
+      icon: AccountBoxIcon,
+      path: FRONTEND_ROUTES.ADMINEMPLOYERS,
+    },
+    {
+      id: "jobs",
+      label: "Jobs",
+      icon: WorkIcon,
+      path: FRONTEND_ROUTES.ADMINJOBS,
+    },
+    {
+      id: "notifications",
+      label: "Notifications",
+      icon: NotificationsNoneIcon,
+      path: FRONTEND_ROUTES.ADMINNOTIFICATIONS,
+    },
+    {
+      id: "settings",
+      label: "Settings",
+      icon: SettingsIcon,
+      path: FRONTEND_ROUTES.ADMINSETTINGS,
+    },
+  ];
+
+  const isActive = (path: string) => {
+    if (path === FRONTEND_ROUTES.ADMIN_DASHBOARD) {
+      return location.pathname === path;
+    }
+    return location.pathname.startsWith(path);
+  };
+
+  const handleNavigation = (path: string) => {
+    navigate(path);
+    setIsSidebarOpen(false);
+  };
 
   const handleLogout = async () => {
     try {
       await dispatch(serverLogout({ role: user?.role })).unwrap();
     } catch (error) {
-      console.error("Server logout failed:", error);
+      console.error("Logout failed:", error);
     }
-
     dispatch(logout());
     navigate(FRONTEND_ROUTES.ADMINLOGIN);
   };
 
-  const menuItems = [
-    {
-      path: FRONTEND_ROUTES.ADMIN_DASHBOARD,
-      label: "Dashboard",
-      icon: DashboardIcon,
-      description: "Overview & Analytics",
-    },
-    {
-      path: FRONTEND_ROUTES.ADMINCANDIDATES,
-      label: "Candidates",
-      icon: PersonIcon,
-      description: "Manage Job Seekers",
-    },
-    {
-      path: FRONTEND_ROUTES.ADMINEMPLOYERS,
-      label: "Employers",
-      icon: AccountBoxIcon,
-      description: "Manage Companies",
-    },
-    {
-      path: FRONTEND_ROUTES.ADMINJOBS,
-      label: "Jobs",
-      icon: WorkIcon,
-      description: "Job Postings",
-    },
-    {
-      path: FRONTEND_ROUTES.ADMINNOTIFICATIONS,
-      label: "Notifications",
-      icon: NotificationsNoneIcon,
-      description: "Notifications",
-    },
-    {
-      path: FRONTEND_ROUTES.ADMINSETTINGS,
-      label: "Settings",
-      icon: SettingsIcon,
-      description: "System Configuration",
-    },
-  ];
-
-  const isActiveRoute = (path: string) => {
-    return (
-      location.pathname === path ||
-      (path !== FRONTEND_ROUTES.ADMIN_DASHBOARD &&
-        location.pathname.startsWith(path))
-    );
-  };
-
   return (
-    <aside className="w-64 bg-white shadow-lg border-r border-gray-200 h-full flex flex-col">
-      <div className="p-6 border-b border-gray-200">
-        <div className="flex items-center space-x-3 mb-2">
-          <div className="bg-blue-600 p-2 rounded-lg shadow-sm">
-            <PersonSearchRoundedIcon
-              sx={{
-                color: "white",
-                fontSize: 24,
-              }}
-            />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold text-gray-800">Talentra</h1>
-            <p className="text-xs text-gray-500 -mt-1">Admin Portal</p>
-          </div>
-        </div>
-      </div>
+    <>
+      <button
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        className="lg:hidden fixed bottom-6 right-6 z-50 bg-blue-600 text-white p-4 rounded-full shadow-xl hover:bg-blue-700 transition-all duration-200 cursor-pointer ring-4 ring-blue-600/30"
+      >
+        {isSidebarOpen ? (
+          <X className="w-6 h-6" />
+        ) : (
+          <Menu className="w-6 h-6" />
+        )}
+      </button>
 
-      <nav className="flex-1 p-4">
-        <div className="mb-4">
-          <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wide px-2 mb-3">
-            Administration
-          </h2>
-        </div>
+      {isSidebarOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-30"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
 
-        <ul className="space-y-1">
-          {menuItems.map((item) => {
-            const IconComponent = item.icon;
-            const isActive = isActiveRoute(item.path);
-
-            return (
-              <li key={item.path}>
-                <Link
-                  to={item.path}
-                  className={`group flex items-center px-3 py-3 rounded-lg transition-all duration-200 ${
-                    isActive
-                      ? "bg-blue-600 text-white shadow-md"
-                      : "text-gray-700 hover:bg-blue-50 hover:text-blue-700"
-                  }`}
-                >
-                  <div
-                    className={`flex-shrink-0 mr-3 ${
-                      isActive
-                        ? "text-white"
-                        : "text-gray-500 group-hover:text-blue-600"
-                    }`}
-                  >
-                    <IconComponent sx={{ fontSize: 20 }} />
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <div
-                      className={`text-sm font-medium ${
-                        isActive
-                          ? "text-white"
-                          : "text-gray-900 group-hover:text-blue-700"
-                      }`}
-                    >
-                      {item.label}
-                    </div>
-                    <div
-                      className={`text-xs ${
-                        isActive
-                          ? "text-blue-100"
-                          : "text-gray-500 group-hover:text-blue-500"
-                      }`}
-                    >
-                      {item.description}
-                    </div>
-                  </div>
-
-                  {isActive && (
-                    <div className="ml-2">
-                      <div className="w-2 h-2 bg-white rounded-full"></div>
-                    </div>
-                  )}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
-
-      <div className="p-4 border-t border-gray-200">
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg">
-          <h3 className="text-sm font-semibold text-gray-800 mb-2">
-            Quick Stats
-          </h3>
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <div className="text-center">
-              <div className="font-bold text-blue-600">1,247</div>
-              <div className="text-gray-600">Active Jobs</div>
-            </div>
-            <div className="text-center">
-              <div className="font-bold text-green-600">5,832</div>
-              <div className="text-gray-600">Candidates</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="p-4 border-t border-gray-200">
-        <div className="flex items-center justify-between">
+      <aside
+        className={`
+          fixed lg:sticky top-0 left-0 h-screen w-64 bg-white shadow-lg z-40
+          transform transition-transform duration-300 ease-in-out
+          ${isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
+          flex flex-col border-r border-gray-200
+        `}
+      >
+        {/* Logo Header */}
+        <div className="p-6 border-b border-gray-200">
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-              <span className="text-xs font-semibold text-gray-600">AD</span>
+            <div className="bg-blue-600 p-2 rounded-lg shadow-sm">
+              <PersonSearchRoundedIcon sx={{ color: "white", fontSize: 24 }} />
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-gray-900">
-                Admin User
+            <div>
+              <h1 className="text-xl font-bold text-gray-800">Talentra</h1>
+              <p className="text-xs text-gray-500">Admin Portal</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto py-6 px-4">
+          <ul className="space-y-1">
+            {sidebarItems.map((item) => {
+              const Icon = item.icon;
+              const active = isActive(item.path);
+
+              return (
+                <li key={item.id}>
+                  <button
+                    onClick={() => handleNavigation(item.path)}
+                    className={`
+                      w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-left cursor-pointer
+                      ${
+                        active
+                          ? "bg-blue-600 text-white shadow-md"
+                          : "text-gray-700 hover:bg-blue-50 hover:text-blue-700"
+                      }
+                    `}
+                  >
+                    <Icon
+                      sx={{ fontSize: 20 }}
+                      className={active ? "text-white" : "text-gray-500"}
+                    />
+                    <span className="font-medium">{item.label}</span>
+                    {active && (
+                      <div className="ml-auto w-2 h-2 bg-white rounded-full" />
+                    )}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+
+        {/* Quick Stats */}
+        <div className="p-4 border-t border-gray-200">
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg">
+            <h3 className="text-sm font-semibold text-gray-800 mb-3">
+              Quick Stats
+            </h3>
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <div className="text-center">
+                <div className="font-bold text-blue-600">1,247</div>
+                <div className="text-gray-600">Active Jobs</div>
               </div>
-              <div className="text-xs text-gray-500">System Administrator</div>
+              <div className="text-center">
+                <div className="font-bold text-green-600">5,832</div>
+                <div className="text-gray-600">Candidates</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* User + Logout */}
+        <div className="p-4 border-t border-gray-200">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
+                <span className="text-sm font-bold text-gray-600">AD</span>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-900">Admin User</p>
+                <p className="text-xs text-gray-500">System Admin</p>
+              </div>
             </div>
           </div>
 
           <button
             onClick={handleLogout}
-            className="text-gray-500 hover:text-red-600 transition-colors"
-            title="Logout"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-all duration-200"
           >
-            <LogoutIcon />
+            <LogoutIcon sx={{ fontSize: 20 }} />
+            <span className="font-medium cursor-pointer">Logout</span>
           </button>
         </div>
-      </div>
-    </aside>
+      </aside>
+    </>
   );
 };
 

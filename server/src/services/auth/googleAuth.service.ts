@@ -1,10 +1,10 @@
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import passport from "passport";
 import { detectUserByEmailForGoogle } from "../../shared/utils/user.utils";
-import { GoogleAuthUserRepoMap } from "../../types/types";
+import { GoogleAuthUserRepoMap } from "../../type/types";
 import jwt, { SignOptions } from "jsonwebtoken";
-import type { UserType } from "../../interfaces/auth/IAuthService";
-import type { GoogleAuthUser, GoogleAuthUserData } from "../../types/types";
+import type { GoogleAuthUser, GoogleAuthUserData } from "../../type/types";
+import { USER_ROLES } from "../../shared/enums/enums";
 
 export class GoogleAuthService {
   constructor(private _repos: GoogleAuthUserRepoMap) {
@@ -37,11 +37,17 @@ export class GoogleAuthService {
             );
 
             let foundUser: GoogleAuthUser;
-            let role: UserType =
-              roleParam.toLowerCase() === "employer" ? "Employer" : "Candidate";
+            let role: USER_ROLES =
+              roleParam.toLowerCase() === "employer"
+                ? USER_ROLES.EMPLOYER
+                : USER_ROLES.CANDIDATE;
 
-            if (role !== "Candidate" && role !== "Employer") {
-              role = "Candidate";
+            // if (role !== "Candidate" && role !== "Employer") {
+            //   role = "Candidate";
+            // }
+
+            if (role !== USER_ROLES.CANDIDATE && role !== USER_ROLES.EMPLOYER) {
+              role = USER_ROLES.CANDIDATE;
             }
 
             if (!detected) {
@@ -56,7 +62,7 @@ export class GoogleAuthService {
               })) as GoogleAuthUser;
             } else {
               foundUser = detected.user as GoogleAuthUser;
-              role = detected.userType;
+              role = detected.userType as USER_ROLES;
             }
 
             const userData: GoogleAuthUserData = {

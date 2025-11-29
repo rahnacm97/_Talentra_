@@ -1,55 +1,99 @@
 import { Router } from "express";
-import { JobController } from "../../controllers/job/job.controller";
-import { JobService } from "../../services/job/job.service";
-import { EmployerRepository } from "../../repositories/employer/employer.repository";
-import { JobRepository } from "../../repositories/job/job.repository";
 import { verifyAuth } from "../../middlewares/authMiddleware";
-import { JobMapper } from "../../mappers/job/job.mapper";
-import { AdminJobMapper } from "../../mappers/admin/adminJob.mapper";
-import { ApplicationRepository } from "../../repositories/application/application.repository";
+import {
+  validate,
+  verifyEmployer,
+} from "../../middlewares/validationMiddleware";
+import {
+  createJobSchema,
+  updateJobSchema,
+} from "../../shared/validations/job.validation";
 import { USER_ROLES } from "../../shared/enums/enums";
+import { JobRepository } from "../../repositories/job/job.repository";
+import { EmployerRepository } from "../../repositories/employer/employer.repository";
+import { ApplicationRepository } from "../../repositories/application/application.repository";
+import { JobMapper } from "../../mappers/job/job.mapper";
+import { EmployerJobService } from "../../services/job/job.service";
+import { CandidateJobService } from "../../services/job/job.service";
+import { EmployerJobController } from "../../controllers/job/job.controller";
+import { CandidateJobController } from "../../controllers/job/job.controller";
+import { CandidateRepository } from "../../repositories/candidate/candidate.repository";
 
-const router = Router();
-const mapper = new JobMapper();
-const adminMapper = new AdminJobMapper();
-const repository = new JobRepository();
+const jobRepo = new JobRepository();
 const employerRepo = new EmployerRepository();
 const applicationRepo = new ApplicationRepository();
-const service = new JobService(
-  repository,
-  mapper,
+const candRepo = new CandidateRepository();
+const jobMapper = new JobMapper();
+
+const employerService = new EmployerJobService(
+  jobRepo,
+  jobMapper,
   employerRepo,
+);
+const candidateService = new CandidateJobService(
+  jobRepo,
+  candRepo,
+  jobMapper,
   applicationRepo,
-  adminMapper,
 );
 
-const jobcontroller = new JobController(service, service, service);
+const employerController = new EmployerJobController(employerService);
+const candidateController = new CandidateJobController(candidateService);
+
+const router = Router();
+
+router.get("/", candidateController.getPublicJobs.bind(candidateController));
+router.get(
+  "/public/:id",
+  candidateController.getJobById.bind(candidateController),
+);
+
+router.get(
+  "/saved",
+  verifyAuth([USER_ROLES.CANDIDATE]),
+  candidateController.getSavedJobs.bind(candidateController),
+);
+
+router.post(
+  "/save/:jobId",
+  verifyAuth([USER_ROLES.CANDIDATE]),
+  candidateController.saveJob.bind(candidateController),
+);
+
+router.delete(
+  "/save/:jobId",
+  verifyAuth([USER_ROLES.CANDIDATE]),
+  candidateController.unsaveJob.bind(candidateController),
+);
 
 router.post(
   "/:id",
   verifyAuth([USER_ROLES.EMPLOYER]),
-  jobcontroller.postJob.bind(jobcontroller),
+  verifyEmployer,
+  validate(createJobSchema),
+  employerController.postJob.bind(employerController),
 );
 
 router.get(
   "/:id",
   verifyAuth([USER_ROLES.EMPLOYER]),
-  jobcontroller.getJobs.bind(jobcontroller),
+  verifyEmployer,
+  employerController.getJobs.bind(employerController),
 );
 
 router.put(
   "/:id/:jobId",
   verifyAuth([USER_ROLES.EMPLOYER]),
-  jobcontroller.updateJob.bind(jobcontroller),
+  verifyEmployer,
+  validate(updateJobSchema),
+  employerController.updateJob.bind(employerController),
 );
 
 router.patch(
   "/:id/:jobId/close",
   verifyAuth([USER_ROLES.EMPLOYER]),
-  jobcontroller.closeJob.bind(jobcontroller),
+  verifyEmployer,
+  employerController.closeJob.bind(employerController),
 );
-
-router.get("/", jobcontroller.getPublicJobs.bind(jobcontroller));
-router.get("/public/:id", jobcontroller.getJobById.bind(jobcontroller));
 
 export default router;

@@ -1,267 +1,410 @@
-import React, { useState, useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
+// import React, { useEffect, useState, useCallback } from "react";
+// import {
+//   Calendar,
+//   User,
+//   Briefcase,
+//   Search,
+//   Eye,
+// } from "lucide-react";
+// import CloseIcon from "@mui/icons-material/Close";
+// import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
+// import { fetchEmployerInterviews } from "../../thunks/interview.thunks";
+// import { formatFullName } from "../../utils/formatters";
+// import EmployerInterviewDetailsModal from "../../components/employer/InterviewModal";
+// import type { Interview } from "../../types/interview/interview.types";
+// import Pagination from "../../components/employer/Pagination";
+
+// const EmployerInterview: React.FC = () => {
+//   const dispatch = useAppDispatch();
+//   const { interviews, loading, pagination } = useAppSelector((s) => s.interview);
+
+//   const [searchQuery, setSearchQuery] = useState("");
+//   const [debouncedSearch, setDebouncedSearch] = useState("");
+//   const [selectedInterview, setSelectedInterview] = useState<Interview | null>(
+//     null
+//   );
+//   const [currentPage, setCurrentPage] = useState(1);
+
+//   useEffect(() => {
+//     const timer = setTimeout(() => {
+//       setDebouncedSearch(searchQuery);
+//       setCurrentPage(1);
+//     }, 500);
+
+//     return () => clearTimeout(timer);
+//   }, [searchQuery]);
+
+//   useEffect(() => {
+//     dispatch(
+//       fetchEmployerInterviews({
+//         page: currentPage,
+//         limit: 5,
+//         search: debouncedSearch || undefined,
+//       })
+//     );
+//   }, [dispatch, currentPage, debouncedSearch]);
+
+//   const handlePageChange = useCallback((newPage: number) => {
+//     setCurrentPage(newPage);
+//     window.scrollTo({ top: 0, behavior: "smooth" });
+//   }, []);
+
+//   if (loading && interviews.length === 0) {
+//     return (
+//       <div className="py-20 text-center text-gray-600">
+//         Loading interviews...
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <div className="bg-gray-50 min-h-screen py-8 px-4">
+//       <div className="max-w-7xl mx-auto">
+//         <div className="mb-8">
+//           <h1 className="text-3xl font-bold text-gray-900 mb-2">
+//             Scheduled Interviews
+//           </h1>
+//           <p className="text-gray-600">
+//             View and manage your upcoming candidate interviews
+//           </p>
+//         </div>
+
+//         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+//           <div className="relative max-w-md">
+//             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+//             <input
+//               type="text"
+//               value={searchQuery}
+//               onChange={(e) => setSearchQuery(e.target.value)}
+//               placeholder="Search candidate or job title..."
+//               className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+//             />
+//             {searchQuery && (
+//                 <button
+//                   onClick={() => setSearchQuery("")}
+//                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition cursor-pointer"
+//                 >
+//                   <CloseIcon className="w-4 h-4" />
+//                 </button>
+//               )}
+//           </div>
+//         </div>
+
+//         <div className="space-y-6">
+//           {interviews.length === 0 ? (
+//             <div className="text-center py-24 bg-white rounded-2xl shadow-lg">
+//               <Calendar className="w-24 h-24 text-gray-300 mx-auto mb-6" />
+//               <h3 className="text-2xl font-semibold text-gray-700">
+//                 No interviews scheduled
+//               </h3>
+//               <p className="text-gray-500 mt-2">
+//                 Interviews will appear here once scheduled
+//               </p>
+//             </div>
+//           ) : (
+//             <>
+//               {interviews.map((interview) => (
+//                 <div
+//                   key={interview.id}
+//                   className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-xl transition-shadow duration-300 cursor-pointer"
+//                   onClick={() => setSelectedInterview(interview)}
+//                 >
+//                   <div className="flex items-center gap-6">
+//                     <div className="w-16 h-16 bg-gray-200 border-1 rounded-full overflow-hidden flex-shrink-0">
+//                       {interview.candidate.profileImage ? (
+//                         <img
+//                           src={interview.candidate.profileImage}
+//                           alt={interview.candidate.fullName}
+//                           className="w-full h-full object-cover"
+//                         />
+//                       ) : (
+//                         <User className="w-8 h-8 text-gray-400 m-auto mt-4" />
+//                       )}
+//                     </div>
+
+//                     <div className="flex-1">
+//                       <h3 className="text-2xl font-bold text-gray-900">
+//                         {formatFullName(interview.candidate.fullName)}
+//                       </h3>
+//                       <p className="text-lg text-gray-600 mt-1 flex items-center gap-2">
+//                         <Briefcase className="w-5 h-5" />
+//                         {interview.job.title}
+//                       </p>
+//                       {interview.interviewDate && (
+//                         <div className="mt-3 flex items-center gap-3 text-gray-700">
+//                           <Calendar className="w-5 h-5 text-indigo-600" />
+//                           <span className="font-medium">
+//                             {new Date(interview.interviewDate).toLocaleDateString(
+//                               "en-US",
+//                               {
+//                                 weekday: "long",
+//                                 month: "long",
+//                                 day: "numeric",
+//                                 hour: "numeric",
+//                                 minute: "2-digit",
+//                                 hour12: true,
+//                               }
+//                             )}
+//                           </span>
+//                         </div>
+//                       )}
+//                     </div>
+
+//                     <button
+//                       onClick={(e) => {
+//                         e.stopPropagation();
+//                         setSelectedInterview(interview);
+//                       }}
+//                       className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition flex items-center gap-2 font-medium"
+//                     >
+//                       <Eye className="w-5 h-5" />
+//                       View Details
+//                     </button>
+//                   </div>
+//                 </div>
+//               ))}
+
+//               {pagination.totalPages > 1 && (
+//                 <Pagination
+//                   currentPage={currentPage}
+//                   totalPages={pagination.totalPages}
+//                   onPageChange={handlePageChange}
+//                   className="mt-8"
+//                 />
+//               )}
+//             </>
+//           )}
+//         </div>
+
+//         {/* Reusable Modal */}
+//         {selectedInterview && (
+//           <EmployerInterviewDetailsModal
+//             interview={selectedInterview as any}
+//             onClose={() => setSelectedInterview(null)}
+//           />
+//         )}
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default EmployerInterview;
+
+import React, { useEffect, useState, useCallback } from "react";
 import {
   Calendar,
-  Clock,
   User,
   Briefcase,
-  CheckCircle,
-  XCircle,
-  RefreshCw,
-  Trash2,
-  Filter,
   Search,
-  Check,
+  Eye,
+  X, // ← Use Lucide X instead of MUI CloseIcon
 } from "lucide-react";
-import { toast } from "react-toastify";
-import {
-  fetchInterviews,
-  updateInterviewStatus,
-} from "../../thunks/employer.thunk";
-import type {
-  Interview,
-  EmployerState,
-} from "../../types/employer/employer.types";
-import { FRONTEND_ROUTES } from "../../shared/constants/constants";
-import { useNavigate } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
+import { fetchEmployerInterviews } from "../../thunks/interview.thunks";
+import { formatFullName } from "../../utils/formatters";
+import EmployerInterviewDetailsModal from "../../components/employer/InterviewModal";
+import type { Interview } from "../../types/interview/interview.types";
+import Pagination from "../../components/common/Pagination"; // or your path
 
 const EmployerInterview: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { interviews, loading, error } = useAppSelector(
-    (state) => state.employer as EmployerState,
+  const { interviews, loading, pagination, error } = useAppSelector(
+    (s) => s.interview,
   );
-  const auth = useAppSelector((state) => state.auth);
-  const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredInterviews, setFilteredInterviews] = useState<Interview[]>([]);
-  const [successMessage, setSuccessMessage] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [selectedInterview, setSelectedInterview] = useState<Interview | null>(
+    null,
+  );
+  const [currentPage, setCurrentPage] = useState(1);
 
+  // Debounce search
   useEffect(() => {
-    if (auth.user?._id) {
-      dispatch(fetchInterviews(auth.user._id))
-        .unwrap()
-        .catch((err: any) => {
-          if (
-            err?.message?.includes("blocked") ||
-            err?.status === 403 ||
-            err?.message === "You have been blocked by admin"
-          ) {
-            navigate(FRONTEND_ROUTES.LOGIN);
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+      setCurrentPage(1);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Fetch interviews
+  useEffect(() => {
+    dispatch(
+      fetchEmployerInterviews({
+        page: currentPage,
+        limit: 5,
+        search: debouncedSearch || undefined,
+      }),
+    );
+  }, [dispatch, currentPage, debouncedSearch]);
+
+  const handlePageChange = useCallback((newPage: number) => {
+    setCurrentPage(newPage);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
+
+  // Initial loading state
+  if (loading && interviews.length === 0) {
+    return (
+      <div className="py-20 text-center text-gray-600 text-lg">
+        Loading your interviews...
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="py-20 text-center">
+        <p className="text-red-600 text-lg font-medium">{error}</p>
+        <button
+          onClick={() =>
+            dispatch(fetchEmployerInterviews({ page: 1, limit: 5 }))
           }
-          toast.error(err?.message || "Failed to fetch interviews");
-        });
-    }
-  }, [auth.user, dispatch, navigate]);
-
-  useEffect(() => {
-    if (error) {
-      toast.error(error);
-    }
-  }, [error]);
-
-  useEffect(() => {
-    // Filter interviews based on active tab and search query
-    let filtered = interviews;
-    if (activeTab !== "all") {
-      filtered = interviews.filter(
-        (interview: Interview) => interview.status === activeTab,
-      );
-    }
-    if (searchQuery) {
-      filtered = filtered.filter(
-        (interview: Interview) =>
-          interview.candidateName
-            .toLowerCase()
-            .includes(searchQuery.toLowerCase()) ||
-          interview.jobTitle.toLowerCase().includes(searchQuery.toLowerCase()),
-      );
-    }
-    setFilteredInterviews(filtered);
-  }, [interviews, activeTab, searchQuery]);
-
-  const handleStatusUpdate = async (interviewId: string, status: string) => {
-    if (!auth.user?._id) {
-      toast.error("User not authenticated");
-      return;
-    }
-    try {
-      await dispatch(
-        updateInterviewStatus({
-          interviewId,
-          status,
-          employerId: auth.user._id,
-        }),
-      ).unwrap();
-      setSuccessMessage(`Interview ${status.toLowerCase()} successfully!`);
-      setTimeout(() => setSuccessMessage(""), 3000);
-    } catch (err: any) {
-      toast.error(
-        err?.message || `Failed to ${status.toLowerCase()} interview`,
-      );
-    }
-  };
-
-  const formatDateTime = (date: string, time: string) => {
-    const dateObj = new Date(`${date}T${time}`);
-    return dateObj.toLocaleString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    });
-  };
-
-  const tabs = [
-    { id: "all", label: "All Interviews", icon: Calendar },
-    { id: "Scheduled", label: "Scheduled", icon: Clock },
-    { id: "Completed", label: "Completed", icon: CheckCircle },
-    { id: "Canceled", label: "Canceled", icon: XCircle },
-  ];
+          className="mt-4 px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-gray-50 min-h-screen py-8 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Interviews</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Scheduled Interviews
+          </h1>
           <p className="text-gray-600">
-            Manage your scheduled interviews with candidates
+            View and manage your upcoming candidate interviews
           </p>
         </div>
 
-        {/* Success Message */}
-        {successMessage && (
-          <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4 flex items-center space-x-3">
-            <Check className="w-5 h-5 text-green-600" />
-            <p className="text-green-800 font-medium">{successMessage}</p>
-          </div>
-        )}
-
-        {/* Top Bar Navigation */}
-        <div className="bg-white rounded-lg shadow-md mb-6">
-          <nav className="flex flex-wrap border-b border-gray-200">
-            {tabs.map((tab) => (
+        {/* Search Bar */}
+        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search candidate or job title..."
+              className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+            />
+            {/* Clear Button - Now Visible & Beautiful */}
+            {searchQuery && (
               <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center space-x-2 px-6 py-4 text-sm font-medium transition-colors ${
-                  activeTab === tab.id
-                    ? "border-b-2 border-indigo-600 text-indigo-600"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                }`}
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 transition hover:scale-110"
+                aria-label="Clear search"
               >
-                <tab.icon className="w-5 h-5" />
-                <span>{tab.label}</span>
+                <X className="w-5 h-5" />
               </button>
-            ))}
-          </nav>
+            )}
+          </div>
         </div>
 
-        {/* Main Content */}
-        <div className="bg-white rounded-lg shadow-md p-6">
-          {/* Search and Filter */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="relative w-full max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search by candidate or job title"
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
-            <button className="flex items-center space-x-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
-              <Filter className="w-4 h-4" />
-              <span>Filter</span>
-            </button>
-          </div>
-
-          {/* Interviews List */}
-          {loading ? (
-            <div className="text-center text-gray-600">
-              Loading interviews...
-            </div>
-          ) : filteredInterviews.length === 0 ? (
-            <div className="text-center text-gray-600">
-              No interviews found for the selected filter
+        {/* Interviews List */}
+        <div className="space-y-6">
+          {interviews.length === 0 ? (
+            <div className="text-center py-24 bg-white rounded-2xl shadow-lg">
+              <Calendar className="w-24 h-24 text-gray-300 mx-auto mb-6" />
+              <h3 className="text-2xl font-semibold text-gray-700">
+                No interviews scheduled
+              </h3>
+              <p className="text-gray-500 mt-2">
+                {searchQuery
+                  ? "No interviews match your search"
+                  : "Interviews will appear here once scheduled"}
+              </p>
             </div>
           ) : (
-            <div className="space-y-4">
-              {filteredInterviews.map((interview: Interview) => (
+            <>
+              {interviews.map((interview) => (
                 <div
                   key={interview.id}
-                  className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors"
+                  className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-xl transition-all duration-300 cursor-pointer"
+                  onClick={() => setSelectedInterview(interview)}
                 >
-                  <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-6">
+                    {/* Avatar */}
+                    <div className="w-16 h-16 bg-gray-200 rounded-full overflow-hidden flex-shrink-0 border-2 border-dashed border-gray-300">
+                      {interview.candidate.profileImage ? (
+                        <img
+                          src={interview.candidate.profileImage}
+                          alt={formatFullName(interview.candidate.fullName)}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <User className="w-10 h-10 text-gray-400 mx-auto mt-3" />
+                      )}
+                    </div>
+
+                    {/* Details */}
                     <div className="flex-1">
-                      <div className="flex items-center space-x-3">
-                        <div className="bg-indigo-100 p-2 rounded-lg">
-                          <User className="w-5 h-5 text-indigo-600" />
-                        </div>
-                        <div>
-                          <h3 className="text-lg font-bold text-gray-900">
-                            {interview.candidateName}
-                          </h3>
-                          <div className="flex items-center space-x-2 text-gray-600">
-                            <Briefcase className="w-4 h-4" />
-                            <span>{interview.jobTitle}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="mt-2 flex flex-wrap gap-4 text-gray-500 text-sm">
-                        <div className="flex items-center space-x-1">
-                          <Calendar className="w-4 h-4" />
-                          <span>
-                            {formatDateTime(interview.date, interview.time)}
+                      <h3 className="text-2xl font-bold text-gray-900">
+                        {formatFullName(interview.candidate.fullName)}
+                      </h3>
+                      <p className="text-lg text-gray-600 mt-1 flex items-center gap-2">
+                        <Briefcase className="w-5 h-5" />
+                        {interview.job.title}
+                      </p>
+                      {interview.interviewDate && (
+                        <div className="mt-3 flex items-center gap-3 text-gray-700">
+                          <Calendar className="w-5 h-5 text-indigo-600" />
+                          <span className="font-medium">
+                            {new Date(
+                              interview.interviewDate,
+                            ).toLocaleDateString("en-US", {
+                              weekday: "long",
+                              month: "long",
+                              day: "numeric",
+                              hour: "numeric",
+                              minute: "2-digit",
+                              hour12: true,
+                            })}
                           </span>
                         </div>
-                        <div className="flex items-center space-x-1">
-                          <CheckCircle className="w-4 h-4" />
-                          <span className="capitalize">{interview.status}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex space-x-2">
-                      {interview.status === "Scheduled" && (
-                        <>
-                          <button
-                            onClick={() =>
-                              handleStatusUpdate(interview.id, "Reschedule")
-                            }
-                            className="flex items-center space-x-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                          >
-                            <RefreshCw className="w-4 h-4" />
-                            <span>Reschedule</span>
-                          </button>
-                          <button
-                            onClick={() =>
-                              handleStatusUpdate(interview.id, "Canceled")
-                            }
-                            className="flex items-center space-x-1 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                            <span>Cancel</span>
-                          </button>
-                        </>
-                      )}
-                      {interview.status === "Completed" && (
-                        <button className="flex items-center space-x-1 px-3 py-2 bg-gray-200 text-gray-700 rounded-lg cursor-not-allowed">
-                          <CheckCircle className="w-4 h-4" />
-                          <span>Completed</span>
-                        </button>
                       )}
                     </div>
+
+                    {/* View Details Button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedInterview(interview);
+                      }}
+                      className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition flex items-center gap-2 font-medium shadow-sm whitespace-nowrap"
+                    >
+                      <Eye className="w-5 h-5" />
+                      View Details
+                    </button>
                   </div>
                 </div>
               ))}
-            </div>
+
+              {/* Reusable Pagination */}
+              {pagination.totalPages > 1 && (
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={pagination.totalPages}
+                  onPageChange={handlePageChange}
+                />
+              )}
+            </>
           )}
         </div>
+
+        {/* Modal */}
+        {selectedInterview && (
+          <EmployerInterviewDetailsModal
+            interview={selectedInterview}
+            onClose={() => setSelectedInterview(null)}
+          />
+        )}
       </div>
     </div>
   );

@@ -2,8 +2,8 @@ import {
   IUserReader,
   IUserWriter,
 } from "../../interfaces/auth/IAuthRepository";
-import { AnyUser, UserType } from "../../types/types";
-import { GoogleAuthUserRepoMap, GoogleAuthUser } from "../../types/types";
+import { AnyUser, UserType } from "../../type/types";
+import { GoogleAuthUserRepoMap, GoogleAuthUser } from "../../type/types";
 
 export async function detectUserByEmail(
   email: string,

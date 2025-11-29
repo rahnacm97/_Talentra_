@@ -6,6 +6,7 @@ import type {
   SignupRequest,
   AuthResponse,
 } from "../types/auth/Auth";
+import type { ApiError } from "../types/common/common.type";
 
 export const signup = createAsyncThunk<
   AuthResponse,
@@ -26,7 +27,8 @@ export const signup = createAsyncThunk<
       accessToken: response.data.accessToken,
       refreshToken: response.data.refreshToken,
     };
-  } catch (error: any) {
+  } catch (err: unknown) {
+    const error = err as ApiError;
     return rejectWithValue(error.response?.data?.message || "Signup failed");
   }
 });
@@ -53,7 +55,8 @@ export const login = createAsyncThunk<
       accessToken: response.data.accessToken,
       refreshToken: response.data.refreshToken,
     };
-  } catch (error: any) {
+  } catch (err: unknown) {
+    const error = err as ApiError;
     return rejectWithValue(error.response?.data?.message || "Login failed");
   }
 });
@@ -77,7 +80,8 @@ export const adminLogin = createAsyncThunk<
       accessToken: response.data.accessToken,
       refreshToken: response.data.refreshToken,
     };
-  } catch (error: any) {
+  } catch (err: unknown) {
+    const error = err as ApiError;
     return rejectWithValue(
       error.response?.data?.message || "Admin login failed",
     );
@@ -91,7 +95,8 @@ export const sendOtp = createAsyncThunk<
 >("auth/sendOtp", async (otpData, { rejectWithValue }) => {
   try {
     await api.post(API_ROUTES.AUTH.SEND_OTP, otpData);
-  } catch (error: any) {
+  } catch (err: unknown) {
+    const error = err as ApiError;
     return rejectWithValue(
       error.response?.data?.message || "Failed to send OTP",
     );
@@ -105,7 +110,8 @@ export const verifyOtp = createAsyncThunk<
 >("auth/verifyOtp", async ({ email, otp, purpose }, { rejectWithValue }) => {
   try {
     await api.post(API_ROUTES.AUTH.VERIFY_OTP, { email, otp, purpose });
-  } catch (error: any) {
+  } catch (err: unknown) {
+    const error = err as ApiError;
     return rejectWithValue(
       error.response?.data?.message || "Failed to verify OTP",
     );
@@ -123,7 +129,8 @@ export const serverLogout = createAsyncThunk<
 
     await api.post(logoutRoute, {}, { withCredentials: true });
     return;
-  } catch (error: any) {
+  } catch (err: unknown) {
+    const error = err as ApiError;
     return rejectWithValue(error.response?.data?.message || "Logout failed");
   }
 });
@@ -136,7 +143,8 @@ export const refreshToken = createAsyncThunk<
   try {
     const response = await api.post(API_ROUTES.AUTH.REFRESH, { refreshToken });
     return { accessToken: response.data.accessToken };
-  } catch (error: any) {
+  } catch (err: unknown) {
+    const error = err as ApiError;
     return rejectWithValue(
       error.response?.data?.message || "Token refresh failed",
     );

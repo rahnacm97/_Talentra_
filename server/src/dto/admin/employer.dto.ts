@@ -6,6 +6,9 @@ export interface EmployerResponseDTO {
   about: string;
   founded: string;
   blocked: boolean;
+  rejected?: boolean;
+  rejectionReason?: string;
+  rejectionCreatedAt?: string;
   joinDate?: string;
   jobsPosted: number;
   activeJobs?: number;
@@ -29,6 +32,7 @@ export interface EmployerResponseDTO {
   profileImage: string;
   cinNumber: string;
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface BlockEmployerDTO {

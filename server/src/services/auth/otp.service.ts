@@ -3,7 +3,7 @@ import { INotificationService } from "../../interfaces/auth/INotificationService
 import crypto from "crypto";
 import { detectUserByEmail } from "../../shared/utils/user.utils";
 import { IOtpService } from "../../interfaces/auth/IOtpService";
-import { UserRepoMap } from "../../types/types";
+import { UserRepoMap } from "../../type/types";
 import { SendOtpDTO, VerifyOtpDTO } from "../../dto/auth/otp.dto";
 import { IOtpMapper } from "../../interfaces/auth/IOtpMapper";
 
@@ -14,7 +14,7 @@ export class OtpService implements IOtpService {
     private _userRepos: UserRepoMap,
     private _otpMapper: IOtpMapper,
   ) {}
-
+  //Otp generation
   async generateOtp(
     email: string,
     purpose: "signup" | "forgot-password",
@@ -36,10 +36,9 @@ export class OtpService implements IOtpService {
 
     console.log("Otp", otp);
 
-    //return { message: "OTP sent successfully" };
     return this._otpMapper.toSendOtpDTO();
   }
-
+  //Otp verification
   async verifyOtp(
     email: string,
     purpose: string,

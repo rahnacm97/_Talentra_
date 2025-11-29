@@ -185,13 +185,13 @@ const AdminEmployers: React.FC = () => {
               </span>
             ),
           },
-          {
-            key: "jobsPosted",
-            label: "Jobs Posted",
-            render: (value: number) => (
-              <span className="font-medium text-gray-900">{value || 0}</span>
-            ),
-          },
+          // {
+          //   key: "jobsPosted",
+          //   label: "Jobs Posted",
+          //   render: (value: number) => (
+          //     <span className="font-medium text-gray-900">{value || 0}</span>
+          //   ),
+          // },
           {
             key: "blocked",
             label: "Status",

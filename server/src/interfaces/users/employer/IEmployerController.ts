@@ -18,3 +18,16 @@ export interface IEmployerController {
     next: NextFunction,
   ): Promise<void>;
 }
+
+export interface IEmployerApplicationsController {
+  getApplications(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void>;
+  updateApplicationStatus(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void>;
+}

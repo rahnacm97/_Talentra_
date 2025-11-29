@@ -6,14 +6,12 @@ import {
   MapPin,
   Lock,
   Bell,
-  CreditCard,
   Shield,
   Eye,
   EyeOff,
   Save,
   Check,
   AlertCircle,
-  Download,
   Camera,
 } from "lucide-react";
 
@@ -62,14 +60,6 @@ const EmployerSettings: React.FC = () => {
     showInSearchResults: true,
   });
 
-  // Billing State
-  const [billingInfo] = useState({
-    plan: "Professional",
-    nextBillingDate: "Nov 25, 2025",
-    amount: "$99/month",
-    paymentMethod: "**** **** **** 4242",
-  });
-
   const handleSave = (section: string) => {
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 3000);
@@ -81,7 +71,6 @@ const EmployerSettings: React.FC = () => {
     { id: "account", label: "Account", icon: User },
     { id: "notifications", label: "Notifications", icon: Bell },
     { id: "privacy", label: "Privacy", icon: Shield },
-    { id: "billing", label: "Billing", icon: CreditCard },
   ];
 
   return (
@@ -783,195 +772,6 @@ const EmployerSettings: React.FC = () => {
                   <Save className="w-4 h-4" />
                   <span>Save Changes</span>
                 </button>
-              </div>
-            </div>
-          )}
-
-          {/* Billing Tab */}
-          {activeTab === "billing" && (
-            <div className="space-y-6">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-1">
-                  Billing & Subscription
-                </h2>
-                <p className="text-gray-600">
-                  Manage your subscription and payment methods
-                </p>
-              </div>
-
-              <div className="bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-200 rounded-lg p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-900">
-                      {billingInfo.plan} Plan
-                    </h3>
-                    <p className="text-gray-600 mt-1">
-                      Perfect for growing teams
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-3xl font-bold text-indigo-600">
-                      {billingInfo.amount}
-                    </p>
-                    <p className="text-sm text-gray-600">Billed monthly</p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                  <div className="flex items-center space-x-2 text-sm text-gray-700">
-                    <Check className="w-4 h-4 text-green-600" />
-                    <span>Unlimited job postings</span>
-                  </div>
-                  <div className="flex items-center space-x-2 text-sm text-gray-700">
-                    <Check className="w-4 h-4 text-green-600" />
-                    <span>Advanced analytics</span>
-                  </div>
-                  <div className="flex items-center space-x-2 text-sm text-gray-700">
-                    <Check className="w-4 h-4 text-green-600" />
-                    <span>Priority support</span>
-                  </div>
-                  <div className="flex items-center space-x-2 text-sm text-gray-700">
-                    <Check className="w-4 h-4 text-green-600" />
-                    <span>Team collaboration tools</span>
-                  </div>
-                </div>
-                <div className="flex space-x-3 mt-6">
-                  <button className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
-                    Upgrade Plan
-                  </button>
-                  <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-white transition-colors">
-                    Change Plan
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Billing Information
-                </h3>
-                <div className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="bg-gray-100 p-3 rounded-lg">
-                        <CreditCard className="w-6 h-6 text-gray-600" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900">
-                          Payment Method
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          {billingInfo.paymentMethod}
-                        </p>
-                      </div>
-                    </div>
-                    <button className="text-indigo-600 hover:text-indigo-700 font-medium text-sm">
-                      Update
-                    </button>
-                  </div>
-                  <div className="pt-3 border-t border-gray-200">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Next billing date</span>
-                      <span className="font-medium text-gray-900">
-                        {billingInfo.nextBillingDate}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Billing History
-                </h3>
-                <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-                  <table className="w-full">
-                    <thead className="bg-gray-50 border-b border-gray-200">
-                      <tr>
-                        <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
-                          Date
-                        </th>
-                        <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">
-                          Description
-                        </th>
-                        <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">
-                          Amount
-                        </th>
-                        <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">
-                          Status
-                        </th>
-                        <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">
-                          Invoice
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {[
-                        {
-                          date: "Oct 25, 2025",
-                          description: "Professional Plan",
-                          amount: "$99.00",
-                          status: "Paid",
-                        },
-                        {
-                          date: "Sep 25, 2025",
-                          description: "Professional Plan",
-                          amount: "$99.00",
-                          status: "Paid",
-                        },
-                        {
-                          date: "Aug 25, 2025",
-                          description: "Professional Plan",
-                          amount: "$99.00",
-                          status: "Paid",
-                        },
-                      ].map((invoice, index) => (
-                        <tr
-                          key={index}
-                          className="border-b border-gray-100 hover:bg-gray-50"
-                        >
-                          <td className="py-3 px-4 text-sm text-gray-900">
-                            {invoice.date}
-                          </td>
-                          <td className="py-3 px-4 text-sm text-gray-900">
-                            {invoice.description}
-                          </td>
-                          <td className="py-3 px-4 text-sm text-gray-900 text-right">
-                            {invoice.amount}
-                          </td>
-                          <td className="py-3 px-4 text-right">
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                              {invoice.status}
-                            </span>
-                          </td>
-                          <td className="py-3 px-4 text-right">
-                            <button className="text-indigo-600 hover:text-indigo-700 font-medium text-sm flex items-center justify-end space-x-1 ml-auto">
-                              <Download className="w-4 h-4" />
-                              <span>Download</span>
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-                <div className="flex items-start space-x-3">
-                  <AlertCircle className="w-5 h-5 text-red-600 mt-0.5" />
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900 mb-1">
-                      Cancel Subscription
-                    </h3>
-                    <p className="text-sm text-gray-600 mb-4">
-                      If you cancel your subscription, you'll lose access to all
-                      premium features at the end of your current billing
-                      period.
-                    </p>
-                    <button className="text-red-600 hover:text-red-700 font-medium text-sm">
-                      Cancel Subscription
-                    </button>
-                  </div>
-                </div>
               </div>
             </div>
           )}

@@ -1,13 +1,13 @@
 import { AuthSignupDTO } from "../../dto/auth/auth.dto";
-import { User } from "../../types/types";
+import { IUserEntity } from "../../type/types";
 import { Document } from "mongoose";
 
-export interface IUserReader<T = User> {
+export interface IUserReader<T = IUserEntity> {
   findByEmail(email: string): Promise<T | null>;
   findById(id: string): Promise<T | null>;
 }
 
-export interface IUserWriter<T = User> {
+export interface IUserWriter<T = IUserEntity> {
   create(data: AuthSignupDTO): Promise<T>;
   updateBlockStatus?(id: string, block: boolean): Promise<T | null>;
   verifyEmail?(id: string): Promise<T | null>;

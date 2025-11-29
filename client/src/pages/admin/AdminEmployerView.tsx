@@ -12,7 +12,9 @@ import WarningIcon from "@mui/icons-material/Warning";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import WorkIcon from "@mui/icons-material/Work";
 import PeopleIcon from "@mui/icons-material/People";
+import { RejectionReasonModal } from "../../components/admin/RejectionModal";
 import DescriptionIcon from "@mui/icons-material/Description";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import Modal from "../../components/admin/Modal";
 import { toast } from "react-toastify";
 
@@ -42,17 +44,26 @@ const AdminEmployerView: React.FC = () => {
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
   const [isBlockAction, setIsBlockAction] = useState<boolean | null>(null);
+  const [showReasonModal, setShowReasonModal] = useState(false);
+
+  const openReasonModal = () => setShowReasonModal(true);
+  const closeReasonModal = () => setShowReasonModal(false);
+
+  const isReSubmitted =
+    selectedEmployer?.rejected &&
+    selectedEmployer?.rejectionCreatedAt &&
+    selectedEmployer?.updatedAt &&
+    new Date(selectedEmployer.updatedAt) >
+      new Date(selectedEmployer.rejectionCreatedAt);
 
   useEffect(() => {
-    if (id) {
-      dispatch(fetchEmployerById(id));
-    }
+    if (id) dispatch(fetchEmployerById(id));
   }, [dispatch, id]);
 
   const openVerifyModal = () => {
     if (!canVerify) {
       toast.warn(
-        "Employer cannot be verified - CIN number and Business License are required.",
+        "Employer cannot be verified – CIN number and Business License are required.",
       );
       return;
     }
@@ -66,11 +77,7 @@ const AdminEmployerView: React.FC = () => {
           employerId: selectedEmployer.id,
           block: isBlockAction,
         }),
-      ).then(() => {
-        if (id) {
-          dispatch(fetchEmployerById(id));
-        }
-      });
+      ).then(() => dispatch(fetchEmployerById(id!)));
     }
     setShowBlockModal(false);
     setIsBlockAction(null);
@@ -78,35 +85,28 @@ const AdminEmployerView: React.FC = () => {
 
   const handleVerifyApprove = () => {
     if (selectedEmployer) {
-      dispatch(verifyEmployer(selectedEmployer.id)).then(() => {
-        if (id) {
-          dispatch(fetchEmployerById(id));
-        }
-      });
+      dispatch(verifyEmployer(selectedEmployer.id)).then(() =>
+        dispatch(fetchEmployerById(id!)),
+      );
     }
     setShowVerifyModal(false);
   };
+
   const handleRejectApprove = () => {
     if (!rejectionReason.trim()) {
       toast.warn("Please provide a reason for rejection.");
       return;
     }
-
     if (!selectedEmployer) {
       toast.error("Employer data is missing.");
       return;
     }
-
     dispatch(
       rejectEmployer({
         employerId: selectedEmployer.id,
         reason: rejectionReason,
       }),
-    ).then(() => {
-      if (id) {
-        dispatch(fetchEmployerById(id));
-      }
-    });
+    ).then(() => dispatch(fetchEmployerById(id!)));
 
     setShowRejectModal(false);
     setRejectionReason("");
@@ -122,7 +122,7 @@ const AdminEmployerView: React.FC = () => {
     return (
       <div className="p-6 bg-gray-50 min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4" />
           <p className="text-gray-600">Loading employer details...</p>
         </div>
       </div>
@@ -138,7 +138,7 @@ const AdminEmployerView: React.FC = () => {
             to="/admin-employers"
             className="inline-flex items-center text-blue-600 hover:text-blue-700"
           >
-            <ArrowBackIcon sx={{ fontSize: 18, marginRight: 0.5 }} />
+            <ArrowBackIcon sx={{ fontSize: 18, mr: 0.5 }} />
             Back to Employers
           </Link>
         </div>
@@ -146,7 +146,7 @@ const AdminEmployerView: React.FC = () => {
     );
   }
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString?: string) => {
     if (!dateString) return "N/A";
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
@@ -155,16 +155,142 @@ const AdminEmployerView: React.FC = () => {
     });
   };
 
+  const renderTopActions = () => {
+    if (!selectedEmployer.verified && !selectedEmployer.rejected) {
+      return (
+        <>
+          <button
+            onClick={openVerifyModal}
+            disabled={!canVerify}
+            className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              canVerify
+                ? "bg-green-600 text-white hover:bg-green-700"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            }`}
+          >
+            <VerifiedIcon sx={{ fontSize: 18, mr: 1 }} />
+            Verify
+          </button>
+
+          <button
+            onClick={() => setShowRejectModal(true)}
+            className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
+          >
+            <CloseIcon sx={{ fontSize: 18, mr: 1 }} />
+            Reject
+          </button>
+        </>
+      );
+    }
+
+    if (selectedEmployer.rejected && !isReSubmitted) {
+      return (
+        <div className="flex items-center space-x-3">
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+            <CloseIcon sx={{ fontSize: 14, mr: 0.5 }} />
+            Rejected
+          </span>
+
+          {canVerify && (
+            <button
+              onClick={openVerifyModal}
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+            >
+              <VerifiedIcon sx={{ fontSize: 18, mr: 1 }} />
+              Re-verify
+            </button>
+          )}
+
+          {selectedEmployer.rejectionReason && (
+            <button
+              onClick={openReasonModal}
+              className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors cursor-pointer"
+            >
+              View Reason
+            </button>
+          )}
+        </div>
+      );
+    }
+
+    if (isReSubmitted) {
+      return (
+        <>
+          <button
+            onClick={openVerifyModal}
+            disabled={!canVerify}
+            className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              canVerify
+                ? "bg-green-600 text-white hover:bg-green-700"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            }`}
+          >
+            <VerifiedIcon sx={{ fontSize: 18, mr: 1 }} />
+            Verify
+          </button>
+
+          <button
+            onClick={() => setShowRejectModal(true)}
+            className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
+          >
+            <CloseIcon sx={{ fontSize: 18, mr: 1 }} />
+            Reject
+          </button>
+        </>
+      );
+    }
+
+    return null;
+  };
+
+  const renderVerificationBadge = () => {
+    if (selectedEmployer.verified) {
+      return (
+        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+          <VerifiedIcon sx={{ fontSize: 14, mr: 0.5 }} />
+          Verified
+        </span>
+      );
+    }
+
+    if (isReSubmitted) {
+      return (
+        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-800">
+          <RefreshIcon sx={{ fontSize: 14, mr: 0.5 }} />
+          Re-submitted
+        </span>
+      );
+    }
+
+    if (selectedEmployer.rejected) {
+      return (
+        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+          <CloseIcon sx={{ fontSize: 14, mr: 0.5 }} />
+          Rejected
+        </span>
+      );
+    }
+
+    return (
+      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+        <WarningIcon sx={{ fontSize: 14, mr: 0.5 }} />
+        Pending Verification
+      </span>
+    );
+  };
+
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
+      {/* Header */}
       <div className="mb-6">
         <button
           onClick={() => navigate("/admin-employers")}
-          className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4 transition-colors duration-200"
+          className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4 transition-colors"
         >
-          <ArrowBackIcon sx={{ fontSize: 18, marginRight: 0.5 }} />
+          <ArrowBackIcon sx={{ fontSize: 18, mr: 0.5 }} />
           Back to Employers
         </button>
+
         <div className="flex justify-between items-start">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -174,32 +300,8 @@ const AdminEmployerView: React.FC = () => {
               Complete company profile and verification status
             </p>
           </div>
-          <div className="flex space-x-3">
-            {!selectedEmployer.verified && (
-              <>
-                <button
-                  onClick={openVerifyModal}
-                  disabled={!canVerify}
-                  className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    canVerify
-                      ? "bg-green-600 text-white hover:bg-green-700"
-                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  }`}
-                >
-                  <VerifiedIcon sx={{ fontSize: 18, marginRight: 1 }} />
-                  Verify
-                </button>
 
-                <button
-                  onClick={() => setShowRejectModal(true)}
-                  className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
-                >
-                  <CloseIcon sx={{ fontSize: 18, marginRight: 1 }} />
-                  Reject
-                </button>
-              </>
-            )}
-          </div>
+          <div className="flex space-x-3">{renderTopActions()}</div>
         </div>
       </div>
 
@@ -219,34 +321,15 @@ const AdminEmployerView: React.FC = () => {
                     <BusinessIcon sx={{ fontSize: 48, color: "#2563eb" }} />
                   )}
                 </div>
+
                 <div className="ml-6 text-white">
                   <h2 className="text-3xl font-bold mb-2">
                     {selectedEmployer.name}
                   </h2>
+
                   <div className="flex items-center space-x-2">
-                    <span
-                      className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                        selectedEmployer.verified
-                          ? "bg-green-100 text-green-800"
-                          : "bg-yellow-100 text-yellow-800"
-                      }`}
-                    >
-                      {selectedEmployer.verified ? (
-                        <>
-                          <VerifiedIcon
-                            sx={{ fontSize: 14, marginRight: 0.5 }}
-                          />
-                          Verified
-                        </>
-                      ) : (
-                        <>
-                          <WarningIcon
-                            sx={{ fontSize: 14, marginRight: 0.5 }}
-                          />
-                          Pending Verification
-                        </>
-                      )}
-                    </span>
+                    {renderVerificationBadge()}
+
                     <span
                       className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
                         selectedEmployer.blocked
@@ -261,7 +344,7 @@ const AdminEmployerView: React.FC = () => {
               </div>
             </div>
 
-            {/* Contact Information */}
+            {/* Contact Info */}
             <div className="p-8">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
                 Contact Information
@@ -366,11 +449,12 @@ const AdminEmployerView: React.FC = () => {
               </div>
             </div>
 
+            {/* Description */}
             {selectedEmployer.description && (
               <div className="px-8 py-6 bg-gray-50 rounded-xl border border-gray-200">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                   <DescriptionIcon
-                    sx={{ fontSize: 20, marginRight: 1, color: "#2563eb" }}
+                    sx={{ fontSize: 20, mr: 1, color: "#2563eb" }}
                   />
                   Company Description
                 </h3>
@@ -390,7 +474,7 @@ const AdminEmployerView: React.FC = () => {
               </div>
             )}
 
-            {/* Industry Information */}
+            {/* Industry Info */}
             {(selectedEmployer.industry ||
               selectedEmployer.cinNumber ||
               selectedEmployer.specializations ||
@@ -398,10 +482,11 @@ const AdminEmployerView: React.FC = () => {
               <div className="px-8 py-6 bg-white rounded-xl border border-gray-200">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                   <BusinessIcon
-                    sx={{ fontSize: 20, marginRight: 1, color: "#2563eb" }}
+                    sx={{ fontSize: 20, mr: 1, color: "#2563eb" }}
                   />
                   Industry Information
                 </h3>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {selectedEmployer.industry && (
                     <div>
@@ -424,6 +509,7 @@ const AdminEmployerView: React.FC = () => {
                     </div>
                   )}
                 </div>
+
                 {selectedEmployer.specializations && (
                   <div className="mt-6">
                     <p className="text-xs text-gray-500 uppercase font-medium mb-2">
@@ -432,18 +518,19 @@ const AdminEmployerView: React.FC = () => {
                     <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                       {selectedEmployer.specializations
                         .split(",")
-                        .map((benefit: string, index: number) => (
+                        .map((b, i) => (
                           <li
-                            key={index}
+                            key={i}
                             className="flex items-center text-sm text-gray-700 bg-gray-50 rounded-lg px-3 py-2 border border-gray-200"
                           >
                             <span className="text-blue-600 mr-2">•</span>
-                            {benefit.trim()}
+                            {b.trim()}
                           </li>
                         ))}
                     </ul>
                   </div>
                 )}
+
                 {selectedEmployer.socialLinks && (
                   <div className="mt-6">
                     <p className="text-xs text-gray-500 uppercase font-medium mb-2">
@@ -461,47 +548,10 @@ const AdminEmployerView: React.FC = () => {
                             className="w-4 h-4 mr-2"
                             fill="currentColor"
                             viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg"
                           >
                             <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14zm-1.5 15.5v-5.5a3.5 3.5 0 0 0-3.5-3.5h-.01a3.5 3.5 0 0 0-3.5 3.5v5.5h-2v-5.5a5.5 5.5 0 0 1 5.5-5.5h.01a5.5 5.5 0 0 1 5.5 5.5v5.5h-2zm-10-12a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm1 12v-8h-2v8h2z" />
                           </svg>
                           LinkedIn
-                        </a>
-                      )}
-                      {selectedEmployer.socialLinks.twitter && (
-                        <a
-                          href={selectedEmployer.socialLinks.twitter}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center text-blue-600 hover:text-blue-700 hover:underline"
-                        >
-                          <svg
-                            className="w-4 h-4 mr-2"
-                            fill="currentColor"
-                            viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path d="M8 2H1l7.39 9.77L1.45 22h2.45l5.71-7.71 5.07 7.71h7.02l-7.6-10.04L20.55 2h-2.45l-5.36 7.24L8 2zm1.09 2h3.82l-8.18 16h-3.82l8.18-16z" />
-                          </svg>
-                          Twitter
-                        </a>
-                      )}
-                      {selectedEmployer.socialLinks.facebook && (
-                        <a
-                          href={selectedEmployer.socialLinks.facebook}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center text-blue-600 hover:text-blue-700 hover:underline"
-                        >
-                          <svg
-                            className="w-4 h-4 mr-2"
-                            fill="currentColor"
-                            viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 3.3h2.43l-.31 2.24h-2.12V10h-2V7.54H8.56V5.3h2.44V3.48c0-1.94 1.18-3 2.9-3h2V2.3h-1.37c-1.1 0-1.3.66-1.3 1.3v1.7zM12 22C6.48 22 2 17.52 2 12S6.48 2 12 2s10 4.48 10 10-4.48 10-10 10z" />
-                          </svg>
-                          Facebook
                         </a>
                       )}
                     </div>
@@ -511,11 +561,11 @@ const AdminEmployerView: React.FC = () => {
             )}
           </div>
 
-          {/* Posted Jobs Section */}
+          {/* Posted Jobs */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                <WorkIcon sx={{ fontSize: 20, marginRight: 1 }} />
+                <WorkIcon sx={{ fontSize: 20, mr: 1 }} />
                 Posted Jobs
               </h3>
               <Link
@@ -525,6 +575,7 @@ const AdminEmployerView: React.FC = () => {
                 View All Jobs
               </Link>
             </div>
+
             {selectedEmployer.jobsPosted > 0 ? (
               <div className="space-y-3">
                 <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
@@ -554,9 +605,7 @@ const AdminEmployerView: React.FC = () => {
           </div>
         </div>
 
-        {/* Sidebar */}
         <div className="space-y-6">
-          {/* Account Status Card */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
               Account Status
@@ -564,16 +613,9 @@ const AdminEmployerView: React.FC = () => {
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">Verification</span>
-                <span
-                  className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${
-                    selectedEmployer.verified
-                      ? "bg-green-100 text-green-800"
-                      : "bg-yellow-100 text-yellow-800"
-                  }`}
-                >
-                  {selectedEmployer.verified ? "Verified" : "Pending"}
-                </span>
+                {renderVerificationBadge()}
               </div>
+
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">Status</span>
                 <span
@@ -586,59 +628,83 @@ const AdminEmployerView: React.FC = () => {
                   {selectedEmployer.blocked ? "Blocked" : "Active"}
                 </span>
               </div>
+
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">User ID</span>
                 <span className="text-sm text-gray-900 font-mono truncate ml-2">
                   {selectedEmployer.id}
                 </span>
               </div>
+
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">Member Since</span>
                 <span className="text-sm text-gray-900">
                   {formatDate(selectedEmployer.createdAt)}
                 </span>
               </div>
-            </div>
-          </div>
 
-          {/* Documents Card */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-              <DescriptionIcon sx={{ fontSize: 20, marginRight: 1 }} />
-              Documents
-            </h3>
-            <div className="space-y-3">
-              {selectedEmployer.businessLicense ? (
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div className="flex items-center">
-                    <div className="p-2 bg-blue-100 rounded-lg mr-3">
-                      <DescriptionIcon
-                        sx={{ fontSize: 20, color: "#2563eb" }}
-                      />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">
-                        Business License
-                      </p>
-                      <p className="text-xs text-gray-500">PDF Document</p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() =>
-                      window.open(selectedEmployer.businessLicense, "_blank")
-                    }
-                    className="text-blue-600 hover:text-blue-700"
-                  >
-                    <LanguageIcon sx={{ fontSize: 18 }} />
-                  </button>
+              {isReSubmitted && (
+                <div className="flex justify-between items-center p-3 bg-orange-50 rounded-lg text-sm">
+                  <span className="text-orange-800 font-medium">
+                    Updated after rejection
+                  </span>
+                  <span className="text-orange-600">
+                    {formatDate(selectedEmployer.updatedAt)}
+                  </span>
                 </div>
-              ) : (
-                <p className="text-gray-500 text-sm">No documents uploaded</p>
               )}
             </div>
           </div>
 
-          {/* Activity Statistics Card */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+              <DescriptionIcon sx={{ fontSize: 20, mr: 1 }} />
+              Documents
+            </h3>
+
+            {selectedEmployer.businessLicense ? (
+              <div
+                className={`flex items-center justify-between p-3 rounded-lg ${
+                  isReSubmitted
+                    ? "bg-orange-50 border border-orange-200"
+                    : "bg-gray-50"
+                }`}
+              >
+                <div className="flex items-center">
+                  <div
+                    className={`p-2 rounded-lg mr-3 "bg-blue-100"
+                    }`}
+                  >
+                    <DescriptionIcon
+                      sx={{
+                        fontSize: 20,
+                        color: isReSubmitted ? "#f97316" : "#2563eb",
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">
+                      Business License{isReSubmitted && " (Updated)"}
+                    </p>
+                    <p className="text-xs text-gray-500">PDF Document</p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() =>
+                    window.open(selectedEmployer.businessLicense!, "_blank")
+                  }
+                  className="text-blue-600 hover:text-blue-700"
+                >
+                  <LanguageIcon sx={{ fontSize: 18 }} />
+                </button>
+              </div>
+            ) : (
+              <p className="text-gray-500 text-sm">No documents uploaded</p>
+            )}
+          </div>
+
+          {/* Activity Stats */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
               Activity Statistics
@@ -673,22 +739,22 @@ const AdminEmployerView: React.FC = () => {
             </div>
           </div>
 
-          {/* Quick Actions Card */}
+          {/* Quick Actions */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
               Quick Actions
             </h3>
             <div className="space-y-2">
-              <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200">
+              <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
                 View Posted Jobs
               </button>
-              <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200">
+              <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
                 View Applications Received
               </button>
-              <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200">
+              <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors">
                 Send Notification
               </button>
-              <button className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200">
+              <button className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors">
                 Delete Account
               </button>
             </div>
@@ -696,7 +762,7 @@ const AdminEmployerView: React.FC = () => {
         </div>
       </div>
 
-      {/* Block/Unblock Modal */}
+      {/* Modals */}
       <Modal
         isOpen={showBlockModal}
         onApprove={handleBlockApprove}
@@ -724,6 +790,13 @@ const AdminEmployerView: React.FC = () => {
         name={selectedEmployer.name}
         reason={rejectionReason}
         onReasonChange={setRejectionReason}
+      />
+
+      <RejectionReasonModal
+        isOpen={showReasonModal}
+        onClose={closeReasonModal}
+        reason={selectedEmployer.rejectionReason ?? ""}
+        employerName={selectedEmployer.name}
       />
     </div>
   );

@@ -3,8 +3,8 @@ import type {
   IEmployer,
   FetchJobsParams,
   FetchJobsResponse,
-  Interview,
 } from "../../types/employer/employer.types";
+import type { EmployerApplicationsPaginatedDto } from "../../types/application/application.types";
 import { API_ROUTES } from "../../shared/constants/constants";
 
 export const getEmployerProfileApi = async (
@@ -68,23 +68,43 @@ export const closeJobApi = async (
   return response.data.job;
 };
 
-export const fetchInterviewsApi = async (
+export const fetchEmployerApplicationsApi = async (
   employerId: string,
-): Promise<Interview[]> => {
-  const response = await api.get(`/employer/${employerId}/interviews`);
+  params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    status?: string;
+    jobTitle?: string;
+  },
+): Promise<{
+  applications: EmployerApplicationsPaginatedDto[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}> => {
+  const response = await api.get(API_ROUTES.EMPLOYER.APPLICATIONS(employerId), {
+    params,
+  });
   return response.data;
 };
 
-export const updateInterviewStatusApi = async (
+export const updateApplicationStatusApi = async (
   employerId: string,
-  interviewId: string,
-  status: string,
-): Promise<Interview> => {
-  const response = await api.put(
-    `/employer/${employerId}/interviews/${interviewId}`,
-    { status },
+  applicationId: string,
+  data: {
+    status: string;
+    interviewDate?: string;
+  },
+): Promise<EmployerApplicationsPaginatedDto> => {
+  const response = await api.patch(
+    API_ROUTES.EMPLOYER.UPDATE_APPLICATION_STATUS(employerId, applicationId),
+    data,
   );
-  return response.data;
+  return response.data.data;
 };
 
 import axios from "axios";

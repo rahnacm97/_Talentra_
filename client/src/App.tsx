@@ -46,6 +46,9 @@ import NotFound from "./pages/common/NotFound";
 import JobDetails from "./pages/job/JobDetails";
 import ChatPage from "./pages/common/Chat";
 import VideoCallPage from "./pages/common/VideoCall";
+import { HistoryLock } from "./components/common/AuthRouteGuard";
+import ApplicationDetails from "./pages/candidate/CandidateApplicationDetails";
+import EmployerBilling from "./pages/employer/EmployerBilling";
 
 const App: React.FC = () => {
   useAuthInitialiazer();
@@ -54,6 +57,7 @@ const App: React.FC = () => {
       <Router>
         <NavigationProvider />
         <AuthRouteGuard>
+          <HistoryLock />
           <ToastContainer
             position="top-right"
             autoClose={1500}
@@ -160,6 +164,10 @@ const App: React.FC = () => {
                 element={<CandidateApplications />}
               />
               <Route
+                path={FRONTEND_ROUTES.APPLICATIONDETAILS}
+                element={<ApplicationDetails />}
+              />
+              <Route
                 path={FRONTEND_ROUTES.CANDIDATEINTERVIEW}
                 element={<CandidateInterviews />}
               />
@@ -203,6 +211,10 @@ const App: React.FC = () => {
               <Route
                 path={FRONTEND_ROUTES.EMPLOYERINTERVIEWS}
                 element={<EmployerInterview />}
+              />
+              <Route
+                path={FRONTEND_ROUTES.EMPLOYERRBILLING}
+                element={<EmployerBilling />}
               />
               <Route
                 path={FRONTEND_ROUTES.EMPLOYERNOTIFICATIONS}

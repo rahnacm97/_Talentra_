@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { SUCCESS_MESSAGES, ERROR_MESSAGES } from "../../shared/enums/enums";
 import { HTTP_STATUS } from "../../shared/httpStatus/httpStatusCode";
 import {
+  IEmployerApplicationsController,
   IEmployerController,
   UpdateProfileResponse,
 } from "../../interfaces/users/employer/IEmployerController";
@@ -9,18 +10,22 @@ import { IEmployerService } from "../../interfaces/users/employer/IEmployerServi
 import { logger } from "../../shared/utils/logger";
 import { ApiError } from "../../shared/utils/ApiError";
 import { EmployerDataDTO } from "../../dto/employer/employer.dto";
+import { IEmployerApplicationService } from "../../interfaces/applications/IApplicationService";
+import {
+  EmployerApplicationQuery,
+  ApplicationStatus,
+} from "../../type/application/application.type";
 
 export class EmployerController implements IEmployerController {
   constructor(private _employerService: IEmployerService) {}
-  async getProfile(req: Request, res: Response, next: NextFunction) {
+  //Employer fetch profile
+  async getProfile(
+    req: Request<{ id: string }>,
+    res: Response,
+    next: NextFunction,
+  ) {
     try {
       const employerId = req.params.id;
-      if (!employerId) {
-        throw new ApiError(
-          HTTP_STATUS.BAD_REQUEST,
-          ERROR_MESSAGES.VALIDATION_ERROR,
-        );
-      }
       logger.info("Fetching candidate profile", { employerId });
       const employer = await this._employerService.getEmployerById(employerId);
       if (!employer) {
@@ -54,6 +59,7 @@ export class EmployerController implements IEmployerController {
       return;
     }
   }
+  //Employer profile update
   async updateProfile(
     req: Request<{ id: string }, UpdateProfileResponse, EmployerDataDTO>,
     res: Response,
@@ -61,12 +67,6 @@ export class EmployerController implements IEmployerController {
   ): Promise<void> {
     try {
       const employerId = req.params.id;
-      if (!employerId) {
-        throw new ApiError(
-          HTTP_STATUS.BAD_REQUEST,
-          ERROR_MESSAGES.VALIDATION_ERROR,
-        );
-      }
       const profileData = req.body;
       logger.info("Updating employer profile", { employerId });
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
@@ -92,6 +92,87 @@ export class EmployerController implements IEmployerController {
           ? err
           : new ApiError(HTTP_STATUS.INTERNAL_SERVER_ERROR, message),
       );
+    }
+  }
+}
+
+export class EmployerApplicationsController
+  implements IEmployerApplicationsController
+{
+  constructor(private readonly _service: IEmployerApplicationService) {}
+  //Get applications
+  async getApplications(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const employerId = req.params.id;
+
+      if (!employerId) {
+        throw new ApiError(
+          HTTP_STATUS.BAD_REQUEST,
+          ERROR_MESSAGES.VALIDATION_ERROR,
+        );
+      }
+
+      const { page = 1, limit = 10, search, status, jobTitle } = req.query;
+
+      const query: EmployerApplicationQuery = {
+        page: Number(page),
+        limit: Number(limit),
+        search: search as string,
+        jobTitle: jobTitle as string,
+        status: status as ApplicationStatus,
+      };
+
+      const result = await this._service.getApplicationsForEmployer(
+        employerId,
+        query,
+      );
+
+      res.json(result);
+    } catch (err) {
+      next(err);
+    }
+  }
+  //Update application status
+  async updateApplicationStatus(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const { applicationId } = req.params;
+      const employerId = req.params.id;
+
+      const { status, interviewDate, interviewLink } = req.body;
+
+      const payload: {
+        status: string;
+        interviewDate?: string;
+        interviewLink?: string;
+      } = {
+        status,
+      };
+
+      if (typeof interviewDate === "string" && interviewDate.trim() !== "") {
+        payload.interviewDate = interviewDate.trim();
+      }
+
+      if (typeof interviewLink === "string" && interviewLink.trim() !== "") {
+        payload.interviewLink = interviewLink.trim();
+      }
+
+      const result = await this._service.updateApplicationStatus(
+        employerId!,
+        applicationId!,
+        payload,
+      );
+
+      res.json({ success: true, data: result });
+    } catch (err) {
+      next(err);
     }
   }
 }

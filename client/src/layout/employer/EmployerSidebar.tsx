@@ -55,7 +55,7 @@ const EmployerSidebar: React.FC<SidebarProps> = ({
       </button>
       {isSidebarOpen && (
         <div
-          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-30"
+          className="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-30"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
@@ -80,7 +80,7 @@ const EmployerSidebar: React.FC<SidebarProps> = ({
                   onClick={() => handleNavigation(item.path)}
                   className={`
                     w-full flex items-center space-x-3 px-4 py-3 rounded-lg
-                    transition-all duration-200 text-left
+                    transition-all duration-200 text-left cursor-pointer
                     ${
                       active
                         ? `bg-${activeColor.replace("600", "50")} text-${activeColor} font-medium shadow-sm`
@@ -100,7 +100,7 @@ const EmployerSidebar: React.FC<SidebarProps> = ({
         <div className="p-4 border-t border-gray-200">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-all duration-200"
+            className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-all duration-200 cursor-pointer"
           >
             <LogOut className="w-5 h-5" />
             <span className="font-medium">Logout</span>

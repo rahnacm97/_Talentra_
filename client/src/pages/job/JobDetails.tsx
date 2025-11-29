@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
 import { applyJob } from "../../thunks/candidate.thunks";
-import { fetchJobById } from "../../thunks/job.thunk";
+import { fetchCandidateProfile } from "../../thunks/candidate.thunks";
+import { fetchJobById, unsaveJob, saveJob } from "../../thunks/job.thunk";
 import { formatExperience } from "../../utils/formatters";
 import {
   MapPin,
@@ -22,7 +23,9 @@ import {
   Star,
   X,
   CheckCircle,
+  Calendar,
 } from "lucide-react";
+import { toast } from "react-toastify";
 import Header from "../common/Header";
 import { FRONTEND_ROUTES } from "../../shared/constants/constants";
 import { JobApplyModal } from "../../components/job/JobApplyModal";
@@ -30,33 +33,60 @@ import { JobApplyModal } from "../../components/job/JobApplyModal";
 const JobDetails: React.FC = () => {
   const dispatch = useAppDispatch();
   const candidateId = useAppSelector((s) => s.auth.user?._id);
-  const { id: jobId } = useParams<{ id: string }>();
   const { id } = useParams<{ id: string }>();
   const { jobs, loadingJobId } = useAppSelector((state) => state.candidateJobs);
+  const { profile: candidateProfile } = useAppSelector(
+    (state) => state.candidate,
+  );
+  const savedJobs = useAppSelector((state) => state.candidateJobs.savedJobs);
+  const isSaved = savedJobs.some((j: any) => j.id === id);
 
   const job = useAppSelector((state) =>
     state.candidateJobs.jobs.find((j) => j.id === id),
   );
   const loading = loadingJobId === id;
 
-  const [isSaved, setIsSaved] = useState(false);
+  //const [isSaved, setIsSaved] = useState(false);
   const [showApplyModal, setShowApplyModal] = useState(false);
 
   const handleApplySubmit = async (formData: FormData) => {
-    if (!candidateId || !jobId) return;
+    if (!candidateId || !id) return;
 
-    formData.append("candidateId", candidateId);
-    formData.append("jobId", jobId);
+    try {
+      await dispatch(applyJob({ candidateId, jobId: id, formData })).unwrap();
 
-    await dispatch(applyJob({ candidateId, jobId, formData })).unwrap();
-    closeApplyModal();
+      dispatch(fetchJobById(id));
+
+      closeApplyModal();
+    } catch {}
+  };
+
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
   };
 
   useEffect(() => {
-    if (id && !job) {
+    if (id) {
       dispatch(fetchJobById(id));
     }
-  }, [id, job, dispatch]);
+  }, [id, dispatch]);
+
+  const handleSaveToggle = async () => {
+    if (!candidateId || !id) return;
+    try {
+      if (isSaved) {
+        await dispatch(unsaveJob(id)).unwrap();
+      } else {
+        await dispatch(saveJob(id)).unwrap();
+      }
+    } catch (err) {
+      console.error("Failed to toggle save", err);
+    }
+  };
 
   if (loading) {
     return (
@@ -117,7 +147,18 @@ const JobDetails: React.FC = () => {
       logo: j.employer.logo || j.employer.companyName.charAt(0),
     }));
 
-  const openApplyModal = () => setShowApplyModal(true);
+  const openApplyModal = async () => {
+    if (candidateId && !candidateProfile) {
+      try {
+        await dispatch(fetchCandidateProfile(candidateId)).unwrap();
+      } catch (err) {
+        toast.error("Failed to load your profile");
+        console.log(err);
+        return;
+      }
+    }
+    setShowApplyModal(true);
+  };
   const closeApplyModal = () => setShowApplyModal(false);
 
   return (
@@ -185,13 +226,17 @@ const JobDetails: React.FC = () => {
                         <Users className="w-4 h-4 mr-1" />
                         {job.applicants} applicants
                       </span>
+                      <span className="flex items-center">
+                        <Calendar className="w-4 h-4 mr-1 text-red-400" />
+                        Deadline {formatDate(job.deadline)}
+                      </span>
                     </div>
                   </div>
                 </div>
 
                 <div className="flex gap-2">
                   <button
-                    onClick={() => setIsSaved(!isSaved)}
+                    onClick={handleSaveToggle}
                     className="p-3 border border-gray-200 rounded-lg hover:border-indigo-600 hover:bg-indigo-50 transition"
                   >
                     {isSaved ? (
@@ -207,15 +252,6 @@ const JobDetails: React.FC = () => {
               </div>
 
               <div className="flex items-center gap-4">
-                {/* {job.status === "active" && (
-                  <button
-                    onClick={openApplyModal}
-                    className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8 py-3 rounded-lg font-semibold transition-all shadow-lg cursor-pointer"
-                  >
-                    Apply Now
-                  </button>
-                )} */}
-
                 {job.status === "active" && (
                   <>
                     {job.hasApplied ? (
@@ -399,20 +435,26 @@ const JobDetails: React.FC = () => {
             </div>
           </div>
 
+          {/* Sticky Sidebar */}
           <div className="lg:w-80 flex-shrink-0">
             <div className="bg-white rounded-xl shadow-sm p-6 mb-6 sticky top-24">
               {job.status === "active" && (
                 <button
                   onClick={openApplyModal}
-                  className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-semibold mb-4 cursor-pointer"
+                  disabled={job.hasApplied}
+                  className={`w-full text-white px-6 py-3 rounded-lg font-semibold mb-4 transition-all ${
+                    job.hasApplied
+                      ? "bg-green-600 cursor-not-allowed"
+                      : "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700"
+                  }`}
                 >
-                  Apply for this Job
+                  {job.hasApplied ? "Applied" : "Apply for this Job"}
                 </button>
               )}
 
               <button
-                onClick={() => setIsSaved(!isSaved)}
-                className="w-full border border-gray-200 hover:border-indigo-600 hover:bg-indigo-50 text-gray-700 px-6 py-3 rounded-lg font-semibold cursor-pointer"
+                onClick={handleSaveToggle}
+                className="w-full border border-gray-200 hover:border-indigo-600 hover:bg-indigo-50 text-gray-700 px-6 py-3 rounded-lg font-semibold"
               >
                 {isSaved ? "Job Saved" : "Save Job"}
               </button>
@@ -476,6 +518,17 @@ const JobDetails: React.FC = () => {
         jobTitle={job.title}
         isOpen={showApplyModal}
         onClose={closeApplyModal}
+        // profile={{
+        //   resume: candidateProfile?.resume,
+        //   updatedAt: candidateProfile?.updatedAt,
+        // }}
+        profile={{
+          name: candidateProfile?.name,
+          email: candidateProfile?.email,
+          phoneNumber: candidateProfile?.phoneNumber,
+          resume: candidateProfile?.resume,
+          updatedAt: candidateProfile?.updatedAt,
+        }}
         onSubmit={handleApplySubmit}
       />
     </div>

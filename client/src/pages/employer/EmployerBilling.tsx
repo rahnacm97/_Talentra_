@@ -1,14 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import type { AppDispatch, RootState } from "../../app/store";
-import {
-  fetchCurrentSubscription,
-  createSubscription,
-  cancelSubscription,
-} from "../../thunks/subscription.thunk";
-import { loadRazorpayScript } from "../../utils/loadRazorpay";
-import { toast } from "react-toastify";
-
 import {
   Check,
   X,
@@ -33,77 +23,70 @@ interface Plan {
 interface BillingItem {
   date: string;
   description: string;
-  amount: string | number;
-  status: string;
+  amount: number;
+  status: "Paid" | "Pending" | "Failed";
   invoiceUrl?: string;
 }
 
 const EmployerBilling: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
-
-  const { data: sub, loading } = useSelector(
-    (state: RootState) => state.subscription,
-  );
-
   const [selectedPlan, setSelectedPlan] = useState<Plan["id"]>("monthly");
 
-  useEffect(() => {
-    dispatch(fetchCurrentSubscription());
-    loadRazorpayScript();
-  }, [dispatch]);
+  const mockSubscription = {
+    isActive: true,
+    planType: "yearly" as "monthly" | "yearly",
+    nextBillingDate: "2025-12-15",
+    cancelAtPeriodEnd: false,
+    status: "active",
+    billingHistory: [
+      {
+        date: "2025-11-15",
+        description: "Professional Annual Plan",
+        amount: 24990,
+        status: "Paid" as const,
+        invoiceUrl: "#",
+      },
+      {
+        date: "2024-11-15",
+        description: "Professional Annual Plan",
+        amount: 24990,
+        status: "Paid" as const,
+        invoiceUrl: "#",
+      },
+    ],
+  };
 
-  const handleUpgrade = async () => {
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
+  const handleUpgrade = () => {
     if (selectedPlan === "free") return;
 
-    const result = await dispatch(
-      createSubscription(selectedPlan as "monthly" | "yearly"),
+    alert(
+      `Redirecting to Razorpay for ${selectedPlan === "yearly" ? "Annual" : "Monthly"} plan... (₹${selectedPlan === "yearly" ? "24,990" : "2,499"})`,
     );
-
-    if (createSubscription.fulfilled.match(result)) {
-      const { subscription, key } = result.payload;
-
-      const options = {
-        key,
-        subscription_id: subscription.id,
-        name: "Talentra",
-        description: `Professional Plan - ${selectedPlan === "yearly" ? "Annual" : "Monthly"}`,
-        image: "https://yourdomain.com/logo.png",
-        handler: () => {
-          toast.success("Payment successful! Subscription activated.");
-          dispatch(fetchCurrentSubscription());
-        },
-        prefill: {
-          name: "John Doe",
-          email: "john@example.com",
-          contact: "9999999999",
-        },
-        theme: {
-          color: "#4f46e5",
-        },
-        modal: {
-          ondismiss: () => {
-            toast.info("Payment window closed");
-          },
-        },
-      };
-
-      const rzp = new (window as any).Razorpay(options);
-      rzp.open();
-    }
   };
 
   const handleCancel = () => {
     if (window.confirm("Are you sure you want to cancel your subscription?")) {
-      dispatch(cancelSubscription());
+      alert("Subscription cancelled (demo mode)");
     }
   };
 
-  if (loading) return <div>Loading subscription...</div>;
-
-  const isActive = sub?.isActive || false;
-  const currentPlanType = sub?.planType || null;
-  const nextBilling = sub?.nextBillingDate;
-  const cancelAtPeriodEnd = sub?.cancelAtPeriodEnd || false;
+  const {
+    isActive,
+    planType,
+    nextBillingDate,
+    cancelAtPeriodEnd,
+    billingHistory,
+  } = mockSubscription;
 
   const plans: Plan[] = [
     {
@@ -155,9 +138,6 @@ const EmployerBilling: React.FC = () => {
     },
   ];
 
-  const billingHistory: BillingItem[] =
-    (sub?.billingHistory as BillingItem[]) || [];
-
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-7xl mx-auto">
@@ -171,24 +151,25 @@ const EmployerBilling: React.FC = () => {
           </p>
         </div>
 
-        {/* ACTIVE PLAN INFO */}
+        {/* Active Plan Info */}
         {isActive && (
           <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
             <p className="font-semibold text-green-800">
-              Active Plan: Professional ({currentPlanType})
+              Active Plan: Professional (
+              {planType === "yearly" ? "Annual" : "Monthly"})
             </p>
             <p className="text-sm text-green-700 mt-1">
-              Next billing: {nextBilling || "Processing..."}
+              Next billing: {nextBillingDate}
             </p>
             {cancelAtPeriodEnd && (
               <p className="text-red-600 font-medium mt-1">
-                Subscription ends on {nextBilling}
+                Subscription ends on {nextBillingDate}
               </p>
             )}
           </div>
         )}
 
-        {/* Plans */}
+        {/* Plans Grid */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-6">
             Choose Your Plan
@@ -196,7 +177,7 @@ const EmployerBilling: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {plans.map((plan) => {
-              const isCurrent = isActive && currentPlanType === plan.id;
+              const isCurrent = isActive && planType === plan.id;
 
               return (
                 <div
@@ -205,7 +186,11 @@ const EmployerBilling: React.FC = () => {
                     plan.popular
                       ? "border-indigo-500 shadow-lg"
                       : "border-gray-200"
-                  } ${selectedPlan === plan.id ? "ring-4 ring-green-500 shadow-xl" : "hover:border-indigo-300 hover:shadow-md"}`}
+                  } ${
+                    selectedPlan === plan.id
+                      ? "ring-4 ring-green-500 shadow-xl"
+                      : "hover:border-indigo-300 hover:shadow-md"
+                  }`}
                   onClick={() => plan.id !== "free" && setSelectedPlan(plan.id)}
                 >
                   {plan.popular && (
@@ -239,8 +224,8 @@ const EmployerBilling: React.FC = () => {
                   <ul className="space-y-3 mb-6 min-h-[240px]">
                     {plan.features.map((feature, i) => (
                       <li key={i} className="flex items-start gap-2">
-                        {feature.includes("Maximum") ||
-                        feature.includes("Basic") ? (
+                        {feature.toLowerCase().includes("maximum") ||
+                        feature.toLowerCase().includes("basic") ? (
                           <X className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
                         ) : (
                           <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
@@ -258,17 +243,18 @@ const EmployerBilling: React.FC = () => {
                         handleUpgrade();
                       }
                     }}
+                    disabled={isCurrent}
                     className={`w-full py-3 rounded-lg font-semibold transition-all ${
                       isCurrent
-                        ? "bg-green-50 text-green-700 border-2 border-green-500"
+                        ? "bg-green-50 text-green-700 border-2 border-green-500 cursor-not-allowed"
                         : plan.popular
                           ? "bg-indigo-600 text-white hover:bg-indigo-700"
                           : "bg-white text-gray-700 border-2 border-gray-300 hover:bg-gray-50"
                     }`}
                   >
                     {isCurrent ? (
-                      <span className="flex items-center justify-center">
-                        <Check className="w-4 h-4 mr-2" /> Current Plan
+                      <span className="flex items-center justify-center gap-2">
+                        <Check className="w-4 h-4" /> Current Plan
                       </span>
                     ) : (
                       plan.cta
@@ -280,22 +266,8 @@ const EmployerBilling: React.FC = () => {
           </div>
         </div>
 
-        {!isActive &&
-          sub?.status === "created" &&
-          sub?.billingHistory?.length > 0 && (
-            <div className="mb-6 bg-yellow-50 border border-yellow-300 rounded-lg p-4">
-              <p className="font-semibold text-yellow-800">
-                Payment Successful! Activating your plan...
-              </p>
-              <p className="text-sm text-yellow-700 mt-1">
-                Your subscription is being activated. This usually takes a few
-                seconds.
-              </p>
-            </div>
-          )}
-
-        {/* Billing Info */}
-        {sub?.status === "created" && (
+        {/* Billing Information */}
+        {isActive && (
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
               Billing Information
@@ -319,14 +291,13 @@ const EmployerBilling: React.FC = () => {
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Next billing date</span>
                   <span className="font-medium text-gray-900">
-                    {nextBilling || "N/A"}
+                    {nextBillingDate}
                   </span>
                 </div>
-
                 <div className="flex justify-between text-sm mt-2">
                   <span className="text-gray-600">Billing cycle</span>
                   <span className="font-medium text-gray-900">
-                    {currentPlanType === "yearly" ? "Annual" : "Monthly"}
+                    {planType === "yearly" ? "Annual" : "Monthly"}
                   </span>
                 </div>
               </div>
@@ -362,9 +333,8 @@ const EmployerBilling: React.FC = () => {
                     </th>
                   </tr>
                 </thead>
-
                 <tbody>
-                  {billingHistory.map((invoice: BillingItem, index: number) => (
+                  {billingHistory.map((invoice, index) => (
                     <tr
                       key={index}
                       className="border-b border-gray-100 hover:bg-gray-50"
@@ -376,19 +346,26 @@ const EmployerBilling: React.FC = () => {
                         {invoice.description}
                       </td>
                       <td className="py-3 px-4 text-sm text-gray-900 text-right">
-                        ₹{invoice.amount}
+                        ₹{invoice.amount.toLocaleString()}
                       </td>
                       <td className="py-3 px-4 text-right">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            invoice.status === "Paid"
+                              ? "bg-green-100 text-green-800"
+                              : invoice.status === "Pending"
+                                ? "bg-yellow-100 text-yellow-800"
+                                : "bg-red-100 text-red-800"
+                          }`}
+                        >
                           {invoice.status}
                         </span>
                       </td>
                       <td className="py-3 px-4 text-right">
                         <a
                           href={invoice.invoiceUrl || "#"}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-indigo-600 hover:text-indigo-700 font-medium text-sm flex items-center justify-end space-x-1 ml-auto"
+                          onClick={(e) => alert("Invoice download (demo)")}
+                          className="text-indigo-600 hover:text-indigo-700 font-medium text-sm flex items-center justify-end gap-1"
                         >
                           <Download className="w-4 h-4" />
                           <span>Download</span>
@@ -406,9 +383,9 @@ const EmployerBilling: React.FC = () => {
         {isActive && !cancelAtPeriodEnd && (
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">
             <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-              <div className="flex items-start space-x-3">
-                <AlertCircle className="w-5 h-5 text-red-600 mt-0.5" />
-                <div className="flex-1">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
+                <div>
                   <h3 className="font-semibold text-gray-900 mb-1">
                     Cancel Subscription
                   </h3>
@@ -429,7 +406,7 @@ const EmployerBilling: React.FC = () => {
         )}
 
         {/* Trust Badge */}
-        <div className="text-center mt-8">
+        <div className="text-center mt-12">
           <div className="flex items-center justify-center gap-2 text-gray-600">
             <Shield className="w-5 h-5 text-green-600" />
             <p className="text-sm">

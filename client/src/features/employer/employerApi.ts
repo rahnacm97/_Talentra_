@@ -106,24 +106,3 @@ export const updateApplicationStatusApi = async (
   );
   return response.data.data;
 };
-
-import axios from "axios";
-const NOTIFICATIONS_BASE = `${import.meta.env.VITE_API_URL}/notifications`;
-
-export const fetchNotificationsApi = async (
-  employerId: string,
-): Promise<any> => {
-  const response = await axios.get(`${NOTIFICATIONS_BASE}/${employerId}`);
-  return response.data;
-};
-
-export const markNotificationAsReadApi = async (
-  notificationId: string,
-  employerId: string,
-): Promise<any> => {
-  const response = await axios.patch(
-    `${NOTIFICATIONS_BASE}/${notificationId}/read`,
-    { employerId },
-  );
-  return response.data;
-};

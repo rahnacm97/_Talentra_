@@ -18,10 +18,11 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
-import Pagination from "../../components/candidate/CandidatePagination";
 import { useDebounce } from "../../components/candidate/SavedJobs";
 import { SavedJobsSkeleton } from "../../components/candidate/SavedJobs";
 import { EmptyState } from "../../components/candidate/SavedJobs";
+import PageHeader from "../../components/common/PageHeader";
+import Pagination from "../../components/common/Pagination";
 
 const CandidateSavedJobs: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -106,12 +107,10 @@ const CandidateSavedJobs: React.FC = () => {
     <div className="bg-gray-50 min-h-screen py-8 px-4">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Saved Jobs</h1>
-          <p className="text-gray-600">
-            Keep track of jobs you're interested in and apply when ready
-          </p>
-        </div>
+        <PageHeader
+          title="Saved Jobs"
+          description="Keep track of jobs you're interested in and apply when ready"
+        />
 
         {/* Search + Filters */}
         <div className="bg-white rounded-lg shadow-lg p-6 mb-6">

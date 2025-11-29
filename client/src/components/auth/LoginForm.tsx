@@ -61,7 +61,7 @@ const LoginForm = () => {
     dispatch(login(formData))
       .unwrap()
       .then(() => {
-        navigate(FRONTEND_ROUTES.HOME);
+        navigate(FRONTEND_ROUTES.HOME, { replace: true });
       })
       .catch((err) => {
         if (err === "You have been blocked by the admin") {

@@ -5,7 +5,7 @@ import { fetchAdminJobs } from "../../thunks/admin.thunk";
 import Table from "../../components/admin/Table";
 import Pagination from "../../components/admin/Pagination";
 import SearchInput from "../../components/admin/SearchInput";
-import { CountCard } from "../../components/admin/CountCard";
+import { StatCard } from "../../components/admin/Statcard";
 import ToggleOnIcon from "@mui/icons-material/ToggleOn";
 import ToggleOffIcon from "@mui/icons-material/ToggleOff";
 import WorkIcon from "@mui/icons-material/Work";
@@ -72,30 +72,30 @@ const AdminJobs: React.FC = () => {
       </div>
 
       <div className="mb-8 grid grid-cols-1 md:grid-cols-4 gap-6">
-        <CountCard
-          label="Total Jobs"
-          count={total}
+        <StatCard
+          title="Total Jobs"
+          value={total}
           icon={WorkIcon}
           iconBg="bg-blue-100"
           iconColor="#2563eb"
         />
-        <CountCard
-          label="Active Jobs"
-          count={activeJobsCount}
+        <StatCard
+          title="Active Jobs"
+          value={activeJobsCount}
           icon={ToggleOnIcon}
           iconBg="bg-green-100"
           iconColor="#10b981"
         />
-        <CountCard
-          label="Closed Jobs"
-          count={closedJobsCount}
+        <StatCard
+          title="Closed Jobs"
+          value={closedJobsCount}
           icon={ToggleOffIcon}
           iconBg="bg-red-100"
           iconColor="#ef4444"
         />
-        <CountCard
-          label="Full-time Jobs"
-          count={fullTimeCount}
+        <StatCard
+          title="Full-time Jobs"
+          value={fullTimeCount}
           icon={ScheduleIcon}
           iconBg="bg-orange-100"
           iconColor="#f59e0b"

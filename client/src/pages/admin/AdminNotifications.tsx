@@ -10,7 +10,7 @@ import Table from "../../components/admin/Table";
 import Pagination from "../../components/admin/Pagination";
 import Modal from "../../components/admin/Modal";
 import SearchInput from "../../components/admin/SearchInput";
-import { CountCard } from "../../components/admin/CountCard";
+import { CountCard } from "../../components/employer/CountCard";
 
 const AdminNotifications: React.FC = () => {
   const mockNotifications = [

@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../hooks/hooks";
 import { loginSuccess } from "../../features/auth/authSlice";
 import api from "../../api/api";
-import Cookies from "js-cookie";
 import { API_ROUTES, FRONTEND_ROUTES } from "../../shared/constants/constants";
 
 const AuthSuccess: React.FC = () => {
@@ -24,8 +23,9 @@ const AuthSuccess: React.FC = () => {
 
         console.log("User", user);
 
-        const accessToken = Cookies.get("accessToken") || "";
-        const refreshToken = Cookies.get("refreshToken") || "";
+        const urlParams = new URLSearchParams(window.location.search);
+        const accessToken = urlParams.get("token") || "";
+        const refreshToken = null; // Refresh token is HttpOnly
 
         dispatch(loginSuccess({ user, accessToken, refreshToken }));
         navigate(FRONTEND_ROUTES.HOME, { replace: true });

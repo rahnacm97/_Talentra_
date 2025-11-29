@@ -7,7 +7,7 @@ import type {
   AuthResponse,
 } from "../types/auth/Auth";
 import type { ApiError } from "../types/common/common.type";
-
+//Signup
 export const signup = createAsyncThunk<
   AuthResponse,
   SignupRequest,
@@ -32,7 +32,7 @@ export const signup = createAsyncThunk<
     return rejectWithValue(error.response?.data?.message || "Signup failed");
   }
 });
-
+//Login
 export const login = createAsyncThunk<
   AuthResponse,
   LoginRequest,
@@ -60,7 +60,7 @@ export const login = createAsyncThunk<
     return rejectWithValue(error.response?.data?.message || "Login failed");
   }
 });
-
+//Admin login
 export const adminLogin = createAsyncThunk<
   AuthResponse,
   LoginRequest,
@@ -87,7 +87,7 @@ export const adminLogin = createAsyncThunk<
     );
   }
 });
-
+//Otp sending
 export const sendOtp = createAsyncThunk<
   void,
   { email: string; purpose: "signup" | "forgot-password" },
@@ -102,7 +102,7 @@ export const sendOtp = createAsyncThunk<
     );
   }
 });
-
+//Otp verification
 export const verifyOtp = createAsyncThunk<
   void,
   { email: string; otp: string; purpose: "signup" | "forgot-password" },
@@ -137,11 +137,11 @@ export const serverLogout = createAsyncThunk<
 
 export const refreshToken = createAsyncThunk<
   { accessToken: string },
-  { refreshToken: string },
+  void,
   { rejectValue: string }
->("auth/refreshToken", async ({ refreshToken }, { rejectWithValue }) => {
+>("auth/refreshToken", async (_, { rejectWithValue }) => {
   try {
-    const response = await api.post(API_ROUTES.AUTH.REFRESH, { refreshToken });
+    const response = await api.post(API_ROUTES.AUTH.REFRESH);
     return { accessToken: response.data.accessToken };
   } catch (err: unknown) {
     const error = err as ApiError;

@@ -1,105 +1,105 @@
-import React, { useState, useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
+import React, { useState } from "react";
 import {
   Bell,
   Briefcase,
   MessageSquare,
-  CheckCircle,
-  Search,
-  Check,
   Calendar,
+  Search,
+  CheckCircle,
+  Check,
 } from "lucide-react";
-import { toast } from "react-toastify";
-import {
-  fetchNotifications,
-  markNotificationAsRead,
-} from "../../thunks/employer.thunk";
-import type {
-  Notification,
-  EmployerState,
-} from "../../types/employer/employer.types";
-import { FRONTEND_ROUTES } from "../../shared/constants/constants";
-import { useNavigate } from "react-router-dom";
+
+interface Notification {
+  id: string;
+  type: "Applications" | "Interviews" | "Messages";
+  candidateName?: string;
+  jobTitle?: string;
+  message: string;
+  timestamp: string;
+  isRead: boolean;
+}
 
 const EmployerNotifications: React.FC = () => {
-  const dispatch = useAppDispatch();
-  const { notifications, loading, error } = useAppSelector(
-    (state) => state.employer as EmployerState,
-  );
-  const auth = useAppSelector((state) => state.auth);
-  const navigate = useNavigate();
-
   const [activeTab, setActiveTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredNotifications, setFilteredNotifications] = useState<
-    Notification[]
-  >([]);
+
+  // Mock notifications data
+  const mockNotifications: Notification[] = [
+    {
+      id: "1",
+      type: "Applications",
+      candidateName: "Rahul Sharma",
+      jobTitle: "Senior Frontend Developer",
+      message: "Applied for your job posting",
+      timestamp: "2025-11-25T10:30:00Z",
+      isRead: false,
+    },
+    {
+      id: "2",
+      type: "Interviews",
+      candidateName: "Priya Singh",
+      jobTitle: "UI/UX Designer",
+      message: "Interview scheduled for tomorrow at 3:00 PM",
+      timestamp: "2025-11-24T14:15:00Z",
+      isRead: false,
+    },
+    {
+      id: "3",
+      type: "Messages",
+      candidateName: "Amit Kumar",
+      jobTitle: "Backend Engineer",
+      message: "Sent you a new message regarding the role",
+      timestamp: "2025-11-24T09:45:00Z",
+      isRead: true,
+    },
+    {
+      id: "4",
+      type: "Applications",
+      candidateName: "Neha Verma",
+      jobTitle: "Product Manager",
+      message: "Applied for your job posting",
+      timestamp: "2025-11-23T16:20:00Z",
+      isRead: true,
+    },
+    {
+      id: "5",
+      type: "Interviews",
+      candidateName: "Vikram Patel",
+      jobTitle: "DevOps Engineer",
+      message: "Accepted interview invitation",
+      timestamp: "2025-11-22T11:10:00Z",
+      isRead: false,
+    },
+  ];
+
+  const [notifications, setNotifications] =
+    useState<Notification[]>(mockNotifications);
   const [successMessage, setSuccessMessage] = useState("");
 
-  useEffect(() => {
-    if (auth.user?._id) {
-      dispatch(fetchNotifications(auth.user._id))
-        .unwrap()
-        .catch((err: any) => {
-          if (
-            err?.message?.includes("blocked") ||
-            err?.status === 403 ||
-            err?.message === "You have been blocked by admin"
-          ) {
-            navigate(FRONTEND_ROUTES.LOGIN);
-          }
-          toast.error(err?.message || "Failed to fetch notifications");
-        });
-    }
-  }, [auth.user, dispatch, navigate]);
+  // Filter notifications
+  const filteredNotifications = notifications.filter((notification) => {
+    const matchesTab = activeTab === "all" || notification.type === activeTab;
+    const matchesSearch =
+      searchQuery === "" ||
+      notification.message.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (notification.candidateName &&
+        notification.candidateName
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase())) ||
+      (notification.jobTitle &&
+        notification.jobTitle
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()));
 
-  useEffect(() => {
-    if (error) {
-      toast.error(error);
-    }
-  }, [error]);
+    return matchesTab && matchesSearch;
+  });
 
-  useEffect(() => {
-    // Filter notifications based on active tab and search query
-    let filtered = notifications;
-    if (activeTab !== "all") {
-      filtered = notifications.filter(
-        (notification: Notification) => notification.type === activeTab,
-      );
-    }
-    if (searchQuery) {
-      filtered = filtered.filter(
-        (notification: Notification) =>
-          notification.message
-            .toLowerCase()
-            .includes(searchQuery.toLowerCase()) ||
-          (notification.candidateName &&
-            notification.candidateName
-              .toLowerCase()
-              .includes(searchQuery.toLowerCase())) ||
-          (notification.jobTitle &&
-            notification.jobTitle
-              .toLowerCase()
-              .includes(searchQuery.toLowerCase())),
-      );
-    }
-    setFilteredNotifications(filtered);
-  }, [notifications, activeTab, searchQuery]);
-
-  const handleMarkAsRead = async (notificationId: string) => {
-    if (!auth.user?._id) {
-      toast.error("User not authenticated");
-      return;
-    }
-    try {
-      await dispatch(
-        markNotificationAsRead({ notificationId, employerId: auth.user._id }),
-      ).unwrap();
-      setSuccessMessage("Notification marked as read!");
-      setTimeout(() => setSuccessMessage(""), 3000);
-    } catch (err: any) {
-      toast.error(err?.message || "Failed to mark notification as read");
-    }
+  const handleMarkAsRead = (notificationId: string) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === notificationId ? { ...n, isRead: true } : n)),
+    );
+    setSuccessMessage("Notification marked as read!");
+    setTimeout(() => setSuccessMessage(""), 3000);
   };
 
   const formatTimestamp = (timestamp: string) => {
@@ -121,6 +121,8 @@ const EmployerNotifications: React.FC = () => {
     { id: "Messages", label: "Messages", icon: MessageSquare },
   ];
 
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
+
   return (
     <div className="bg-gray-50 min-h-screen py-8 px-4">
       <div className="max-w-7xl mx-auto">
@@ -128,8 +130,15 @@ const EmployerNotifications: React.FC = () => {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Notifications
+            {unreadCount > 0 && (
+              <span className="ml-3 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
+                {unreadCount} unread
+              </span>
+            )}
           </h1>
-          <p className="text-gray-600">View and manage your notifications</p>
+          <p className="text-gray-600">
+            Stay updated with applications, interviews, and messages
+          </p>
         </div>
 
         {/* Success Message */}
@@ -140,112 +149,137 @@ const EmployerNotifications: React.FC = () => {
           </div>
         )}
 
-        {/* Top Bar Navigation */}
-        <div className="bg-white rounded-lg shadow-md mb-6">
+        {/* Tabs */}
+        <div className="bg-white rounded-lg shadow-md mb-6 overflow-hidden">
           <nav className="flex flex-wrap border-b border-gray-200">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center space-x-2 px-6 py-4 text-sm font-medium transition-colors ${
-                  activeTab === tab.id
-                    ? "border-b-2 border-indigo-600 text-indigo-600"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                }`}
-              >
-                <tab.icon className="w-5 h-5" />
-                <span>{tab.label}</span>
-              </button>
-            ))}
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              const count =
+                tab.id === "all"
+                  ? notifications.length
+                  : notifications.filter((n) => n.type === tab.id).length;
+
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center space-x-3 px-6 py-4 text-sm font-medium transition-all relative ${
+                    activeTab === tab.id
+                      ? "border-b-2 border-indigo-600 text-indigo-600 bg-indigo-50"
+                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                  }`}
+                >
+                  <Icon className="w-5 h-5" />
+                  <span>{tab.label}</span>
+                  <span className="ml-2 text-xs bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full">
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
           </nav>
         </div>
 
         {/* Main Content */}
         <div className="bg-white rounded-lg shadow-md p-6">
-          {/* Search */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="relative w-full max-w-md">
+          {/* Search Bar */}
+          <div className="mb-6">
+            <div className="relative max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search notifications"
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                placeholder="Search notifications..."
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
               />
             </div>
           </div>
 
           {/* Notifications List */}
-          {loading ? (
-            <div className="text-center text-gray-600">
-              Loading notifications...
-            </div>
-          ) : filteredNotifications.length === 0 ? (
-            <div className="text-center text-gray-600">
-              No notifications found for the selected filter
+          {filteredNotifications.length === 0 ? (
+            <div className="text-center py-12 text-gray-500">
+              <Bell className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+              <p className="text-lg">No notifications found</p>
+              <p className="text-sm mt-2">
+                {searchQuery
+                  ? "Try adjusting your search"
+                  : "You're all caught up!"}
+              </p>
             </div>
           ) : (
             <div className="space-y-4">
-              {filteredNotifications.map((notification: Notification) => (
+              {filteredNotifications.map((notification) => (
                 <div
                   key={notification.id}
-                  className={`border border-gray-200 rounded-lg p-4 transition-colors ${
+                  className={`border rounded-lg p-5 transition-all ${
                     notification.isRead
-                      ? "bg-gray-50"
-                      : "bg-white hover:bg-gray-50"
+                      ? "bg-gray-50 border-gray-200"
+                      : "bg-white border-indigo-200 shadow-sm hover:shadow-md border-2"
                   }`}
                 >
                   <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-3">
-                        <div className="bg-indigo-100 p-2 rounded-lg">
-                          {notification.type === "Applications" && (
-                            <Briefcase className="w-5 h-5 text-indigo-600" />
-                          )}
-                          {notification.type === "Interviews" && (
-                            <Calendar className="w-5 h-5 text-indigo-600" />
-                          )}
-                          {notification.type === "Messages" && (
-                            <MessageSquare className="w-5 h-5 text-indigo-600" />
-                          )}
-                        </div>
-                        <div>
-                          <h3 className="text-lg font-bold text-gray-900">
-                            {notification.candidateName || notification.type}
+                    <div className="flex items-start space-x-4 flex-1">
+                      <div
+                        className={`p-3 rounded-lg ${
+                          notification.type === "Applications"
+                            ? "bg-blue-100"
+                            : notification.type === "Interviews"
+                              ? "bg-purple-100"
+                              : "bg-green-100"
+                        }`}
+                      >
+                        {notification.type === "Applications" && (
+                          <Briefcase className="w-6 h-6 text-blue-600" />
+                        )}
+                        {notification.type === "Interviews" && (
+                          <Calendar className="w-6 h-6 text-purple-600" />
+                        )}
+                        {notification.type === "Messages" && (
+                          <MessageSquare className="w-6 h-6 text-green-600" />
+                        )}
+                      </div>
+
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-2">
+                          <h3 className="text-lg font-semibold text-gray-900">
+                            {notification.candidateName || "System"}
                           </h3>
-                          <p className="text-gray-600">
-                            {notification.message}
-                          </p>
-                          {notification.jobTitle && (
-                            <div className="flex items-center space-x-2 text-gray-600 mt-1">
-                              <Briefcase className="w-4 h-4" />
-                              <span>{notification.jobTitle}</span>
-                            </div>
+                          {!notification.isRead && (
+                            <span className="w-2 h-2 bg-indigo-600 rounded-full"></span>
                           )}
-                          <div className="mt-2 text-gray-500 text-sm">
-                            <span>
-                              {formatTimestamp(notification.timestamp)}
-                            </span>
-                          </div>
                         </div>
+                        <p className="text-gray-700 mt-1">
+                          {notification.message}
+                        </p>
+
+                        {notification.jobTitle && (
+                          <div className="flex items-center space-x-2 mt-2 text-sm text-gray-600">
+                            <Briefcase className="w-4 h-4" />
+                            <span>{notification.jobTitle}</span>
+                          </div>
+                        )}
+
+                        <p className="text-xs text-gray-500 mt-3">
+                          {formatTimestamp(notification.timestamp)}
+                        </p>
                       </div>
                     </div>
-                    <div className="flex space-x-2">
-                      {!notification.isRead && (
+
+                    <div className="ml-4">
+                      {!notification.isRead ? (
                         <button
                           onClick={() => handleMarkAsRead(notification.id)}
-                          className="flex items-center space-x-1 px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                          className="flex items-center space-x-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium"
                         >
                           <CheckCircle className="w-4 h-4" />
                           <span>Mark as Read</span>
                         </button>
-                      )}
-                      {notification.isRead && (
-                        <button className="flex items-center space-x-1 px-3 py-2 bg-gray-200 text-gray-700 rounded-lg cursor-not-allowed">
-                          <CheckCircle className="w-4 h-4" />
+                      ) : (
+                        <div className="flex items-center space-x-2 text-gray-500 text-sm">
+                          <Check className="w-4 h-4" />
                           <span>Read</span>
-                        </button>
+                        </div>
                       )}
                     </div>
                   </div>

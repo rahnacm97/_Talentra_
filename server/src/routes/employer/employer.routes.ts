@@ -19,6 +19,9 @@ import { InterviewRepository } from "../../repositories/interview/interview.repo
 import { InterviewService } from "../../services/interview/interview.service";
 import { InterviewMapper } from "../../mappers/interview/interview.mapper";
 import { employerInterviewRouter } from "../interview/interview.routes";
+import { EmployerAnalyticsController } from "../../controllers/employer/employer.analytics.controller";
+import { EmployerAnalyticsService } from "../../services/employer/employer.analytics.service";
+import { EmployerAnalyticsRepository } from "../../repositories/employer/employer.analytics.repository";
 
 const router = Router();
 const employerMapper = new EmployerMapper();
@@ -38,8 +41,17 @@ const employerApplicationService = new EmployerApplicationService(
 const employerApplicationsController = new EmployerApplicationsController(
   employerApplicationService,
 );
+const analyticsRepository = new EmployerAnalyticsRepository();
+const analyticsService = new EmployerAnalyticsService(analyticsRepository);
+const analyticsController = new EmployerAnalyticsController(analyticsService);
 
 router.use("/interviews", employerInterviewRouter);
+
+router.get(
+  "/analytics",
+  verifyAuth([USER_ROLES.EMPLOYER]),
+  analyticsController.getEmployerAnalytics,
+);
 
 router.get(
   "/:id",
@@ -76,6 +88,8 @@ router.patch(
     employerApplicationsController,
   ),
 );
+
+
 
 router.use("/jobs", jobRoutes);
 

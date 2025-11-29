@@ -6,8 +6,10 @@ import candidateReducer from "../features/candidate/candidateSlice";
 import employerReducer from "../features/employer/employerSlice";
 import candidateJobReducer from "../features/job/jobSlice";
 import adminJobsReducer from "../features/admin/adminJobSlice";
-import subscriptionReducer from "../features/subscription/subscriptionSlice";
 import interviewReducer from "../features/interview/interviewSlice";
+import adminAnalyticsReducer from "../slices/adminAnalyticsSlice";
+import employerAnalyticsReducer from "../slices/employerAnalyticsSlice";
+import homepageReducer from "../slices/homepageSlice";
 
 export const store = configureStore({
   reducer: {
@@ -18,8 +20,10 @@ export const store = configureStore({
     employer: employerReducer,
     candidateJobs: candidateJobReducer,
     adminJobs: adminJobsReducer,
-    subscription: subscriptionReducer,
     interview: interviewReducer,
+    adminAnalytics: adminAnalyticsReducer,
+    employerAnalytics: employerAnalyticsReducer,
+    homepage: homepageReducer,
   },
 });
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+﻿import React, { useState, useEffect, useRef } from "react";
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
 import {
@@ -16,7 +16,6 @@ import {
 } from "lucide-react";
 import Pagination from "../../components/common/Pagination";
 import ConfirmModal from "../../components/common/ConfirmModal";
-import { StatCard } from "../../components/employer/StatCard";
 import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
 import {
   fetchEmployerJobs,
@@ -30,6 +29,8 @@ import JobFormModal from "../../components/employer/JobFormModal";
 import type { JobFormValues } from "../../shared/validations/JobFormValidation";
 import type { Job } from "../../types/job/job.types";
 import { getStatusColor } from "../../utils/StatusColor";
+import PageHeader from "../../components/common/PageHeader";
+import { StatCard } from "../../components/employer/StatCard";
 
 const EmployerJobs: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -216,14 +217,10 @@ const EmployerJobs: React.FC = () => {
     <div className="bg-gray-50 min-h-screen py-8 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Manage Jobs</h1>
-              <p className="text-gray-600 mt-1">
-                Post new positions and manage existing job listings
-              </p>
-            </div>
+        <PageHeader
+          title="Manage Jobs"
+          description="Post new positions and manage existing job listings"
+          action={
             <button
               onClick={openPostModal}
               className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-6 py-3 rounded-lg transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl"
@@ -231,78 +228,78 @@ const EmployerJobs: React.FC = () => {
               <Plus className="w-5 h-5" />
               <span>Post New Job</span>
             </button>
-          </div>
+          }
+        />
 
-          {/* Stat Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-            <StatCard
-              label="Total Jobs"
-              value={total}
-              icon={Briefcase}
-              iconBg="bg-blue-100"
-              iconColor="#2563eb"
-              borderColor="border-blue-600"
-            />
-            <StatCard
-              label="Active Jobs"
-              value={jobs.filter((j) => j.status === "active").length}
-              icon={Briefcase}
-              iconBg="bg-green-100"
-              iconColor="#10b981"
-              borderColor="border-green-600"
-            />
-            <StatCard
-              label="Total Applicants"
-              value={jobs.reduce((sum, j) => sum + j.applicants, 0)}
-              icon={Users}
-              iconBg="bg-purple-100"
-              iconColor="#7c3aed"
-              borderColor="border-purple-600"
-            />
-            <StatCard
-              label="Closed Jobs"
-              value={jobs.filter((j) => j.status === "closed").length}
-              icon={Briefcase}
-              iconBg="bg-orange-100"
-              iconColor="#f97316"
-              borderColor="border-orange-600"
-            />
-          </div>
+        {/* Stat Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+          <StatCard
+            label="Total Jobs"
+            value={total}
+            icon={Briefcase}
+            iconBg="bg-blue-100"
+            iconColor="#2563eb"
+            borderColor="border-blue-600"
+          />
+          <StatCard
+            label="Active Jobs"
+            value={jobs.filter((j) => j.status === "active").length}
+            icon={Briefcase}
+            iconBg="bg-green-100"
+            iconColor="#10b981"
+            borderColor="border-green-600"
+          />
+          <StatCard
+            label="Total Applicants"
+            value={jobs.reduce((sum, j) => sum + j.applicants, 0)}
+            icon={Users}
+            iconBg="bg-purple-100"
+            iconColor="#7c3aed"
+            borderColor="border-purple-600"
+          />
+          <StatCard
+            label="Closed Jobs"
+            value={jobs.filter((j) => j.status === "closed").length}
+            icon={Briefcase}
+            iconBg="bg-orange-100"
+            iconColor="#f97316"
+            borderColor="border-orange-600"
+          />
+        </div>
 
-          {/* Search & Filter */}
-          <div className="flex flex-col md:flex-row gap-4 mb-6">
-            <div className="flex-1 relative">
-              <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Search jobs by title or department..."
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-              {searchInput && (
-                <button
-                  onClick={clearSearch}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
-                >
-                  <CloseIcon className="w-5 h-5" />
-                </button>
-              )}
-            </div>
-            <div className="flex items-center space-x-2">
-              <Filter className="text-gray-400 w-5 h-5" />
-              <select
-                value={filterStatus}
-                onChange={(e) =>
-                  setFilterStatus(e.target.value as "all" | "active" | "closed")
-                }
-                className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        {/* Search & Filter */}
+        <div className="flex flex-col md:flex-row gap-4 mb-6">
+          <div className="flex-1 relative">
+            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Search jobs by title or department..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              className="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+            {searchInput && (
+              <button
+                onClick={clearSearch}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
               >
-                <option value="all">All Status</option>
-                <option value="active">Active</option>
-                <option value="closed">Closed</option>
-              </select>
-            </div>
+                <CloseIcon className="w-5 h-5" />
+              </button>
+            )}
+          </div>
+          <div className="flex items-center space-x-2">
+            <Filter className="text-gray-400 w-5 h-5" />
+            <select
+              value={filterStatus}
+              onChange={(e) =>
+                setFilterStatus(e.target.value as "all" | "active" | "closed")
+              }
+              className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              <option value="all">All Status</option>
+              <option value="active">Active</option>
+              <option value="closed">Closed</option>
+            </select>
           </div>
         </div>
 
@@ -324,7 +321,7 @@ const EmployerJobs: React.FC = () => {
                         job.status,
                       )}`}
                     >
-                      {job.status}
+                      {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
                     </span>
                   </div>
 
@@ -345,7 +342,6 @@ const EmployerJobs: React.FC = () => {
                       <IndianRupee className="w-4 h-4" />
                       <span>{job.salary}</span>
                     </div>
-                    {/* Inside flex flex-wrap gap-4 text-gray-600 text-sm mb-3 */}
                     <div className="flex items-center space-x-1">
                       <Briefcase className="w-4 h-4" />
                       <span>{formatExperience(job.experience)}</span>

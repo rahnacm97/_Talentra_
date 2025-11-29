@@ -13,7 +13,7 @@ import {
 import type { ApiError } from "../types/common/common.type";
 import type { Candidate } from "../types/admin/admin.candidate.types";
 import type { EmployerResponseDTO } from "../types/admin/admin.employer.types";
-
+//fetch candidates
 export const fetchCandidates = createAsyncThunk(
   "adminCandidates/fetchAll",
   async ({
@@ -28,14 +28,14 @@ export const fetchCandidates = createAsyncThunk(
     return await getAllCandidatesApi(page, limit, search);
   },
 );
-
+//Block or unblock
 export const toggleBlockCandidate = createAsyncThunk(
   "adminCandidates/blockUnblock",
   async ({ candidateId, block }: { candidateId: string; block: boolean }) => {
     return await blockUnblockCandidateApi(candidateId, block);
   },
 );
-
+//Single candidate
 export const fetchCandidateById = createAsyncThunk<
   Candidate,
   string,
@@ -54,7 +54,7 @@ export const fetchCandidateById = createAsyncThunk<
     });
   }
 });
-
+//fetch employers
 export const fetchEmployers = createAsyncThunk(
   "adminEmployers/fetchEmployers",
   async (
@@ -69,7 +69,7 @@ export const fetchEmployers = createAsyncThunk(
     }
   },
 );
-
+//single employer
 export const fetchEmployerById = createAsyncThunk<
   EmployerResponseDTO,
   string,
@@ -88,7 +88,7 @@ export const fetchEmployerById = createAsyncThunk<
     });
   }
 });
-
+//block or unblock
 export const blockUnblockEmployer = createAsyncThunk(
   "adminEmployers/blockUnblockEmployer",
   async (
@@ -103,7 +103,7 @@ export const blockUnblockEmployer = createAsyncThunk(
     }
   },
 );
-
+//employer verification
 export const verifyEmployer = createAsyncThunk(
   "adminEmployers/verifyEmployer",
   async (employerId: string, { rejectWithValue }) => {
@@ -117,7 +117,7 @@ export const verifyEmployer = createAsyncThunk(
     }
   },
 );
-
+//employer rejection
 export const rejectEmployer = createAsyncThunk(
   "adminEmployers/rejectEmployer",
   async (
@@ -134,7 +134,7 @@ export const rejectEmployer = createAsyncThunk(
     }
   },
 );
-
+//Jobs fetching
 export const fetchAdminJobs = createAsyncThunk(
   "adminJobs/fetch",
   async (params: {

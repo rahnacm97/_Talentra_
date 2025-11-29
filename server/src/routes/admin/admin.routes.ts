@@ -22,6 +22,9 @@ import { AdminJobService } from "../../services/job/job.service";
 import { AdminJobMapper } from "../../mappers/admin/adminJob.mapper";
 import { JobRepository } from "../../repositories/job/job.repository";
 import { USER_ROLES } from "../../shared/enums/enums";
+import { AdminAnalyticsController } from "../../controllers/admin/admin.analytics.controller";
+import { AdminAnalyticsService } from "../../services/admin/admin.analytics.service";
+import { AdminAnalyticsRepository } from "../../repositories/admin/admin.analytics.repository";
 
 const router = Router();
 const adminRepository: IUserReader<IAdmin> = new AdminRepository();
@@ -49,6 +52,8 @@ const adminEmployerService = new AdminEmployerService(
   emailService,
 );
 const jobService = new AdminJobService(jobRepo, adminJobMapper);
+const analyticsRepository = new AdminAnalyticsRepository();
+const analyticsService = new AdminAnalyticsService(analyticsRepository);
 
 // Controllers
 const adminAuthController = new AdminAuthController(adminAuthService);
@@ -59,6 +64,7 @@ const adminEmployerController = new AdminEmployerController(
   adminEmployerService,
 );
 const jobController = new AdminJobController(jobService);
+const analyticsController = new AdminAnalyticsController(analyticsService);
 
 // Routes
 router.post("/login", adminAuthController.login);
@@ -107,6 +113,12 @@ router.get(
   "/jobs",
   verifyAuth([USER_ROLES.ADMIN]),
   jobController.getAdminJobs.bind(jobController),
+);
+
+router.get(
+  "/analytics/dashboard",
+  verifyAuth([USER_ROLES.ADMIN]),
+  analyticsController.getDashboardAnalytics,
 );
 
 router.post("/logout", adminAuthController.logout);

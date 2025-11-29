@@ -16,7 +16,7 @@ export class InterviewService implements IInterviewService {
     private readonly _repository: IInterviewRepository,
     private readonly _mapper: IInterviewMapper,
   ) {}
-
+  //Creating interviews
   async createInterviewFromApplication(data: {
     applicationId: string;
     jobId: string;
@@ -57,7 +57,7 @@ export class InterviewService implements IInterviewService {
 
     return this._mapper.toDto(interview);
   }
-
+  //Fetching interview scheduled by employer
   async getInterviewsForEmployer(
     employerId: string,
     filters: IInterviewQuery = {},
@@ -83,7 +83,7 @@ export class InterviewService implements IInterviewService {
       },
     };
   }
-
+  //Fetcching candidate interviews
   async getInterviewsForCandidate(
     candidateId: string,
     filters: IInterviewQuery = {},

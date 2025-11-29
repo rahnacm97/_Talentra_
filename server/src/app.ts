@@ -2,10 +2,12 @@ import express from "express";
 import connectDB from "./config/db.config";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import candidateRoute from "./routes/candidate/candidate.routes";
-import authRoute from "./routes/auth/auth.routes";
-import adminRoute from "./routes/admin/admin.routes";
-import employerRoute from "./routes/employer/employer.routes";
+import authRoutes from "./routes/auth/auth.routes";
+import candidateRoutes from "./routes/candidate/candidate.routes";
+import employerRoutes from "./routes/employer/employer.routes";
+import adminRoutes from "./routes/admin/admin.routes";
+//import subscriptionRoutes from "./routes/subscription/subscription.routes";
+import homepageRoutes from "./routes/homepage/homepage.routes";
 import jobRoutes from "./routes/job/job.routes";
 import { errorHandler } from "./middlewares/errorHandler";
 import dotenv from "dotenv";
@@ -27,10 +29,12 @@ app.use(express.json());
 connectDB();
 
 // Routes
-app.use("/api/auth", authRoute);
-app.use("/api/admin", adminRoute);
-app.use("/api/candidate", candidateRoute);
-app.use("/api/employer", employerRoute);
+app.use("/api/auth", authRoutes);
+app.use("/api/candidate", candidateRoutes);
+app.use("/api/employer", employerRoutes);
+app.use("/api/admin", adminRoutes);
+//app.use("/api/subscription", subscriptionRoutes);
+app.use("/api/public", homepageRoutes);
 app.use("/api/jobs", jobRoutes);
 
 app.use(errorHandler);

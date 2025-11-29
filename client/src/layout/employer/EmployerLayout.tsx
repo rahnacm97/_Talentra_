@@ -44,12 +44,6 @@ const EmployerLayout: React.FC = () => {
       path: FRONTEND_ROUTES.EMPLOYERAPPLICANTS,
     },
     {
-      id: "analytics",
-      label: "Analytics",
-      icon: BarChart3,
-      path: FRONTEND_ROUTES.EMPLOYERANALYTICS,
-    },
-    {
       id: "interviews",
       label: "Interviews",
       icon: Calendar,
@@ -60,6 +54,12 @@ const EmployerLayout: React.FC = () => {
       label: "Subscriptions",
       icon: CreditCard,
       path: FRONTEND_ROUTES.EMPLOYERRBILLING,
+    },
+    {
+      id: "analytics",
+      label: "Analytics",
+      icon: BarChart3,
+      path: FRONTEND_ROUTES.EMPLOYERANALYTICS,
     },
     {
       id: "notifications",

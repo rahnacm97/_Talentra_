@@ -8,7 +8,7 @@ import DescriptionIcon from "@mui/icons-material/Description";
 import Table from "../../components/admin/Table";
 import Pagination from "../../components/admin/Pagination";
 import Modal from "../../components/admin/Modal";
-import { CountCard } from "../../components/admin/CountCard";
+import { StatCard } from "../../components/admin/Statcard";
 import SearchInput from "../../components/admin/SearchInput";
 import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
 import {
@@ -23,6 +23,7 @@ const AdminCandidates: React.FC = () => {
   );
 
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(
     null,
@@ -34,14 +35,23 @@ const AdminCandidates: React.FC = () => {
   const itemsPerPage = 5;
 
   useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+      setCurrentPage(1);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  useEffect(() => {
     dispatch(
       fetchCandidates({
         page: currentPage,
         limit: itemsPerPage,
-        search: searchTerm,
+        search: debouncedSearch,
       }),
     ).then(() => {});
-  }, [dispatch, currentPage, searchTerm]);
+  }, [dispatch, currentPage, debouncedSearch]);
 
   const openModal = (id: string, name: string, blocked: boolean) => {
     setSelectedCandidateId(id);
@@ -87,30 +97,30 @@ const AdminCandidates: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <CountCard
-          label="Total Candidates"
-          count={total}
+        <StatCard
+          title="Total Candidates"
+          value={total}
           icon={PersonIcon}
           iconBg="bg-blue-100"
           iconColor="#2563eb"
         />
-        <CountCard
-          label="Active Candidates"
-          count={verifiedCount}
+        <StatCard
+          title="Active Candidates"
+          value={verifiedCount}
           icon={CheckCircleIcon}
           iconBg="bg-green-100"
           iconColor="#10b981"
         />
-        <CountCard
-          label="Blocked Candidates"
-          count={blockedCount}
+        <StatCard
+          title="Blocked Candidates"
+          value={blockedCount}
           icon={BlockIcon}
           iconBg="bg-red-100"
           iconColor="#ef4444"
         />
-        <CountCard
-          label="Resumes Submitted"
-          count={candidates.filter((c) => c.resume).length}
+        <StatCard
+          title="Resumes Submitted"
+          value={candidates.filter((c) => c.resume).length}
           icon={DescriptionIcon}
           iconBg="bg-purple-100"
           iconColor="#7c3aed"
@@ -139,7 +149,7 @@ const AdminCandidates: React.FC = () => {
               {
                 key: "status",
                 label: "Status",
-                render: (value: any, row: any) => (
+                render: (_: any, row: any) => (
                   <span
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                       row.blocked
@@ -173,7 +183,7 @@ const AdminCandidates: React.FC = () => {
                 </button>
 
                 <Link
-                  to={`/admin-candidates/view/${candidate.id}`}
+                  to={`/candidates/view/${candidate.id}`}
                   className="inline-flex items-center px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-200 transition-colors duration-200"
                 >
                   <VisibilityIcon sx={{ fontSize: 16, marginRight: 0.5 }} />

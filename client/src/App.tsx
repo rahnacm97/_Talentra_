@@ -25,7 +25,7 @@ import AdminEmployerView from "./pages/admin/AdminEmployerView";
 import { ProtectedRoute } from "./components/common/ProtectedRoute";
 import { AdminProtectedRoute } from "./components/admin/AdminProtectedRoute";
 import { FRONTEND_ROUTES } from "./shared/constants/constants";
-import AuthRouteGuard from "./components/common/AuthRouteGuard";
+import AuthRouteGuard, { HistoryLock } from "./components/common/AuthRouteGuard";
 import NavigationProvider from "./components/common/NavigationProvider";
 import EmployerJobs from "./pages/employer/EmployerJobs";
 import EmployerApplicants from "./pages/employer/EmployerApplicants";
@@ -46,7 +46,6 @@ import NotFound from "./pages/common/NotFound";
 import JobDetails from "./pages/job/JobDetails";
 import ChatPage from "./pages/common/Chat";
 import VideoCallPage from "./pages/common/VideoCall";
-import { HistoryLock } from "./components/common/AuthRouteGuard";
 import ApplicationDetails from "./pages/candidate/CandidateApplicationDetails";
 import EmployerBilling from "./pages/employer/EmployerBilling";
 
@@ -56,8 +55,8 @@ const App: React.FC = () => {
     <>
       <Router>
         <NavigationProvider />
+        <HistoryLock/>
         <AuthRouteGuard>
-          <HistoryLock />
           <ToastContainer
             position="top-right"
             autoClose={1500}

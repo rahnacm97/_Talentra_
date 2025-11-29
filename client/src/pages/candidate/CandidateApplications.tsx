@@ -26,6 +26,7 @@ import type {
   Status,
   AppStatus,
 } from "../../types/application/application.types";
+import PageHeader from "../../components/common/PageHeader";
 
 const statusConfig: Record<
   AppStatus,
@@ -139,14 +140,10 @@ const CandidateApplications: React.FC = () => {
     <div className="bg-gray-50 min-h-screen py-8 px-4">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            My Applications
-          </h1>
-          <p className="text-gray-600">
-            Track and manage your job applications
-          </p>
-        </div>
+        <PageHeader
+          title="My Applications"
+          description="Track and manage your job applications"
+        />
 
         {/* Search + Filter */}
         <div className="bg-white rounded-lg shadow-lg p-6 mb-6">

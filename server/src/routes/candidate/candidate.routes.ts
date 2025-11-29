@@ -42,7 +42,6 @@ const candidateApplicationsController = new CandidateApplicationsController(
   applicationService,
 );
 
-// Mount interview routes BEFORE parameterized routes
 router.use("/interviews", candidateInterviewRouter);
 
 router.get(

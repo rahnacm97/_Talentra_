@@ -16,6 +16,7 @@ import {
 import Header from "./Header";
 import Footer from "./Footer";
 import SearchAppBar from "../../components/common/Search";
+import { HistoryLock } from "../../components/common/AuthRouteGuard";
 import CategoryCard from "../../components/common/CategoryCard";
 import JobCard from "../../components/common/JobCard";
 import TestimonialCard from "../../components/common/TestimonialCard";
@@ -91,6 +92,7 @@ const Homepage: React.FC = () => {
 
   return (
     <div className="bg-gray-50 min-h-screen">
+      <HistoryLock />
       <Header />
       <section className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 pt-20 pb-32 px-4 relative overflow-hidden">
         <div className="absolute inset-0 overflow-hidden">

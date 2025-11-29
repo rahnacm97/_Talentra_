@@ -46,7 +46,6 @@ const JobDetails: React.FC = () => {
   );
   const loading = loadingJobId === id;
 
-  //const [isSaved, setIsSaved] = useState(false);
   const [showApplyModal, setShowApplyModal] = useState(false);
 
   const handleApplySubmit = async (formData: FormData) => {

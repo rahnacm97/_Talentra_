@@ -7,12 +7,10 @@ import {
   updateJobApi,
   closeJobApi,
   fetchEmployerApplicationsApi,
-  fetchNotificationsApi,
-  markNotificationAsReadApi,
 } from "../features/employer/employerApi";
 import type { ApiError } from "../types/common/common.type";
 import { toast } from "react-toastify";
-
+//fetch profile
 export const fetchEmployerProfile = createAsyncThunk(
   "employer/fetchProfile",
   async (employerId: string, { rejectWithValue }) => {
@@ -29,7 +27,7 @@ export const fetchEmployerProfile = createAsyncThunk(
     }
   },
 );
-
+//profile updation
 export const updateEmployerProfile = createAsyncThunk(
   "employer/updateProfile",
   async (
@@ -45,7 +43,7 @@ export const updateEmployerProfile = createAsyncThunk(
     }
   },
 );
-
+//fetch jobs
 export const fetchEmployerJobs = createAsyncThunk(
   "employer/fetchJobs",
   async (
@@ -79,7 +77,7 @@ export const fetchEmployerJobs = createAsyncThunk(
     }
   },
 );
-
+//post new job
 export const postJob = createAsyncThunk(
   "employer/postJob",
   async (
@@ -96,7 +94,7 @@ export const postJob = createAsyncThunk(
     }
   },
 );
-
+//updation job
 export const updateJob = createAsyncThunk(
   "employer/updateJob",
   async (
@@ -113,7 +111,7 @@ export const updateJob = createAsyncThunk(
     }
   },
 );
-
+//job closing
 export const closeJob = createAsyncThunk(
   "employer/closeJob",
   async (
@@ -130,7 +128,7 @@ export const closeJob = createAsyncThunk(
     }
   },
 );
-
+//fetching applications
 export const fetchEmployerApplications = createAsyncThunk(
   "employer/fetchApplications",
   async (
@@ -162,40 +160,6 @@ export const fetchEmployerApplications = createAsyncThunk(
     } catch (err: any) {
       return rejectWithValue(
         err.response?.data?.message || "Failed to fetch applications",
-      );
-    }
-  },
-);
-
-export const fetchNotifications = createAsyncThunk(
-  "employer/fetchNotifications",
-  async (employerId: string, { rejectWithValue }) => {
-    try {
-      return await fetchNotificationsApi(employerId);
-    } catch (err: unknown) {
-      const error = err as ApiError;
-      return rejectWithValue(
-        error.response?.data?.message || "Failed to fetch notifications",
-      );
-    }
-  },
-);
-
-export const markNotificationAsRead = createAsyncThunk(
-  "employer/markNotificationAsRead",
-  async (
-    {
-      notificationId,
-      employerId,
-    }: { notificationId: string; employerId: string },
-    { rejectWithValue },
-  ) => {
-    try {
-      return await markNotificationAsReadApi(notificationId, employerId);
-    } catch (err: unknown) {
-      const error = err as ApiError;
-      return rejectWithValue(
-        error.response?.data?.message || "Failed to mark notification as read",
       );
     }
   },

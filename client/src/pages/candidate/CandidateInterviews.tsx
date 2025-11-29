@@ -14,7 +14,7 @@ import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
 import { fetchCandidateInterviews } from "../../thunks/interview.thunks";
 import InterviewDetailsModal from "../../components/candidate/InterviewModal";
 import type { Interview } from "../../types/interview/interview.types";
-import Pagination from "../../components/candidate/CandidatePagination";
+import Pagination from "../../components/common/Pagination";
 
 const formatDateTime = (dateIso: string) => {
   const date = new Date(dateIso);
@@ -50,7 +50,6 @@ const CandidateInterviews: React.FC = () => {
   );
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Debounce search input
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchQuery);

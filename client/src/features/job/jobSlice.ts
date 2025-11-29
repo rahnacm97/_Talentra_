@@ -8,27 +8,7 @@ import {
   unsaveJob,
 } from "../../thunks/job.thunk";
 import { applyJob } from "../../thunks/candidate.thunks";
-import type { EmployerInfoDto } from "../../types/job/job.types";
-
-export interface JobResponse {
-  id: string;
-  title: string;
-  department: string;
-  location: string;
-  type: string;
-  salary: string;
-  description: string;
-  requirements: string[];
-  responsibilities: string[];
-  status: string;
-  applicants: number;
-  postedDate: string;
-  deadline: string;
-  experience: "0" | "1-2" | "3-5" | "6-8" | "9-12" | "13+";
-  employer: EmployerInfoDto;
-  hasApplied: boolean;
-  skills: string[];
-}
+import type { JobResponse } from "../../types/job/job.types";
 
 interface CandidateJobState {
   jobs: JobResponse[];

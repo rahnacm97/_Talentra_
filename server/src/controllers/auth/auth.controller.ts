@@ -23,7 +23,14 @@ export class AuthController implements IAuthController {
       const data: AuthSignupDTO = req.body;
       const result = await this._authService.signup(data);
 
-      setAuthCookies(res, result.refreshToken);
+      const userInfo = JSON.stringify({
+        _id: result.user._id,
+        email: result.user.email,
+        name: result.user.name,
+        role: data.userType,
+      });
+
+      setAuthCookies(res, result.refreshToken, userInfo);
 
       logger.info("User signup successful", {
         userId: result.user._id,
@@ -59,7 +66,17 @@ export class AuthController implements IAuthController {
       const data: AuthLoginDTO = req.body;
       const result = await this._authService.login(data);
 
-      setAuthCookies(res, result.refreshToken);
+      const userInfo = JSON.stringify({
+        _id: result.user._id,
+        email: result.user.email,
+        name: result.user.name,
+        role: result.user.role,
+        ...(result.user.role === "Employer" && {
+          verified: result.user.verified,
+        }),
+      });
+
+      setAuthCookies(res, result.refreshToken, userInfo);
 
       logger.info("User login successful", {
         userId: result.user._id,
@@ -105,6 +122,19 @@ export class AuthController implements IAuthController {
       }
 
       const result = await this._authService.refreshToken(refreshToken);
+      
+      const userInfo = JSON.stringify({
+        _id: result.user._id,
+        email: result.user.email,
+        name: result.user.name,
+        role: result.user.role,
+        ...(result.user.role === "Employer" && {
+          verified: result.user.verified,
+        }),
+      });
+
+      setAuthCookies(res, refreshToken, userInfo);
+
       logger.info("Refresh token successful", { userId: result.user._id });
 
       res.status(HTTP_STATUS.OK).json({

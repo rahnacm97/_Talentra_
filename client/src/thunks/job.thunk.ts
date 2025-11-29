@@ -10,7 +10,7 @@ import type { ExperienceLevel } from "../shared/validations/JobFormValidation";
 import type { ApiError } from "../types/common/common.type";
 import type { RootState } from "../app/store";
 
-// Fetch public jobs with pagination, search, filters
+// Fetch jobs
 export const fetchJobsForCandidate = createAsyncThunk(
   "candidateJobs/fetch",
   async ({
@@ -43,7 +43,7 @@ export const fetchJobsForCandidate = createAsyncThunk(
   },
 );
 
-// Fetch a single job by ID
+// Fetch a single job
 export const fetchJobById = createAsyncThunk(
   "candidateJobs/fetchById",
   async (id: string, { getState, rejectWithValue }) => {

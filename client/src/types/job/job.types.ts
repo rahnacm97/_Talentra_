@@ -51,3 +51,23 @@ export interface JobResponseDto {
   hasApplied: boolean;
   skills: string[];
 }
+
+export interface JobResponse {
+  id: string;
+  title: string;
+  department: string;
+  location: string;
+  type: string;
+  salary: string;
+  description: string;
+  requirements: string[];
+  responsibilities: string[];
+  status: string;
+  applicants: number;
+  postedDate: string;
+  deadline: string;
+  experience: "0" | "1-2" | "3-5" | "6-8" | "9-12" | "13+";
+  employer: EmployerInfoDto;
+  hasApplied: boolean;
+  skills: string[];
+}

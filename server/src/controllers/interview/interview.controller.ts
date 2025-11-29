@@ -17,7 +17,7 @@ export class CandidateInterviewController
   implements ICandidateInterviewController
 {
   constructor(private readonly _service: IInterviewService) {}
-
+  //Fetch candidate interviews
   async getMyInterviews(
     req: Request,
     res: Response,
@@ -63,7 +63,7 @@ export class EmployerInterviewController
   implements IEmployerInterviewController
 {
   constructor(private readonly _service: IInterviewService) {}
-
+  //Fetch interview scheduled by employer
   async getInterviews(
     req: Request,
     res: Response,

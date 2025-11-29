@@ -156,13 +156,13 @@ const CandidateSidebar: React.FC<SidebarProps> = ({
             })}
           </nav>
         </div>
-        <div className="p-4 border-t border-gray-200">
+        <div className="border-t border-gray-200 bg-white p-4 mt-70">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-all duration-200 cursor-pointer"
+            className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-all duration-200 font-medium"
           >
             <LogOut className="w-5 h-5" />
-            <span className="font-medium">Logout</span>
+            <span>Logout</span>
           </button>
         </div>
       </aside>

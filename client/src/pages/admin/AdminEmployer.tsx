@@ -9,18 +9,18 @@ import BusinessIcon from "@mui/icons-material/Business";
 import EmailIcon from "@mui/icons-material/Email";
 import VerifiedIcon from "@mui/icons-material/Verified";
 import WarningIcon from "@mui/icons-material/Warning";
-//import AddIcon from "@mui/icons-material/Add";
 import Table from "../../components/admin/Table";
 import Pagination from "../../components/admin/Pagination";
 import Modal from "../../components/admin/Modal";
 import SearchInput from "../../components/admin/SearchInput";
-import { CountCard } from "../../components/admin/CountCard";
+import { StatCard } from "../../components/admin/Statcard";
 
 const AdminEmployers: React.FC = () => {
   const dispatch = useAppDispatch();
   const { employers, total } = useAppSelector((state) => state.adminEmployers);
 
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
@@ -32,14 +32,23 @@ const AdminEmployers: React.FC = () => {
   const [isBlockAction, setIsBlockAction] = useState<boolean | null>(null);
 
   useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+      setCurrentPage(1);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  useEffect(() => {
     dispatch(
       fetchEmployers({
         page: currentPage,
         limit: itemsPerPage,
-        search: searchTerm,
+        search: debouncedSearch,
       }),
     );
-  }, [dispatch, currentPage, searchTerm]);
+  }, [dispatch, currentPage, debouncedSearch]);
 
   const openModal = (id: string, name: string, blocked: boolean) => {
     setSelectedEmployerId(id);
@@ -86,30 +95,30 @@ const AdminEmployers: React.FC = () => {
       </div>
 
       <div className="mb-8 grid grid-cols-1 md:grid-cols-4 gap-6">
-        <CountCard
-          label="Total Employers"
-          count={total}
+        <StatCard
+          title="Total Employers"
+          value={total}
           icon={BusinessIcon}
           iconBg="bg-blue-100"
           iconColor="#2563eb"
         />
-        <CountCard
-          label="Verified Employers"
-          count={verifiedCount}
+        <StatCard
+          title="Verified Employers"
+          value={verifiedCount}
           icon={VerifiedIcon}
           iconBg="bg-green-100"
           iconColor="#10b981"
         />
-        <CountCard
-          label="Blocked Employers"
-          count={blockedCount}
+        <StatCard
+          title="Blocked Employers"
+          value={blockedCount}
           icon={BlockIcon}
           iconBg="bg-red-100"
           iconColor="#ef4444"
         />
-        <CountCard
-          label="Pending Verification"
-          count={pendingCount}
+        <StatCard
+          title="Pending Verification"
+          value={pendingCount}
           icon={WarningIcon}
           iconBg="bg-orange-100"
           iconColor="#f59e0b"
@@ -123,10 +132,6 @@ const AdminEmployers: React.FC = () => {
           placeholder="Search by company name or email…"
         />
         <div className="flex items-center space-x-3">
-          {/* <button className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
-            <AddIcon sx={{ fontSize: 18, marginRight: 1 }} />
-            Add Employer
-          </button> */}
         </div>
       </div>
 
@@ -185,13 +190,6 @@ const AdminEmployers: React.FC = () => {
               </span>
             ),
           },
-          // {
-          //   key: "jobsPosted",
-          //   label: "Jobs Posted",
-          //   render: (value: number) => (
-          //     <span className="font-medium text-gray-900">{value || 0}</span>
-          //   ),
-          // },
           {
             key: "blocked",
             label: "Status",
@@ -227,7 +225,7 @@ const AdminEmployers: React.FC = () => {
             </button>
 
             <Link
-              to={`/admin-employers/view/${emp.id}`}
+              to={`/employers/view/${emp.id}`}
               className="inline-flex items-center px-3 py-1.5 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-200 transition-colors duration-200"
             >
               <VisibilityIcon sx={{ fontSize: 16, marginRight: 0.5 }} />

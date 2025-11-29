@@ -1,11 +1,12 @@
 import React from "react";
 import { IconWrapper } from "../common/IconWrapper";
 import type { SvgIconProps } from "@mui/material/SvgIcon";
+import type { LucideProps } from "lucide-react";
 
 type StatCardProps = {
   label: string;
   value: number | string;
-  icon: React.ComponentType<SvgIconProps>;
+  icon: React.ComponentType<SvgIconProps> | React.ComponentType<LucideProps>;
   iconBg: string;
   iconColor: string;
   borderColor?: string;

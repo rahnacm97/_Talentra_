@@ -19,7 +19,7 @@ import Pagination from "../../components/common/Pagination";
 import { Link } from "react-router-dom";
 import Header from "../common/Header";
 import { FRONTEND_ROUTES } from "../../shared/constants/constants";
-import type { JobResponse } from "../../features/job/jobSlice";
+import type { JobResponse } from "../../types/job/job.types";
 import type { ExperienceLevel } from "../../shared/validations/JobFormValidation";
 
 const JobView: React.FC = () => {
@@ -41,7 +41,6 @@ const JobView: React.FC = () => {
     "all" | "0" | "1-2" | "3-5" | "6-8" | "9-12" | "13+"
   >("all");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  //const [savedJobs, ] = useState<Set<string>>(new Set());
 
   const limit = 5;
 

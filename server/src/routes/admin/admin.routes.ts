@@ -13,7 +13,10 @@ import { TokenService } from "../../services/auth/token.service";
 import { ITokenService } from "../../interfaces/auth/ITokenService";
 import { IUserReader } from "../../interfaces/auth/IAuthRepository";
 import { IAdmin } from "../../interfaces/users/admin/IAdmin";
-import { AdminRepository } from "../../repositories/admin/admin.repository";
+import {
+  AdminRepository,
+  AdminAnalyticsRepository,
+} from "../../repositories/admin/admin.repository";
 import { AdminMapper } from "../../mappers/admin/admin.mapper";
 import { CandidateMapper } from "../../mappers/admin/adminCandidate.mapper";
 import { EmployerMapper } from "../../mappers/admin/adminEmployer.mapper";
@@ -22,11 +25,14 @@ import { AdminJobService } from "../../services/job/job.service";
 import { AdminJobMapper } from "../../mappers/admin/adminJob.mapper";
 import { JobRepository } from "../../repositories/job/job.repository";
 import { USER_ROLES } from "../../shared/enums/enums";
-import { AdminAnalyticsController } from "../../controllers/admin/admin.analytics.controller";
-import { AdminAnalyticsService } from "../../services/admin/admin.analytics.service";
-import { AdminAnalyticsRepository } from "../../repositories/admin/admin.analytics.repository";
+import { AdminAnalyticsController } from "../../controllers/admin/admin.analyticsController";
+import { AdminAnalyticsService } from "../../services/admin/admin.analyticsService";
+import { ApplicationRepository } from "../../repositories/application/application.repository";
+import { InterviewRepository } from "../../repositories/interview/interview.repository";
+import { AdminAnalyticsMapper } from "../../mappers/admin/admin.analytics.mapper";
 
 const router = Router();
+//Dependencies
 const adminRepository: IUserReader<IAdmin> = new AdminRepository();
 const tokenService: ITokenService = new TokenService();
 const adminMapper = new AdminMapper();
@@ -35,6 +41,11 @@ const employerMapper = new EmployerMapper();
 const emailService = new EmailService();
 const adminJobMapper = new AdminJobMapper();
 const jobRepo = new JobRepository();
+const candidateRepo = new CandidateRepository();
+const employerRepo = new EmployerRepository();
+const applicationRepo = new ApplicationRepository();
+const interviewRepo = new InterviewRepository();
+const mapper = new AdminAnalyticsMapper();
 
 // Services
 const adminAuthService = new AdminAuthService(
@@ -52,8 +63,15 @@ const adminEmployerService = new AdminEmployerService(
   emailService,
 );
 const jobService = new AdminJobService(jobRepo, adminJobMapper);
-const analyticsRepository = new AdminAnalyticsRepository();
-const analyticsService = new AdminAnalyticsService(analyticsRepository);
+
+const analyticsRepository = new AdminAnalyticsRepository(
+  candidateRepo,
+  employerRepo,
+  jobRepo,
+  applicationRepo,
+  interviewRepo,
+);
+const analyticsService = new AdminAnalyticsService(analyticsRepository, mapper);
 
 // Controllers
 const adminAuthController = new AdminAuthController(adminAuthService);

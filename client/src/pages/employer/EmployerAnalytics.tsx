@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../app/store";
-import { fetchEmployerAnalytics } from "../../thunks/employer.analytics.thunk";
-import { setTimeRange } from "../../slices/employerAnalyticsSlice";
+import { fetchEmployerAnalytics } from "../../thunks/employer.thunk";
+import { setAnalyticsTimeRange } from "../../features/employer/employerSlice";
 import {
   Users,
   Briefcase,
@@ -24,7 +24,7 @@ import { AnalyticsProgressList } from "../../components/common/analytics/Analyti
 const EmployerAnalytics: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { data, loading, timeRange } = useSelector(
-    (state: RootState) => state.employerAnalytics,
+    (state: RootState) => state.employer.analytics,
   );
 
   useEffect(() => {
@@ -32,7 +32,7 @@ const EmployerAnalytics: React.FC = () => {
   }, [dispatch, timeRange]);
 
   const handleTimeRangeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    dispatch(setTimeRange(e.target.value));
+    dispatch(setAnalyticsTimeRange(e.target.value));
   };
 
   const applicationsOverTime = data?.applicationsOverTime || [];
@@ -61,7 +61,7 @@ const EmployerAnalytics: React.FC = () => {
 
   // Calculate total value for percentage calculation in Pie chart
   const totalApplications = applicationsByStatus.reduce(
-    (sum, item) => sum + item.value,
+    (sum: any, item: any) => sum + item.value,
     0,
   );
 
@@ -219,7 +219,7 @@ const EmployerAnalytics: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {jobPostingPerformance.map((job) => (
+                {jobPostingPerformance.map((job: any) => (
                   <tr
                     key={job.job}
                     className="border-b border-gray-100 hover:bg-gray-50"

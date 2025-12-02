@@ -4,16 +4,8 @@ import {
   toggleBlockCandidate,
   fetchCandidateById,
 } from "../../thunks/admin.thunk";
-import type { Candidate } from "../../types/admin/admin.candidate.types";
+import type { CandidateState } from "../../types/admin/admin.candidate.types";
 import { toast } from "react-toastify";
-
-interface CandidateState {
-  candidates: Candidate[];
-  total: number;
-  selectedCandidate: Candidate | null;
-  loading: boolean;
-  error: string | null;
-}
 
 const initialState: CandidateState = {
   candidates: [],

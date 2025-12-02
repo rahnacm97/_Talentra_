@@ -69,3 +69,11 @@ export interface ProfileData {
   education: Education[];
   certifications: Certification[];
 }
+
+export interface CandidateState {
+  candidates: Candidate[];
+  total: number;
+  selectedCandidate: Candidate | null;
+  loading: boolean;
+  error: string | null;
+}

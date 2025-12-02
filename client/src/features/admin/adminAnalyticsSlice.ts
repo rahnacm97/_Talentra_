@@ -1,14 +1,9 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import {
-  fetchAdminAnalytics,
-  type AdminAnalyticsData,
-} from "../thunks/admin.analytics.thunk";
-
-interface AdminAnalyticsState {
-  data: AdminAnalyticsData | null;
-  loading: boolean;
-  error: string | null;
-}
+import { fetchAdminAnalytics } from "../../thunks/admin.thunk";
+import type {
+  AdminAnalyticsData,
+  AdminAnalyticsState,
+} from "../../types/admin/admin.types";
 
 const initialState: AdminAnalyticsState = {
   data: null,

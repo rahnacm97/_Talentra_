@@ -1,48 +1,46 @@
-import { createSlice } from "@reduxjs/toolkit";
-import type { IEmployer, Interview } from "../../types/employer/employer.types";
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import type { IEmployer } from "../../types/employer/employer.types";
+
 import {
   fetchEmployerProfile,
   updateEmployerProfile,
   fetchEmployerApplications,
+  fetchEmployerAnalytics,
 } from "../../thunks/employer.thunk";
-import type { EmployerApplicationsPaginatedDto } from "../../types/application/application.types";
-
-interface EmployerState {
-  profile: IEmployer | null;
-  loading: boolean;
-  error: string | null;
-  interviews: Interview[];
-  notifications: [];
-  applications: EmployerApplicationsPaginatedDto[];
-  appPagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
-  appLoading: boolean;
-}
+import { type EmployerState } from "../../types/employer/employer.types";
 
 const initialState: EmployerState = {
-  interviews: [],
   profile: null,
   loading: false,
   error: null,
-  notifications: [],
+
   applications: [],
-  appPagination: {
-    page: 0,
-    limit: 0,
-    total: 0,
-    totalPages: 0,
-  },
+  appPagination: { page: 0, limit: 0, total: 0, totalPages: 0 },
   appLoading: false,
+
+  analytics: {
+    data: null,
+    loading: false,
+    error: null,
+    timeRange: "30d",
+  },
+
+  interviews: [],
+  notifications: [],
 };
 
 const employerSlice = createSlice({
   name: "employer",
   initialState,
-  reducers: {},
+  reducers: {
+    setAnalyticsTimeRange: (state, action: PayloadAction<string>) => {
+      state.analytics.timeRange = action.payload;
+    },
+    clearAnalytics: (state) => {
+      state.analytics.data = null;
+      state.analytics.error = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchEmployerProfile.pending, (state) => {
@@ -55,21 +53,19 @@ const employerSlice = createSlice({
       })
       .addCase(fetchEmployerProfile.rejected, (state, action) => {
         state.loading = false;
-        state.error =
-          action.error.message || "Failed to fetch employer profile";
+        state.error = action.error.message || "Failed to fetch profile";
       })
+
       .addCase(updateEmployerProfile.pending, (state) => {
         state.loading = true;
-        state.error = null;
       })
       .addCase(updateEmployerProfile.fulfilled, (state, action) => {
         state.loading = false;
-        state.profile = { ...state.profile, ...action.payload };
+        state.profile = { ...state.profile, ...action.payload } as IEmployer;
       })
       .addCase(updateEmployerProfile.rejected, (state, action) => {
         state.loading = false;
-        state.error =
-          action.error.message || "Failed to update employer profile";
+        state.error = action.error.message || "Failed to update profile";
       })
       .addCase(fetchEmployerApplications.pending, (state) => {
         state.appLoading = true;
@@ -83,8 +79,22 @@ const employerSlice = createSlice({
       .addCase(fetchEmployerApplications.rejected, (state, action) => {
         state.appLoading = false;
         state.error = action.payload as string;
+      })
+      .addCase(fetchEmployerAnalytics.pending, (state) => {
+        state.analytics.loading = true;
+        state.analytics.error = null;
+      })
+      .addCase(fetchEmployerAnalytics.fulfilled, (state, action) => {
+        state.analytics.loading = false;
+        state.analytics.data = action.payload;
+      })
+      .addCase(fetchEmployerAnalytics.rejected, (state, action) => {
+        state.analytics.loading = false;
+        state.analytics.error = action.payload as string;
       });
   },
 });
+
+export const { setAnalyticsTimeRange, clearAnalytics } = employerSlice.actions;
 
 export default employerSlice.reducer;

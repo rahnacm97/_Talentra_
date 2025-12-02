@@ -19,12 +19,13 @@ import { EmployerJobController } from "../../controllers/job/job.controller";
 import { CandidateJobController } from "../../controllers/job/job.controller";
 import { CandidateRepository } from "../../repositories/candidate/candidate.repository";
 
+//Dependencies
 const jobRepo = new JobRepository();
 const employerRepo = new EmployerRepository();
 const applicationRepo = new ApplicationRepository();
 const candRepo = new CandidateRepository();
 const jobMapper = new JobMapper();
-
+//Service with dependencies
 const employerService = new EmployerJobService(
   jobRepo,
   jobMapper,
@@ -36,12 +37,12 @@ const candidateService = new CandidateJobService(
   jobMapper,
   applicationRepo,
 );
-
+//Controller
 const employerController = new EmployerJobController(employerService);
 const candidateController = new CandidateJobController(candidateService);
 
 const router = Router();
-
+//Routes
 router.get("/", candidateController.getPublicJobs.bind(candidateController));
 router.get(
   "/public/:id",

@@ -36,25 +36,13 @@ const employerSchema = new Schema<IEmployer>({
   hiredCandidates: { type: Number, default: 0 },
   profileViews: { type: Number, default: 0 },
 
-  subscription: {
-    active: { type: Boolean, default: false },
-    plan: {
-      type: String,
-      enum: ["free", "professional", "enterprise"],
-      default: "free",
-    },
-    status: {
-      type: String,
-      enum: ["active", "cancelled", "past_due", "trialing", "incomplete"],
-      default: "inactive",
-    },
-    currentPeriodEnd: { type: Date },
-    razorpaySubscriptionId: { type: String },
-    trialEndsAt: { type: Date },
+  hasActiveSubscription: { type: Boolean, default: false },
+  currentPlan: {
+    type: String,
+    enum: ["free", "professional", "enterprise"],
+    default: "free",
   },
+  trialEndsAt: { type: Date },
 });
-
-employerSchema.index({ "subscription.active": 1 });
-employerSchema.index({ "subscription.plan": 1 });
 
 export default model<IEmployer>("Employer", employerSchema);

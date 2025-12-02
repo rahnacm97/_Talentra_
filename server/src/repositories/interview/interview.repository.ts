@@ -8,7 +8,7 @@ import {
   IInterviewQuery,
   IInterviewWithDetails,
 } from "../../interfaces/interviews/IInterview";
-import { PipelineStage } from "mongoose";
+import { PipelineStage, FilterQuery } from "mongoose";
 import mongoose from "mongoose";
 
 export class InterviewRepository
@@ -428,5 +428,9 @@ export class InterviewRepository
       ...(doc.createdAt && { createdAt: doc.createdAt }),
       ...(doc.updatedAt && { updatedAt: doc.updatedAt }),
     };
+  }
+
+  async count(query: FilterQuery<IInterview> = {}): Promise<number> {
+    return await Interview.countDocuments(query);
   }
 }

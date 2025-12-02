@@ -20,10 +20,14 @@ export interface User {
   _id: string;
   name: string;
   email: string;
+  phoneNumber?: string;
   role: "Candidate" | "Employer" | "Admin";
   blocked: boolean;
   emailVerified?: boolean;
   verified?: boolean;
+  hasActiveSubscription?: boolean;
+  trialEndsAt?: string;
+  currentPlan?: "free" | "professional" | "enterprise";
 }
 
 export interface AuthResponse {

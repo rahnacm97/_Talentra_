@@ -21,8 +21,31 @@ interface SidebarItem {
   path: string;
 }
 
+import { useSelector } from "react-redux";
+import type { RootState } from "../../app/store";
+import { useLocation } from "react-router-dom";
+import SubscriptionExpiredModal from "../../components/employer/SubscriptionExpiredModal";
+
 const EmployerLayout: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+  const { user } = useSelector((state: RootState) => state.auth);
+  const location = useLocation();
+
+  const isSubscriptionActiveOrTrialing = React.useMemo(() => {
+    if (!user || user.role !== "Employer") return false;
+
+    if (user.hasActiveSubscription) return true;
+
+    if (user.trialEndsAt) {
+      return new Date(user.trialEndsAt) > new Date();
+    }
+
+    return false;
+  }, [user]);
+
+  const showSubscriptionModal =
+    !isSubscriptionActiveOrTrialing &&
+    location.pathname !== FRONTEND_ROUTES.EMPLOYERRBILLING;
 
   const sidebarItems: SidebarItem[] = [
     {
@@ -78,6 +101,7 @@ const EmployerLayout: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
+      <SubscriptionExpiredModal isOpen={showSubscriptionModal} />
       <div className="flex">
         <EmployerSidebar
           isSidebarOpen={isSidebarOpen}

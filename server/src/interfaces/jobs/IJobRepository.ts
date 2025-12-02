@@ -1,6 +1,7 @@
 import { IJob } from "./IJob";
 import { IEmployer } from "../users/employer/IEmployer";
 import { ExperienceLevel } from "./IJob";
+import { FilterQuery, PipelineStage } from "mongoose";
 
 export interface IJobRepository {
   create(jobData: Partial<IJob>): Promise<IJob>;
@@ -46,4 +47,7 @@ export interface IJobRepository {
 
   getAvailableSkills(): Promise<string[]>;
   incrementApplicants(jobId: string): Promise<void>;
+  countAll(): Promise<number>;
+  count(query: FilterQuery<unknown>): Promise<number>;
+  aggregate<T>(pipeline: PipelineStage[]): Promise<T[]>;
 }

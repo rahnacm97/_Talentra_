@@ -29,6 +29,22 @@ api.interceptors.response.use(
     const resp = error.response;
     const navigate = useNavigationStore.getState().navigate;
 
+    // Check for subscription required error
+    const isSubscriptionRequired =
+      resp?.status === 403 && resp?.data?.code === "SUBSCRIPTION_REQUIRED";
+
+    if (isSubscriptionRequired) {
+      toast.error(
+        resp?.data?.message || "Subscription required to access this feature.",
+      );
+      if (navigate) {
+        navigate(FRONTEND_ROUTES.EMPLOYERRBILLING);
+      } else {
+        window.location.href = FRONTEND_ROUTES.EMPLOYERRBILLING;
+      }
+      return Promise.reject(error);
+    }
+
     const isBlocked =
       resp?.status === 403 &&
       (resp?.data?.blocked === true ||

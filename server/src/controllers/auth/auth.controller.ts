@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { IAuthService } from "../../interfaces/auth/IAuthService";
 import { AuthSignupDTO, AuthLoginDTO } from "../../dto/auth/auth.dto";
+import { EmployerUserData } from "../../interfaces/users/employer/IEmployer";
 import { ERROR_MESSAGES, SUCCESS_MESSAGES } from "../../shared/enums/enums";
 import { HTTP_STATUS } from "../../shared/httpStatus/httpStatusCode";
 import { IAuthController } from "../../interfaces/auth/IAuthController";
@@ -28,6 +29,12 @@ export class AuthController implements IAuthController {
         email: result.user.email,
         name: result.user.name,
         role: data.userType,
+        ...(data.userType === "Employer" && {
+          hasActiveSubscription: (result.user as EmployerUserData)
+            .hasActiveSubscription,
+          trialEndsAt: (result.user as EmployerUserData).trialEndsAt,
+          currentPlan: (result.user as EmployerUserData).currentPlan,
+        }),
       });
 
       setAuthCookies(res, result.refreshToken, userInfo);
@@ -44,6 +51,12 @@ export class AuthController implements IAuthController {
           email: result.user.email,
           name: result.user.name,
           role: data.userType,
+          ...(data.userType === "Employer" && {
+            hasActiveSubscription: (result.user as EmployerUserData)
+              .hasActiveSubscription,
+            trialEndsAt: (result.user as EmployerUserData).trialEndsAt,
+            currentPlan: (result.user as EmployerUserData).currentPlan,
+          }),
         },
         accessToken: result.accessToken,
       });
@@ -73,6 +86,10 @@ export class AuthController implements IAuthController {
         role: result.user.role,
         ...(result.user.role === "Employer" && {
           verified: result.user.verified,
+          hasActiveSubscription: (result.user as EmployerUserData)
+            .hasActiveSubscription,
+          trialEndsAt: (result.user as EmployerUserData).trialEndsAt,
+          currentPlan: (result.user as EmployerUserData).currentPlan,
         }),
       });
 
@@ -92,6 +109,10 @@ export class AuthController implements IAuthController {
           role: result.user.role,
           ...(result.user.role === "Employer" && {
             verified: result.user.verified,
+            hasActiveSubscription: (result.user as EmployerUserData)
+              .hasActiveSubscription,
+            trialEndsAt: (result.user as EmployerUserData).trialEndsAt,
+            currentPlan: (result.user as EmployerUserData).currentPlan,
           }),
         },
         accessToken: result.accessToken,
@@ -122,7 +143,7 @@ export class AuthController implements IAuthController {
       }
 
       const result = await this._authService.refreshToken(refreshToken);
-      
+
       const userInfo = JSON.stringify({
         _id: result.user._id,
         email: result.user.email,
@@ -130,6 +151,10 @@ export class AuthController implements IAuthController {
         role: result.user.role,
         ...(result.user.role === "Employer" && {
           verified: result.user.verified,
+          hasActiveSubscription: (result.user as EmployerUserData)
+            .hasActiveSubscription,
+          trialEndsAt: (result.user as EmployerUserData).trialEndsAt,
+          currentPlan: (result.user as EmployerUserData).currentPlan,
         }),
       });
 
@@ -146,6 +171,10 @@ export class AuthController implements IAuthController {
           role: result.user.role,
           ...(result.user.role === "Employer" && {
             verified: result.user.verified,
+            hasActiveSubscription: (result.user as EmployerUserData)
+              .hasActiveSubscription,
+            trialEndsAt: (result.user as EmployerUserData).trialEndsAt,
+            currentPlan: (result.user as EmployerUserData).currentPlan,
           }),
         },
       });

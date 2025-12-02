@@ -9,6 +9,7 @@ export const API_ROUTES = {
     VERIFY_EMPLOYER: "/admin/employers",
     REJECT_EMPLOYER: (id: string) => `/admin/employers/${id}/reject`,
     JOBS: "/admin/jobs",
+    DASHBOARD_ANALYTICS: "/admin/analytics/dashboard",
   },
   AUTH: {
     SIGNUP: "/auth/signup",
@@ -39,6 +40,7 @@ export const API_ROUTES = {
       `/employer/${employerId}/applications`,
     UPDATE_APPLICATION_STATUS: (employerId: string, applicationId: string) =>
       `/employer/${employerId}/applications/${applicationId}/status`,
+    ANALYTICS: "/employer/analytics",
   },
   JOBS: {
     PUBLIC: "/jobs",
@@ -48,9 +50,9 @@ export const API_ROUTES = {
     SAVED: "/jobs/saved",
   },
   SUBSCRIPTION: {
-    CREATE: "/subscription/create",
-    CURRENT: "/subscription/current",
-    CANCEL: "/subscription/cancel",
+    CREATE_ORDER: "/employer/subscription/create-order",
+    VERIFY_PAYMENT: "/employer/subscription/verify-payment",
+    HISTORY: "/employer/subscription/history",
   },
   INTERVIEWS: {
     CANDIDATE: "/candidate/interviews",

@@ -17,22 +17,26 @@ import { verifyCandidate } from "../../middlewares/validationMiddleware";
 import { candidateInterviewRouter } from "../interview/interview.routes";
 
 const router = Router();
+//Dependendies
 const candidateMapper = new CandidateMapper();
 const candidateRepository = new CandidateRepository();
+const applRepository = new ApplicationRepository();
+const jobRepository = new JobRepository();
+const applMapper = new ApplicationMapper();
 
+//Service with dependencies
 const candidateService = new CandidateService(
   candidateRepository,
   candidateMapper,
 );
-const applRepository = new ApplicationRepository();
-const jobRepository = new JobRepository();
-const applMapper = new ApplicationMapper();
+
 const applicationService = new CandidateApplicationService(
   applRepository,
   jobRepository,
   applMapper,
   candidateService,
 );
+//Controller
 const candidateController = new CandidateController(
   candidateService,
   applicationService,
@@ -42,6 +46,7 @@ const candidateApplicationsController = new CandidateApplicationsController(
   applicationService,
 );
 
+//Routes
 router.use("/interviews", candidateInterviewRouter);
 
 router.get(

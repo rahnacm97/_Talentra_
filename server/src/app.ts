@@ -6,8 +6,6 @@ import authRoutes from "./routes/auth/auth.routes";
 import candidateRoutes from "./routes/candidate/candidate.routes";
 import employerRoutes from "./routes/employer/employer.routes";
 import adminRoutes from "./routes/admin/admin.routes";
-//import subscriptionRoutes from "./routes/subscription/subscription.routes";
-import homepageRoutes from "./routes/homepage/homepage.routes";
 import jobRoutes from "./routes/job/job.routes";
 import { errorHandler } from "./middlewares/errorHandler";
 import dotenv from "dotenv";
@@ -33,8 +31,6 @@ app.use("/api/auth", authRoutes);
 app.use("/api/candidate", candidateRoutes);
 app.use("/api/employer", employerRoutes);
 app.use("/api/admin", adminRoutes);
-//app.use("/api/subscription", subscriptionRoutes);
-app.use("/api/public", homepageRoutes);
 app.use("/api/jobs", jobRoutes);
 
 app.use(errorHandler);

@@ -433,4 +433,12 @@ export class JobRepository implements IJobRepository {
       { $inc: { applicants: 1 } },
     );
   }
+
+  async count(query: FilterQuery<IJob> = {}): Promise<number> {
+    return await Job.countDocuments(query);
+  }
+
+  async aggregate<T>(pipeline: PipelineStage[]): Promise<T[]> {
+    return (await Job.aggregate(pipeline).exec()) as T[];
+  }
 }

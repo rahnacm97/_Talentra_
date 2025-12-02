@@ -25,6 +25,7 @@ import {
   verifyEmployer,
   rejectEmployer,
 } from "../../thunks/admin.thunk";
+import { FRONTEND_ROUTES } from "../../shared/constants/constants";
 
 const AdminEmployerView: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -135,7 +136,7 @@ const AdminEmployerView: React.FC = () => {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
           <p className="text-gray-600 mb-4">Employer not found</p>
           <Link
-            to="/admin-employers"
+            to={FRONTEND_ROUTES.ADMINEMPLOYERS}
             className="inline-flex items-center text-blue-600 hover:text-blue-700"
           >
             <ArrowBackIcon sx={{ fontSize: 18, mr: 0.5 }} />
@@ -284,7 +285,7 @@ const AdminEmployerView: React.FC = () => {
       {/* Header */}
       <div className="mb-6">
         <button
-          onClick={() => navigate("/admin-employers")}
+          onClick={() => navigate(FRONTEND_ROUTES.ADMINEMPLOYERS)}
           className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4 transition-colors"
         >
           <ArrowBackIcon sx={{ fontSize: 18, mr: 0.5 }} />

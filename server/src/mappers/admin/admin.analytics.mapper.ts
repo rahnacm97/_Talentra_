@@ -1,15 +1,16 @@
 import {
   IDashboardStats,
   ITopPerformingJob,
-} from "../../interfaces/admin/IAdminAnalyticsRepository";
+} from "../../interfaces/users/admin/IAdminAnalyticsRepository";
 import {
   AdminAnalyticsDTO,
   DashboardStatsDTO,
   TopPerformingJobDTO,
 } from "../../dto/admin/admin.analytics.dto";
+import { IAdminAnalyticsMapper } from "../../interfaces/users/admin/IAdminAnalyticsMapper";
 
-export class AdminAnalyticsMapper {
-  static toDashboardStatsDTO(stats: IDashboardStats): DashboardStatsDTO {
+export class AdminAnalyticsMapper implements IAdminAnalyticsMapper {
+  toDashboardStatsDTO(stats: IDashboardStats): DashboardStatsDTO {
     return {
       totalCandidates: stats.totalCandidates,
       totalEmployers: stats.totalEmployers,
@@ -22,7 +23,7 @@ export class AdminAnalyticsMapper {
     };
   }
 
-  static toTopPerformingJobDTO(job: ITopPerformingJob): TopPerformingJobDTO {
+  toTopPerformingJobDTO(job: ITopPerformingJob): TopPerformingJobDTO {
     return {
       id: job.id,
       title: job.title,
@@ -32,7 +33,7 @@ export class AdminAnalyticsMapper {
     };
   }
 
-  static toAdminAnalyticsDTO(
+  toAdminAnalyticsDTO(
     stats: IDashboardStats,
     topJobs: ITopPerformingJob[],
   ): AdminAnalyticsDTO {

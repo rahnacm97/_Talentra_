@@ -8,21 +8,7 @@ import {
   unsaveJob,
 } from "../../thunks/job.thunk";
 import { applyJob } from "../../thunks/candidate.thunks";
-import type { JobResponse } from "../../types/job/job.types";
-
-interface CandidateJobState {
-  jobs: JobResponse[];
-  total: number;
-  page: number;
-  limit: number;
-  loadingJobId: string | null;
-  loading: boolean;
-  error: string | null;
-  availableSkills: string[];
-  selectedSkills: string[];
-  savedJobs: JobResponse[];
-  savedJobsLoading: boolean;
-}
+import type { JobResponse, CandidateJobState } from "../../types/job/job.types";
 
 const initialState: CandidateJobState = {
   jobs: [],

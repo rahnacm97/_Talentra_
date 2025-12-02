@@ -1,12 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import {
-  Calendar,
-  User,
-  Briefcase,
-  Search,
-  Eye,
-  X, 
-} from "lucide-react";
+import { Calendar, User, Briefcase, Search, Eye, X } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
 import { fetchEmployerInterviews } from "../../thunks/interview.thunks";
 import { formatFullName } from "../../utils/formatters";
@@ -49,7 +42,6 @@ const EmployerInterview: React.FC = () => {
     setCurrentPage(newPage);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
-
 
   if (loading && interviews.length === 0) {
     return (

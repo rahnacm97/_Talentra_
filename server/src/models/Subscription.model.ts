@@ -1,44 +1,64 @@
 import { Schema, model } from "mongoose";
-import { IEmployerSubscription } from "../interfaces/subscription/IEmployerSubscription";
+import { ISubscription } from "../interfaces/subscription/ISubscription";
 
-const EmployerSubscriptionSchema = new Schema<IEmployerSubscription>(
+const subscriptionSchema = new Schema<ISubscription>(
   {
     employerId: {
       type: Schema.Types.ObjectId,
       ref: "Employer",
       required: true,
-      index: true,
     },
     plan: {
       type: String,
       enum: ["free", "professional", "enterprise"],
-      default: "free",
+      required: true,
+    },
+    startDate: {
+      type: Date,
+      required: true,
+    },
+    endDate: {
+      type: Date,
+      required: true,
     },
     status: {
       type: String,
-      enum: ["active", "cancelled", "past_due", "trialing", "incomplete"],
-      default: "incomplete",
+      enum: ["active", "expired", "past_due", "cancelled"],
+      default: "active",
     },
-    razorpay: {
-      subscriptionId: { type: String, unique: true, sparse: true },
-      customerId: String,
-      planId: String,
-      currentPeriodStart: Date,
-      currentPeriodEnd: Date,
-      cancelAtPeriodEnd: { type: Boolean, default: false },
+    price: {
+      type: Number,
+      required: true,
     },
-    trialEndsAt: Date,
-    cancelledAt: Date,
-    activatedAt: Date,
-    metadata: { type: Schema.Types.Mixed, default: {} },
+    subtotal: {
+      type: Number,
+      required: true,
+    },
+    gstRate: {
+      type: Number,
+      required: true,
+      default: 0.18,
+    },
+    gstAmount: {
+      type: Number,
+      required: true,
+    },
+    totalAmount: {
+      type: Number,
+      required: true,
+    },
+    transactionId: {
+      type: String,
+    },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+  },
 );
 
-EmployerSubscriptionSchema.index({ employerId: 1, status: 1 });
-EmployerSubscriptionSchema.index({ "razorpay.subscriptionId": 1 });
+// Index for faster queries by employerId
+subscriptionSchema.index({ employerId: 1 });
+// Index for finding active subscriptions
+subscriptionSchema.index({ employerId: 1, status: 1, endDate: 1 });
 
-export default model<IEmployerSubscription>(
-  "EmployerSubscription",
-  EmployerSubscriptionSchema,
-);
+export default model<ISubscription>("Subscription", subscriptionSchema);

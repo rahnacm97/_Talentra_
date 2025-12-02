@@ -34,6 +34,12 @@ export enum ERROR_MESSAGES {
   AUTHENTICATION = "Authentication required",
   APPLICATION_NOT_FOUND = "Application not found",
   FAILED_LOADING = "Failed to load updated application",
+  ENV_ERROR = "Razorpay credentials not configured. Please add RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET to your .env file",
+  RAZORPAY_ERROR = "Error creating Razorpay order",
+  SIGNATURE_ERROR = "Invalid signature",
+  UPLOAD_ERROR = "Failed to upload file",
+  PAYMENT_VERIFICATION_ERROR = "Payment verification failed",
+  SUBSCRIPTION_HISTORY_ERROR = "Failed to fetch subscription history",
 }
 
 export enum SUCCESS_MESSAGES {
@@ -58,6 +64,7 @@ export enum SUCCESS_MESSAGES {
   INTERVIEWS_FETCHED = "Interviews fetched successfully",
   INTERVIEW_CANCELLED = "Interview cancelled successfully",
   INTERVIEW_RESCHEDULED = "Interview rescheduled successfully",
+  SUBSCRIPTION_ACTIVATED = "Subscription activated successfully",
 }
 
 export enum USER_ROLES {

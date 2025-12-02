@@ -3,6 +3,7 @@ import type {
   IEmployer,
   FetchJobsParams,
   FetchJobsResponse,
+  EmployerAnalyticsData,
 } from "../../types/employer/employer.types";
 import type { EmployerApplicationsPaginatedDto } from "../../types/application/application.types";
 import { API_ROUTES } from "../../shared/constants/constants";
@@ -104,5 +105,15 @@ export const updateApplicationStatusApi = async (
     API_ROUTES.EMPLOYER.UPDATE_APPLICATION_STATUS(employerId, applicationId),
     data,
   );
+  return response.data.data;
+};
+
+export const fetchEmployerAnalyticsApi = async (
+  timeRange: string = "30d",
+): Promise<EmployerAnalyticsData> => {
+  const response = await api.get(API_ROUTES.EMPLOYER.ANALYTICS, {
+    params: { timeRange },
+  });
+
   return response.data.data;
 };

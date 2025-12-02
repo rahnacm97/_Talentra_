@@ -1,5 +1,8 @@
 import { api } from "../../api/api";
-import type { AdminLoginRequest } from "../../types/admin/admin.types";
+import type {
+  AdminLoginRequest,
+  AdminAnalyticsData,
+} from "../../types/admin/admin.types";
 import { API_ROUTES } from "../../shared/constants/constants";
 import type {
   Candidate,
@@ -106,3 +109,8 @@ export const getAdminJobs = (
   params: GetAdminJobsParams,
 ): Promise<AdminJobsResponse> =>
   api.get(API_ROUTES.ADMIN.JOBS, { params }).then((res) => res.data);
+
+export const fetchAdminAnalyticsApi = async (): Promise<AdminAnalyticsData> => {
+  const response = await api.get(API_ROUTES.ADMIN.DASHBOARD_ANALYTICS);
+  return response.data.data;
+};

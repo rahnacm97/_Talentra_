@@ -24,7 +24,7 @@ export interface PaymentDetailsDTO {
 }
 
 export interface PlanDetailsDTO {
-  plan: "professional" | "enterprise";
+  plan: "free" | "professional" | "enterprise";
   price: number;
   durationInMonths: number;
 }
@@ -60,19 +60,4 @@ export interface SubscriptionHistoryItemDTO {
 export interface SubscriptionHistoryResponseDTO {
   subscriptions: SubscriptionHistoryItemDTO[];
   total: number;
-}
-
-// Internal DTOs for data creation
-export interface CreateSubscriptionData {
-  employerId: string;
-  plan: "professional" | "enterprise";
-  startDate: Date;
-  endDate: Date;
-  status: "active" | "expired" | "past_due" | "cancelled";
-  price: number;
-  subtotal: number;
-  gstRate: number;
-  gstAmount: number;
-  totalAmount: number;
-  transactionId: string;
 }

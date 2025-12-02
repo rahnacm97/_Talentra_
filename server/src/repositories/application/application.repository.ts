@@ -14,7 +14,7 @@ import {
   CandidateExperience,
 } from "../../interfaces/applications/IApplication";
 import type { MatchFilter } from "../../type/application/application.type";
-import { PipelineStage } from "mongoose";
+import { PipelineStage, FilterQuery } from "mongoose";
 import mongoose from "mongoose";
 import JobModel from "../../models/Job.model";
 
@@ -528,6 +528,21 @@ export class ApplicationRepository
       appliedAt: doc.appliedAt,
       interviewDate: doc.interviewDate,
       status: doc.status,
+      createdAt: doc.createdAt || new Date(),
+      updatedAt: doc.updatedAt || new Date(),
     };
+  }
+
+  async count(query: FilterQuery<IApplication> = {}): Promise<number> {
+    return await Application.countDocuments(query);
+  }
+
+  async aggregate<T>(pipeline: PipelineStage[]): Promise<T[]> {
+    return (await Application.aggregate(pipeline).exec()) as T[];
+  }
+
+  async find(query: FilterQuery<IApplication>): Promise<IApplication[]> {
+    const docs = await Application.find(query).exec();
+    return docs.map((doc) => this.toDomain(doc));
   }
 }

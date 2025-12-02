@@ -3,6 +3,7 @@ import {
   IInterviewQuery,
   IInterviewWithDetails,
 } from "./IInterview";
+import { FilterQuery } from "mongoose";
 
 export interface ICandidateInterviewRepository {
   findByCandidateId(
@@ -14,6 +15,8 @@ export interface ICandidateInterviewRepository {
     candidateId: string,
     filters?: { status?: string; search?: string },
   ): Promise<number>;
+
+  count(query: FilterQuery<unknown>): Promise<number>;
 }
 
 export interface IEmployerInterviewRepository {

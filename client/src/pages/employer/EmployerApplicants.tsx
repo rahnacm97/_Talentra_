@@ -47,14 +47,14 @@ const EmployerApplicants: React.FC = () => {
 
   const jobTitles = Array.from(new Set(applications.map((a) => a.jobTitle)));
 
-    useEffect(() => {
-      const timer = setTimeout(() => {
-        setDebouncedSearch(searchTerm);
-        setCurrentPage(1);
-      }, 500);
-  
-      return () => clearTimeout(timer);
-    }, [searchTerm]);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+      setCurrentPage(1);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   useEffect(() => {
     if (!employerId) return;
@@ -69,7 +69,14 @@ const EmployerApplicants: React.FC = () => {
         jobTitle: filterJob === "all" ? undefined : filterJob,
       }),
     );
-  }, [dispatch, employerId, currentPage, debouncedSearch, filterStatus, filterJob]);
+  }, [
+    dispatch,
+    employerId,
+    currentPage,
+    debouncedSearch,
+    filterStatus,
+    filterJob,
+  ]);
 
   useEffect(() => {
     setCurrentPage(1);

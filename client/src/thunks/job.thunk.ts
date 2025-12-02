@@ -91,7 +91,7 @@ export const unsaveJob = createAsyncThunk(
   },
 );
 
-// Fetch saved jobs with pagination, search, and type filter
+// Fetch saved jobs
 export const fetchSavedJobs = createAsyncThunk(
   "jobs/fetchSavedJobs",
   async (

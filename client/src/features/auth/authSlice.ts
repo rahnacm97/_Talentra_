@@ -66,6 +66,20 @@ const authSlice = createSlice({
         });
       }
     },
+    updateSubscriptionStatus: (
+      state,
+      action: PayloadAction<{
+        hasActiveSubscription: boolean;
+        currentPlan?: "free" | "professional" | "enterprise";
+      }>,
+    ) => {
+      if (state.user) {
+        state.user.hasActiveSubscription = action.payload.hasActiveSubscription;
+        if (action.payload.currentPlan) {
+          state.user.currentPlan = action.payload.currentPlan;
+        }
+      }
+    },
   },
   extraReducers: (builder) => {
     builder

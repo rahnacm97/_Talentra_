@@ -45,7 +45,9 @@ export interface IEmployer extends Document {
     totalApplicants: number;
     hiredThisMonth: number;
   };
-  subscription: EmployerCurrentSubscription;
+  hasActiveSubscription: boolean;
+  currentPlan: "free" | "professional" | "enterprise";
+  trialEndsAt?: Date | null;
 }
 
 export interface PostedJob {
@@ -62,16 +64,13 @@ export interface PostedJob {
 }
 
 export interface EmployerCurrentSubscription {
-  active: boolean;
-  plan: "free" | "professional" | "enterprise";
-  status:
-    | "active"
-    | "cancelled"
-    | "past_due"
-    | "trialing"
-    | "incomplete"
-    | "inactive";
-  currentPeriodEnd?: Date | null;
-  razorpaySubscriptionId?: string | null;
+  hasActiveSubscription: boolean;
+  currentPlan: "free" | "professional" | "enterprise";
   trialEndsAt?: Date | null;
+}
+
+export interface EmployerUserData {
+  hasActiveSubscription?: boolean;
+  trialEndsAt?: Date | null;
+  currentPlan?: "free" | "professional" | "enterprise";
 }

@@ -25,7 +25,9 @@ import AdminEmployerView from "./pages/admin/AdminEmployerView";
 import { ProtectedRoute } from "./components/common/ProtectedRoute";
 import { AdminProtectedRoute } from "./components/admin/AdminProtectedRoute";
 import { FRONTEND_ROUTES } from "./shared/constants/constants";
-import AuthRouteGuard, { HistoryLock } from "./components/common/AuthRouteGuard";
+import AuthRouteGuard, {
+  HistoryLock,
+} from "./components/common/AuthRouteGuard";
 import NavigationProvider from "./components/common/NavigationProvider";
 import EmployerJobs from "./pages/employer/EmployerJobs";
 import EmployerApplicants from "./pages/employer/EmployerApplicants";
@@ -55,7 +57,7 @@ const App: React.FC = () => {
     <>
       <Router>
         <NavigationProvider />
-        <HistoryLock/>
+        <HistoryLock />
         <AuthRouteGuard>
           <ToastContainer
             position="top-right"

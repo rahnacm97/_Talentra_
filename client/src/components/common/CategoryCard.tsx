@@ -14,16 +14,16 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
   color = "blue",
 }) => {
   const colorClasses = {
-    blue: "from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700",
+    blue: "from-blue-400 to-blue-500 hover:from-blue-500 hover:to-blue-600",
     green:
-      "from-green-500 to-green-600 hover:from-green-600 hover:to-green-700",
+      "from-green-400 to-green-500 hover:from-green-600 hover:to-green-700",
     purple:
-      "from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700",
+      "from-purple-400 to-purple-500 hover:from-purple-600 hover:to-purple-700",
     orange:
-      "from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700",
-    pink: "from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700",
+      "from-orange-400 to-orange-500 hover:from-orange-600 hover:to-orange-700",
+    pink: "from-pink-400 to-pink-500 hover:from-pink-600 hover:to-pink-700",
     indigo:
-      "from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700",
+      "from-indigo-400 to-indigo-500 hover:from-indigo-600 hover:to-indigo-700",
   };
 
   return (

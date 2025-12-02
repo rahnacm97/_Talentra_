@@ -3,42 +3,126 @@ import JobModel from "../models/Job.model";
 import { USER_ROLES } from "../shared/enums/enums";
 import { HTTP_STATUS } from "../shared/httpStatus/httpStatusCode";
 import { ERROR_MESSAGES } from "../shared/enums/enums";
+import { EmployerRepository } from "../repositories/employer/employer.repository";
+import Subscription from "../models/Subscription.model";
 
 export type AuthenticatedRequest = Request & {
-  user?: {
-    _id: string;
-    id: string;
-    role: USER_ROLES;
-    email: string;
-    blocked?: boolean;
-    subscription?: {
-      active: boolean;
-      plan: "free" | "professional" | "enterprise";
-      status: string;
-      currentPeriodEnd?: Date | null;
-      razorpaySubscriptionId?: string | null;
-      trialEndsAt?: Date | null;
-    };
-  };
+  user?:
+    | {
+        _id: string;
+        id: string;
+        role: USER_ROLES;
+        email: string;
+        blocked?: boolean;
+        hasActiveSubscription?: boolean;
+
+        trialEndsAt?: Date | null;
+        currentPlan?: "free" | "professional" | "enterprise";
+      }
+    | undefined;
   maskApplications?: boolean;
 };
 
-export const checkPlanAccess = async (
-  req: AuthenticatedRequest,
+export const requireActiveSubscription = async (
+  req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    if (!req.user || req.user.role !== USER_ROLES.EMPLOYER) {
+    const authenticatedReq = req as AuthenticatedRequest;
+
+    if (
+      !authenticatedReq.user ||
+      authenticatedReq.user.role !== USER_ROLES.EMPLOYER
+    ) {
       return next();
     }
 
-    const plan = req.user.subscription?.plan || "free";
+    // Fetch employer to check subscription
+    const employerRepo = new EmployerRepository();
+    const employer = await employerRepo.findById(authenticatedReq.user.id);
+
+    if (!employer) {
+      return res.status(401).json({
+        success: false,
+        message: "Employer not found",
+      });
+    }
+
+    const now = new Date();
+
+    // Check trial period
+    const isTrialActive =
+      employer.trialEndsAt && new Date(employer.trialEndsAt) > now;
+
+    // Check subscription status
+    let hasValidSubscription = false;
+    if (employer.hasActiveSubscription) {
+      // Get the most recent active subscription from collection
+      const latestSubscription = await Subscription.findOne({
+        employerId: employer._id,
+        status: "active",
+      }).sort({ endDate: -1 });
+
+      if (latestSubscription) {
+        const subscriptionEndDate = new Date(latestSubscription.endDate);
+
+        if (subscriptionEndDate > now) {
+          hasValidSubscription = true;
+        } else {
+          // Subscription expired - update the flag
+          await employerRepo.updateOne(employer._id, {
+            hasActiveSubscription: false,
+          });
+        }
+      } else {
+        // hasActiveSubscription is true but no active subscription found
+        // Treat as expired
+        await employerRepo.updateOne(employer._id, {
+          hasActiveSubscription: false,
+        });
+      }
+    }
+
+    if (hasValidSubscription || isTrialActive) {
+      return next();
+    }
+
+    return res.status(403).json({
+      success: false,
+      message: "Subscription required",
+      code: "SUBSCRIPTION_REQUIRED",
+    });
+  } catch (error) {
+    console.error("Subscription check error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+export const checkPlanAccess = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const authenticatedReq = req as AuthenticatedRequest;
+
+    if (
+      !authenticatedReq.user ||
+      authenticatedReq.user.role !== USER_ROLES.EMPLOYER
+    ) {
+      return next();
+    }
+
+    const plan = authenticatedReq.user.currentPlan || "free";
 
     if (req.method === "POST" && req.originalUrl.includes("/jobs")) {
       if (plan === "free") {
         const count = await JobModel.countDocuments({
-          employerId: req.user._id,
+          employerId: authenticatedReq.user._id,
           status: { $in: ["active", "draft", "closed", "all"] },
         });
 
@@ -59,7 +143,7 @@ export const checkPlanAccess = async (
     // APPLICATIONS: MASK + BLOCK ACTIONS
     if (req.originalUrl.includes("/applications")) {
       if (plan === "free") {
-        req.maskApplications = true;
+        authenticatedReq.maskApplications = true;
 
         if (req.method === "PATCH" || req.method === "PUT") {
           return res.status(HTTP_STATUS.FORBIDDEN).json({

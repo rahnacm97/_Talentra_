@@ -85,7 +85,8 @@ export const verifyAuth =
         email: decoded.email,
         blocked: "blocked" in user ? user.blocked : false,
         ...(decoded.role === USER_ROLES.EMPLOYER && {
-          subscription: (user as IEmployer).subscription,
+          hasActiveSubscription: (user as IEmployer).hasActiveSubscription,
+          trialEndsAt: (user as IEmployer).trialEndsAt,
         }),
       };
 

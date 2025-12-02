@@ -106,5 +106,4 @@ export const HistoryLock = () => {
   return null;
 };
 
-
 export default AuthRouteGuard;

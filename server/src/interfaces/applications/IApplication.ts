@@ -17,6 +17,8 @@ export interface IApplication {
     | "interview"
     | "shortlisted"
     | "all";
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface IApplicationWithJob extends IApplication {

@@ -1,42 +1,64 @@
 import { Briefcase, Users, TrendingUp, Award } from "lucide-react";
-import { useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
-import { fetchHomepageStats } from "../../thunks/homepage.thunk";
+// import { useEffect } from "react";
+// import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
+// import { fetchHomepageStats } from "../../thunks/homepage.thunk";
 
-// Stats Component
 const StatsSection: React.FC = () => {
-  const dispatch = useAppDispatch();
-  const { stats } = useAppSelector((state) => state.homepage);
-
-  useEffect(() => {
-    dispatch(fetchHomepageStats());
-  }, [dispatch]);
-
   const statsData = [
     {
       icon: Briefcase,
       label: "Active Jobs",
-      value: stats?.activeJobs?.toLocaleString() || "0",
+      value: "1,234",
     },
     {
       icon: Users,
       label: "Companies",
-      value: stats?.totalCompanies?.toLocaleString() || "0",
+      value: "567",
     },
     {
       icon: TrendingUp,
       label: "Success Rate",
-      value: `${stats?.successRate || 95}%`,
+      value: "95%",
     },
     {
       icon: Award,
       label: "Happy Clients",
-      value: stats?.totalCandidates?.toLocaleString() || "0",
+      value: "8,900",
     },
   ];
 
+  //const dispatch = useAppDispatch();
+  //const { stats } = useAppSelector((state) => state.homepage);
+
+  // useEffect(() => {
+  //   dispatch(fetchHomepageStats());
+  // }, [dispatch]);
+
+  // const statsData = [
+  //   {
+  //     icon: Briefcase,
+  //     label: "Active Jobs",
+  //     value: stats?.activeJobs?.toLocaleString() || "0",
+  //   },
+  //   {
+  //     icon: Users,
+  //     label: "Companies",
+  //     value: stats?.totalCompanies?.toLocaleString() || "0",
+  //   },
+  //   {
+  //     icon: TrendingUp,
+  //     label: "Success Rate",
+  //     value: `${stats?.successRate || 95}%`,
+  //   },
+  //   {
+  //     icon: Award,
+  //     label: "Happy Clients",
+  //     value: stats?.totalCandidates?.toLocaleString() || "0",
+  //   },
+  // ];
+
   return (
-    <div className="bg-gradient-to-r from-blue-600 to-indigo-700 py-16 px-4">
+    <div className="bg-gradient-to-r from-blue-400 to-indigo-700 py-16 px-4">
       <div className="max-w-6xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
           {statsData.map((stat, index) => (

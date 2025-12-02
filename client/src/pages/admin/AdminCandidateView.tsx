@@ -19,6 +19,7 @@ import {
   fetchCandidateById,
   toggleBlockCandidate,
 } from "../../thunks/admin.thunk";
+import { FRONTEND_ROUTES } from "../../shared/constants/constants";
 
 const AdminCandidateView: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -98,7 +99,7 @@ const AdminCandidateView: React.FC = () => {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
           <p className="text-gray-600 mb-4">Candidate not found</p>
           <Link
-            to="/admin-candidates"
+            to={FRONTEND_ROUTES.ADMINCANDIDATES}
             className="inline-flex items-center text-blue-600 hover:text-blue-700"
           >
             <ArrowBackIcon sx={{ fontSize: 18, marginRight: 0.5 }} />
@@ -114,7 +115,7 @@ const AdminCandidateView: React.FC = () => {
       {/* Header */}
       <div className="mb-6">
         <button
-          onClick={() => navigate("/admin-candidates")}
+          onClick={() => navigate(FRONTEND_ROUTES.ADMINCANDIDATES)}
           className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4 transition-colors duration-200"
         >
           <ArrowBackIcon sx={{ fontSize: 18, marginRight: 0.5 }} />

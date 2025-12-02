@@ -13,7 +13,12 @@ export class GoogleAuthController implements IGoogleAuthController {
         .json({ message: ERROR_MESSAGES.GOOGLE_LOGIN_FAILED });
     }
 
-    const { user, role, refreshToken = "", accessToken } = req.user as GoogleUser;
+    const {
+      user,
+      role,
+      refreshToken = "",
+      accessToken,
+    } = req.user as GoogleUser;
 
     const userInfo = JSON.stringify({ name: user?.name, role });
     setAuthCookies(res, refreshToken, userInfo);

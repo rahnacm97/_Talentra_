@@ -1,4 +1,6 @@
-import { MapPin, Briefcase } from "lucide-react";
+// src/components/common/JobCard.tsx
+
+import { MapPin, IndianRupee } from "lucide-react";
 import type React from "react";
 
 interface JobCardProps {
@@ -8,10 +10,9 @@ interface JobCardProps {
   location: string;
   type: string;
   posted: string;
-  logo?: string;
+  logo?: string; // still optional
 }
 
-// Job Card Component
 const JobCard: React.FC<JobCardProps> = ({
   title,
   company,
@@ -24,9 +25,27 @@ const JobCard: React.FC<JobCardProps> = ({
   <div className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-6 border border-gray-100 group cursor-pointer">
     <div className="flex items-start justify-between mb-4">
       <div className="flex items-center space-x-4">
-        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-lg">
-          {logo || company.charAt(0)}
-        </div>
+        {/* LOGO LOGIC – FIXED */}
+        {logo ? (
+          <img
+            src={logo}
+            alt={`${company} logo`}
+            className="w-12 h-12 rounded-xl object-cover border border-gray-200"
+            onError={(e) => {
+              // Fallback to letter if image fails to load
+              e.currentTarget.style.display = "none";
+              e.currentTarget.nextElementSibling?.classList.remove("hidden");
+            }}
+          />
+        ) : null}
+
+        {/* Fallback letter avatar – only shows when no logo */}
+        {!logo && (
+          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-lg">
+            {company.charAt(0).toUpperCase()}
+          </div>
+        )}
+
         <div>
           <h3 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
             {title}
@@ -34,6 +53,7 @@ const JobCard: React.FC<JobCardProps> = ({
           <p className="text-gray-600 font-medium">{company}</p>
         </div>
       </div>
+
       <span className="bg-green-100 text-green-800 text-xs font-semibold px-3 py-1 rounded-full">
         {type}
       </span>
@@ -44,9 +64,9 @@ const JobCard: React.FC<JobCardProps> = ({
         <MapPin className="w-4 h-4" />
         <span className="text-sm">{location}</span>
       </div>
-      <div className="flex items-center space-x-2 text-gray-600">
-        <Briefcase className="w-4 h-4" />
-        <span className="text-sm font-semibold text-gray-900">{salary}</span>
+      <div className="flex items-center space-x-2 text-green-600 font-medium">
+        <IndianRupee className="w-4 h-4" />
+        <span className="text-sm font-semibold">{salary}</span>
       </div>
     </div>
 

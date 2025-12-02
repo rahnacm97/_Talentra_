@@ -18,9 +18,9 @@ import Footer from "./Footer";
 import SearchAppBar from "../../components/common/Search";
 import { HistoryLock } from "../../components/common/AuthRouteGuard";
 import CategoryCard from "../../components/common/CategoryCard";
-import JobCard from "../../components/common/JobCard";
 import TestimonialCard from "../../components/common/TestimonialCard";
 import StatsSection from "../../components/common/StatsSection";
+import FeaturedJobsSection from "../../components/common/FeaturedJobs";
 
 const Homepage: React.FC = () => {
   const jobCategories = [
@@ -31,45 +31,6 @@ const Homepage: React.FC = () => {
     { icon: Heart, title: "Healthcare", jobCount: "900+", color: "pink" },
     { icon: Shield, title: "Finance", jobCount: "1,500+", color: "indigo" },
   ] as const;
-
-  const featuredJobs = [
-    {
-      title: "Senior React Developer",
-      company: "TechCorp Inc.",
-      salary: "₹120K - ₹150K",
-      location: "San Francisco, CA",
-      type: "Full-time",
-      posted: "2 days ago",
-      logo: "T",
-    },
-    {
-      title: "Product Manager",
-      company: "Innovation Labs",
-      salary: "₹100K - ₹130K",
-      location: "Remote",
-      type: "Full-time",
-      posted: "1 day ago",
-      logo: "I",
-    },
-    {
-      title: "UX Designer",
-      company: "Design Studio",
-      salary: "₹80K - ₹110K",
-      location: "New York, NY",
-      type: "Full-time",
-      posted: "3 days ago",
-      logo: "D",
-    },
-    {
-      title: "Data Scientist",
-      company: "Analytics Pro",
-      salary: "₹110K - ₹140K",
-      location: "Seattle, WA",
-      type: "Full-time",
-      posted: "1 day ago",
-      logo: "A",
-    },
-  ];
 
   const testimonials = [
     {
@@ -189,30 +150,7 @@ const Homepage: React.FC = () => {
         </div>
       </section>
 
-      <section className="py-20 px-4 bg-gray-50">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center justify-between mb-16">
-            <div>
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                Featured Jobs
-              </h2>
-              <p className="text-xl text-gray-600">
-                Hand-picked opportunities from top companies
-              </p>
-            </div>
-            <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl transition-all duration-200 flex items-center space-x-2">
-              <span>View All Jobs</span>
-              <ArrowRight className="w-5 h-5" />
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
-            {featuredJobs.map((job, index) => (
-              <JobCard key={index} {...job} />
-            ))}
-          </div>
-        </div>
-      </section>
+      <FeaturedJobsSection />
 
       <section className="py-20 px-4 bg-white">
         <div className="max-w-6xl mx-auto">
@@ -234,25 +172,6 @@ const Homepage: React.FC = () => {
         </div>
       </section>
 
-      <section className="bg-gradient-to-r from-blue-800 to-indigo-700 py-20 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl font-bold text-white mb-6">
-            Ready to Start Your Journey?
-          </h2>
-          <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Join millions of professionals who trust Talentra to advance their
-            careers and build amazing teams.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-white hover:bg-gray-50 text-blue-600 font-semibold px-8 py-4 rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg">
-              Find Jobs
-            </button>
-            <button className="bg-transparent hover:bg-white/10 text-white font-semibold px-8 py-4 rounded-xl border-2 border-white transition-all duration-200 transform hover:scale-105">
-              Hire Talent
-            </button>
-          </div>
-        </div>
-      </section>
       <Footer />
     </div>
   );

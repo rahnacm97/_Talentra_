@@ -7,8 +7,10 @@ import {
   updateJobApi,
   closeJobApi,
   fetchEmployerApplicationsApi,
+  fetchEmployerAnalyticsApi,
 } from "../features/employer/employerApi";
 import type { ApiError } from "../types/common/common.type";
+import type { EmployerAnalyticsData } from "../types/employer/employer.types";
 import { toast } from "react-toastify";
 //fetch profile
 export const fetchEmployerProfile = createAsyncThunk(
@@ -164,3 +166,22 @@ export const fetchEmployerApplications = createAsyncThunk(
     }
   },
 );
+//Fetch analytics informations
+export const fetchEmployerAnalytics = createAsyncThunk<
+  EmployerAnalyticsData,
+  string
+>("employerAnalytics/fetch", async (timeRange = "30d", { rejectWithValue }) => {
+  try {
+    const data = await fetchEmployerAnalyticsApi(timeRange);
+    return data;
+  } catch (error: any) {
+    const message =
+      error.response?.data?.message || "Failed to fetch analytics";
+
+    if (error.response?.status !== 401 && error.response?.status !== 403) {
+      toast.error(message);
+    }
+
+    return rejectWithValue(message);
+  }
+});

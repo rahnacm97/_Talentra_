@@ -7,6 +7,7 @@ import {
 } from "../../dto/admin/candidate.dto";
 import { ICandidate } from "../../interfaces/users/candidate/ICandidate";
 import { ICandidateMapper } from "../../interfaces/users/admin/ICandidateMapper";
+import { NotificationHelper } from "../notification/notification.helper";
 
 export class AdminCandidateService implements IAdminCandidateService {
   constructor(
@@ -46,6 +47,20 @@ export class AdminCandidateService implements IAdminCandidateService {
       candidateEntity.block,
     );
     if (!candidate) throw new Error("Candidate not found");
+
+    const notificationHelper = NotificationHelper.getInstance();
+
+    if (candidateEntity.block) {
+      notificationHelper.emitUserBlocked(
+        candidateEntity.candidateId,
+        "Candidate",
+      );
+    } else {
+      notificationHelper.emitUserUnblocked(
+        candidateEntity.candidateId,
+        "Candidate",
+      );
+    }
 
     return this._candidateMapper.toCandidateResponseDTO(candidate);
   }

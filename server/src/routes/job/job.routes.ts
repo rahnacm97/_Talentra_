@@ -1,5 +1,5 @@
 import { Router, Request, Response, NextFunction } from "express";
-import { verifyAuth, optionalAuth, AuthUser } from "../../middlewares/authMiddleware";
+import { verifyAuth, optionalAuth } from "../../middlewares/authMiddleware";
 import { validate } from "../../middlewares/validationMiddleware";
 import {
   createJobSchema,
@@ -40,15 +40,19 @@ const candidateController = new CandidateJobController(candidateService);
 
 const router = Router();
 
-router.get("/", optionalAuth, (req: Request, res: Response, next: NextFunction) => {
-  const user = req.user as { role: string } | undefined;
+router.get(
+  "/",
+  optionalAuth,
+  (req: Request, res: Response, next: NextFunction) => {
+    const user = req.user as { role: string } | undefined;
 
-  if (user?.role === USER_ROLES.EMPLOYER) {
-    return employerController.getJobs(req, res, next);
-  }
+    if (user?.role === USER_ROLES.EMPLOYER) {
+      return employerController.getJobs(req, res, next);
+    }
 
-  return candidateController.getPublicJobs(req, res, next);
-});
+    return candidateController.getPublicJobs(req, res, next);
+  },
+);
 
 // Employer specific routes
 router.post(

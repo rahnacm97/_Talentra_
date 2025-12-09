@@ -253,6 +253,7 @@ export class EmployerApplicationService implements IEmployerApplicationService {
       app.job.title,
       app.jobId,
       applicationId,
+      app.employer.name,
     );
 
     if (data.status === "interview" && this._interviewService) {

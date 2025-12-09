@@ -53,7 +53,6 @@ const EmployerJobs: React.FC = () => {
     "all" | "active" | "closed" | "draft"
   >("all");
 
-  
   const debounceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {

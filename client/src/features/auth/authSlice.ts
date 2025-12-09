@@ -103,6 +103,7 @@ const authSlice = createSlice({
       .addCase(login.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.blocked = false;
       })
       .addCase(
         login.fulfilled,
@@ -120,6 +121,7 @@ const authSlice = createSlice({
       .addCase(adminLogin.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.blocked = false;
       })
       .addCase(
         adminLogin.fulfilled,

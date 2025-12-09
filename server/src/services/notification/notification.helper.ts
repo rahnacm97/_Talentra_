@@ -2,8 +2,12 @@ import { notificationSocket } from "../../app";
 import { NotificationService } from "../notification/notification.service";
 import { NotificationRepository } from "../../repositories/notification/notification.repository";
 import { NotificationMapper } from "../../mappers/notification/notification.mapper";
-import { NotificationType } from "../../shared/enums/enums";
+import {
+  NotificationType,
+  NOTIFICATION_MESSAGES,
+} from "../../shared/enums/enums";
 import { CreateNotificationDto } from "../../dto/notification/notification.dto";
+import { formatMessage } from "../../shared/utils/message.format";
 
 export class NotificationHelper {
   private static _instance: NotificationHelper;
@@ -36,7 +40,7 @@ export class NotificationHelper {
       console.error("Failed to create notification:", error);
     }
   }
-
+  // Admin: Employer submitted verification
   async notifyAdminEmployerVerificationSubmitted(
     employerId: string,
     employerName: string,
@@ -45,22 +49,27 @@ export class NotificationHelper {
       recipientId: "admin",
       recipientType: "Admin",
       type: NotificationType.EMPLOYER_VERIFICATION_SUBMITTED,
-      title: "New Verification Request",
-      message: `${employerName} submitted verification documents`,
+      title: NOTIFICATION_MESSAGES.ADMIN_VERIFICATION_REQUEST_TITLE,
+      message: formatMessage(
+        NOTIFICATION_MESSAGES.ADMIN_VERIFICATION_REQUEST_MESSAGE,
+        {
+          employerName,
+        },
+      ),
       data: { employerId },
     });
   }
-
+  // Employer: Verification approved
   async notifyEmployerVerificationApproved(employerId: string): Promise<void> {
     await this.createAndEmit({
       recipientId: employerId,
       recipientType: "Employer",
       type: NotificationType.VERIFICATION_APPROVED,
       title: "Verification Approved",
-      message: "Your account has been verified successfully",
+      message: NOTIFICATION_MESSAGES.ACCOUNT_VERIFICATION,
     });
   }
-
+  // Employer: Verification rejected
   async notifyEmployerVerificationRejected(
     employerId: string,
     reason?: string,
@@ -70,11 +79,11 @@ export class NotificationHelper {
       recipientType: "Employer",
       type: NotificationType.VERIFICATION_REJECTED,
       title: "Verification Rejected",
-      message: reason || "Your verification request was rejected",
+      message: reason || NOTIFICATION_MESSAGES.VERIFICATION_REJECTED,
       data: { reason },
     });
   }
-
+  // Employer: New application received
   async notifyEmployerNewApplication(
     employerId: string,
     candidateName: string,
@@ -91,44 +100,105 @@ export class NotificationHelper {
       data: { jobId, applicationId },
     });
   }
-
+  // Candidate: Application status changed
   async notifyCandidateApplicationStatusChange(
     candidateId: string,
     status: string,
     jobTitle: string,
     jobId: string,
     applicationId: string,
+    companyName: string,
   ): Promise<void> {
     const statusMessages: Record<string, { title: string; message: string }> = {
       reviewed: {
-        title: "Application Reviewed",
-        message: `Your application for ${jobTitle} has been reviewed`,
+        title: NOTIFICATION_MESSAGES.APPLICATION_REVIEWED_TITLE,
+        message: formatMessage(
+          NOTIFICATION_MESSAGES.APPLICATION_REVIEWED_MESSAGE,
+          {
+            jobTitle,
+            companyName,
+          },
+        ),
       },
       shortlisted: {
-        title: "Application Shortlisted",
-        message: `Congratulations! You've been shortlisted for ${jobTitle}`,
+        title: NOTIFICATION_MESSAGES.APPLICATION_SHORTLISTED_TITLE,
+        message: formatMessage(
+          NOTIFICATION_MESSAGES.APPLICATION_SHORTLISTED_MESSAGE,
+          {
+            jobTitle,
+            companyName,
+          },
+        ),
+      },
+      interview: {
+        title: NOTIFICATION_MESSAGES.INTERVIEW_SCHEDULED_TITLE,
+        message: formatMessage(
+          NOTIFICATION_MESSAGES.INTERVIEW_SCHEDULED_MESSAGE,
+          {
+            jobTitle,
+            companyName,
+          },
+        ),
       },
       rejected: {
-        title: "Application Update",
-        message: `Your application for ${jobTitle} was not selected`,
+        title: NOTIFICATION_MESSAGES.APPLICATION_REJECTED_TITLE,
+        message: formatMessage(
+          NOTIFICATION_MESSAGES.APPLICATION_REJECTED_MESSAGE,
+          {
+            jobTitle,
+            companyName,
+          },
+        ),
+      },
+      accepted: {
+        title: NOTIFICATION_MESSAGES.APPLICATION_HIRED_TITLE,
+        message: formatMessage(
+          NOTIFICATION_MESSAGES.APPLICATION_HIRED_MESSAGE,
+          {
+            jobTitle,
+            companyName,
+          },
+        ),
+      },
+      hired: {
+        title: NOTIFICATION_MESSAGES.APPLICATION_HIRED_TITLE,
+        message: formatMessage(
+          NOTIFICATION_MESSAGES.APPLICATION_HIRED_MESSAGE,
+          {
+            jobTitle,
+            companyName,
+          },
+        ),
       },
     };
 
     const notificationData = statusMessages[status] || {
       title: "Application Update",
-      message: `Your application for ${jobTitle} has been updated`,
+      message: `Your application for ${jobTitle} at ${companyName} has been updated`,
     };
+
+    const statusToTypeMap: Record<string, NotificationType> = {
+      reviewed: NotificationType.APPLICATION_REVIEWED,
+      shortlisted: NotificationType.APPLICATION_SHORTLISTED,
+      interview: NotificationType.INTERVIEW_SCHEDULED,
+      rejected: NotificationType.APPLICATION_REJECTED,
+      accepted: NotificationType.NEW_APPLICATION,
+      hired: NotificationType.NEW_APPLICATION,
+    };
+
+    const notificationType =
+      statusToTypeMap[status] || (`application_${status}` as NotificationType);
 
     await this.createAndEmit({
       recipientId: candidateId,
       recipientType: "Candidate",
-      type: `application_${status}` as NotificationType,
+      type: notificationType,
       title: notificationData.title,
       message: notificationData.message,
-      data: { jobId, applicationId, status },
+      data: { jobId, applicationId, status, companyName },
     });
   }
-
+  // Candidate: Interview scheduled
   async notifyCandidateInterviewScheduled(
     candidateId: string,
     jobTitle: string,
@@ -139,12 +209,18 @@ export class NotificationHelper {
       recipientId: candidateId,
       recipientType: "Candidate",
       type: NotificationType.INTERVIEW_SCHEDULED,
-      title: "Interview Scheduled",
-      message: `Interview scheduled for ${jobTitle} on ${interviewDate}`,
+      title: NOTIFICATION_MESSAGES.INTERVIEW_SCHEDULED_TITLE,
+      message: formatMessage(
+        NOTIFICATION_MESSAGES.INTERVIEW_SCHEDULED_MESSAGE,
+        {
+          jobTitle,
+          interviewDate,
+        },
+      ),
       data: { interviewId, interviewDate },
     });
   }
-
+  // Candidate: Interview cancelled
   async notifyCandidateInterviewCancelled(
     candidateId: string,
     jobTitle: string,
@@ -154,9 +230,38 @@ export class NotificationHelper {
       recipientId: candidateId,
       recipientType: "Candidate",
       type: NotificationType.INTERVIEW_CANCELLED,
-      title: "Interview Cancelled",
-      message: `Your interview for ${jobTitle} has been cancelled`,
+      title: NOTIFICATION_MESSAGES.INTERVIEW_CANCELLED_TITLE,
+      message: formatMessage(
+        NOTIFICATION_MESSAGES.INTERVIEW_CANCELLED_MESSAGE,
+        {
+          jobTitle,
+        },
+      ),
       data: { interviewId },
     });
+  }
+
+  emitUserBlocked(userId: string, userType: "Candidate" | "Employer"): void {
+    try {
+      notificationSocket.getIO().to(userId).emit("user:blocked", {
+        message: NOTIFICATION_MESSAGES.USER_BLOCKED,
+        timestamp: new Date().toISOString(),
+      });
+      console.log(`User blocked notification sent to ${userType}:`, userId);
+    } catch (error) {
+      console.error("Failed to emit user blocked event:", error);
+    }
+  }
+
+  emitUserUnblocked(userId: string, userType: "Candidate" | "Employer"): void {
+    try {
+      notificationSocket.getIO().to(userId).emit("user:unblocked", {
+        message: NOTIFICATION_MESSAGES.USER_UNBLOCKED,
+        timestamp: new Date().toISOString(),
+      });
+      console.log(`User unblocked notification sent to ${userType}:`, userId);
+    } catch (error) {
+      console.error("Failed to emit user unblocked event:", error);
+    }
   }
 }

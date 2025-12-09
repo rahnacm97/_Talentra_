@@ -53,6 +53,17 @@ export class AdminEmployerService implements IAdminEmployerService {
     );
     if (!employer) throw new Error("Employer not found");
 
+    const notificationHelper = NotificationHelper.getInstance();
+
+    if (employerEntity.block) {
+      notificationHelper.emitUserBlocked(employerEntity.employerId, "Employer");
+    } else {
+      notificationHelper.emitUserUnblocked(
+        employerEntity.employerId,
+        "Employer",
+      );
+    }
+
     return this._employerMapper.toEmployerResponseDTO(employer);
   }
   //Fetching single employer

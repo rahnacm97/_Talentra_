@@ -168,7 +168,13 @@ const CandidateSavedJobs: React.FC = () => {
                 Job Type:
               </p>
               <div className="flex flex-wrap gap-2">
-                {["all", "Full-time", "Part-time", "Contract"].map((type) => (
+                {[
+                  "all",
+                  "Full-time",
+                  "Part-time",
+                  "Contract",
+                  "Internship",
+                ].map((type) => (
                   <button
                     key={type}
                     onClick={() => setJobTypeFilter(type)}

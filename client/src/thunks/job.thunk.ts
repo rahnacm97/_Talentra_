@@ -8,7 +8,6 @@ import {
 } from "../features/job/jobApi";
 import type { ExperienceLevel } from "../shared/validations/JobFormValidation";
 import type { ApiError } from "../types/common/common.type";
-import type { RootState } from "../app/store";
 
 // Fetch jobs
 export const fetchJobsForCandidate = createAsyncThunk(
@@ -46,11 +45,9 @@ export const fetchJobsForCandidate = createAsyncThunk(
 // Fetch a single job
 export const fetchJobById = createAsyncThunk(
   "candidateJobs/fetchById",
-  async (id: string, { getState, rejectWithValue }) => {
-    const state = getState() as RootState;
-    const candidateId = state.auth.user?._id;
+  async (id: string, { rejectWithValue }) => {
     try {
-      const response = await getJobById(id, candidateId);
+      const response = await getJobById(id);
       return response.data;
     } catch (err: unknown) {
       const error = err as ApiError;

@@ -39,7 +39,7 @@ export class EmployerController implements IEmployerController {
     next: NextFunction,
   ) {
     try {
-      const employerId = req.params.id;
+      const employerId = (req.user as { id: string }).id;
       logger.info("Fetching candidate profile", { employerId });
       const employer = await this._employerService.getEmployerById(employerId);
       if (!employer) {
@@ -63,7 +63,7 @@ export class EmployerController implements IEmployerController {
         err instanceof Error ? err.message : ERROR_MESSAGES.SERVER_ERROR;
       logger.error("Failed to fetch candidate profile", {
         error: message,
-        employerId: req.params.id,
+        employerId: (req.user as { id: string }).id,
       });
       next(
         err instanceof ApiError
@@ -80,7 +80,7 @@ export class EmployerController implements IEmployerController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      const employerId = req.params.id;
+      const employerId = (req.user as { id: string }).id;
       const profileData = req.body;
       logger.info("Updating employer profile", { employerId });
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
@@ -99,7 +99,7 @@ export class EmployerController implements IEmployerController {
         err instanceof Error ? err.message : ERROR_MESSAGES.SERVER_ERROR;
       logger.error("Failed to update employer profile", {
         error: message,
-        employerId: req.params.id,
+        employerId: (req.user as { id: string }).id,
       });
       next(
         err instanceof ApiError
@@ -121,14 +121,7 @@ export class EmployerApplicationsController
     next: NextFunction,
   ): Promise<void> {
     try {
-      const employerId = req.params.id;
-
-      if (!employerId) {
-        throw new ApiError(
-          HTTP_STATUS.BAD_REQUEST,
-          ERROR_MESSAGES.VALIDATION_ERROR,
-        );
-      }
+      const employerId = (req.user as { id: string }).id;
 
       const { page = 1, limit = 10, search, status, jobTitle } = req.query;
 
@@ -158,7 +151,7 @@ export class EmployerApplicationsController
   ): Promise<void> {
     try {
       const { applicationId } = req.params;
-      const employerId = req.params.id;
+      const employerId = (req.user as { id: string }).id;
 
       const { status, interviewDate, interviewLink } = req.body;
 

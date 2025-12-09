@@ -28,13 +28,8 @@ export class CandidateController implements ICandidateController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      const candidateId = req.params.id;
-      if (!candidateId) {
-        throw new ApiError(
-          HTTP_STATUS.BAD_REQUEST,
-          ERROR_MESSAGES.VALIDATION_ERROR,
-        );
-      }
+      const candidateId = (req.user as { id: string }).id;
+
       logger.info("Fetching candidate profile", { candidateId });
       const candidate =
         await this._candidateService.getCandidateById(candidateId);
@@ -60,7 +55,7 @@ export class CandidateController implements ICandidateController {
         err instanceof Error ? err.message : ERROR_MESSAGES.SERVER_ERROR;
       logger.error("Failed to fetch candidate profile", {
         error: message,
-        candidateId: req.params.id,
+        candidateId: (req.user as { id: string }).id,
       });
       next(
         err instanceof ApiError
@@ -77,13 +72,8 @@ export class CandidateController implements ICandidateController {
     next: NextFunction,
   ): Promise<void> {
     try {
-      const candidateId = req.params.id;
-      if (!candidateId) {
-        throw new ApiError(
-          HTTP_STATUS.BAD_REQUEST,
-          ERROR_MESSAGES.VALIDATION_ERROR,
-        );
-      }
+      const candidateId = (req.user as { id: string }).id;
+
       const profileData = req.body;
       logger.info("Updating candidate profile", { candidateId });
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
@@ -102,7 +92,7 @@ export class CandidateController implements ICandidateController {
         err instanceof Error ? err.message : ERROR_MESSAGES.SERVER_ERROR;
       logger.error("Failed to update candidate profile", {
         error: message,
-        candidateId: req.params.id,
+        candidateId: (req.user as { id: string }).id,
       });
       next(
         err instanceof ApiError
@@ -113,12 +103,13 @@ export class CandidateController implements ICandidateController {
   }
   //Apply job
   async applyJob(
-    req: Request<{ candidateId: string; jobId: string }>,
+    req: Request<{ jobId: string }>,
     res: Response<{ message: string; data: ApplicationResponseDto }>,
     next: NextFunction,
   ): Promise<void> {
     try {
-      const { jobId, candidateId } = req.params;
+      const { jobId } = req.params;
+      const candidateId = (req.user as { id: string }).id;
       const { fullName, email, phone, coverLetter, useExistingResume } =
         req.body;
       const resumeFile = req.file as Express.Multer.File | undefined;

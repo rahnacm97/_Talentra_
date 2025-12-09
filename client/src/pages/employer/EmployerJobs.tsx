@@ -53,7 +53,8 @@ const EmployerJobs: React.FC = () => {
     "all" | "active" | "closed" | "draft"
   >("all");
 
-  const debounceTimeout = useRef<number | null>(null);
+  
+  const debounceTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (debounceTimeout.current) {
@@ -81,7 +82,6 @@ const EmployerJobs: React.FC = () => {
     setLoading(true);
     dispatch(
       fetchEmployerJobs({
-        employerId: user._id,
         page,
         limit,
         search: debouncedSearch || undefined,
@@ -103,9 +103,7 @@ const EmployerJobs: React.FC = () => {
   const handleCloseJob = async (job: Job) => {
     if (!user?._id) return;
     try {
-      const closed = await dispatch(
-        closeJob({ employerId: user._id, jobId: job.id }),
-      ).unwrap();
+      const closed = await dispatch(closeJob({ jobId: job.id })).unwrap();
       setJobs((prev) => prev.map((j) => (j.id === closed.id ? closed : j)));
       toast.success("Job closed successfully");
       setShowCloseModal(null);
@@ -136,9 +134,7 @@ const EmployerJobs: React.FC = () => {
     if (!user?._id) return;
     const jobData = { ...values, status: "active" as const };
     try {
-      const posted = await dispatch(
-        postJob({ employerId: user._id, job: jobData }),
-      ).unwrap();
+      const posted = await dispatch(postJob({ job: jobData })).unwrap();
       setJobs([posted, ...jobs]);
       toast.success("Job posted successfully!");
       closeModal();
@@ -152,7 +148,6 @@ const EmployerJobs: React.FC = () => {
     try {
       const updated = await dispatch(
         updateJob({
-          employerId: user._id,
           jobId: editingJob.id,
           job: { ...values, status: editingJob.status },
         }),

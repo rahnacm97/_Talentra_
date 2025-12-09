@@ -29,6 +29,7 @@ import {
   VerifyPaymentResponseDTO,
   SubscriptionHistoryResponseDTO,
 } from "../../dto/subscription/subscription.dto";
+import { NotificationHelper } from "../notification/notification.helper";
 
 export class EmployerService implements IEmployerService {
   constructor(
@@ -108,12 +109,23 @@ export class EmployerService implements IEmployerService {
         data.socialLinks = {};
       }
     }
+
+    // Track if verification documents are being submitted
+    let isSubmittingVerification = false;
+
     if (businessLicenseFile) {
       data.businessLicense = await this.uploadFile(businessLicenseFile);
+      isSubmittingVerification = true;
     }
     if (profileImageFile) {
       data.profileImage = await this.uploadFile(profileImageFile);
     }
+
+    // Check if employer is submitting verification info (CIN number or has business license)
+    if (data.cinNumber && data.cinNumber.trim() !== "") {
+      isSubmittingVerification = true;
+    }
+
     const updatedEmployer = await this._repository.updateProfile(
       employerId,
       data,
@@ -125,6 +137,17 @@ export class EmployerService implements IEmployerService {
         "Failed to update profile",
       );
     }
+
+    // Notify admin when employer submits verification documents
+    // Only notify if they haven't been verified yet and are submitting verification info
+    if (isSubmittingVerification && !employer.verified) {
+      const notificationHelper = NotificationHelper.getInstance();
+      await notificationHelper.notifyAdminEmployerVerificationSubmitted(
+        employerId,
+        updatedEmployer.name || "An employer",
+      );
+    }
+
     logger.info("Employer profile updated", { employerId });
     return this._employerMapper.toProfileDataDTO(updatedEmployer);
   }

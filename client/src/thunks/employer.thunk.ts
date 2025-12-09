@@ -15,9 +15,9 @@ import { toast } from "react-toastify";
 //fetch profile
 export const fetchEmployerProfile = createAsyncThunk(
   "employer/fetchProfile",
-  async (employerId: string, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
-      const response = await getEmployerProfileApi(employerId);
+      const response = await getEmployerProfileApi();
       return response;
     } catch (err: unknown) {
       const error = err as ApiError;
@@ -32,12 +32,9 @@ export const fetchEmployerProfile = createAsyncThunk(
 //profile updation
 export const updateEmployerProfile = createAsyncThunk(
   "employer/updateProfile",
-  async (
-    { employerId, data }: { employerId: string; data: FormData },
-    { rejectWithValue },
-  ) => {
+  async ({ data }: { data: FormData }, { rejectWithValue }) => {
     try {
-      return await updateEmployerProfileApi(employerId, data);
+      return await updateEmployerProfileApi(data);
     } catch (err: unknown) {
       const error = err as ApiError;
       toast.error(error.response?.data?.message || "Failed to update profile");
@@ -50,13 +47,11 @@ export const fetchEmployerJobs = createAsyncThunk(
   "employer/fetchJobs",
   async (
     {
-      employerId,
       page = 1,
       limit = 3,
       search = "",
       status = "all",
     }: {
-      employerId: string;
       page?: number;
       limit?: number;
       search?: string;
@@ -65,7 +60,7 @@ export const fetchEmployerJobs = createAsyncThunk(
     { rejectWithValue },
   ) => {
     try {
-      return await fetchEmployerJobsApi(employerId, {
+      return await fetchEmployerJobsApi({
         page,
         limit,
         search,
@@ -82,12 +77,9 @@ export const fetchEmployerJobs = createAsyncThunk(
 //post new job
 export const postJob = createAsyncThunk(
   "employer/postJob",
-  async (
-    { employerId, job }: { employerId: string; job: any },
-    { rejectWithValue },
-  ) => {
+  async ({ job }: { job: any }, { rejectWithValue }) => {
     try {
-      return await postJobApi(employerId, job);
+      return await postJobApi(job);
     } catch (err: unknown) {
       const error = err as ApiError;
       return rejectWithValue(
@@ -99,12 +91,9 @@ export const postJob = createAsyncThunk(
 //updation job
 export const updateJob = createAsyncThunk(
   "employer/updateJob",
-  async (
-    { employerId, jobId, job }: { employerId: string; jobId: string; job: any },
-    { rejectWithValue },
-  ) => {
+  async ({ jobId, job }: { jobId: string; job: any }, { rejectWithValue }) => {
     try {
-      return await updateJobApi(employerId, jobId, job);
+      return await updateJobApi(jobId, job);
     } catch (err: unknown) {
       const error = err as ApiError;
       return rejectWithValue(
@@ -116,12 +105,9 @@ export const updateJob = createAsyncThunk(
 //job closing
 export const closeJob = createAsyncThunk(
   "employer/closeJob",
-  async (
-    { employerId, jobId }: { employerId: string; jobId: string },
-    { rejectWithValue },
-  ) => {
+  async ({ jobId }: { jobId: string }, { rejectWithValue }) => {
     try {
-      return await closeJobApi(employerId, jobId);
+      return await closeJobApi(jobId);
     } catch (err: unknown) {
       const error = err as ApiError;
       return rejectWithValue(
@@ -135,14 +121,12 @@ export const fetchEmployerApplications = createAsyncThunk(
   "employer/fetchApplications",
   async (
     {
-      employerId,
       page = 1,
       limit = 10,
       search = "",
       status = "all",
       jobTitle = "all",
     }: {
-      employerId: string;
       page?: number;
       limit?: number;
       search?: string;
@@ -152,7 +136,7 @@ export const fetchEmployerApplications = createAsyncThunk(
     { rejectWithValue },
   ) => {
     try {
-      return await fetchEmployerApplicationsApi(employerId, {
+      return await fetchEmployerApplicationsApi({
         page,
         limit,
         search: search || undefined,

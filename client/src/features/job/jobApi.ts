@@ -26,10 +26,8 @@ export const getPublicJobs = (params?: {
   return api.get(url);
 };
 
-export const getJobById = (id: string, candidateId?: string) =>
-  api.get(API_ROUTES.JOBS.PUBLIC_BY_ID(id), {
-    params: candidateId ? { candidateId } : {},
-  });
+export const getJobById = (id: string) =>
+  api.get(`${API_ROUTES.JOBS.PUBLIC_BY_ID(id)}`);
 
 export const saveJob = (jobId: string) => {
   return api.post(API_ROUTES.JOBS.SAVE(jobId));

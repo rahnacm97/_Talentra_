@@ -191,7 +191,13 @@ const JobView: React.FC = () => {
               <div className="mb-6">
                 <h4 className="font-semibold text-gray-900 mb-3">Job Type</h4>
                 <div className="space-y-2">
-                  {["all", "Full-time", "Part-time", "Contract"].map((type) => {
+                  {[
+                    "all",
+                    "Full-time",
+                    "Part-time",
+                    "Contract",
+                    "Internship",
+                  ].map((type) => {
                     return (
                       <label
                         key={type}

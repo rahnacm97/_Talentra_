@@ -110,7 +110,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
         setIsUploading(true);
         const formData = new FormData();
         formData.append(type, file);
-        await api.put(API_ROUTES.CANDIDATE.PROFILE(auth.user._id), formData, {
+        await api.put(API_ROUTES.CANDIDATE.PROFILE, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
         toast.success(

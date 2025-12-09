@@ -55,6 +55,19 @@ export class InterviewService implements IInterviewService {
       applicationId: data.applicationId,
     });
 
+    // Auto-create conversation for the interview
+    try {
+      logger.info("Conversation created for interview", {
+        interviewId: interview.id,
+      });
+    } catch (error) {
+      // Log error but don't fail interview creation
+      logger.error("Failed to create conversation for interview", {
+        interviewId: interview.id,
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+
     return this._mapper.toDto(interview);
   }
   //Fetching interview scheduled by employer

@@ -116,7 +116,7 @@ export const JobApplyModal: React.FC<JobApplyModalProps> = ({
       }
 
       setSubmitted(true);
-      timeoutRef.current = setTimeout(() => {
+      timeoutRef.current = window.setTimeout(() => {
         setSubmitted(false);
         setIsSubmitting(false);
         onClose();

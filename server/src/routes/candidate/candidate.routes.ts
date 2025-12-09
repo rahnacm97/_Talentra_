@@ -13,7 +13,6 @@ import { JobRepository } from "../../repositories/job/job.repository";
 import { ApplicationMapper } from "../../mappers/application/application.mapper";
 import { upload } from "../../config/multer";
 import { USER_ROLES } from "../../shared/enums/enums";
-import { verifyCandidate } from "../../middlewares/validationMiddleware";
 import { candidateInterviewRouter } from "../interview/interview.routes";
 
 const router = Router();
@@ -66,13 +65,13 @@ router.get(
 );
 
 router.get(
-  "/:id",
+  "/profile",
   verifyAuth([USER_ROLES.CANDIDATE]),
   candidateController.getProfile.bind(candidateController),
 );
 
 router.put(
-  "/:id",
+  "/profile",
   verifyAuth([USER_ROLES.CANDIDATE]),
   upload.fields([
     { name: "resume", maxCount: 1 },
@@ -82,9 +81,8 @@ router.put(
 );
 
 router.post(
-  "/:candidateId/jobs/:jobId/apply",
+  "/jobs/:jobId/apply",
   verifyAuth([USER_ROLES.CANDIDATE]),
-  verifyCandidate,
   upload.single("resume"),
   candidateController.applyJob.bind(candidateController),
 );

@@ -40,6 +40,8 @@ export enum ERROR_MESSAGES {
   UPLOAD_ERROR = "Failed to upload file",
   PAYMENT_VERIFICATION_ERROR = "Payment verification failed",
   SUBSCRIPTION_HISTORY_ERROR = "Failed to fetch subscription history",
+  NOTIFICATION_NOTFOUND = "Notification not found",
+  NOTIFICATION_ID_REQUIRED = "Notification ID is required",
 }
 
 export enum SUCCESS_MESSAGES {
@@ -65,6 +67,22 @@ export enum SUCCESS_MESSAGES {
   INTERVIEW_CANCELLED = "Interview cancelled successfully",
   INTERVIEW_RESCHEDULED = "Interview rescheduled successfully",
   SUBSCRIPTION_ACTIVATED = "Subscription activated successfully",
+  NOTIFICATION_READ = "Notification marked as read",
+  ALL_READ = "All notifications marked as read",
+  NOTIFICATION_DELETED = "Notification deleted",
+}
+
+export enum NotificationType {
+  EMPLOYER_VERIFICATION_SUBMITTED = "employer_verification_submitted",
+  VERIFICATION_APPROVED = "verification_approved",
+  VERIFICATION_REJECTED = "verification_rejected",
+  NEW_APPLICATION = "new_application",
+  APPLICATION_WITHDRAWN = "application_withdrawn",
+  APPLICATION_REVIEWED = "application_reviewed",
+  APPLICATION_SHORTLISTED = "application_shortlisted",
+  APPLICATION_REJECTED = "application_rejected",
+  INTERVIEW_SCHEDULED = "interview_scheduled",
+  INTERVIEW_CANCELLED = "interview_cancelled",
 }
 
 export enum USER_ROLES {

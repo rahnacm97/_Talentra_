@@ -61,7 +61,6 @@ const EmployerApplicants: React.FC = () => {
 
     dispatch(
       fetchEmployerApplications({
-        employerId,
         page: currentPage,
         limit: 5,
         search: debouncedSearch || undefined,
@@ -109,15 +108,10 @@ const EmployerApplicants: React.FC = () => {
     }
 
     try {
-      await updateApplicationStatusApi(
-        employerId,
-        selectedApplicant.id,
-        payload,
-      );
+      await updateApplicationStatusApi(selectedApplicant.id, payload);
 
       dispatch(
         fetchEmployerApplications({
-          employerId,
           page: currentPage,
           limit: 5,
           search: searchTerm || undefined,

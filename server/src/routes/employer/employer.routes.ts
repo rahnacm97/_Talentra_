@@ -18,7 +18,6 @@ import {
 import { upload } from "../../config/multer";
 import jobRoutes from "../job/job.routes";
 import { USER_ROLES } from "../../shared/enums/enums";
-import { verifyEmployer } from "../../middlewares/validationMiddleware";
 import { EmployerApplicationService } from "../../services/application/application.service";
 import { EmployerApplicationMapper } from "../../mappers/application/application.mapper";
 import { ApplicationRepository } from "../../repositories/application/application.repository";
@@ -77,16 +76,14 @@ router.get(
 );
 
 router.get(
-  "/:id",
+  "/profile",
   verifyAuth([USER_ROLES.EMPLOYER]),
-  verifyEmployer,
   employerController.getProfile.bind(employerController),
 );
 
 router.put(
-  "/:id",
+  "/profile",
   verifyAuth([USER_ROLES.EMPLOYER]),
-  verifyEmployer,
   upload.fields([
     { name: "businessLicense", maxCount: 1 },
     { name: "profileImage", maxCount: 1 },
@@ -95,9 +92,8 @@ router.put(
 );
 
 router.get(
-  "/:id/applications",
+  "/applications",
   verifyAuth([USER_ROLES.EMPLOYER]),
-  verifyEmployer,
   requireActiveSubscription,
   employerApplicationsController.getApplications.bind(
     employerApplicationsController,
@@ -105,15 +101,14 @@ router.get(
 );
 
 router.patch(
-  "/:id/applications/:applicationId/status",
+  "/applications/:applicationId/status",
   verifyAuth([USER_ROLES.EMPLOYER]),
-  verifyEmployer,
   requireActiveSubscription,
   employerApplicationsController.updateApplicationStatus.bind(
     employerApplicationsController,
   ),
 );
 
-router.use("/jobs", requireActiveSubscription, jobRoutes);
+router.use("/jobs", jobRoutes);
 
 export default router;

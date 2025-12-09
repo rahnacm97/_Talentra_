@@ -8,8 +8,8 @@ import {
   LogOut,
   Menu,
   X,
-  BellIcon,
   Calendar,
+  MessageCircle,
 } from "lucide-react";
 import { useAppDispatch } from "../../hooks/hooks";
 import { logout } from "../../features/auth/authSlice";
@@ -61,10 +61,10 @@ const CandidateSidebar: React.FC<SidebarProps> = ({
       path: FRONTEND_ROUTES.CANDIDATESAVEDJOBS,
     },
     {
-      id: "notifications",
-      label: "Notifications",
-      icon: BellIcon,
-      path: FRONTEND_ROUTES.CANDIDATENOTIFICATIONS,
+      id: "chat",
+      label: "Messages",
+      icon: MessageCircle,
+      path: FRONTEND_ROUTES.CHAT,
     },
     {
       id: "settings",
@@ -85,6 +85,10 @@ const CandidateSidebar: React.FC<SidebarProps> = ({
         current.startsWith(`${itemPath}/`) ||
         current.startsWith(`${itemPath}?`)
       );
+    }
+
+    if (itemPath === FRONTEND_ROUTES.CHAT) {
+      return current === itemPath || current.startsWith(`${itemPath}/`);
     }
 
     return current === itemPath;
@@ -151,6 +155,12 @@ const CandidateSidebar: React.FC<SidebarProps> = ({
                     className={`w-5 h-5 ${active ? "text-blue-600" : ""}`}
                   />
                   <span>{item.label}</span>
+                  {item.id === "chat" && (
+                    <span className="ml-auto text-xs font-semibold text-blue-600">
+                      {/* Optional: show unread count here */}
+                      {/* {unreadMessages > 0 && unreadMessages} */}
+                    </span>
+                  )}
                 </button>
               );
             })}

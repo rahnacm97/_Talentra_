@@ -37,7 +37,7 @@ export class AuthService implements IAuthService {
       trialEndsAt?: Date;
       hasActiveSubscription?: boolean;
     };
-    
+
     if (data.userType === "Employer") {
       const trialEndsAt = new Date();
       trialEndsAt.setDate(trialEndsAt.getDate() + 30);

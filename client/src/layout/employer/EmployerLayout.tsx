@@ -7,8 +7,8 @@ import {
   Settings,
   BarChart3,
   Calendar,
-  BellIcon,
   CreditCard,
+  MessageCircle,
 } from "lucide-react";
 import Header from "../../pages/common/Header";
 import EmployerSidebar from "./EmployerSidebar";
@@ -85,11 +85,12 @@ const EmployerLayout: React.FC = () => {
       path: FRONTEND_ROUTES.EMPLOYERANALYTICS,
     },
     {
-      id: "notifications",
-      label: "Notifications",
-      icon: BellIcon,
-      path: FRONTEND_ROUTES.EMPLOYERNOTIFICATIONS,
+      id: "chat",
+      label: "Messages",
+      icon: MessageCircle,
+      path: FRONTEND_ROUTES.CHAT,
     },
+
     {
       id: "settings",
       label: "Settings",
@@ -97,6 +98,20 @@ const EmployerLayout: React.FC = () => {
       path: FRONTEND_ROUTES.EMPLOYERSETTINGS,
     },
   ];
+
+  const isActive = (path: string) => {
+    const current = location.pathname;
+
+    if (path === FRONTEND_ROUTES.CHAT) {
+      return current === path || current.startsWith(path + "/");
+    }
+
+    if (path === FRONTEND_ROUTES.EMPLOYERAPPLICANTS) {
+      return current.startsWith(path);
+    }
+
+    return current === path;
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -107,6 +122,7 @@ const EmployerLayout: React.FC = () => {
           isSidebarOpen={isSidebarOpen}
           setIsSidebarOpen={setIsSidebarOpen}
           sidebarItems={sidebarItems}
+          isActive={isActive}
           activeColor="indigo-600"
         />
         <main className="flex-1 lg:ml-0 min-h-screen">

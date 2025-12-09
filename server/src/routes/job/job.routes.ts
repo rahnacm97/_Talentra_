@@ -1,9 +1,6 @@
-import { Router } from "express";
-import { verifyAuth } from "../../middlewares/authMiddleware";
-import {
-  validate,
-  verifyEmployer,
-} from "../../middlewares/validationMiddleware";
+import { Router, Request, Response, NextFunction } from "express";
+import { verifyAuth, optionalAuth, AuthUser } from "../../middlewares/authMiddleware";
+import { validate } from "../../middlewares/validationMiddleware";
 import {
   createJobSchema,
   updateJobSchema,
@@ -42,10 +39,42 @@ const employerController = new EmployerJobController(employerService);
 const candidateController = new CandidateJobController(candidateService);
 
 const router = Router();
-//Routes
-router.get("/", candidateController.getPublicJobs.bind(candidateController));
+
+router.get("/", optionalAuth, (req: Request, res: Response, next: NextFunction) => {
+  const user = req.user as { role: string } | undefined;
+
+  if (user?.role === USER_ROLES.EMPLOYER) {
+    return employerController.getJobs(req, res, next);
+  }
+
+  return candidateController.getPublicJobs(req, res, next);
+});
+
+// Employer specific routes
+router.post(
+  "/",
+  verifyAuth([USER_ROLES.EMPLOYER]),
+  validate(createJobSchema),
+  employerController.postJob.bind(employerController),
+);
+
+router.put(
+  "/:jobId",
+  verifyAuth([USER_ROLES.EMPLOYER]),
+  validate(updateJobSchema),
+  employerController.updateJob.bind(employerController),
+);
+
+router.patch(
+  "/:jobId/close",
+  verifyAuth([USER_ROLES.EMPLOYER]),
+  employerController.closeJob.bind(employerController),
+);
+
+// Candidate specific routes
 router.get(
   "/public/:id",
+  optionalAuth,
   candidateController.getJobById.bind(candidateController),
 );
 
@@ -65,36 +94,6 @@ router.delete(
   "/save/:jobId",
   verifyAuth([USER_ROLES.CANDIDATE]),
   candidateController.unsaveJob.bind(candidateController),
-);
-
-router.post(
-  "/:id",
-  verifyAuth([USER_ROLES.EMPLOYER]),
-  verifyEmployer,
-  validate(createJobSchema),
-  employerController.postJob.bind(employerController),
-);
-
-router.get(
-  "/:id",
-  verifyAuth([USER_ROLES.EMPLOYER]),
-  verifyEmployer,
-  employerController.getJobs.bind(employerController),
-);
-
-router.put(
-  "/:id/:jobId",
-  verifyAuth([USER_ROLES.EMPLOYER]),
-  verifyEmployer,
-  validate(updateJobSchema),
-  employerController.updateJob.bind(employerController),
-);
-
-router.patch(
-  "/:id/:jobId/close",
-  verifyAuth([USER_ROLES.EMPLOYER]),
-  verifyEmployer,
-  employerController.closeJob.bind(employerController),
 );
 
 export default router;

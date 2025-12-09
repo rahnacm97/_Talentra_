@@ -1,13 +1,13 @@
 import { notificationSocket } from "../../app";
-import { NotificationService } from "../notification/notification.service";
+import { NotificationService } from "../../services/notification/notification.service";
 import { NotificationRepository } from "../../repositories/notification/notification.repository";
 import { NotificationMapper } from "../../mappers/notification/notification.mapper";
 import {
   NotificationType,
   NOTIFICATION_MESSAGES,
-} from "../../shared/enums/enums";
+} from "../enums/enums";
 import { CreateNotificationDto } from "../../dto/notification/notification.dto";
-import { formatMessage } from "../../shared/utils/message.format";
+import { formatMessage } from "./message.format";
 
 export class NotificationHelper {
   private static _instance: NotificationHelper;

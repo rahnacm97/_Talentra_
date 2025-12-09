@@ -29,7 +29,7 @@ import {
   VerifyPaymentResponseDTO,
   SubscriptionHistoryResponseDTO,
 } from "../../dto/subscription/subscription.dto";
-import { NotificationHelper } from "../notification/notification.helper";
+import { NotificationHelper } from "../../shared/utils/notification.helper";
 
 export class EmployerService implements IEmployerService {
   constructor(

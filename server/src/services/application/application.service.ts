@@ -29,7 +29,7 @@ import { uploadResumeFile } from "../../shared/utils/fileUpload";
 import { ICandidateService } from "../../interfaces/users/candidate/ICandidateService";
 import { IApplicationQuery } from "../../interfaces/applications/IApplication";
 import { sendInterviewScheduledEmail } from "../../shared/utils/email";
-import { NotificationHelper } from "../notification/notification.helper";
+import { NotificationHelper } from "../../shared/utils/notification.helper";
 
 export class CandidateApplicationService
   implements ICandidateApplicationService

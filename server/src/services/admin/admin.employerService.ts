@@ -12,7 +12,7 @@ import { ApiError } from "../../shared/utils/ApiError";
 import { HTTP_STATUS } from "../../shared/httpStatus/httpStatusCode";
 import { ERROR_MESSAGES } from "../../shared/enums/enums";
 import { logger } from "../../shared/utils/logger";
-import { NotificationHelper } from "../notification/notification.helper";
+import { NotificationHelper } from "../../shared/utils/notification.helper";
 
 export class AdminEmployerService implements IAdminEmployerService {
   constructor(

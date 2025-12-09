@@ -7,7 +7,7 @@ import {
 } from "../../dto/admin/candidate.dto";
 import { ICandidate } from "../../interfaces/users/candidate/ICandidate";
 import { ICandidateMapper } from "../../interfaces/users/admin/ICandidateMapper";
-import { NotificationHelper } from "../notification/notification.helper";
+import { NotificationHelper } from "../../shared/utils/notification.helper";
 
 export class AdminCandidateService implements IAdminCandidateService {
   constructor(

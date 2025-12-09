@@ -70,7 +70,7 @@ const EmployerProfile: React.FC = () => {
 
   useEffect(() => {
     if (auth.user?._id) {
-      dispatch(fetchEmployerProfile(auth.user._id))
+      dispatch(fetchEmployerProfile())
         .unwrap()
         .catch((err: any) => {
           if (
@@ -126,12 +126,6 @@ const EmployerProfile: React.FC = () => {
     setProfileData((prev) => ({ ...prev, [field]: value }));
   };
 
-  // const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   if (e.target.files && e.target.files[0]) {
-  //     setLicenseFile(e.target.files[0]);
-  //   }
-  // };
-
   const addBenefit = () => {
     if (
       newBenefit.trim() &&
@@ -172,7 +166,7 @@ const EmployerProfile: React.FC = () => {
 
   const handleProfileUpdate = () => {
     if (auth.user?._id) {
-      dispatch(fetchEmployerProfile(auth.user._id))
+      dispatch(fetchEmployerProfile())
         .unwrap()
         .then(() => console.log("Refreshed successfully"))
         .catch((err: any) =>
@@ -213,9 +207,7 @@ const EmployerProfile: React.FC = () => {
         formData.append("profileImage", profileData.profileImage);
       if (licenseFile) formData.append("businessLicense", licenseFile);
 
-      await dispatch(
-        updateEmployerProfile({ employerId: auth.user._id, data: formData }),
-      ).unwrap();
+      await dispatch(updateEmployerProfile({ data: formData })).unwrap();
       toast.success("Profile updated successfully");
       setIsEditing(false);
       handleProfileUpdate();

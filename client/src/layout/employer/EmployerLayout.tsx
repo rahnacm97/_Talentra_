@@ -7,8 +7,8 @@ import {
   Settings,
   BarChart3,
   Calendar,
-  BellIcon,
   CreditCard,
+  MessageCircle,
 } from "lucide-react";
 import Header from "../../pages/common/Header";
 import EmployerSidebar from "./EmployerSidebar";
@@ -21,8 +21,31 @@ interface SidebarItem {
   path: string;
 }
 
+import { useSelector } from "react-redux";
+import type { RootState } from "../../app/store";
+import { useLocation } from "react-router-dom";
+import SubscriptionExpiredModal from "../../components/employer/SubscriptionExpiredModal";
+
 const EmployerLayout: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+  const { user } = useSelector((state: RootState) => state.auth);
+  const location = useLocation();
+
+  const isSubscriptionActiveOrTrialing = React.useMemo(() => {
+    if (!user || user.role !== "Employer") return false;
+
+    if (user.hasActiveSubscription) return true;
+
+    if (user.trialEndsAt) {
+      return new Date(user.trialEndsAt) > new Date();
+    }
+
+    return false;
+  }, [user]);
+
+  const showSubscriptionModal =
+    !isSubscriptionActiveOrTrialing &&
+    location.pathname !== FRONTEND_ROUTES.EMPLOYERRBILLING;
 
   const sidebarItems: SidebarItem[] = [
     {
@@ -62,11 +85,12 @@ const EmployerLayout: React.FC = () => {
       path: FRONTEND_ROUTES.EMPLOYERANALYTICS,
     },
     {
-      id: "notifications",
-      label: "Notifications",
-      icon: BellIcon,
-      path: FRONTEND_ROUTES.EMPLOYERNOTIFICATIONS,
+      id: "chat",
+      label: "Messages",
+      icon: MessageCircle,
+      path: FRONTEND_ROUTES.CHAT,
     },
+
     {
       id: "settings",
       label: "Settings",
@@ -75,14 +99,30 @@ const EmployerLayout: React.FC = () => {
     },
   ];
 
+  const isActive = (path: string) => {
+    const current = location.pathname;
+
+    if (path === FRONTEND_ROUTES.CHAT) {
+      return current === path || current.startsWith(path + "/");
+    }
+
+    if (path === FRONTEND_ROUTES.EMPLOYERAPPLICANTS) {
+      return current.startsWith(path);
+    }
+
+    return current === path;
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
+      <SubscriptionExpiredModal isOpen={showSubscriptionModal} />
       <div className="flex">
         <EmployerSidebar
           isSidebarOpen={isSidebarOpen}
           setIsSidebarOpen={setIsSidebarOpen}
           sidebarItems={sidebarItems}
+          isActive={isActive}
           activeColor="indigo-600"
         />
         <main className="flex-1 lg:ml-0 min-h-screen">

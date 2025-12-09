@@ -140,7 +140,7 @@ const EmployerModal: React.FC<EmployerModalProps> = ({
         formData.append("profileImage", profileData.profileImage);
       }
 
-      await api.put(API_ROUTES.EMPLOYER.PROFILE(auth.user._id), formData, {
+      await api.put(API_ROUTES.EMPLOYER.PROFILE, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       toast.success(

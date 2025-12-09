@@ -25,7 +25,9 @@ import AdminEmployerView from "./pages/admin/AdminEmployerView";
 import { ProtectedRoute } from "./components/common/ProtectedRoute";
 import { AdminProtectedRoute } from "./components/admin/AdminProtectedRoute";
 import { FRONTEND_ROUTES } from "./shared/constants/constants";
-import AuthRouteGuard, { HistoryLock } from "./components/common/AuthRouteGuard";
+import AuthRouteGuard, {
+  HistoryLock,
+} from "./components/common/AuthRouteGuard";
 import NavigationProvider from "./components/common/NavigationProvider";
 import EmployerJobs from "./pages/employer/EmployerJobs";
 import EmployerApplicants from "./pages/employer/EmployerApplicants";
@@ -44,18 +46,36 @@ import AdminSettings from "./pages/admin/AdminSettings";
 import JobsView from "./pages/job/JobView";
 import NotFound from "./pages/common/NotFound";
 import JobDetails from "./pages/job/JobDetails";
-import ChatPage from "./pages/common/Chat";
-import VideoCallPage from "./pages/common/VideoCall";
 import ApplicationDetails from "./pages/candidate/CandidateApplicationDetails";
 import EmployerBilling from "./pages/employer/EmployerBilling";
+import { initializeSocket, disconnectSocket } from "./socket/socket";
+import { useNotifications } from "./hooks/useNotifications";
+import { useAppSelector } from "./hooks/hooks";
+import { useEffect } from "react";
 
 const App: React.FC = () => {
   useAuthInitialiazer();
+  const { user, accessToken } = useAppSelector((state) => state.auth);
+
+  useEffect(() => {
+    if (user && accessToken) {
+      initializeSocket(accessToken);
+    } else {
+      disconnectSocket();
+    }
+
+    return () => {
+      disconnectSocket();
+    };
+  }, [user, accessToken]);
+
+  useNotifications();
+
   return (
     <>
       <Router>
         <NavigationProvider />
-        <HistoryLock/>
+        <HistoryLock />
         <AuthRouteGuard>
           <ToastContainer
             position="top-right"
@@ -128,22 +148,6 @@ const App: React.FC = () => {
               element={
                 <ProtectedRoute>
                   <JobDetails />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path={FRONTEND_ROUTES.CHAT}
-              element={
-                <ProtectedRoute>
-                  <ChatPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path={FRONTEND_ROUTES.VIDEOCALL}
-              element={
-                <ProtectedRoute>
-                  <VideoCallPage />
                 </ProtectedRoute>
               }
             />

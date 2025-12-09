@@ -12,6 +12,7 @@ import { ApiError } from "../../shared/utils/ApiError";
 import { HTTP_STATUS } from "../../shared/httpStatus/httpStatusCode";
 import { ERROR_MESSAGES } from "../../shared/enums/enums";
 import { logger } from "../../shared/utils/logger";
+import { NotificationHelper } from "../notification/notification.helper";
 
 export class AdminEmployerService implements IAdminEmployerService {
   constructor(
@@ -52,6 +53,17 @@ export class AdminEmployerService implements IAdminEmployerService {
     );
     if (!employer) throw new Error("Employer not found");
 
+    const notificationHelper = NotificationHelper.getInstance();
+
+    if (employerEntity.block) {
+      notificationHelper.emitUserBlocked(employerEntity.employerId, "Employer");
+    } else {
+      notificationHelper.emitUserUnblocked(
+        employerEntity.employerId,
+        "Employer",
+      );
+    }
+
     return this._employerMapper.toEmployerResponseDTO(employer);
   }
   //Fetching single employer
@@ -81,6 +93,11 @@ export class AdminEmployerService implements IAdminEmployerService {
     if (!updated) throw new Error("Employer not found");
 
     const dto = this._employerMapper.toEmployerResponseDTO(updated);
+
+    // Notify employer of verification approval
+    const notificationHelper = NotificationHelper.getInstance();
+    await notificationHelper.notifyEmployerVerificationApproved(id);
+
     try {
       await this._emailService.sendEmployerVerificationEmail({
         to: employer.email,
@@ -116,6 +133,10 @@ export class AdminEmployerService implements IAdminEmployerService {
     if (!updated) throw new Error("Failed to update employer");
 
     const dto = this._employerMapper.toEmployerResponseDTO(updated);
+
+    // Notify employer of verification rejection
+    const notificationHelper = NotificationHelper.getInstance();
+    await notificationHelper.notifyEmployerVerificationRejected(id, reason);
 
     try {
       await this._emailService.sendEmployerRejectionEmail({

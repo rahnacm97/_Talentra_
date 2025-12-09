@@ -32,7 +32,20 @@ export class AuthService implements IAuthService {
     const repo = this.getRepository(data.userType);
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
-    const user = await repo.create({ ...data, password: hashedPassword });
+
+    const userData = { ...data, password: hashedPassword } as AuthSignupDTO & {
+      trialEndsAt?: Date;
+      hasActiveSubscription?: boolean;
+    };
+
+    if (data.userType === "Employer") {
+      const trialEndsAt = new Date();
+      trialEndsAt.setDate(trialEndsAt.getDate() + 30);
+      userData.trialEndsAt = trialEndsAt;
+      userData.hasActiveSubscription = false;
+    }
+
+    const user = await repo.create(userData);
 
     const blocked = hasEmailVerification(user) ? user.blocked : false;
 
@@ -44,12 +57,22 @@ export class AuthService implements IAuthService {
         role: data.userType,
         blocked,
         emailVerified: false,
-        ...(data.userType === "Employer" && { verified: false }),
+        ...(data.userType === "Employer" && {
+          verified: false,
+          hasActiveSubscription: (user as IEmployer).hasActiveSubscription,
+          trialEndsAt: (user as IEmployer).trialEndsAt,
+          currentPlan: (user as IEmployer).currentPlan,
+        }),
       },
       accessToken: this._tokenService.generateAccessToken({
         id: user._id,
         email: user.email,
         role: data.userType,
+        ...(data.userType === "Employer" && {
+          hasActiveSubscription: (user as IEmployer).hasActiveSubscription,
+          trialEndsAt: (user as IEmployer).trialEndsAt,
+          currentPlan: (user as IEmployer).currentPlan,
+        }),
       }),
       refreshToken: this._tokenService.generateRefreshToken({
         id: user._id,
@@ -106,7 +129,12 @@ export class AuthService implements IAuthService {
         role,
         blocked,
         emailVerified,
-        ...(role === "Employer" && { verified: (user as IEmployer).verified }),
+        ...(role === "Employer" && {
+          verified: (user as IEmployer).verified,
+          hasActiveSubscription: (user as IEmployer).hasActiveSubscription,
+          trialEndsAt: (user as IEmployer).trialEndsAt,
+          currentPlan: (user as IEmployer).currentPlan,
+        }),
       },
       accessToken: this._tokenService.generateAccessToken({
         id: user._id,
@@ -160,6 +188,9 @@ export class AuthService implements IAuthService {
             : false,
         ...(decoded.role === "Employer" && {
           verified: (user as IEmployer).verified,
+          hasActiveSubscription: (user as IEmployer).hasActiveSubscription,
+          trialEndsAt: (user as IEmployer).trialEndsAt,
+          currentPlan: (user as IEmployer).currentPlan,
         }),
       },
     };

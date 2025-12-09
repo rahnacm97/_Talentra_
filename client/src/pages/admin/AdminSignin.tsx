@@ -47,10 +47,12 @@ const AdminSignIn: React.FC = () => {
             refreshToken: res.refreshToken,
           }),
         );
-        Cookies.set("refreshToken", res.refreshToken, {
-          expires: 7,
-          sameSite: "Lax",
-        });
+        if (res.refreshToken) {
+          Cookies.set("refreshToken", res.refreshToken, {
+            expires: 7,
+            sameSite: "Lax",
+          });
+        }
         navigate(FRONTEND_ROUTES.ADMIN_DASHBOARD);
       })
       .catch((error) => {

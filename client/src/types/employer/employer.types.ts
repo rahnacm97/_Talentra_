@@ -1,3 +1,5 @@
+import type { EmployerApplicationsPaginatedDto } from "../../types/application/application.types";
+
 export interface IEmployer {
   _id: string;
   name: string;
@@ -86,10 +88,25 @@ export interface Interview {
 }
 
 export interface EmployerState {
-  interviews: Interview[];
+  profile: IEmployer | null;
   loading: boolean;
   error: string | null;
-  notifications: Notification[];
+  applications: EmployerApplicationsPaginatedDto[];
+  appPagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+  appLoading: boolean;
+  analytics: {
+    data: EmployerAnalyticsData | null;
+    loading: boolean;
+    error: string | null;
+    timeRange: string;
+  };
+  interviews: Interview[];
+  notifications: any[];
 }
 
 export interface Notification {
@@ -114,4 +131,55 @@ export interface FetchJobsResponse {
   total: number;
   page: number;
   limit: number;
+}
+
+export interface EmployerStats {
+  totalApplications: number;
+  totalViews: number;
+  activeJobs: number;
+  avgTimeToHire: number;
+  totalHired: number;
+  conversionRate: number;
+  offerAcceptanceRate: number;
+  activePipeline: number;
+}
+
+export interface ApplicationOverTime {
+  date: string;
+  applications: number;
+  views: number;
+}
+
+export interface ApplicationByStatus {
+  name: string;
+  value: number;
+  color: string;
+}
+
+export interface JobPerformance {
+  job: string;
+  jobId: string;
+  applications: number;
+  views: number;
+  conversionRate: number;
+}
+
+export interface HiringFunnelStage {
+  stage: string;
+  count: number;
+  percentage: number;
+}
+
+export interface TimeToHire {
+  position: string;
+  days: number;
+}
+
+export interface EmployerAnalyticsData {
+  stats: EmployerStats;
+  applicationsOverTime: ApplicationOverTime[];
+  applicationsByStatus: ApplicationByStatus[];
+  jobPostingPerformance: JobPerformance[];
+  hiringFunnel: HiringFunnelStage[];
+  timeToHire: TimeToHire[];
 }

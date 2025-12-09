@@ -72,7 +72,7 @@ const CandidateProfile: React.FC = () => {
 
   useEffect(() => {
     if (auth.user?._id) {
-      dispatch(fetchCandidateProfile(auth.user._id)).unwrap();
+      dispatch(fetchCandidateProfile()).unwrap();
     }
   }, [auth.user, dispatch, navigate]);
 
@@ -152,7 +152,7 @@ const CandidateProfile: React.FC = () => {
 
   const handleProfileUpdate = () => {
     if (auth.user?._id) {
-      dispatch(fetchCandidateProfile(auth.user._id))
+      dispatch(fetchCandidateProfile())
         .unwrap()
         .catch((err: any) => {
           console.log(err);
@@ -181,9 +181,7 @@ const CandidateProfile: React.FC = () => {
       return;
     }
     try {
-      await dispatch(
-        updateCandidateProfile({ ...profileData, candidateId: auth.user._id }),
-      ).unwrap();
+      await dispatch(updateCandidateProfile({ ...profileData })).unwrap();
       setIsEditing(false);
       console.log("Auth state:", auth);
       console.log("Profile data:", profileData);

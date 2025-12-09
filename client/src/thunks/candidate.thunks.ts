@@ -12,9 +12,9 @@ import { toast } from "react-toastify";
 //candidate profile
 export const fetchCandidateProfile = createAsyncThunk(
   "candidate/fetchProfile",
-  async (candidateId: string, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
-      const response = await getCandidateProfileApi(candidateId);
+      const response = await getCandidateProfileApi();
       return response;
     } catch (err: unknown) {
       const error = err as ApiError;
@@ -31,7 +31,6 @@ export const updateCandidateProfile = createAsyncThunk(
   "candidate/updateProfile",
   async (
     data: ProfileData & {
-      candidateId: string;
       resumeFile?: File;
       profileImageFile?: File;
     },
@@ -64,10 +63,7 @@ export const updateCandidateProfile = createAsyncThunk(
         });
         payload = formData;
       }
-      const response = await updateCandidateProfileApi(
-        data.candidateId,
-        payload,
-      );
+      const response = await updateCandidateProfileApi(payload);
       toast.success("Profile updated successfully");
       return response;
     } catch (err: unknown) {
@@ -83,15 +79,11 @@ export const updateCandidateProfile = createAsyncThunk(
 export const applyJob = createAsyncThunk(
   "candidate/applyJob",
   async (
-    {
-      candidateId,
-      jobId,
-      formData,
-    }: { candidateId: string; jobId: string; formData: FormData },
+    { jobId, formData }: { jobId: string; formData: FormData },
     { rejectWithValue },
   ) => {
     try {
-      await applyJobApi(candidateId, jobId, formData);
+      await applyJobApi(jobId, formData);
       toast.success("Application submitted!");
       return { jobId, alreadyApplied: false };
     } catch (err: unknown) {

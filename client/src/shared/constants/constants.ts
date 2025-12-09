@@ -9,6 +9,7 @@ export const API_ROUTES = {
     VERIFY_EMPLOYER: "/admin/employers",
     REJECT_EMPLOYER: (id: string) => `/admin/employers/${id}/reject`,
     JOBS: "/admin/jobs",
+    DASHBOARD_ANALYTICS: "/admin/analytics/dashboard",
   },
   AUTH: {
     SIGNUP: "/auth/signup",
@@ -22,23 +23,21 @@ export const API_ROUTES = {
     REFRESH: "/auth/refresh-token",
   },
   CANDIDATE: {
-    PROFILE: (id: string) => `/candidate/${id}`,
+    PROFILE: "/candidate/profile",
     JOBS: "/jobs",
-    APPLY: (candidateId: string, jobId: string) =>
-      `/candidate/${candidateId}/jobs/${jobId}/apply`,
+    APPLY: (jobId: string) => `/candidate/jobs/${jobId}/apply`,
     APPLICATIONS: "/candidate/applications",
     APPLICATION_BY_ID: (id: string) => `/candidate/applications/${id}`,
   },
   EMPLOYER: {
-    PROFILE: (id: string) => `/employer/${id}`,
-    JOBS: (id: string) => `/employer/jobs/${id}`,
-    JOB: (id: string, jobId: string) => `/employer/jobs/${id}/${jobId}`,
-    JOB_CLOSE: (employerId: string, jobId: string) =>
-      `/employer/jobs/${employerId}/${jobId}/close`,
-    APPLICATIONS: (employerId: string) =>
-      `/employer/${employerId}/applications`,
-    UPDATE_APPLICATION_STATUS: (employerId: string, applicationId: string) =>
-      `/employer/${employerId}/applications/${applicationId}/status`,
+    PROFILE: "/employer/profile",
+    JOBS: "/employer/jobs",
+    JOB: (jobId: string) => `/employer/jobs/${jobId}`,
+    JOB_CLOSE: (jobId: string) => `/employer/jobs/${jobId}/close`,
+    APPLICATIONS: "/employer/applications",
+    UPDATE_APPLICATION_STATUS: (applicationId: string) =>
+      `/employer/applications/${applicationId}/status`,
+    ANALYTICS: "/employer/analytics",
   },
   JOBS: {
     PUBLIC: "/jobs",
@@ -48,13 +47,20 @@ export const API_ROUTES = {
     SAVED: "/jobs/saved",
   },
   SUBSCRIPTION: {
-    CREATE: "/subscription/create",
-    CURRENT: "/subscription/current",
-    CANCEL: "/subscription/cancel",
+    CREATE_ORDER: "/employer/subscription/create-order",
+    VERIFY_PAYMENT: "/employer/subscription/verify-payment",
+    HISTORY: "/employer/subscription/history",
   },
   INTERVIEWS: {
     CANDIDATE: "/candidate/interviews",
     EMPLOYER: "/employer/interviews",
+  },
+  NOTIFICATIONS: {
+    BASE: "/notifications",
+    STATS: "/notifications/stats",
+    MARK_READ: (id: string) => `/notifications/${id}/read`,
+    MARK_ALL_READ: "/notifications/read-all",
+    DELETE: (id: string) => `/notifications/${id}`,
   },
 } as const;
 

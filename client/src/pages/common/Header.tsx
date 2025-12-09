@@ -9,6 +9,7 @@ import { serverLogout } from "../../thunks/auth.thunk";
 import { toast } from "react-toastify";
 import { FRONTEND_ROUTES } from "../../shared/constants/constants";
 import Cookies from "js-cookie";
+import NotificationBell from "../../components/common/NotificationBell";
 
 const Header: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -18,6 +19,12 @@ const Header: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const hasShownBlockedToast = useRef(false);
+
+  useEffect(() => {
+    if (user && accessToken) {
+      //dispatch(fetchUnreadCount());
+    }
+  }, [user, accessToken, dispatch]);
 
   useEffect(() => {
     if (blocked && !hasShownBlockedToast.current) {
@@ -130,56 +137,63 @@ const Header: React.FC = () => {
           </Link>
         </>
       ) : (
-        <div className="relative">
-          <button
-            onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="flex items-center space-x-2 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg transition-colors"
-          >
-            <span className="font-medium">{user.name}</span>
-            {renderEmployerBadges()}
-            <svg
-              className={`w-4 h-4 ml-1 transition-transform duration-200 ${
-                dropdownOpen ? "rotate-180" : ""
-              }`}
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
-          </button>
+        <>
+          {/* Notification Bell */}
+          <NotificationBell />
 
-          {dropdownOpen && (
-            <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-              <button
-                className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
-                onClick={() => {
-                  setDropdownOpen(false);
-                  const route =
-                    user.role === "Candidate"
-                      ? FRONTEND_ROUTES.CANDIDATEPROFILE
-                      : user.role === "Employer"
-                        ? FRONTEND_ROUTES.EMPLOYERPROFILE
-                        : FRONTEND_ROUTES.ADMIN_DASHBOARD;
-                  navigate(route);
-                }}
+          <div className="relative">
+            <button
+              onClick={() => {
+                setDropdownOpen(!dropdownOpen);
+              }}
+              className="flex items-center space-x-2 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg transition-colors"
+            >
+              <span className="font-medium">{user.name}</span>
+              {renderEmployerBadges()}
+              <svg
+                className={`w-4 h-4 ml-1 transition-transform duration-200 ${
+                  dropdownOpen ? "rotate-180" : ""
+                }`}
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
               >
-                {user.role === "Admin" ? "Dashboard" : "Profile"}
-              </button>
-              <button
-                className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
-                onClick={handleLogout}
-              >
-                Logout
-              </button>
-            </div>
-          )}
-        </div>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+
+            {dropdownOpen && (
+              <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                <button
+                  className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                  onClick={() => {
+                    setDropdownOpen(false);
+                    const route =
+                      user.role === "Candidate"
+                        ? FRONTEND_ROUTES.CANDIDATEPROFILE
+                        : user.role === "Employer"
+                          ? FRONTEND_ROUTES.EMPLOYERPROFILE
+                          : FRONTEND_ROUTES.ADMIN_DASHBOARD;
+                    navigate(route);
+                  }}
+                >
+                  {user.role === "Admin" ? "Dashboard" : "Profile"}
+                </button>
+                <button
+                  className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
+        </>
       )}
     </nav>
   );

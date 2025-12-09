@@ -52,10 +52,7 @@ const JobDetails: React.FC = () => {
     if (!candidateId || !id) return;
 
     try {
-      await dispatch(applyJob({ candidateId, jobId: id, formData })).unwrap();
-
-      dispatch(fetchJobById(id));
-
+      await dispatch(applyJob({ jobId: id, formData })).unwrap();
       closeApplyModal();
     } catch {}
   };
@@ -149,7 +146,7 @@ const JobDetails: React.FC = () => {
   const openApplyModal = async () => {
     if (candidateId && !candidateProfile) {
       try {
-        await dispatch(fetchCandidateProfile(candidateId)).unwrap();
+        await dispatch(fetchCandidateProfile()).unwrap();
       } catch (err) {
         toast.error("Failed to load your profile");
         console.log(err);

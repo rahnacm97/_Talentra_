@@ -85,7 +85,8 @@ export const verifyAuth =
         email: decoded.email,
         blocked: "blocked" in user ? user.blocked : false,
         ...(decoded.role === USER_ROLES.EMPLOYER && {
-          subscription: (user as IEmployer).subscription,
+          hasActiveSubscription: (user as IEmployer).hasActiveSubscription,
+          trialEndsAt: (user as IEmployer).trialEndsAt,
         }),
       };
 
@@ -97,3 +98,64 @@ export const verifyAuth =
         .json({ success: false, message: ERROR_MESSAGES.NOT_AUTHENTICATED });
     }
   };
+
+export const optionalAuth = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader?.startsWith("Bearer ")) {
+      return next();
+    }
+
+    const token = authHeader.split(" ")[1];
+    if (!token) {
+      return next();
+    }
+
+    const decoded = tokenService.verifyAccessToken(token) as {
+      id: string;
+      role: string;
+      email: string;
+    };
+
+    let user: AuthUser | null = null;
+
+    if (decoded.role === USER_ROLES.CANDIDATE) {
+      const candidateRepo = new CandidateRepository();
+      user = await candidateRepo.findById(decoded.id);
+    } else if (decoded.role === USER_ROLES.EMPLOYER) {
+      const employerRepo = new EmployerRepository();
+      user = await employerRepo.findById(decoded.id);
+    } else if (decoded.role === USER_ROLES.ADMIN) {
+      const adminRepo = new AdminRepository();
+      user = await adminRepo.findById(decoded.id);
+    }
+
+    if (user) {
+      const isBlocked =
+        decoded.role !== USER_ROLES.ADMIN && "blocked" in user && user.blocked;
+
+      if (!isBlocked) {
+        req.user = {
+          id: user._id.toString(),
+          _id: user._id.toString(),
+          role: decoded.role as USER_ROLES,
+          email: decoded.email,
+          blocked: "blocked" in user ? user.blocked : false,
+          ...(decoded.role === USER_ROLES.EMPLOYER && {
+            hasActiveSubscription: (user as IEmployer).hasActiveSubscription,
+            trialEndsAt: (user as IEmployer).trialEndsAt,
+          }),
+        };
+      }
+    }
+    next();
+  } catch (error) {
+    console.error("Optional auth middleware error:", error);
+    next();
+  }
+};

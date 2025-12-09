@@ -4,6 +4,7 @@ import {
   IApplicationWithJob,
   IEmployerApplicationResponse,
 } from "./IApplication";
+import { FilterQuery, PipelineStage } from "mongoose";
 
 export interface ICandidateApplicationRepository {
   create(data: Partial<IApplication>): Promise<IApplication>;
@@ -20,6 +21,7 @@ export interface ICandidateApplicationRepository {
     query: IApplicationQuery,
   ): Promise<IApplicationWithJob[]>;
   findOneWithJob(applicationId: string): Promise<IApplicationWithJob | null>;
+  count(query?: FilterQuery<IApplication>): Promise<number>;
 }
 
 export interface IEmployerApplicationRepository {
@@ -55,4 +57,7 @@ export interface IEmployerApplicationRepository {
 
 export interface IApplicationRepository
   extends ICandidateApplicationRepository,
-    IEmployerApplicationRepository {}
+    IEmployerApplicationRepository {
+  aggregate<T>(pipeline: PipelineStage[]): Promise<T[]>;
+  find(query: FilterQuery<IApplication>): Promise<IApplication[]>;
+}

@@ -28,7 +28,7 @@ export class EmployerJobController implements IEmployerJobController {
   constructor(private readonly _service: IEmployerJobService) {}
 
   private getEmployerId(req: Request): string {
-    const id = req.params.employerId || (req.user as IUserEntity)?.id;
+    const id = (req.user as IUserEntity)?.id;
     if (!id)
       throw new ApiError(HTTP_STATUS.BAD_REQUEST, ERROR_MESSAGES.EMPOYER_ID);
     return id;
@@ -72,6 +72,7 @@ export class EmployerJobController implements IEmployerJobController {
     next: NextFunction,
   ): Promise<void> {
     const employerId = this.getEmployerId(req);
+
     try {
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
@@ -93,6 +94,7 @@ export class EmployerJobController implements IEmployerJobController {
 
       res.json(data);
     } catch (err) {
+      console.error("ERROR in getJobs controller:", err);
       logger.error("Failed to fetch employer jobs", { employerId, error: err });
       next(
         err instanceof ApiError
@@ -216,9 +218,9 @@ export class CandidateJobController implements ICandidateJobController {
       if (!id)
         throw new ApiError(HTTP_STATUS.BAD_REQUEST, ERROR_MESSAGES.JOB_ID);
 
-      const candidateId =
-        (req.user as { id: string } | undefined)?.id ||
-        (req.query.candidateId as string | undefined);
+      // Get candidateId from JWT token if user is authenticated
+      const candidateId = (req.user as { id: string } | undefined)?.id;
+
       const job: JobResponseDto = await this._service.getJobById(
         id,
         candidateId,

@@ -1,3 +1,12 @@
+(globalThis as any).global = globalThis;
+
+if (!globalThis.process) {
+  globalThis.process = { env: {} } as any;
+}
+
+import "buffer";
+import "process";
+
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";

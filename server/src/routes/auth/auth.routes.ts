@@ -20,7 +20,7 @@ import { OtpMapper } from "../../mappers/auth/otp.mapper";
 import { PasswordMapper } from "../../mappers/auth/password.mapper";
 
 const router = Router();
-
+//Dependencies
 const userRepos: UserRepoMap = {
   Candidate: new CandidateRepository(),
   Employer: new EmployerRepository(),
@@ -36,7 +36,7 @@ const otpRepository = new OtpRepository();
 const tokenService = new TokenService();
 const otpMapper = new OtpMapper();
 const passwordMapper = new PasswordMapper();
-
+//Services with dependencies
 const authService = new AuthService(userRepos, tokenService);
 const emailService = new EmailService();
 const otpService = new OtpService(
@@ -50,7 +50,7 @@ const passwordService = new PasswordService(
   userRepos,
   passwordMapper,
 );
-
+//Controller
 const authController = new AuthController(authService);
 const otpController = new OtpController(otpService);
 const passwordController = new PasswordController(passwordService);
@@ -58,6 +58,7 @@ const passwordController = new PasswordController(passwordService);
 new GoogleAuthService(googleUserRepos);
 const googleAuthController = new GoogleAuthController();
 
+//Routes
 router.get("/google", (req, res, next) => {
   const stateParam =
     typeof req.query.state === "string" ? req.query.state : undefined;

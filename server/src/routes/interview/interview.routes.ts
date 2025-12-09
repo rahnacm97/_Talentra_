@@ -8,21 +8,22 @@ import {
 import { InterviewService } from "../../services/interview/interview.service";
 import { InterviewRepository } from "../../repositories/interview/interview.repository";
 import { InterviewMapper } from "../../mappers/interview/interview.mapper";
-
 const candidateRouter = Router();
 const employerRouter = Router();
-
+//Dependencies
 const interviewRepo = new InterviewRepository();
 const interviewMapper = new InterviewMapper();
-const interviewService = new InterviewService(interviewRepo, interviewMapper);
 
+//Service with dependency
+const interviewService = new InterviewService(interviewRepo, interviewMapper);
+//Controller
 const candidateInterviewController = new CandidateInterviewController(
   interviewService,
 );
 const employerInterviewController = new EmployerInterviewController(
   interviewService,
 );
-
+//Routes
 candidateRouter.get(
   "/",
   verifyAuth([USER_ROLES.CANDIDATE]),

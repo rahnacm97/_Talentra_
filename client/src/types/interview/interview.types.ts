@@ -41,3 +41,10 @@ export interface InterviewQueryParams {
   search?: string;
   status?: string;
 }
+
+export interface InterviewState {
+  interviews: Interview[];
+  loading: boolean;
+  error: string | null;
+  pagination: InterviewPagination;
+}

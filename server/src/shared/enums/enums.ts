@@ -34,6 +34,14 @@ export enum ERROR_MESSAGES {
   AUTHENTICATION = "Authentication required",
   APPLICATION_NOT_FOUND = "Application not found",
   FAILED_LOADING = "Failed to load updated application",
+  ENV_ERROR = "Razorpay credentials not configured. Please add RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET to your .env file",
+  RAZORPAY_ERROR = "Error creating Razorpay order",
+  SIGNATURE_ERROR = "Invalid signature",
+  UPLOAD_ERROR = "Failed to upload file",
+  PAYMENT_VERIFICATION_ERROR = "Payment verification failed",
+  SUBSCRIPTION_HISTORY_ERROR = "Failed to fetch subscription history",
+  NOTIFICATION_NOTFOUND = "Notification not found",
+  NOTIFICATION_ID_REQUIRED = "Notification ID is required",
 }
 
 export enum SUCCESS_MESSAGES {
@@ -58,6 +66,46 @@ export enum SUCCESS_MESSAGES {
   INTERVIEWS_FETCHED = "Interviews fetched successfully",
   INTERVIEW_CANCELLED = "Interview cancelled successfully",
   INTERVIEW_RESCHEDULED = "Interview rescheduled successfully",
+  SUBSCRIPTION_ACTIVATED = "Subscription activated successfully",
+  NOTIFICATION_READ = "Notification marked as read",
+  ALL_READ = "All notifications marked as read",
+  NOTIFICATION_DELETED = "Notification deleted",
+}
+
+export enum NotificationType {
+  EMPLOYER_VERIFICATION_SUBMITTED = "employer_verification_submitted",
+  VERIFICATION_APPROVED = "verification_approved",
+  VERIFICATION_REJECTED = "verification_rejected",
+  NEW_APPLICATION = "new_application",
+  APPLICATION_WITHDRAWN = "application_withdrawn",
+  APPLICATION_REVIEWED = "application_reviewed",
+  APPLICATION_SHORTLISTED = "application_shortlisted",
+  APPLICATION_REJECTED = "application_rejected",
+  INTERVIEW_SCHEDULED = "interview_scheduled",
+  INTERVIEW_CANCELLED = "interview_cancelled",
+}
+
+export enum NOTIFICATION_MESSAGES {
+  APPLICATION_REVIEWED_TITLE = "Application Reviewed",
+  APPLICATION_REVIEWED_MESSAGE = "Your application for {{jobTitle}} at {{companyName}} has been reviewed.",
+  APPLICATION_SHORTLISTED_TITLE = "You've Been Shortlisted!",
+  APPLICATION_SHORTLISTED_MESSAGE = "Congratulations! You've been shortlisted for {{jobTitle}} at {{companyName}}.",
+  APPLICATION_REJECTED_TITLE = "Application Update",
+  APPLICATION_REJECTED_MESSAGE = "Thank you for applying to {{jobTitle}} at {{companyName}}. We've decided not to move forward at this time. Best of luck!",
+  APPLICATION_HIRED_TITLE = "You're Hired!",
+  APPLICATION_HIRED_MESSAGE = "Congratulations! You've been hired for {{jobTitle}} at {{companyName}}! Welcome aboard!",
+  APPLICATION_UPDATED_TITLE = "Application Updates",
+  APPLICATION_UPDATED_MESSAGE = "Your application for {{jobTitle}} at {{companyName}} has been updated.",
+  INTERVIEW_SCHEDULED_TITLE = "Interview Scheduled",
+  INTERVIEW_SCHEDULED_MESSAGE = "Your interview for {{jobTitle}} is scheduled at {{companyName}}. Check email for informations",
+  INTERVIEW_CANCELLED_TITLE = "Interview Cancelled",
+  INTERVIEW_CANCELLED_MESSAGE = "Your interview for {{jobTitle}} has been cancelled.",
+  ADMIN_VERIFICATION_REQUEST_TITLE = "New Verification Request",
+  ADMIN_VERIFICATION_REQUEST_MESSAGE = "{{employerName}} submitted verification documents.",
+  ACCOUNT_VERIFICATION = "Your account has been verified successfully",
+  VERIFICATION_REJECTED = "Your verification request was rejected",
+  USER_BLOCKED = "Your account has been blocked by admin.",
+  USER_UNBLOCKED = "Your account has been unblocked. You can now log in.",
 }
 
 export enum USER_ROLES {

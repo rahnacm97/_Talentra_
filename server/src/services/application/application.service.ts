@@ -29,6 +29,7 @@ import { uploadResumeFile } from "../../shared/utils/fileUpload";
 import { ICandidateService } from "../../interfaces/users/candidate/ICandidateService";
 import { IApplicationQuery } from "../../interfaces/applications/IApplication";
 import { sendInterviewScheduledEmail } from "../../shared/utils/email";
+import { NotificationHelper } from "../notification/notification.helper";
 
 export class CandidateApplicationService
   implements ICandidateApplicationService
@@ -96,6 +97,16 @@ export class CandidateApplicationService
     });
 
     await this._jobRepo.incrementApplicants(jobId);
+
+    // Notify employer of new application
+    const notificationHelper = NotificationHelper.getInstance();
+    await notificationHelper.notifyEmployerNewApplication(
+      job.employerId,
+      payload.fullName,
+      job.title,
+      jobId,
+      application.id,
+    );
 
     logger.info("Application submitted", {
       applicationId: application.id,
@@ -233,6 +244,17 @@ export class EmployerApplicationService implements IEmployerApplicationService {
     }
 
     await this._appRepo.updateOne(applicationId, updateData);
+
+    // Notify candidate of status change
+    const notificationHelper = NotificationHelper.getInstance();
+    await notificationHelper.notifyCandidateApplicationStatusChange(
+      app.candidateId,
+      data.status,
+      app.job.title,
+      app.jobId,
+      applicationId,
+      app.employer.name,
+    );
 
     if (data.status === "interview" && this._interviewService) {
       try {

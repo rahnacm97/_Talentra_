@@ -13,6 +13,8 @@ import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
 import { logout } from "../../features/auth/authSlice";
 import { serverLogout } from "../../thunks/auth.thunk";
 import { FRONTEND_ROUTES } from "../../shared/constants/constants";
+import { fetchNotificationStats } from "../../thunks/notification.thunk";
+import { useEffect } from "react";
 
 interface SidebarItem {
   id: string;
@@ -35,6 +37,12 @@ const Sidebar: React.FC<SidebarProps> = ({
   const location = useLocation();
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.auth.user);
+  const { unreadCount } = useAppSelector((state) => state.notifications);
+
+  // Fetch notification stats on mount
+  useEffect(() => {
+    dispatch(fetchNotificationStats());
+  }, [dispatch]);
 
   const sidebarItems: SidebarItem[] = [
     {
@@ -144,6 +152,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             {sidebarItems.map((item) => {
               const Icon = item.icon;
               const active = isActive(item.path);
+              const isNotifications = item.id === "notifications";
 
               return (
                 <li key={item.id}>
@@ -163,7 +172,12 @@ const Sidebar: React.FC<SidebarProps> = ({
                       className={active ? "text-white" : "text-gray-500"}
                     />
                     <span className="font-medium">{item.label}</span>
-                    {active && (
+                    {isNotifications && unreadCount > 0 && (
+                      <span className="ml-auto bg-white-600 text-blue text-xs font-bold px-2 py-1 rounded-full min-w-[20px] text-center">
+                        {unreadCount > 99 ? "99+" : unreadCount}
+                      </span>
+                    )}
+                    {active && !isNotifications && (
                       <div className="ml-auto w-2 h-2 bg-white rounded-full" />
                     )}
                   </button>

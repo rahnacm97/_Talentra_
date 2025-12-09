@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { LogOut, Menu, X } from "lucide-react";
 import { useAppDispatch } from "../../hooks/hooks";
 import { logout } from "../../features/auth/authSlice";
@@ -16,6 +16,7 @@ interface SidebarProps {
   isSidebarOpen: boolean;
   setIsSidebarOpen: (isOpen: boolean) => void;
   sidebarItems: SidebarItem[];
+  isActive: (path: string) => boolean;
   activeColor?: string;
 }
 
@@ -23,13 +24,14 @@ const EmployerSidebar: React.FC<SidebarProps> = ({
   isSidebarOpen,
   setIsSidebarOpen,
   sidebarItems,
+  isActive,
   activeColor = "blue-600",
 }) => {
   const navigate = useNavigate();
-  const location = useLocation();
+  //const location = useLocation();
   const dispatch = useAppDispatch();
 
-  const isActive = (path: string) => location.pathname === path;
+  //const isActive = (path: string) => location.pathname === path;
 
   const handleNavigation = (path: string) => {
     navigate(path);
@@ -92,6 +94,9 @@ const EmployerSidebar: React.FC<SidebarProps> = ({
                     className={`w-5 h-5 ${active ? `text-${activeColor}` : ""}`}
                   />
                   <span>{item.label}</span>
+                  {item.id === "chat" && active && (
+                    <span className="ml-auto w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                  )}
                 </button>
               );
             })}

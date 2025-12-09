@@ -131,8 +131,7 @@ const AdminEmployers: React.FC = () => {
           onChange={(e: any) => setSearchTerm(e.target.value)}
           placeholder="Search by company name or email…"
         />
-        <div className="flex items-center space-x-3">
-        </div>
+        <div className="flex items-center space-x-3"></div>
       </div>
 
       <Table

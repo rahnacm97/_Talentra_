@@ -71,3 +71,17 @@ export interface JobResponse {
   hasApplied: boolean;
   skills: string[];
 }
+
+export interface CandidateJobState {
+  jobs: JobResponse[];
+  total: number;
+  page: number;
+  limit: number;
+  loadingJobId: string | null;
+  loading: boolean;
+  error: string | null;
+  availableSkills: string[];
+  selectedSkills: string[];
+  savedJobs: JobResponse[];
+  savedJobsLoading: boolean;
+}

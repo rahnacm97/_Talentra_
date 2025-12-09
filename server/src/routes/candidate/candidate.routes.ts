@@ -13,26 +13,29 @@ import { JobRepository } from "../../repositories/job/job.repository";
 import { ApplicationMapper } from "../../mappers/application/application.mapper";
 import { upload } from "../../config/multer";
 import { USER_ROLES } from "../../shared/enums/enums";
-import { verifyCandidate } from "../../middlewares/validationMiddleware";
 import { candidateInterviewRouter } from "../interview/interview.routes";
 
 const router = Router();
+//Dependendies
 const candidateMapper = new CandidateMapper();
 const candidateRepository = new CandidateRepository();
+const applRepository = new ApplicationRepository();
+const jobRepository = new JobRepository();
+const applMapper = new ApplicationMapper();
 
+//Service with dependencies
 const candidateService = new CandidateService(
   candidateRepository,
   candidateMapper,
 );
-const applRepository = new ApplicationRepository();
-const jobRepository = new JobRepository();
-const applMapper = new ApplicationMapper();
+
 const applicationService = new CandidateApplicationService(
   applRepository,
   jobRepository,
   applMapper,
   candidateService,
 );
+//Controller
 const candidateController = new CandidateController(
   candidateService,
   applicationService,
@@ -42,6 +45,7 @@ const candidateApplicationsController = new CandidateApplicationsController(
   applicationService,
 );
 
+//Routes
 router.use("/interviews", candidateInterviewRouter);
 
 router.get(
@@ -61,13 +65,13 @@ router.get(
 );
 
 router.get(
-  "/:id",
+  "/profile",
   verifyAuth([USER_ROLES.CANDIDATE]),
   candidateController.getProfile.bind(candidateController),
 );
 
 router.put(
-  "/:id",
+  "/profile",
   verifyAuth([USER_ROLES.CANDIDATE]),
   upload.fields([
     { name: "resume", maxCount: 1 },
@@ -77,9 +81,8 @@ router.put(
 );
 
 router.post(
-  "/:candidateId/jobs/:jobId/apply",
+  "/jobs/:jobId/apply",
   verifyAuth([USER_ROLES.CANDIDATE]),
-  verifyCandidate,
   upload.single("resume"),
   candidateController.applyJob.bind(candidateController),
 );

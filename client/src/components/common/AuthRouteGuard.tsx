@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../app/store";
 import { FRONTEND_ROUTES } from "../../shared/constants/constants";
+import { useSocketAuth } from "../../hooks/useSocketAuth";
 
 interface AuthRouteGuardProps {
   children: React.ReactNode;
@@ -14,6 +15,8 @@ const AuthRouteGuard: React.FC<AuthRouteGuardProps> = ({ children }) => {
   const { user, accessToken, isInitialized } = useSelector(
     (state: RootState) => state.auth,
   );
+
+  useSocketAuth(user?._id);
 
   useEffect(() => {
     if (!isInitialized) return;
@@ -105,6 +108,5 @@ export const HistoryLock = () => {
 
   return null;
 };
-
 
 export default AuthRouteGuard;

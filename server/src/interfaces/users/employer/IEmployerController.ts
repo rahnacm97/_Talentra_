@@ -31,3 +31,11 @@ export interface IEmployerApplicationsController {
     next: NextFunction,
   ): Promise<void>;
 }
+
+export interface IEmployerAnalyticsController {
+  getEmployerAnalytics(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void>;
+}

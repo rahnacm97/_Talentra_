@@ -7,23 +7,23 @@ import employerReducer from "../features/employer/employerSlice";
 import candidateJobReducer from "../features/job/jobSlice";
 import adminJobsReducer from "../features/admin/adminJobSlice";
 import interviewReducer from "../features/interview/interviewSlice";
-import adminAnalyticsReducer from "../slices/adminAnalyticsSlice";
-import employerAnalyticsReducer from "../slices/employerAnalyticsSlice";
-import homepageReducer from "../slices/homepageSlice";
+import adminAnalyticsReducer from "../features/admin/adminAnalyticsSlice";
+import subscriptionReducer from "../features/subscription/subscriptionSlice";
+import notificationReducer from "../features/notification/notificationSlice";
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     adminCandidates: adminCandidateReducer,
     adminEmployers: adminEmployerReducer,
+    adminAnalytics: adminAnalyticsReducer,
     candidate: candidateReducer,
     employer: employerReducer,
     candidateJobs: candidateJobReducer,
     adminJobs: adminJobsReducer,
     interview: interviewReducer,
-    adminAnalytics: adminAnalyticsReducer,
-    employerAnalytics: employerAnalyticsReducer,
-    homepage: homepageReducer,
+    subscription: subscriptionReducer,
+    notifications: notificationReducer,
   },
 });
 

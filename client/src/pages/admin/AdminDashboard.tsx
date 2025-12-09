@@ -5,16 +5,16 @@ import BusinessIcon from "@mui/icons-material/Business";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import { FileText } from "lucide-react";
 import Table from "../../components/admin/Table";
-
 import { StatCard } from "../../components/admin/Statcard";
 import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
-import { fetchAdminAnalytics } from "../../thunks/admin.analytics.thunk";
+import { fetchAdminAnalytics } from "../../thunks/admin.thunk";
 
 const AdminDashboard: React.FC = () => {
   const dispatch = useAppDispatch();
   const { data, loading, error } = useAppSelector(
-    (state) => state.adminAnalytics
+    (state) => state.adminAnalytics,
   );
 
   useEffect(() => {
@@ -38,10 +38,6 @@ const AdminDashboard: React.FC = () => {
   }
 
   const activeCandidates = data?.stats.activeCandidates ?? 0;
-  // const totalApplications = jobs.reduce(
-  //   (sum: number, j: any) => sum + (j.applications ?? 0),
-  //   0
-  // );
 
   const stats = [
     {
@@ -67,6 +63,14 @@ const AdminDashboard: React.FC = () => {
       icon: WorkIcon,
       iconBg: "bg-green-100",
       iconColor: "#059669",
+    },
+    {
+      title: "Total Applications",
+      value: data?.stats.totalApplications?.toLocaleString() ?? "0",
+      change: "+6%",
+      icon: FileText,
+      iconBg: "bg-orange-100",
+      iconColor: "#FB923C",
     },
   ];
 
@@ -152,7 +156,7 @@ const AdminDashboard: React.FC = () => {
                 <PersonIcon sx={{ marginRight: 2, color: "#2563eb" }} />
                 <div>
                   <div className="font-medium text-gray-900 group-hover:text-blue-700">
-                    Review Candidates
+                    Total Candidates
                   </div>
                   <div className="text-sm text-gray-500">
                     {activeCandidates} pending reviews
@@ -175,12 +179,26 @@ const AdminDashboard: React.FC = () => {
               </div>
             </button>
 
+            <button className="w-full text-left p-4 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors duration-200 group">
+              <div className="flex items-center">
+                <FileText className="mr-2 text-orange-400" />
+                <div>
+                  <div className="font-medium text-gray-900 group-hover:text-orange-700">
+                    Total Applications
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    {data?.stats.totalApplications ?? 0} total applications
+                  </div>
+                </div>
+              </div>
+            </button>
+
             <button className="w-full text-left p-4 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors duration-200 group">
               <div className="flex items-center">
                 <BusinessIcon sx={{ marginRight: 2, color: "#7c3aed" }} />
                 <div>
                   <div className="font-medium text-gray-900 group-hover:text-purple-700">
-                    Verify Employers
+                    Verified Employers
                   </div>
                   <div className="text-sm text-gray-500">
                     {data?.stats.totalEmployers ?? 0} total employers
@@ -191,7 +209,6 @@ const AdminDashboard: React.FC = () => {
           </div>
         </div>
       </div>
-
 
       <div className="mt-8 bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="p-6 border-b border-gray-200">

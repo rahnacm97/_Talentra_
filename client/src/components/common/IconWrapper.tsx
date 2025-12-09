@@ -16,8 +16,8 @@ export const IconWrapper: React.FC<IconWrapperProps> = ({
   size = 24,
 }) => {
   // Check if it's a Lucide icon by checking if it accepts 'size' prop
-  const isLucideIcon = 'displayName' in Icon || !('muiName' in Icon);
-  
+  const isLucideIcon = "displayName" in Icon || !("muiName" in Icon);
+
   return (
     <div className={`p-3 rounded-lg ${bgColor}`}>
       {isLucideIcon ? (

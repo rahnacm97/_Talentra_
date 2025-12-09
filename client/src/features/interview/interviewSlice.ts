@@ -1,19 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
-import {
-  type Interview,
-  type InterviewPagination,
-} from "../../types/interview/interview.types";
+import { type InterviewState } from "../../types/interview/interview.types";
 import {
   fetchCandidateInterviews,
   fetchEmployerInterviews,
 } from "../../thunks/interview.thunks";
-
-interface InterviewState {
-  interviews: Interview[];
-  loading: boolean;
-  error: string | null;
-  pagination: InterviewPagination;
-}
 
 const initialState: InterviewState = {
   interviews: [],

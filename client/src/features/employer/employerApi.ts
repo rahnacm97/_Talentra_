@@ -3,81 +3,56 @@ import type {
   IEmployer,
   FetchJobsParams,
   FetchJobsResponse,
+  EmployerAnalyticsData,
 } from "../../types/employer/employer.types";
 import type { EmployerApplicationsPaginatedDto } from "../../types/application/application.types";
 import { API_ROUTES } from "../../shared/constants/constants";
 
-export const getEmployerProfileApi = async (
-  employerId: string,
-): Promise<IEmployer> => {
-  const response = await api.get(API_ROUTES.EMPLOYER.PROFILE(employerId));
+export const getEmployerProfileApi = async (): Promise<IEmployer> => {
+  const response = await api.get(API_ROUTES.EMPLOYER.PROFILE);
   return response.data.data;
 };
 
 export const updateEmployerProfileApi = async (
-  employerId: string,
   data: FormData,
 ): Promise<IEmployer> => {
-  const response = await api.put(
-    API_ROUTES.EMPLOYER.PROFILE(employerId),
-    data,
-    {
-      headers: { "Content-Type": "multipart/form-data" },
-    },
-  );
+  const response = await api.put(API_ROUTES.EMPLOYER.PROFILE, data, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
   return response.data.data;
 };
 
 export const fetchEmployerJobsApi = async (
-  employerId: string,
   params: FetchJobsParams = {},
 ): Promise<FetchJobsResponse> => {
-  const response = await api.get(API_ROUTES.EMPLOYER.JOBS(employerId), {
+  const response = await api.get(API_ROUTES.EMPLOYER.JOBS, {
     params,
   });
   return response.data;
 };
 
-export const postJobApi = async (
-  employerId: string,
-  job: any,
-): Promise<any> => {
-  const response = await api.post(API_ROUTES.EMPLOYER.JOBS(employerId), job);
+export const postJobApi = async (job: any): Promise<any> => {
+  const response = await api.post(API_ROUTES.EMPLOYER.JOBS, job);
   return response.data.job;
 };
 
-export const updateJobApi = async (
-  employerId: string,
-  jobId: string,
-  job: any,
-): Promise<any> => {
-  const response = await api.put(
-    API_ROUTES.EMPLOYER.JOB(employerId, jobId),
-    job,
-  );
+export const updateJobApi = async (jobId: string, job: any): Promise<any> => {
+  const response = await api.put(API_ROUTES.EMPLOYER.JOB(jobId), job);
   return response.data.job;
 };
 
-export const closeJobApi = async (
-  employerId: string,
-  jobId: string,
-): Promise<any> => {
-  const response = await api.patch(
-    API_ROUTES.EMPLOYER.JOB_CLOSE(employerId, jobId),
-  );
+export const closeJobApi = async (jobId: string): Promise<any> => {
+  const response = await api.patch(API_ROUTES.EMPLOYER.JOB_CLOSE(jobId));
   return response.data.job;
 };
 
-export const fetchEmployerApplicationsApi = async (
-  employerId: string,
-  params: {
-    page?: number;
-    limit?: number;
-    search?: string;
-    status?: string;
-    jobTitle?: string;
-  },
-): Promise<{
+export const fetchEmployerApplicationsApi = async (params: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: string;
+  jobTitle?: string;
+}): Promise<{
   applications: EmployerApplicationsPaginatedDto[];
   pagination: {
     page: number;
@@ -86,14 +61,13 @@ export const fetchEmployerApplicationsApi = async (
     totalPages: number;
   };
 }> => {
-  const response = await api.get(API_ROUTES.EMPLOYER.APPLICATIONS(employerId), {
+  const response = await api.get(API_ROUTES.EMPLOYER.APPLICATIONS, {
     params,
   });
   return response.data;
 };
 
 export const updateApplicationStatusApi = async (
-  employerId: string,
   applicationId: string,
   data: {
     status: string;
@@ -101,8 +75,18 @@ export const updateApplicationStatusApi = async (
   },
 ): Promise<EmployerApplicationsPaginatedDto> => {
   const response = await api.patch(
-    API_ROUTES.EMPLOYER.UPDATE_APPLICATION_STATUS(employerId, applicationId),
+    API_ROUTES.EMPLOYER.UPDATE_APPLICATION_STATUS(applicationId),
     data,
   );
+  return response.data.data;
+};
+
+export const fetchEmployerAnalyticsApi = async (
+  timeRange: string = "30d",
+): Promise<EmployerAnalyticsData> => {
+  const response = await api.get(API_ROUTES.EMPLOYER.ANALYTICS, {
+    params: { timeRange },
+  });
+
   return response.data.data;
 };

@@ -17,7 +17,17 @@ export interface ITopPerformingJob {
   status: string;
 }
 
+export interface IRecentSubscription {
+  employerName: string;
+  employerAvatar: string;
+  plan: string;
+  amount: number;
+  date: Date;
+  status: string;
+}
+
 export interface IAdminAnalyticsRepository {
   getDashboardStats(): Promise<IDashboardStats>;
   getTopPerformingJobs(limit: number): Promise<ITopPerformingJob[]>;
+  getRecentSubscriptions(limit: number): Promise<IRecentSubscription[]>;
 }

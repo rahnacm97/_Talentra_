@@ -62,6 +62,14 @@ export const API_ROUTES = {
     MARK_ALL_READ: "/notifications/read-all",
     DELETE: (id: string) => `/notifications/${id}`,
   },
+  CHAT: {
+    BASE: "/chat",
+    CREATE: "/chat/create",
+    MY_CHATS: "/chat/my-chats",
+    MESSAGE: "/chat/message",
+    MESSAGES: (chatId: string) => `/chat/${chatId}/messages`,
+    MARK_READ: (chatId: string) => `/chat/${chatId}/read`,
+  },
 } as const;
 
 export const FRONTEND_ROUTES = {
@@ -89,16 +97,19 @@ export const FRONTEND_ROUTES = {
   CANDIDATEAPPLICATIONS: "/applications",
   APPLICATIONDETAILS: "/applications/:id",
   CANDIDATENOTIFICATIONS: "/notifications",
-  CANDIDATESAVEDJOBS: "/saved-jobs",
+  CANDIDATESAVEDJOBS: "/saved",
   CANDIDATESETTINGS: "/settings",
   CANDIDATEINTERVIEW: "/interview",
   ADMINEMPLOYERS: "/employers",
   ADMINCANDIDATES: "/candidates",
   ADMINCANDIDATEVIEW: "/candidates/view/:id",
   ADMINEMPLOYERVIEW: "/employers/view/:id",
-  ADMINJOBS: "/admin-jobs",
-  ADMINNOTIFICATIONS: "/admin-notifications",
-  ADMINSETTINGS: "/admin-settings",
+  ADMINJOBS: "/admin/jobs",
+  ADMINNOTIFICATIONS: "/admin/notifications",
+  ADMINSETTINGS: "/admin/settings",
   CHAT: "/chat",
+  MESSAGES: "/messages",
+  CANDIDATEMESSAGES: "/candidate/messages",
+  EMPLOYERMESSAGES: "/employer/messages",
   VIDEOCALL: "/video",
 } as const;

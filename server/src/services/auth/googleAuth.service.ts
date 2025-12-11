@@ -42,10 +42,6 @@ export class GoogleAuthService {
                 ? USER_ROLES.EMPLOYER
                 : USER_ROLES.CANDIDATE;
 
-            // if (role !== "Candidate" && role !== "Employer") {
-            //   role = "Candidate";
-            // }
-
             if (role !== USER_ROLES.CANDIDATE && role !== USER_ROLES.EMPLOYER) {
               role = USER_ROLES.CANDIDATE;
             }
@@ -61,8 +57,20 @@ export class GoogleAuthService {
                 emailVerified: true,
               })) as GoogleAuthUser;
             } else {
+              const existingRole = detected.userType as USER_ROLES;
+
+              if (existingRole !== role) {
+                return done(
+                  new Error(
+                    `This email is already registered as a ${existingRole}. 
+                    Please sign in using the ${existingRole} option.`,
+                  ),
+                  undefined,
+                );
+              }
+
               foundUser = detected.user as GoogleAuthUser;
-              role = detected.userType as USER_ROLES;
+              role = existingRole;
             }
 
             const userData: GoogleAuthUserData = {
@@ -89,11 +97,12 @@ export class GoogleAuthService {
             );
 
             return done(null, {
+              id: userData._id,
               user: userData,
               role,
               accessToken: accessTokenJwt,
               refreshToken: refreshTokenJwt,
-            });
+            } as unknown as Express.User);
           } catch (err) {
             return done(err as Error, undefined);
           }

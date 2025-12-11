@@ -25,8 +25,7 @@ const InterviewSchema = new Schema<IInterviewDocument>(
   },
 );
 
-// Indexes for efficient queries
-// Note: applicationId index is already created by unique: true in schema
+// Indexes
 InterviewSchema.index({ candidateId: 1 });
 InterviewSchema.index({ employerId: 1 });
 InterviewSchema.index({ jobId: 1 });

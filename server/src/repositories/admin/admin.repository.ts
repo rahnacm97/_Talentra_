@@ -1,6 +1,11 @@
 import Admin from "../../models/Admin.model";
+import Subscription from "../../models/Subscription.model";
 import { Types, Document } from "mongoose";
-import { IAdmin } from "../../interfaces/users/admin/IAdmin";
+import {
+  IAdmin,
+  AggregateResult,
+  PopulatedSubscription,
+} from "../../interfaces/users/admin/IAdmin";
 import {
   IUserReader,
   IUserWriter,
@@ -11,6 +16,7 @@ import {
   IAdminAnalyticsRepository,
   IDashboardStats,
   ITopPerformingJob,
+  IRecentSubscription,
 } from "../../interfaces/users/admin/IAdminAnalyticsRepository";
 import { ICandidate } from "../../interfaces/users/candidate/ICandidate";
 import { IEmployer } from "../../interfaces/users/employer/IEmployer";
@@ -51,98 +57,104 @@ export class AdminAnalyticsRepository implements IAdminAnalyticsRepository {
   ) {}
 
   async getDashboardStats(): Promise<IDashboardStats> {
-    try {
-      const [
-        totalCandidates,
-        totalEmployers,
-        totalJobs,
-        totalApplications,
-        totalInterviews,
-        activeCandidates,
-        activeJobs,
-        pendingApplications,
-      ] = await Promise.all([
-        this._candidateRepo.count({}),
-        this._employerRepo.count({}),
-        this._jobRepo.countAll(),
-        this._applicationRepo.count({}),
-        this._interviewRepo.count({}),
-        this._candidateRepo.count({ blocked: false }),
-        this._jobRepo.count({ status: "active" }),
-        this._applicationRepo.count({ status: "pending" }),
-      ]);
+    const [
+      totalCandidates,
+      totalEmployers,
+      totalJobs,
+      totalApplications,
+      totalInterviews,
+      activeCandidates,
+      activeJobs,
+      pendingApplications,
+    ] = await Promise.all([
+      this._candidateRepo.count({}),
+      this._employerRepo.count({}),
+      this._jobRepo.countAll(),
+      this._applicationRepo.count({}),
+      this._interviewRepo.count({}),
+      this._candidateRepo.count({ blocked: false }),
+      this._jobRepo.count({ status: "active" }),
+      this._applicationRepo.count({ status: "pending" }),
+    ]);
 
-      return {
-        totalCandidates,
-        totalEmployers,
-        totalJobs,
-        totalApplications,
-        totalInterviews,
-        activeCandidates,
-        activeJobs,
-        pendingApplications,
-      };
-    } catch (error) {
-      console.error("Error fetching dashboard stats:", error);
-      throw new Error("Failed to fetch dashboard statistics");
-    }
+    return {
+      totalCandidates,
+      totalEmployers,
+      totalJobs,
+      totalApplications,
+      totalInterviews,
+      activeCandidates,
+      activeJobs,
+      pendingApplications,
+    };
   }
 
   async getTopPerformingJobs(limit: number): Promise<ITopPerformingJob[]> {
-    try {
-      const topJobs = await this._jobRepo.aggregate([
-        {
-          $match: { status: "active" },
+    const topJobs = await this._jobRepo.aggregate([
+      {
+        $match: { status: "active" },
+      },
+      {
+        $addFields: {
+          employerIdObj: { $toObjectId: "$employerId" },
         },
-        {
-          $lookup: {
-            from: "employers",
-            localField: "employerId",
-            foreignField: "_id",
-            as: "employer",
-          },
+      },
+      {
+        $lookup: {
+          from: "employers",
+          localField: "employerIdObj",
+          foreignField: "_id",
+          as: "employer",
         },
-        {
-          $unwind: {
-            path: "$employer",
-            preserveNullAndEmptyArrays: true,
-          },
+      },
+      {
+        $unwind: {
+          path: "$employer",
+          preserveNullAndEmptyArrays: true,
         },
-        {
-          $sort: { applicants: -1 },
+      },
+      {
+        $sort: { applicants: -1 },
+      },
+      {
+        $limit: limit,
+      },
+      {
+        $project: {
+          id: { $toString: "$_id" },
+          title: 1,
+          company: { $ifNull: ["$employer.name", "Unknown Company"] },
+          applications: "$applicants",
+          status: 1,
+          employerName: "$employer.name",
         },
-        {
-          $limit: limit,
-        },
-        {
-          $project: {
-            id: { $toString: "$_id" },
-            title: 1,
-            company: "$employer.name",
-            applications: "$applicants",
-            status: 1,
-          },
-        },
-      ]);
+      },
+    ]);
 
-      type AggregateResult = {
-        id: string;
-        title: string;
-        company: string;
-        applications: number;
-        status: string;
-      };
+    return (topJobs as AggregateResult[]).map((job) => ({
+      id: job.id,
+      title: job.title,
+      company: job.company || "Unknown Company",
+      applications: job.applications || 0,
+      status: job.status,
+    }));
+  }
 
-      return (topJobs as AggregateResult[]).map((job) => ({
-        id: job.id,
-        title: job.title,
-        company: job.company || "Comapny",
-        applications: job.applications || 0,
-        status: job.status,
-      }));
-    } catch (error) {
-      console.error("Error fetching top performing jobs:", error);
-      throw new Error("Failed to fetch top performing jobs");
-    }
+  async getRecentSubscriptions(limit: number): Promise<IRecentSubscription[]> {
+    const subscriptions = await Subscription.find()
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .populate("employerId", "name profileImage")
+      .lean()
+      .exec();
+
+    return (subscriptions as PopulatedSubscription[]).map((sub) => ({
+      employerName: sub.employerId?.name || "Unknown Employer",
+      employerAvatar: sub.employerId?.profileImage || "",
+      plan: sub.plan,
+      amount: sub.totalAmount,
+      date: sub.createdAt,
+      status: sub.status,
+    }));
   }
 }

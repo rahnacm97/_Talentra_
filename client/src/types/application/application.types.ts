@@ -125,6 +125,7 @@ export interface CandidateDetailsDto {
 
 export interface EmployerApplicationResponseDto {
   id: string;
+  candidateId: string;
   jobId: string;
   fullName: string;
   email: string;
@@ -148,25 +149,6 @@ export interface EmployerApplicationResponseDto {
 }
 
 export interface EmployerApplicationsPaginatedDto {
-  id: string;
-  jobId: string;
-  fullName: string;
-  email: string;
-  phone: string;
-  resume: string;
-  coverLetter?: string;
-  appliedAt: string;
-  status: string;
-  rating?: number;
-  notes?: string;
-
-  jobTitle: string;
-  name: string;
-  jobLocation?: string;
-  salaryRange?: string;
-  jobType?: string;
-
-  candidate: CandidateDetailsDto;
   applications: EmployerApplicationResponseDto[];
   pagination: {
     page: number;
@@ -174,5 +156,4 @@ export interface EmployerApplicationsPaginatedDto {
     total: number;
     totalPages: number;
   };
-  interviewDate: string;
 }

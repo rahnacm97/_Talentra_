@@ -1,11 +1,13 @@
 import {
   IDashboardStats,
   ITopPerformingJob,
+  IRecentSubscription,
 } from "../../interfaces/users/admin/IAdminAnalyticsRepository";
 import {
   AdminAnalyticsDTO,
   DashboardStatsDTO,
   TopPerformingJobDTO,
+  RecentSubscriptionDTO,
 } from "../../dto/admin/admin.analytics.dto";
 import { IAdminAnalyticsMapper } from "../../interfaces/users/admin/IAdminAnalyticsMapper";
 
@@ -33,13 +35,28 @@ export class AdminAnalyticsMapper implements IAdminAnalyticsMapper {
     };
   }
 
+  toRecentSubscriptionDTO(sub: IRecentSubscription): RecentSubscriptionDTO {
+    return {
+      employerName: sub.employerName,
+      employerAvatar: sub.employerAvatar,
+      plan: sub.plan,
+      amount: sub.amount,
+      date: sub.date,
+      status: sub.status,
+    };
+  }
+
   toAdminAnalyticsDTO(
     stats: IDashboardStats,
     topJobs: ITopPerformingJob[],
+    intro: IRecentSubscription[],
   ): AdminAnalyticsDTO {
     return {
       stats: this.toDashboardStatsDTO(stats),
       topJobs: topJobs.map((job) => this.toTopPerformingJobDTO(job)),
+      recentSubscriptions: intro.map((sub) =>
+        this.toRecentSubscriptionDTO(sub),
+      ),
     };
   }
 }

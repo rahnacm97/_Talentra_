@@ -5,7 +5,6 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import PersonIcon from "@mui/icons-material/Person";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import WorkIcon from "@mui/icons-material/Work";
-import SettingsIcon from "@mui/icons-material/Settings";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import PersonSearchRoundedIcon from "@mui/icons-material/PersonSearchRounded";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -38,6 +37,9 @@ const Sidebar: React.FC<SidebarProps> = ({
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.auth.user);
   const { unreadCount } = useAppSelector((state) => state.notifications);
+  const { data } = useAppSelector((state) => state.adminAnalytics);
+
+  const activeCandidates = data?.stats.activeCandidates ?? 0;
 
   // Fetch notification stats on mount
   useEffect(() => {
@@ -75,12 +77,12 @@ const Sidebar: React.FC<SidebarProps> = ({
       icon: NotificationsNoneIcon,
       path: FRONTEND_ROUTES.ADMINNOTIFICATIONS,
     },
-    {
-      id: "settings",
-      label: "Settings",
-      icon: SettingsIcon,
-      path: FRONTEND_ROUTES.ADMINSETTINGS,
-    },
+    // {
+    //   id: "settings",
+    //   label: "Settings",
+    //   icon: SettingsIcon,
+    //   path: FRONTEND_ROUTES.ADMINSETTINGS,
+    // },
   ];
 
   const isActive = (path: string) => {
@@ -195,11 +197,16 @@ const Sidebar: React.FC<SidebarProps> = ({
             </h3>
             <div className="grid grid-cols-2 gap-3 text-xs">
               <div className="text-center">
-                <div className="font-bold text-blue-600">1,247</div>
+                <div className="font-bold text-blue-600">
+                  {data?.stats.totalJobs ?? 0}
+                </div>
                 <div className="text-gray-600">Active Jobs</div>
               </div>
               <div className="text-center">
-                <div className="font-bold text-green-600">5,832</div>
+                <div className="font-bold text-green-600">
+                  {" "}
+                  {activeCandidates}
+                </div>
                 <div className="text-gray-600">Candidates</div>
               </div>
             </div>

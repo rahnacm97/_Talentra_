@@ -96,11 +96,6 @@ export class JobRepository implements IJobRepository {
 
     const query: FilterQuery<IJob> = { employerId };
 
-    // DEBUG: Log the query to see what's being filtered
-    console.log("=== findPaginated DEBUG ===");
-    console.log("employerId param:", employerId);
-    console.log("query object:", JSON.stringify(query));
-
     if (search) {
       query.$or = [
         { title: { $regex: search, $options: "i" } },
@@ -109,16 +104,10 @@ export class JobRepository implements IJobRepository {
     }
     if (status && status !== "all") query.status = status;
 
-    console.log("final query:", JSON.stringify(query));
-
     const [jobs, total] = await Promise.all([
       Job.find(query).sort({ postedDate: -1 }).skip(skip).limit(limit).lean(),
       Job.countDocuments(query),
     ]);
-
-    console.log("jobs found:", jobs.length);
-    console.log("total count:", total);
-    console.log("first job employerId:", jobs[0]?.employerId);
 
     return { jobs, total, page, limit };
   }

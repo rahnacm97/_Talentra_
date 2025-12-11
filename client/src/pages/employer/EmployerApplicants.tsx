@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../app/store";
 import { updateApplicationStatusApi } from "../../features/employer/employerApi";
 import { fetchEmployerApplications } from "../../thunks/employer.thunk";
-import type { EmployerApplicationsPaginatedDto } from "../../types/application/application.types";
+import type { EmployerApplicationResponseDto } from "../../types/application/application.types";
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
 import { Download } from "@mui/icons-material";
@@ -42,7 +42,7 @@ const EmployerApplicants: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [selectedApplicant, setSelectedApplicant] =
-    useState<EmployerApplicationsPaginatedDto | null>(null);
+    useState<EmployerApplicationResponseDto | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const jobTitles = Array.from(new Set(applications.map((a) => a.jobTitle)));
@@ -81,7 +81,7 @@ const EmployerApplicants: React.FC = () => {
     setCurrentPage(1);
   }, [searchTerm, filterStatus, filterJob]);
 
-  const openModal = (app: EmployerApplicationsPaginatedDto) => {
+  const openModal = (app: EmployerApplicationResponseDto) => {
     setSelectedApplicant(app);
     setIsModalOpen(true);
   };

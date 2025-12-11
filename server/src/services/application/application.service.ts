@@ -5,6 +5,7 @@ import {
   IApplicationUpdate,
 } from "../../interfaces/applications/IApplicationService";
 import { IInterviewService } from "../../interfaces/interviews/IInterviewService";
+import { IChatService } from "../../interfaces/chat/IChatService";
 import { GetApplicationsFilters } from "../../type/application/application.type";
 import {
   ICandidateApplicationRepository,
@@ -197,6 +198,7 @@ export class EmployerApplicationService implements IEmployerApplicationService {
     private readonly _appRepo: IEmployerApplicationRepository,
     private readonly _mapper: IEmployerApplicationMapper,
     private readonly _interviewService?: IInterviewService,
+    private readonly _chatService?: IChatService,
   ) {}
   //Fetching application in employer side
   async getApplicationsForEmployer(
@@ -282,6 +284,24 @@ export class EmployerApplicationService implements IEmployerApplicationService {
         });
       } catch (e) {
         logger.warn("Interview email failed", e);
+      }
+    }
+
+    // Auto-create chat if shortlisted
+    if (data.status === "shortlisted" && this._chatService) {
+      try {
+        await this._chatService.initiateChat(
+          employerId,
+          app.candidateId,
+          app.jobId,
+          applicationId,
+        );
+        logger.info("Auto-initiated chat for shortlisted candidate", {
+          applicationId,
+        });
+      } catch (e: unknown) {
+        const errorMessage = e instanceof Error ? e.message : "Unknown error";
+        logger.error("Failed to auto-initiate chat", { error: errorMessage });
       }
     }
     const apps = await this._appRepo.findByEmployerIdWithJob(employerId, {

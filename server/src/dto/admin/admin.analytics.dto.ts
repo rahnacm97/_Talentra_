@@ -17,7 +17,17 @@ export interface TopPerformingJobDTO {
   status: string;
 }
 
+export interface RecentSubscriptionDTO {
+  employerName: string;
+  employerAvatar: string;
+  plan: string;
+  amount: number;
+  date: Date;
+  status: string;
+}
+
 export interface AdminAnalyticsDTO {
   stats: DashboardStatsDTO;
   topJobs: TopPerformingJobDTO[];
+  recentSubscriptions: RecentSubscriptionDTO[];
 }

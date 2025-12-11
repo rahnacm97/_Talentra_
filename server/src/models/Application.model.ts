@@ -36,6 +36,7 @@ const ApplicationSchema = new Schema<IApplicationDocument>(
   },
 );
 
+// Indexes
 ApplicationSchema.index({ jobId: 1, candidateId: 1 }, { unique: true });
 
 export default mongoose.model<IApplicationDocument>(

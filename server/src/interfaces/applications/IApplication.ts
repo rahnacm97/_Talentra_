@@ -86,6 +86,7 @@ export interface IEmployerApplicationResult {
 
 export interface IEmployerApplicationResponse {
   id: string;
+  candidateId: string;
   jobId: string;
   fullName: string;
   email: string;

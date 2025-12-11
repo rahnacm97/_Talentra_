@@ -1,13 +1,11 @@
-import { notificationSocket } from "../../app";
+import { NotificationSocket } from "../../socket/notification.socket";
 import { NotificationService } from "../../services/notification/notification.service";
 import { NotificationRepository } from "../../repositories/notification/notification.repository";
 import { NotificationMapper } from "../../mappers/notification/notification.mapper";
-import {
-  NotificationType,
-  NOTIFICATION_MESSAGES,
-} from "../enums/enums";
+import { NotificationType, NOTIFICATION_MESSAGES } from "../enums/enums";
 import { CreateNotificationDto } from "../../dto/notification/notification.dto";
 import { formatMessage } from "./message.format";
+import { SocketManager } from "../../socket/socket.manager";
 
 export class NotificationHelper {
   private static _instance: NotificationHelper;
@@ -32,9 +30,12 @@ export class NotificationHelper {
         await this._notificationService.createNotification(dto);
 
       if (dto.recipientType === "Admin") {
-        notificationSocket.emitToAdmins(notification);
+        NotificationSocket.getInstance().emitToAdmins(notification);
       } else {
-        notificationSocket.emitToUser(dto.recipientId, notification);
+        NotificationSocket.getInstance().emitToUser(
+          dto.recipientId,
+          notification,
+        );
       }
     } catch (error) {
       console.error("Failed to create notification:", error);
@@ -220,48 +221,34 @@ export class NotificationHelper {
       data: { interviewId, interviewDate },
     });
   }
-  // Candidate: Interview cancelled
-  async notifyCandidateInterviewCancelled(
-    candidateId: string,
-    jobTitle: string,
-    interviewId: string,
-  ): Promise<void> {
-    await this.createAndEmit({
-      recipientId: candidateId,
-      recipientType: "Candidate",
-      type: NotificationType.INTERVIEW_CANCELLED,
-      title: NOTIFICATION_MESSAGES.INTERVIEW_CANCELLED_TITLE,
-      message: formatMessage(
-        NOTIFICATION_MESSAGES.INTERVIEW_CANCELLED_MESSAGE,
-        {
-          jobTitle,
-        },
-      ),
-      data: { interviewId },
-    });
-  }
 
   emitUserBlocked(userId: string, userType: "Candidate" | "Employer"): void {
     try {
-      notificationSocket.getIO().to(userId).emit("user:blocked", {
+      SocketManager.getInstance().getIO().to(userId).emit("user:blocked", {
         message: NOTIFICATION_MESSAGES.USER_BLOCKED,
         timestamp: new Date().toISOString(),
       });
       console.log(`User blocked notification sent to ${userType}:`, userId);
-    } catch (error) {
-      console.error("Failed to emit user blocked event:", error);
+    } catch (error: unknown) {
+      console.error(
+        "Failed to emit user blocked event:",
+        error instanceof Error ? error.message : "Unknown error",
+      );
     }
   }
 
   emitUserUnblocked(userId: string, userType: "Candidate" | "Employer"): void {
     try {
-      notificationSocket.getIO().to(userId).emit("user:unblocked", {
+      SocketManager.getInstance().getIO().to(userId).emit("user:unblocked", {
         message: NOTIFICATION_MESSAGES.USER_UNBLOCKED,
         timestamp: new Date().toISOString(),
       });
       console.log(`User unblocked notification sent to ${userType}:`, userId);
-    } catch (error) {
-      console.error("Failed to emit user unblocked event:", error);
+    } catch (error: unknown) {
+      console.error(
+        "Failed to emit user unblocked event:",
+        error instanceof Error ? error.message : "Unknown error",
+      );
     }
   }
 }

@@ -68,11 +68,26 @@ router.get("/google", (req, res, next) => {
     state: stateParam,
   })(req, res, next);
 });
-router.get(
-  "/google/callback",
-  passport.authenticate("google", { session: false }),
-  googleAuthController.loginSuccess,
-);
+router.get("/google/callback", (req, res, next) => {
+  passport.authenticate("google", { session: false }, (err, user) => {
+    if (err) {
+      const errorMessage = encodeURIComponent(
+        err.message || "Authentication failed"
+      );
+      return res.redirect(
+        `${process.env.FRONTEND_URL}/login?error=${errorMessage}`
+      );
+    }
+
+    if (!user) {
+      return res.redirect(
+        `${process.env.FRONTEND_URL}/login?error=Authentication failed`
+      );
+    }
+    req.user = user;
+    googleAuthController.loginSuccess(req, res);
+  })(req, res, next);
+});
 
 router.get("/me", authController.getMe);
 router.post("/signup", authController.signup);

@@ -8,14 +8,14 @@ import employerRoutes from "./routes/employer/employer.routes";
 import adminRoutes from "./routes/admin/admin.routes";
 import jobRoutes from "./routes/job/job.routes";
 import notificationRoutes from "./routes/notification/notification.routes";
+import chatRoutes from "./routes/chat/chat.routes";
 import { errorHandler } from "./middlewares/errorHandler";
 import dotenv from "dotenv";
 import http from "http";
 import { Server } from "socket.io";
 import { NotificationSocket } from "./socket/notification.socket";
-import { NotificationService } from "./services/notification/notification.service";
-import { NotificationRepository } from "./repositories/notification/notification.repository";
-import { NotificationMapper } from "./mappers/notification/notification.mapper";
+import { ChatSocket } from "./socket/chat.socket";
+import { SocketManager } from "./socket/socket.manager";
 
 const app = express();
 const server = http.createServer(app);
@@ -29,17 +29,11 @@ const io = new Server(server, {
   },
 });
 
-// Initialize notification socket
-const notificationRepository = new NotificationRepository();
-const notificationMapper = new NotificationMapper();
-const notificationService = new NotificationService(
-  notificationRepository,
-  notificationMapper,
-);
-export const notificationSocket = new NotificationSocket(
-  io,
-  notificationService,
-);
+// Initialize Socket Manager
+SocketManager.initialize(io);
+
+export const notificationSocket = NotificationSocket.getInstance();
+export const chatSocket = ChatSocket.getInstance();
 
 app.use(cookieParser());
 app.use(
@@ -62,7 +56,9 @@ app.use("/api/employer", employerRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/chat", chatRoutes);
 
+// Error handler
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;

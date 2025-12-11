@@ -70,6 +70,13 @@ export enum SUCCESS_MESSAGES {
   NOTIFICATION_READ = "Notification marked as read",
   ALL_READ = "All notifications marked as read",
   NOTIFICATION_DELETED = "Notification deleted",
+  NOTIFICATIONS_FETCHED = "Notifictaions fetched successfully",
+  NOTIFICATION_STATS_FETCHED = "Notification status fetched",
+  CHAT_INITIATED = "Chat initiated successfully",
+  CHATS_FETCHED = "Chats fetched successfully",
+  MESSAGE_SENT = "Message sent successfully",
+  MESSAGES_FETCHED = "Messages fetched successfully",
+  MESSAGES_MARKED_READ = "Messages marked as read",
 }
 
 export enum NotificationType {

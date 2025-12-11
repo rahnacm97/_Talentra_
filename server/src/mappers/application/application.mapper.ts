@@ -123,6 +123,7 @@ export class EmployerApplicationMapper implements IEmployerApplicationMapper {
 
     return {
       id: app.id,
+      candidateId: app.candidateId,
       jobId: app.jobId,
       fullName: app.fullName,
       email: app.email,

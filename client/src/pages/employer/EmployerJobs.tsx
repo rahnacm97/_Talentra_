@@ -138,7 +138,10 @@ const EmployerJobs: React.FC = () => {
       toast.success("Job posted successfully!");
       closeModal();
     } catch (err: any) {
-      toast.error(err.message || "Failed to post job");
+      toast.error(
+        err.message ||
+          "You cannot perform this action. Complete your company verification to post or manage jobs.",
+      );
     }
   };
 

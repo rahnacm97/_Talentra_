@@ -1,6 +1,7 @@
 import {
   IDashboardStats,
   ITopPerformingJob,
+  IRecentSubscription,
 } from "../../../interfaces/users/admin/IAdminAnalyticsRepository";
 import {
   AdminAnalyticsDTO,
@@ -14,5 +15,6 @@ export interface IAdminAnalyticsMapper {
   toAdminAnalyticsDTO(
     stats: IDashboardStats,
     topJobs: ITopPerformingJob[],
+    subscriptions: IRecentSubscription[],
   ): AdminAnalyticsDTO;
 }

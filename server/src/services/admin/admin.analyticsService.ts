@@ -11,11 +11,16 @@ export class AdminAnalyticsService implements IAdminAnalyticsService {
 
   //Fetching dashboard informations
   async getDashboardAnalytics(): Promise<AdminAnalyticsDTO> {
-    const [stats, topJobs] = await Promise.all([
+    const [stats, topJobs, recentSubscriptions] = await Promise.all([
       this._repository.getDashboardStats(),
       this._repository.getTopPerformingJobs(5),
+      this._repository.getRecentSubscriptions(5),
     ]);
 
-    return this._mapper.toAdminAnalyticsDTO(stats, topJobs);
+    return this._mapper.toAdminAnalyticsDTO(
+      stats,
+      topJobs,
+      recentSubscriptions,
+    );
   }
 }

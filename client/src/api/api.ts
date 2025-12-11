@@ -103,11 +103,7 @@ api.interceptors.response.use(
       }
     }
 
-    if (!originalRequest.url?.includes("/auth/login")) {
-      const msg = resp?.data?.message || "An error occurred";
-      toast.error(msg);
-    }
-
+    // Let components/thunks handle their own error messages to avoid duplicates
     return Promise.reject(error);
   },
 );

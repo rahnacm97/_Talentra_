@@ -4,7 +4,6 @@ import {
   Building2,
   Briefcase,
   Users,
-  Settings,
   BarChart3,
   Calendar,
   CreditCard,
@@ -88,21 +87,21 @@ const EmployerLayout: React.FC = () => {
       id: "chat",
       label: "Messages",
       icon: MessageCircle,
-      path: FRONTEND_ROUTES.CHAT,
+      path: FRONTEND_ROUTES.EMPLOYERMESSAGES,
     },
 
-    {
-      id: "settings",
-      label: "Settings",
-      icon: Settings,
-      path: FRONTEND_ROUTES.EMPLOYERSETTINGS,
-    },
+    // {
+    //   id: "settings",
+    //   label: "Settings",
+    //   icon: Settings,
+    //   path: FRONTEND_ROUTES.EMPLOYERSETTINGS,
+    // },
   ];
 
   const isActive = (path: string) => {
     const current = location.pathname;
 
-    if (path === FRONTEND_ROUTES.CHAT) {
+    if (path === FRONTEND_ROUTES.EMPLOYERMESSAGES) {
       return current === path || current.startsWith(path + "/");
     }
 

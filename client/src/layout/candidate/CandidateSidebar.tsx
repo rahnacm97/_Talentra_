@@ -4,7 +4,6 @@ import {
   User,
   FileText,
   Heart,
-  Settings,
   LogOut,
   Menu,
   X,
@@ -14,6 +13,8 @@ import {
 import { useAppDispatch } from "../../hooks/hooks";
 import { logout } from "../../features/auth/authSlice";
 import { FRONTEND_ROUTES } from "../../shared/constants/constants";
+import { useAppSelector } from "../../hooks/hooks";
+import { selectTotalUnreadCount } from "../../features/chat/chatSlice";
 
 interface SidebarItem {
   id: string;
@@ -34,6 +35,7 @@ const CandidateSidebar: React.FC<SidebarProps> = ({
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useAppDispatch();
+  const unreadCount = useAppSelector(selectTotalUnreadCount);
 
   const sidebarItems: SidebarItem[] = [
     {
@@ -64,14 +66,14 @@ const CandidateSidebar: React.FC<SidebarProps> = ({
       id: "chat",
       label: "Messages",
       icon: MessageCircle,
-      path: FRONTEND_ROUTES.CHAT,
+      path: FRONTEND_ROUTES.CANDIDATEMESSAGES,
     },
-    {
-      id: "settings",
-      label: "Settings",
-      icon: Settings,
-      path: FRONTEND_ROUTES.CANDIDATESETTINGS,
-    },
+    // {
+    //   id: "settings",
+    //   label: "Settings",
+    //   icon: Settings,
+    //   path: FRONTEND_ROUTES.CANDIDATESETTINGS,
+    // },
   ];
 
   //const isActive = (path: string) => location.pathname === path;
@@ -87,7 +89,7 @@ const CandidateSidebar: React.FC<SidebarProps> = ({
       );
     }
 
-    if (itemPath === FRONTEND_ROUTES.CHAT) {
+    if (itemPath === FRONTEND_ROUTES.CANDIDATEMESSAGES) {
       return current === itemPath || current.startsWith(`${itemPath}/`);
     }
 
@@ -155,25 +157,27 @@ const CandidateSidebar: React.FC<SidebarProps> = ({
                     className={`w-5 h-5 ${active ? "text-blue-600" : ""}`}
                   />
                   <span>{item.label}</span>
-                  {item.id === "chat" && (
-                    <span className="ml-auto text-xs font-semibold text-blue-600">
-                      {/* Optional: show unread count here */}
-                      {/* {unreadMessages > 0 && unreadMessages} */}
+                  {item.id === "chat" && active && (
+                    <span className="ml-auto w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                  )}
+                  {item.id === "chat" && unreadCount > 0 && (
+                    <span className="ml-auto flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
+                      {unreadCount > 99 ? "99+" : unreadCount}
                     </span>
                   )}
                 </button>
               );
             })}
           </nav>
-        </div>
-        <div className="border-t border-gray-200 bg-white p-4 mt-70">
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-all duration-200 font-medium"
-          >
-            <LogOut className="w-5 h-5" />
-            <span>Logout</span>
-          </button>
+          <div className="border-t border-gray-200 bg-white p-4 mt-70">
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-all duration-200 font-medium"
+            >
+              <LogOut className="w-5 h-5" />
+              <span>Logout</span>
+            </button>
+          </div>
         </div>
       </aside>
     </>

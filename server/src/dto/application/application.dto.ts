@@ -91,6 +91,7 @@ export interface CandidateDetailsDto {
 
 export interface EmployerApplicationResponseDto {
   id: string;
+  candidateId: string;
   jobId: string;
   fullName: string;
   email: string;

@@ -9,10 +9,13 @@ import { FileText } from "lucide-react";
 import Table from "../../components/admin/Table";
 import { StatCard } from "../../components/admin/Statcard";
 import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
+import { useNavigate } from "react-router-dom";
 import { fetchAdminAnalytics } from "../../thunks/admin.thunk";
+import { API_ROUTES } from "../../shared/constants/constants";
 
 const AdminDashboard: React.FC = () => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { data, loading, error } = useAppSelector(
     (state) => state.adminAnalytics,
   );
@@ -74,30 +77,6 @@ const AdminDashboard: React.FC = () => {
     },
   ];
 
-  const recentActivity = [
-    {
-      action: "New candidate registered",
-      user: "Sarah Johnson",
-      time: "2 minutes ago",
-    },
-    {
-      action: "Job posting approved",
-      user: "Tech Solutions Inc.",
-      time: "15 minutes ago",
-    },
-    {
-      action: "Application submitted",
-      user: "Michael Chen",
-      time: "1 hour ago",
-    },
-    {
-      action: "Employer account verified",
-      user: "Innovation Labs",
-      time: "2 hours ago",
-    },
-    { action: "Profile updated", user: "Emma Wilson", time: "3 hours ago" },
-  ];
-
   const topJobs = data?.topJobs || [];
 
   return (
@@ -119,29 +98,74 @@ const AdminDashboard: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200">
-          <div className="p-6 border-b border-gray-200">
+          <div className="p-6 border-b border-gray-200 flex justify-between items-center">
             <h2 className="text-xl font-bold text-gray-900 flex items-center">
               <NotificationsIcon sx={{ marginRight: 1, color: "#374151" }} />
-              Recent Activity
+              Recent Subscriptions
             </h2>
           </div>
           <div className="p-6">
             <div className="space-y-4">
-              {recentActivity.map((a, i) => (
-                <div
-                  key={i}
-                  className="flex items-center space-x-4 p-3 hover:bg-gray-50 rounded-lg transition-colors duration-200"
-                >
-                  <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900">
-                      {a.action}
-                    </p>
-                    <p className="text-sm text-gray-500">{a.user}</p>
+              {data?.recentSubscriptions?.length === 0 ? (
+                <p className="text-gray-500 text-center">
+                  No recent subscriptions
+                </p>
+              ) : (
+                data?.recentSubscriptions?.map((sub, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center space-x-4 p-3 hover:bg-gray-50 rounded-lg transition-colors duration-200 border border-transparent hover:border-gray-100"
+                  >
+                    {sub.employerAvatar ? (
+                      <img
+                        src={sub.employerAvatar}
+                        alt={sub.employerName}
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold">
+                        {sub.employerName.charAt(0)}
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {sub.employerName}
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`text-xs px-2 py-0.5 rounded-full capitalize ${
+                            sub.plan === "enterprise"
+                              ? "bg-purple-100 text-purple-700"
+                              : sub.plan === "professional"
+                                ? "bg-blue-100 text-blue-700"
+                                : "bg-gray-100 text-gray-700"
+                          }`}
+                        >
+                          {sub.plan}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          ₹{sub.amount}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-xs text-gray-400">
+                        {new Date(sub.date).toLocaleDateString()}
+                      </div>
+
+                      <span
+                        className={`text-xs font-medium ${
+                          sub.status === "active"
+                            ? "text-green-600"
+                            : "text-red-600"
+                        }`}
+                      >
+                        {sub.status}
+                      </span>
+                    </div>
                   </div>
-                  <div className="text-xs text-gray-400">{a.time}</div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
         </div>
@@ -253,8 +277,15 @@ const AdminDashboard: React.FC = () => {
               ),
             },
           ]}
-          renderActions={() => (
-            <button className="text-blue-600 hover:text-blue-800 flex items-center text-sm font-medium">
+          renderActions={(row: any) => (
+            <button
+              onClick={() => {
+                const searchParams = new URLSearchParams();
+                searchParams.set("search", row.title);
+                navigate(`${API_ROUTES.ADMIN.JOBS}?${searchParams.toString()}`);
+              }}
+              className="text-blue-600 hover:text-blue-800 flex items-center text-sm font-medium"
+            >
               <VisibilityIcon sx={{ fontSize: 16, marginRight: 0.5 }} />
               View
             </button>

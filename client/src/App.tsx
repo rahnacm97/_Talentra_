@@ -48,18 +48,24 @@ import NotFound from "./pages/common/NotFound";
 import JobDetails from "./pages/job/JobDetails";
 import ApplicationDetails from "./pages/candidate/CandidateApplicationDetails";
 import EmployerBilling from "./pages/employer/EmployerBilling";
+import Chat from "./pages/common/Chat";
 import { initializeSocket, disconnectSocket } from "./socket/socket";
 import { useNotifications } from "./hooks/useNotifications";
-import { useAppSelector } from "./hooks/hooks";
+import { useAppDispatch, useAppSelector } from "./hooks/hooks";
+import { getUserChats } from "./thunks/chat.thunks";
 import { useEffect } from "react";
 
 const App: React.FC = () => {
   useAuthInitialiazer();
   const { user, accessToken } = useAppSelector((state) => state.auth);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (user && accessToken) {
       initializeSocket(accessToken);
+      if (user.role === "Employer" || user.role === "Candidate") {
+        dispatch(getUserChats());
+      }
     } else {
       disconnectSocket();
     }
@@ -186,6 +192,10 @@ const App: React.FC = () => {
                 path={FRONTEND_ROUTES.CANDIDATESETTINGS}
                 element={<CandidateSettings />}
               />
+              <Route
+                path={FRONTEND_ROUTES.CANDIDATEMESSAGES}
+                element={<Chat />}
+              />
             </Route>
 
             <Route
@@ -226,6 +236,10 @@ const App: React.FC = () => {
               <Route
                 path={FRONTEND_ROUTES.EMPLOYERSETTINGS}
                 element={<EmployerSettings />}
+              />
+              <Route
+                path={FRONTEND_ROUTES.EMPLOYERMESSAGES}
+                element={<Chat />}
               />
             </Route>
 

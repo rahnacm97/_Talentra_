@@ -15,7 +15,7 @@ import {
   Users,
   X,
 } from "lucide-react";
-import Pagination from "../../components/common/Pagination";
+import Pagination from "../../components/common/pagination/Pagination";
 import { Link } from "react-router-dom";
 import Header from "../common/Header";
 import { FRONTEND_ROUTES } from "../../shared/constants/constants";

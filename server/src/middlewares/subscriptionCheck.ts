@@ -58,7 +58,6 @@ export const requireActiveSubscription = async (
     // Check subscription status
     let hasValidSubscription = false;
     if (employer.hasActiveSubscription) {
-      // Get the most recent active subscription from collection
       const latestSubscription = await Subscription.findOne({
         employerId: employer._id,
         status: "active",
@@ -70,14 +69,11 @@ export const requireActiveSubscription = async (
         if (subscriptionEndDate > now) {
           hasValidSubscription = true;
         } else {
-          // Subscription expired - update the flag
           await employerRepo.updateOne(employer._id, {
             hasActiveSubscription: false,
           });
         }
       } else {
-        // hasActiveSubscription is true but no active subscription found
-        // Treat as expired
         await employerRepo.updateOne(employer._id, {
           hasActiveSubscription: false,
         });
@@ -140,7 +136,6 @@ export const checkPlanAccess = async (
       }
     }
 
-    // APPLICATIONS: MASK + BLOCK ACTIONS
     if (req.originalUrl.includes("/applications")) {
       if (plan === "free") {
         authenticatedReq.maskApplications = true;

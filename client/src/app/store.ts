@@ -12,6 +12,7 @@ import subscriptionReducer from "../features/subscription/subscriptionSlice";
 import notificationReducer from "../features/notification/notificationSlice";
 import chatReducer from "../features/chat/chatSlice";
 
+//Whole app state store
 export const store = configureStore({
   reducer: {
     auth: authReducer,

@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import ScreenLeft from "../../components/common/AuthLeft";
+import ScreenLeft from "../../components/common/auth/AuthLeft";
 import LoginForm from "../../components/auth/LoginForm";
 import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";

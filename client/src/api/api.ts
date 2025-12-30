@@ -103,7 +103,7 @@ api.interceptors.response.use(
       }
     }
 
-    // Let components/thunks handle their own error messages to avoid duplicates
+    // Components handle their own error messages to avoid duplicates
     return Promise.reject(error);
   },
 );

@@ -1,7 +1,10 @@
 import React from "react";
-import { Calendar, X, Briefcase, User } from "lucide-react";
+import { Calendar, X, Briefcase, User, CheckCircle } from "lucide-react";
 import { formatFullName } from "../../utils/formatters";
 import type { Interview } from "../../types/interview/interview.types";
+import { useAppDispatch } from "../../hooks/hooks";
+import { updateInterviewStatus } from "../../thunks/interview.thunks";
+import toast from "react-hot-toast";
 
 interface InterviewDetailsModalProps {
   interview: Interview;
@@ -24,6 +27,20 @@ const EmployerInterviewDetailsModal: React.FC<InterviewDetailsModalProps> = ({
   interview,
   onClose,
 }) => {
+  const dispatch = useAppDispatch();
+
+  const handleCompleteInterview = async () => {
+    try {
+      await dispatch(
+        updateInterviewStatus({ id: interview.id, status: "completed" }),
+      ).unwrap();
+      toast.success("Interview marked as completed");
+      onClose();
+    } catch (error) {
+      toast.error(error as string);
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
@@ -83,14 +100,27 @@ const EmployerInterviewDetailsModal: React.FC<InterviewDetailsModalProps> = ({
           {/* Footer */}
           <div className="mt-10 text-center">
             <p className="text-gray-600 mb-6">
-              Prepare well and give the candidate a great interview experience
+              {interview.status === "completed"
+                ? "This interview has been completed."
+                : "Prepare well and give the candidate a great interview experience"}
             </p>
-            <button
-              onClick={onClose}
-              className="px-10 py-4 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition text-lg shadow-lg"
-            >
-              Close
-            </button>
+            <div className="flex justify-center gap-4">
+              {interview.status === "scheduled" && (
+                <button
+                  onClick={handleCompleteInterview}
+                  className="px-8 py-4 bg-green-600 text-white font-semibold rounded-xl hover:bg-green-700 transition text-lg shadow-lg flex items-center gap-2"
+                >
+                  <CheckCircle className="w-5 h-5" />
+                  Mark as Completed
+                </button>
+              )}
+              <button
+                onClick={onClose}
+                className="px-8 py-4 bg-indigo-600 text-white font-semibold rounded-xl hover:bg-indigo-700 transition text-lg shadow-lg"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       </div>

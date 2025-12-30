@@ -9,7 +9,7 @@ import { serverLogout } from "../../thunks/auth.thunk";
 import { toast } from "react-toastify";
 import { FRONTEND_ROUTES } from "../../shared/constants/constants";
 import Cookies from "js-cookie";
-import NotificationBell from "../../components/common/NotificationBell";
+import NotificationBell from "../../components/common/notification/NotificationBell";
 
 const Header: React.FC = () => {
   const dispatch = useAppDispatch();

@@ -38,6 +38,14 @@ employerRouter.get(
   employerInterviewController.getInterviews.bind(employerInterviewController),
 );
 
+employerRouter.patch(
+  "/:id/status",
+  verifyAuth([USER_ROLES.EMPLOYER]),
+  employerInterviewController.updateInterviewStatus.bind(
+    employerInterviewController,
+  ),
+);
+
 export {
   candidateRouter as candidateInterviewRouter,
   employerRouter as employerInterviewRouter,

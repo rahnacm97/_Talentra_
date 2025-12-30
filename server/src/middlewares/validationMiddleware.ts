@@ -7,7 +7,7 @@ import { ERROR_MESSAGES } from "../shared/enums/enums";
 export interface ValidatedRequest<T> extends Request {
   body: T;
 }
-
+//Validation middleware
 export const validate =
   <T>(schema: ZodSchema<T>) =>
   (req: Request, _4: Response, next: NextFunction): void => {

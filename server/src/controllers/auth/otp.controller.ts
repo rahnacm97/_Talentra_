@@ -8,7 +8,7 @@ import { ApiError } from "../../shared/utils/ApiError";
 
 export class OtpController implements IOtpController {
   constructor(private _otpService: IOtpService) {}
-
+  //Otp send
   sendOtp = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email, purpose } = req.body;
@@ -33,7 +33,7 @@ export class OtpController implements IOtpController {
       );
     }
   };
-
+  //Otp verification
   verifyOtp = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email, purpose, otp } = req.body;

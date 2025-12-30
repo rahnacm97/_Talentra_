@@ -4,15 +4,15 @@ import { NotificationResponseDto } from "../dto/notification/notification.dto";
 import { SocketManager } from "./socket.manager";
 
 export class ChatSocket implements IChatSocketService {
-  private static instance: ChatSocket;
+  private static _instance: ChatSocket;
 
   private constructor() {}
 
   public static getInstance(): ChatSocket {
-    if (!ChatSocket.instance) {
-      ChatSocket.instance = new ChatSocket();
+    if (!ChatSocket._instance) {
+      ChatSocket._instance = new ChatSocket();
     }
-    return ChatSocket.instance;
+    return ChatSocket._instance;
   }
   public emitMessageToChat(chatId: string, message: MessageResponseDto): void {
     const io = SocketManager.getInstance().getIO();

@@ -10,4 +10,9 @@ export interface ICandidateInterviewController {
 
 export interface IEmployerInterviewController {
   getInterviews(req: Request, res: Response, next: NextFunction): Promise<void>;
+  updateInterviewStatus(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void>;
 }

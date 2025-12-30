@@ -6,6 +6,7 @@ import { GoogleUser } from "../../interfaces/auth/IGoogleUser";
 import { setAuthCookies } from "../../shared/utils/cookie.utils";
 
 export class GoogleAuthController implements IGoogleAuthController {
+  //Google authentication success
   loginSuccess = async (req: Request, res: Response) => {
     if (!req.user) {
       return res

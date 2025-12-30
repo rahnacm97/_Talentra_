@@ -101,12 +101,17 @@ export class EmployerAnalyticsRepository
     private _interviewRepository: IInterviewRepository,
   ) {}
 
-  async getEmployerStats(employerId: string): Promise<IEmployerStats> {
+  async getEmployerStats(
+    employerId: string,
+    timeRange?: string,
+  ): Promise<IEmployerStats> {
     try {
       const jobs = await this._jobRepository.findByEmployerId(employerId);
       const jobIds = jobs.map((job) =>
         (job._id as mongoose.Types.ObjectId).toString(),
       );
+
+      const startDate = this.calculateStartDate(timeRange || "30days");
 
       const [
         totalApplications,
@@ -115,25 +120,33 @@ export class EmployerAnalyticsRepository
         acceptedCount,
         totalInterviews,
       ] = await Promise.all([
-        this._applicationRepository.count({ jobId: { $in: jobIds } }),
+        this._applicationRepository.count({
+          jobId: { $in: jobIds },
+          appliedAt: { $gte: startDate },
+        }),
         this._jobRepository.count({
           employerId: employerId,
           status: "active",
         }),
         this._applicationRepository.count({
           jobId: { $in: jobIds },
-          status: "accepted",
+          status: "hired",
+          updatedAt: { $gte: startDate },
         }),
         this._interviewRepository.count({
           employerId: employerId,
           status: "completed",
+          updatedAt: { $gte: startDate },
         }),
-        this._interviewRepository.count({ employerId: employerId }),
+        this._interviewRepository.count({
+          employerId: employerId,
+          createdAt: { $gte: startDate },
+        }),
       ]);
 
       const hiredApplications = await this._applicationRepository.find({
         jobId: { $in: jobIds },
-        status: "accepted",
+        status: "hired",
       });
 
       let avgTimeToHire = 0;
@@ -186,33 +199,39 @@ export class EmployerAnalyticsRepository
     }
   }
 
+  private calculateStartDate(timeRange: string): Date {
+    const now = new Date();
+    const startDate = new Date();
+
+    switch (timeRange) {
+      case "7days":
+        startDate.setDate(now.getDate() - 7);
+        break;
+      case "30days":
+        startDate.setDate(now.getDate() - 30);
+        break;
+      case "90days":
+        startDate.setDate(now.getDate() - 90);
+        break;
+      case "1year":
+        startDate.setFullYear(now.getFullYear() - 1);
+        break;
+      default:
+        startDate.setDate(now.getDate() - 30);
+    }
+    return startDate;
+  }
+
   async getApplicationsOverTime(
     employerId: string,
     timeRange: string,
   ): Promise<IApplicationOverTime[]> {
     try {
-      const now = new Date();
-      let startDate = new Date();
+      const startDate = this.calculateStartDate(timeRange);
       let groupFormat = "%Y-%m-%d";
 
-      switch (timeRange) {
-        case "7days":
-          startDate.setDate(now.getDate() - 7);
-          break;
-        case "30days":
-          startDate.setDate(now.getDate() - 30);
-          break;
-        case "90days":
-          startDate.setDate(now.getDate() - 90);
-          groupFormat = "%Y-%U";
-          break;
-        case "1year":
-          startDate.setFullYear(now.getFullYear() - 1);
-          groupFormat = "%Y-%m";
-          break;
-        default:
-          startDate.setDate(now.getDate() - 30);
-      }
+      if (timeRange === "90days") groupFormat = "%Y-%U";
+      if (timeRange === "1year") groupFormat = "%Y-%m";
 
       // Get jobs for this employer
       const jobs = await this._jobRepository.findByEmployerId(employerId);
@@ -309,14 +328,15 @@ export class EmployerAnalyticsRepository
 
   async getJobPostingPerformance(
     employerId: string,
+    timeRange: string = "30days",
   ): Promise<IJobPerformance[]> {
     try {
-      const employerObjectId = new mongoose.Types.ObjectId(employerId);
+      const startDate = this.calculateStartDate(timeRange);
 
       const jobPerformance =
         await this._jobRepository.aggregate<IJobPerformanceResult>([
           {
-            $match: { employerId: employerObjectId },
+            $match: { employerId: employerId },
           },
           {
             $lookup: {
@@ -326,6 +346,7 @@ export class EmployerAnalyticsRepository
                 {
                   $match: {
                     $expr: { $eq: ["$jobId", "$$jobId"] },
+                    appliedAt: { $gte: startDate },
                   },
                 },
               ],
@@ -446,14 +467,17 @@ export class EmployerAnalyticsRepository
     }
   }
 
-  async getTimeToHire(employerId: string): Promise<ITimeToHire[]> {
+  async getTimeToHire(
+    employerId: string,
+    timeRange: string = "30d",
+  ): Promise<ITimeToHire[]> {
     try {
-      const employerObjectId = new mongoose.Types.ObjectId(employerId);
+      const startDate = this.calculateStartDate(timeRange);
 
       const timeToHireData =
         await this._jobRepository.aggregate<ITimeToHireResult>([
           {
-            $match: { employerId: employerObjectId },
+            $match: { employerId: employerId },
           },
           {
             $lookup: {
@@ -462,12 +486,9 @@ export class EmployerAnalyticsRepository
               pipeline: [
                 {
                   $match: {
-                    $expr: {
-                      $and: [
-                        { $eq: ["$jobId", "$$jobId"] },
-                        { $eq: ["$status", "accepted"] },
-                      ],
-                    },
+                    $expr: { $eq: ["$jobId", "$$jobId"] },
+                    status: "hired",
+                    updatedAt: { $gte: startDate },
                   },
                 },
               ],

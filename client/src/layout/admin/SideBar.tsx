@@ -77,12 +77,6 @@ const Sidebar: React.FC<SidebarProps> = ({
       icon: NotificationsNoneIcon,
       path: FRONTEND_ROUTES.ADMINNOTIFICATIONS,
     },
-    // {
-    //   id: "settings",
-    //   label: "Settings",
-    //   icon: SettingsIcon,
-    //   path: FRONTEND_ROUTES.ADMINSETTINGS,
-    // },
   ];
 
   const isActive = (path: string) => {

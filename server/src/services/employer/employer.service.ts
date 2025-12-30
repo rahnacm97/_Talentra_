@@ -121,7 +121,7 @@ export class EmployerService implements IEmployerService {
       data.profileImage = await this.uploadFile(profileImageFile);
     }
 
-    // Check if employer is submitting verification info (CIN number or has business license)
+    // Check if employer is submitting verification info
     if (data.cinNumber && data.cinNumber.trim() !== "") {
       isSubmittingVerification = true;
     }
@@ -139,7 +139,6 @@ export class EmployerService implements IEmployerService {
     }
 
     // Notify admin when employer submits verification documents
-    // Only notify if they haven't been verified yet and are submitting verification info
     if (isSubmittingVerification && !employer.verified) {
       const notificationHelper = NotificationHelper.getInstance();
       await notificationHelper.notifyAdminEmployerVerificationSubmitted(
@@ -171,12 +170,12 @@ export class EmployerAnalyticsService implements IEmployerAnalyticsService {
       hiringFunnel,
       timeToHire,
     ] = await Promise.all([
-      this._repository.getEmployerStats(employerId),
+      this._repository.getEmployerStats(employerId, timeRange),
       this._repository.getApplicationsOverTime(employerId, timeRange),
       this._repository.getApplicationsByStatus(employerId),
-      this._repository.getJobPostingPerformance(employerId),
+      this._repository.getJobPostingPerformance(employerId, timeRange),
       this._repository.getHiring(employerId),
-      this._repository.getTimeToHire(employerId),
+      this._repository.getTimeToHire(employerId, timeRange),
     ]);
 
     return this._mapper.toEmployerAnalyticsDTO(

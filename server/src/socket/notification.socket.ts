@@ -3,15 +3,15 @@ import { NotificationResponseDto } from "../dto/notification/notification.dto";
 import { SocketManager } from "./socket.manager";
 
 export class NotificationSocket implements INotificationSocketService {
-  private static instance: NotificationSocket;
+  private static _instance: NotificationSocket;
 
   private constructor() {}
 
   public static getInstance(): NotificationSocket {
-    if (!NotificationSocket.instance) {
-      NotificationSocket.instance = new NotificationSocket();
+    if (!NotificationSocket._instance) {
+      NotificationSocket._instance = new NotificationSocket();
     }
-    return NotificationSocket.instance;
+    return NotificationSocket._instance;
   }
 
   emitToUser(userId: string, notification: NotificationResponseDto): void {

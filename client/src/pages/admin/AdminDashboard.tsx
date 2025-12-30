@@ -11,18 +11,26 @@ import { StatCard } from "../../components/admin/Statcard";
 import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
 import { useNavigate } from "react-router-dom";
 import { fetchAdminAnalytics } from "../../thunks/admin.thunk";
+import { setTimeRange } from "../../features/admin/adminAnalyticsSlice";
 import { API_ROUTES } from "../../shared/constants/constants";
+import { AnalyticsAreaChart } from "../../components/common/analytics/AnalyticsAreaChart";
+import { AnalyticsPieChart } from "../../components/common/analytics/AnalyticsPieChart";
+import { AnalyticsBarChart } from "../../components/common/analytics/AnalyticsBarChart";
 
 const AdminDashboard: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { data, loading, error } = useAppSelector(
+  const { data, loading, error, timeRange } = useAppSelector(
     (state) => state.adminAnalytics,
   );
 
   useEffect(() => {
-    dispatch(fetchAdminAnalytics());
-  }, [dispatch]);
+    dispatch(fetchAdminAnalytics(timeRange));
+  }, [dispatch, timeRange]);
+
+  const handleTimeRangeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    dispatch(setTimeRange(e.target.value));
+  };
 
   if (loading) {
     return (
@@ -81,13 +89,27 @@ const AdminDashboard: React.FC = () => {
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Dashboard Overview
-        </h1>
-        <p className="text-gray-600">
-          Welcome back! Here's what's happening with your talent platform.
-        </p>
+      <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Dashboard Overview
+          </h1>
+          <p className="text-gray-600">
+            Welcome back! Here's what's happening with your talent platform.
+          </p>
+        </div>
+        <div className="flex items-center space-x-3">
+          <select
+            value={timeRange}
+            onChange={handleTimeRangeChange}
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white shadow-sm"
+          >
+            <option value="7days">Last 7 Days</option>
+            <option value="30days">Last 30 Days</option>
+            <option value="90days">Last 90 Days</option>
+            <option value="1year">Last Year</option>
+          </select>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -231,6 +253,100 @@ const AdminDashboard: React.FC = () => {
               </div>
             </button>
           </div>
+        </div>
+      </div>
+
+      {/* Analytics Charts Section */}
+      <div className="mt-8 space-y-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* User Growth Chart */}
+          <AnalyticsAreaChart
+            title="User Growth"
+            subtitle="New Candidates and Employers over time"
+            data={data?.platformGrowth || []}
+            dataKey1="newCandidates"
+            dataKey2="newEmployers"
+            color1="#3B82F6"
+            color2="#10B981"
+            name1="Candidates"
+            name2="Employers"
+          />
+
+          {/* Activity Growth Chart */}
+          <AnalyticsAreaChart
+            title="Platform Activity"
+            subtitle="New Jobs and Applications over time"
+            data={data?.platformGrowth || []}
+            dataKey1="newJobs"
+            dataKey2="newApplications"
+            color1="#F59E0B"
+            color2="#6366F1"
+            name1="Jobs"
+            name2="Applications"
+          />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* User Distribution */}
+          <AnalyticsPieChart
+            title="User Distribution"
+            subtitle="Active/Blocked Candidates & Employers"
+            data={data?.userDistribution || []}
+            dataKey="value"
+            nameKey="name"
+            totalValue={
+              data?.userDistribution?.reduce(
+                (acc, curr) => acc + curr.value,
+                0,
+              ) || 0
+            }
+          />
+
+          {/* Application Status Distribution */}
+          <AnalyticsPieChart
+            title="Application Trends"
+            subtitle="Distribution by application status"
+            data={data?.applicationStatusDistribution || []}
+            dataKey="value"
+            nameKey="name"
+            totalValue={
+              data?.applicationStatusDistribution?.reduce(
+                (acc, curr) => acc + curr.value,
+                0,
+              ) || 0
+            }
+          />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Subscription Revenue Trends */}
+          <AnalyticsAreaChart
+            title="Revenue Trends"
+            subtitle="Professional vs Enterprise Plan Revenue"
+            data={data?.subscriptionRevenue || []}
+            dataKey1="professional"
+            dataKey2="enterprise"
+            color1="#3B82F6"
+            color2="#6366F1"
+            name1="Professional"
+            name2="Enterprise"
+          />
+
+          {/* Top Job Categories */}
+          <AnalyticsBarChart
+            title="Top Job Categories"
+            subtitle="Job distribution by department"
+            data={
+              data?.topJobCategories?.map((item) => ({
+                name: item.category,
+                value: item.count,
+              })) || []
+            }
+            dataKey="value"
+            xAxisKey="name"
+            barColor="#F59E0B"
+            barName="Jobs"
+          />
         </div>
       </div>
 

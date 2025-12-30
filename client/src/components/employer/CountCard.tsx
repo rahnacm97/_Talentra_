@@ -1,5 +1,5 @@
 import React from "react";
-import { IconWrapper } from "../common/IconWrapper";
+import { IconWrapper } from "../common/home/IconWrapper";
 import type { SvgIconProps } from "@mui/material/SvgIcon";
 
 type CountCardProps = {

@@ -5,17 +5,17 @@ import type {
   AuthResponse,
 } from "../../types/auth/Auth";
 import { API_ROUTES } from "../../shared/constants/constants";
-
+//Singing up
 export const signupApi = async (data: SignupRequest): Promise<AuthResponse> => {
   const response = await api.post(API_ROUTES.AUTH.SIGNUP, data);
   return response.data;
 };
-
+//Login
 export const loginApi = async (data: LoginRequest): Promise<AuthResponse> => {
   const response = await api.post(API_ROUTES.AUTH.LOGIN, data);
   return response.data;
 };
-
+//Otp send
 export const sendOtpApi = async (
   email: string,
   purpose: "signup" | "forgot-password",
@@ -27,7 +27,7 @@ export const sendOtpApi = async (
   const response = await api.post(API_ROUTES.AUTH.SEND_OTP, { email, purpose });
   return response.data;
 };
-
+//Otp verification
 export const verifyOtpApi = async (
   email: string,
   otp: string,
@@ -40,7 +40,7 @@ export const verifyOtpApi = async (
   });
   return response.data;
 };
-
+//Password reset
 export const resetPasswordApi = async (data: {
   email: string;
   newPassword: string;
@@ -48,7 +48,7 @@ export const resetPasswordApi = async (data: {
   const response = await api.post(API_ROUTES.AUTH.RESET_PASSWORD, data);
   return response.data;
 };
-
+//Logout
 export const logoutApi = async (refreshToken: string) => {
   const response = await api.post(API_ROUTES.AUTH.LOGOUT, { refreshToken });
   return response.data;

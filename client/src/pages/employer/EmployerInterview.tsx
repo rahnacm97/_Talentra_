@@ -1,18 +1,33 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Calendar, User, Briefcase, Search, Eye, X } from "lucide-react";
+import {
+  Calendar,
+  User,
+  Briefcase,
+  Search,
+  Eye,
+  X,
+  Video,
+  Clock,
+  CheckCircle,
+} from "lucide-react";
+import { useVideoCall } from "../../contexts/VideoCallContext";
 import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
 import { fetchEmployerInterviews } from "../../thunks/interview.thunks";
 import { formatFullName } from "../../utils/formatters";
 import EmployerInterviewDetailsModal from "../../components/employer/InterviewModal";
 import type { Interview } from "../../types/interview/interview.types";
-import Pagination from "../../components/common/Pagination";
+import Pagination from "../../components/common/pagination/Pagination";
 
 const EmployerInterview: React.FC = () => {
   const dispatch = useAppDispatch();
   const { interviews, loading, pagination, error } = useAppSelector(
     (s) => s.interview,
   );
+  const { startCall } = useVideoCall();
 
+  const [activeTab, setActiveTab] = useState<"all" | "scheduled" | "completed">(
+    "all",
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedInterview, setSelectedInterview] = useState<Interview | null>(
@@ -34,14 +49,21 @@ const EmployerInterview: React.FC = () => {
         page: currentPage,
         limit: 5,
         search: debouncedSearch || undefined,
+        status: activeTab === "all" ? undefined : activeTab,
       }),
     );
-  }, [dispatch, currentPage, debouncedSearch]);
+  }, [dispatch, currentPage, debouncedSearch, activeTab]);
 
   const handlePageChange = useCallback((newPage: number) => {
     setCurrentPage(newPage);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
+
+  const tabs = [
+    { value: "all", label: "All Interviews", icon: Calendar },
+    { value: "scheduled", label: "Scheduled", icon: Clock },
+    { value: "completed", label: "Completed", icon: CheckCircle },
+  ];
 
   if (loading && interviews.length === 0) {
     return (
@@ -72,12 +94,38 @@ const EmployerInterview: React.FC = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Scheduled Interviews
-          </h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Interviews</h1>
           <p className="text-gray-600">
-            View and manage your upcoming candidate interviews
+            View and manage your candidate interviews
           </p>
+        </div>
+
+        {/* Tabs */}
+        <div className="bg-white rounded-lg shadow-md mb-6 overflow-hidden">
+          <nav className="flex flex-wrap border-b border-gray-200">
+            {tabs.map((tab) => (
+              <button
+                key={tab.value}
+                onClick={() => {
+                  setActiveTab(tab.value as any);
+                  setCurrentPage(1);
+                }}
+                className={`flex items-center space-x-3 px-6 py-4 text-sm font-medium transition-colors relative ${
+                  activeTab === tab.value
+                    ? "border-b-2 border-indigo-600 text-indigo-600"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                }`}
+              >
+                <tab.icon className="w-5 h-5" />
+                <span>{tab.label}</span>
+                {activeTab === tab.value && (
+                  <span className="ml-2 bg-indigo-100 text-indigo-700 text-xs font-semibold px-2.5 py-1 rounded-full">
+                    {pagination.total}
+                  </span>
+                )}
+              </button>
+            ))}
+          </nav>
         </div>
 
         {/* Search Bar */}
@@ -91,7 +139,6 @@ const EmployerInterview: React.FC = () => {
               placeholder="Search candidate or job title..."
               className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
             />
-            {/* Clear Button - Now Visible & Beautiful */}
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
@@ -110,7 +157,7 @@ const EmployerInterview: React.FC = () => {
             <div className="text-center py-24 bg-white rounded-2xl shadow-lg">
               <Calendar className="w-24 h-24 text-gray-300 mx-auto mb-6" />
               <h3 className="text-2xl font-semibold text-gray-700">
-                No interviews scheduled
+                No interviews found
               </h3>
               <p className="text-gray-500 mt-2">
                 {searchQuery
@@ -142,9 +189,22 @@ const EmployerInterview: React.FC = () => {
 
                     {/* Details */}
                     <div className="flex-1">
-                      <h3 className="text-2xl font-bold text-gray-900">
-                        {formatFullName(interview.candidate.fullName)}
-                      </h3>
+                      <div className="flex items-center gap-3">
+                        <h3 className="text-2xl font-bold text-gray-900">
+                          {formatFullName(interview.candidate.fullName)}
+                        </h3>
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider ${
+                            interview.status === "completed"
+                              ? "bg-green-100 text-green-700"
+                              : interview.status === "scheduled"
+                                ? "bg-blue-100 text-blue-700"
+                                : "bg-gray-100 text-gray-700"
+                          }`}
+                        >
+                          {interview.status}
+                        </span>
+                      </div>
                       <p className="text-lg text-gray-600 mt-1 flex items-center gap-2">
                         <Briefcase className="w-5 h-5" />
                         {interview.job.title}
@@ -168,22 +228,52 @@ const EmployerInterview: React.FC = () => {
                       )}
                     </div>
 
-                    {/* View Details Button */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedInterview(interview);
-                      }}
-                      className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition flex items-center gap-2 font-medium shadow-sm whitespace-nowrap"
-                    >
-                      <Eye className="w-5 h-5" />
-                      View Details
-                    </button>
+                    {/* Actions */}
+                    <div className="flex gap-3">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedInterview(interview);
+                        }}
+                        className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition flex items-center gap-2 font-medium shadow-sm whitespace-nowrap"
+                      >
+                        <Eye className="w-5 h-5" />
+                        View Details
+                      </button>
+                      {interview.status === "scheduled" && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            startCall(
+                              interview.id,
+                              (interview.candidate as any)._id ||
+                                (interview.candidate as any).id,
+                              {
+                                name:
+                                  interview.employer.companyName ||
+                                  interview.employer.name,
+                                image: interview.employer.logo,
+                              },
+                              {
+                                jobTitle: interview.job.title,
+                                interviewDate:
+                                  interview.interviewDate ||
+                                  new Date().toISOString(),
+                              },
+                            );
+                          }}
+                          className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition flex items-center gap-2 font-medium shadow-sm whitespace-nowrap"
+                        >
+                          <Video className="w-5 h-5" />
+                          Start Call
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
 
-              {/* Reusable Pagination */}
+              {/* Pagination */}
               {pagination.totalPages > 1 && (
                 <Pagination
                   currentPage={currentPage}

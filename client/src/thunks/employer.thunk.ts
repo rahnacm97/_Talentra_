@@ -12,7 +12,8 @@ import {
 import type { ApiError } from "../types/common/common.type";
 import type { EmployerAnalyticsData } from "../types/employer/employer.types";
 import { toast } from "react-toastify";
-//fetch profile
+
+//Fetch profile
 export const fetchEmployerProfile = createAsyncThunk(
   "employer/fetchProfile",
   async (_, { rejectWithValue }) => {
@@ -29,7 +30,7 @@ export const fetchEmployerProfile = createAsyncThunk(
     }
   },
 );
-//profile updation
+//Profile updation
 export const updateEmployerProfile = createAsyncThunk(
   "employer/updateProfile",
   async ({ data }: { data: FormData }, { rejectWithValue }) => {
@@ -42,7 +43,7 @@ export const updateEmployerProfile = createAsyncThunk(
     }
   },
 );
-//fetch jobs
+//Fetch jobs
 export const fetchEmployerJobs = createAsyncThunk(
   "employer/fetchJobs",
   async (
@@ -74,7 +75,7 @@ export const fetchEmployerJobs = createAsyncThunk(
     }
   },
 );
-//post new job
+//Post new job
 export const postJob = createAsyncThunk(
   "employer/postJob",
   async ({ job }: { job: any }, { rejectWithValue }) => {
@@ -88,7 +89,7 @@ export const postJob = createAsyncThunk(
     }
   },
 );
-//updation job
+//Updation job
 export const updateJob = createAsyncThunk(
   "employer/updateJob",
   async ({ jobId, job }: { jobId: string; job: any }, { rejectWithValue }) => {
@@ -102,7 +103,7 @@ export const updateJob = createAsyncThunk(
     }
   },
 );
-//job closing
+//Job closing
 export const closeJob = createAsyncThunk(
   "employer/closeJob",
   async ({ jobId }: { jobId: string }, { rejectWithValue }) => {
@@ -116,7 +117,7 @@ export const closeJob = createAsyncThunk(
     }
   },
 );
-//fetching applications
+//Fetching applications
 export const fetchEmployerApplications = createAsyncThunk(
   "employer/fetchApplications",
   async (

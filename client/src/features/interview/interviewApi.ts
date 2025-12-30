@@ -2,6 +2,7 @@ import { api } from "../../api/api";
 import { API_ROUTES } from "../../shared/constants/constants";
 import type { InterviewQueryParams } from "../../types/interview/interview.types";
 
+//Fetch candidate interviews
 export const getCandidateInterviews = (params?: InterviewQueryParams) => {
   const queryParams = new URLSearchParams();
 
@@ -16,7 +17,7 @@ export const getCandidateInterviews = (params?: InterviewQueryParams) => {
 
   return api.get(url);
 };
-
+// Fetch employer intervies
 export const getEmployerInterviews = (params?: InterviewQueryParams) => {
   const queryParams = new URLSearchParams();
 
@@ -30,4 +31,8 @@ export const getEmployerInterviews = (params?: InterviewQueryParams) => {
   }`;
 
   return api.get(url);
+};
+//Updating interview status employer side
+export const updateInterviewStatusApi = (id: string, status: string) => {
+  return api.patch(API_ROUTES.INTERVIEWS.UPDATE_STATUS(id), { status });
 };

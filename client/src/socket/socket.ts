@@ -38,3 +38,10 @@ export const disconnectSocket = (): void => {
     socket = null;
   }
 };
+
+export const updateSocketToken = (token: string): void => {
+  if (socket) {
+    socket.auth = { token };
+    socket.disconnect().connect();
+  }
+};

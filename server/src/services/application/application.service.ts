@@ -2,7 +2,6 @@ import {
   ICandidateApplicationService,
   ApplyJobPayload,
   IEmployerApplicationService,
-  IApplicationUpdate,
 } from "../../interfaces/applications/IApplicationService";
 import { IInterviewService } from "../../interfaces/interviews/IInterviewService";
 import { IChatService } from "../../interfaces/chat/IChatService";
@@ -28,8 +27,14 @@ import { logger } from "../../shared/utils/logger";
 import { IJobRepository } from "../../interfaces/jobs/IJobRepository";
 import { uploadResumeFile } from "../../shared/utils/fileUpload";
 import { ICandidateService } from "../../interfaces/users/candidate/ICandidateService";
-import { IApplicationQuery } from "../../interfaces/applications/IApplication";
-import { sendInterviewScheduledEmail } from "../../shared/utils/email";
+import {
+  IApplicationQuery,
+  IApplication,
+} from "../../interfaces/applications/IApplication";
+import {
+  sendInterviewScheduledEmail,
+  sendHiredEmail,
+} from "../../shared/utils/email";
 import { NotificationHelper } from "../../shared/utils/notification.helper";
 
 export class CandidateApplicationService
@@ -129,6 +134,7 @@ export class CandidateApplicationService
         | "accepted"
         | "interview"
         | "shortlisted"
+        | "hired"
         | "all";
       search?: string;
       page?: number;
@@ -239,15 +245,22 @@ export class EmployerApplicationService implements IEmployerApplicationService {
         ERROR_MESSAGES.APPLICATION_NOT_FOUND,
       );
 
-    const updateData: IApplicationUpdate = { status: data.status };
+    const updateData: Partial<IApplication> = {
+      status: data.status as IApplication["status"],
+    };
 
-    if (data.status === "interview") {
-      updateData.interviewDate = data.interviewDate;
+    if (data.status === "reviewed") updateData.reviewedAt = new Date();
+    if (data.status === "shortlisted") updateData.shortlistedAt = new Date();
+    if (data.status === "hired") updateData.hiredAt = new Date();
+    if (data.status === "rejected") updateData.rejectedAt = new Date();
+
+    if (data.status === "interview" && data.interviewDate) {
+      updateData.interviewDate = new Date(data.interviewDate);
     }
 
     await this._appRepo.updateOne(applicationId, updateData);
 
-    // Notify candidate of status change
+    // Notifying candidate of status change
     const notificationHelper = NotificationHelper.getInstance();
     await notificationHelper.notifyCandidateApplicationStatusChange(
       app.candidateId,
@@ -287,7 +300,21 @@ export class EmployerApplicationService implements IEmployerApplicationService {
       }
     }
 
-    // Auto-create chat if shortlisted
+    if (data.status === "hired") {
+      try {
+        await sendHiredEmail({
+          to: app.email,
+          candidateName: app.fullName,
+          jobTitle: app.job.title,
+          companyName: app.employer.name,
+        });
+        logger.info("Hired email sent for application", { applicationId });
+      } catch (e) {
+        logger.error("Failed to send hired email", e);
+      }
+    }
+
+    // Auto-creating chat if shortlisted
     if (data.status === "shortlisted" && this._chatService) {
       try {
         await this._chatService.initiateChat(

@@ -21,8 +21,8 @@ import {
 import { useDebounce } from "../../components/candidate/SavedJobs";
 import { SavedJobsSkeleton } from "../../components/candidate/SavedJobs";
 import { EmptyState } from "../../components/candidate/SavedJobs";
-import PageHeader from "../../components/common/PageHeader";
-import Pagination from "../../components/common/Pagination";
+import PageHeader from "../../components/common/auth/PageHeader";
+import Pagination from "../../components/common/pagination/Pagination";
 
 const CandidateSavedJobs: React.FC = () => {
   const dispatch = useAppDispatch();

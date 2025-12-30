@@ -133,7 +133,6 @@ const AdminCandidates: React.FC = () => {
           onChange={(e: any) => setSearchTerm(e.target.value)}
           placeholder="Search candidates by name, email..."
         />
-        {/*  */}
       </div>
 
       {loading ? (

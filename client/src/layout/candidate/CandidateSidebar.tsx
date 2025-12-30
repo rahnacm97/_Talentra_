@@ -68,12 +68,6 @@ const CandidateSidebar: React.FC<SidebarProps> = ({
       icon: MessageCircle,
       path: FRONTEND_ROUTES.CANDIDATEMESSAGES,
     },
-    // {
-    //   id: "settings",
-    //   label: "Settings",
-    //   icon: Settings,
-    //   path: FRONTEND_ROUTES.CANDIDATESETTINGS,
-    // },
   ];
 
   //const isActive = (path: string) => location.pathname === path;

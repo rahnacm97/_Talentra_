@@ -50,6 +50,10 @@ export class ApplicationMapper implements IApplicationMapper {
       status: application.status,
       interviewDate: application.interviewDate?.toISOString(),
       updatedAt: application.updatedAt?.toISOString(),
+      reviewedAt: application.reviewedAt?.toISOString(),
+      shortlistedAt: application.shortlistedAt?.toISOString(),
+      hiredAt: application.hiredAt?.toISOString(),
+      rejectedAt: application.rejectedAt?.toISOString(),
     };
   }
 

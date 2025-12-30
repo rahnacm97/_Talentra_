@@ -6,43 +6,28 @@ import {
   Briefcase,
   CheckCircle,
   Eye,
-  XCircle,
   Search,
+  Video,
 } from "lucide-react";
+import { useVideoCall } from "../../contexts/VideoCallContext";
 import CloseIcon from "@mui/icons-material/Close";
 import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
 import { fetchCandidateInterviews } from "../../thunks/interview.thunks";
 import InterviewDetailsModal from "../../components/candidate/InterviewModal";
 import type { Interview } from "../../types/interview/interview.types";
-import Pagination from "../../components/common/Pagination";
-
-const formatDateTime = (dateIso: string) => {
-  const date = new Date(dateIso);
-  return (
-    date.toLocaleDateString("en-US", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    }) +
-    " at " +
-    date.toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    })
-  );
-};
+import Pagination from "../../components/common/pagination/Pagination";
+import { formatDateTime } from "../../utils/formatters";
 
 const CandidateInterviews: React.FC = () => {
   const dispatch = useAppDispatch();
   const { interviews, loading, pagination } = useAppSelector(
     (s) => s.interview,
   );
+  const { joinCall } = useVideoCall();
 
-  const [activeTab, setActiveTab] = useState<
-    "all" | "scheduled" | "completed" | "cancelled"
-  >("all");
+  const [activeTab, setActiveTab] = useState<"all" | "scheduled" | "completed">(
+    "all",
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedInterview, setSelectedInterview] = useState<Interview | null>(
@@ -79,7 +64,6 @@ const CandidateInterviews: React.FC = () => {
     { value: "all", label: "All Interviews", icon: Calendar },
     { value: "scheduled", label: "Scheduled", icon: Clock },
     { value: "completed", label: "Completed", icon: CheckCircle },
-    { value: "cancelled", label: "Cancelled", icon: XCircle },
   ];
 
   if (loading && interviews.length === 0) {
@@ -225,6 +209,46 @@ const CandidateInterviews: React.FC = () => {
                         <Eye className="w-5 h-5" />
                         View Details
                       </button>
+                      {interview.status === "scheduled" &&
+                        (() => {
+                          const interviewTime = interview.interviewDate
+                            ? new Date(interview.interviewDate).getTime()
+                            : 0;
+                          const windowStart = interviewTime - 15 * 60 * 1000;
+                          const canJoin = Date.now() >= windowStart;
+
+                          return (
+                            <div className="flex flex-col items-center w-full mt-2">
+                              {canJoin ? (
+                                <button
+                                  onClick={() =>
+                                    joinCall(
+                                      interview.id,
+                                      {
+                                        name: interview.candidate.fullName,
+                                        image: interview.candidate.profileImage,
+                                      },
+                                      {
+                                        jobTitle: interview.job.title,
+                                        interviewDate:
+                                          interview.interviewDate ||
+                                          new Date().toISOString(),
+                                      },
+                                    )
+                                  }
+                                  className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition flex items-center gap-2 font-medium shadow-md cursor-pointer w-full justify-center"
+                                >
+                                  <Video className="w-5 h-5" />
+                                  Join Call
+                                </button>
+                              ) : (
+                                <p className="text-sm text-gray-500 italic mt-1">
+                                  Join available 15m before start
+                                </p>
+                              )}
+                            </div>
+                          );
+                        })()}
                     </div>
                   </div>
                 </div>

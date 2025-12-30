@@ -8,6 +8,7 @@ import {
 } from "../features/chat/chatApi";
 import type { CreateChatPayload, SendMessagePayload } from "../types/chat/chat";
 
+//Initiating chat
 export const initiateChat = createAsyncThunk(
   "chat/initiateChat",
   async (data: CreateChatPayload, { rejectWithValue }) => {
@@ -20,7 +21,7 @@ export const initiateChat = createAsyncThunk(
     }
   },
 );
-
+//Fetching conversations
 export const getUserChats = createAsyncThunk(
   "chat/getUserChats",
   async (_, { rejectWithValue }) => {
@@ -33,7 +34,7 @@ export const getUserChats = createAsyncThunk(
     }
   },
 );
-
+//Message send
 export const sendMessage = createAsyncThunk(
   "chat/sendMessage",
   async (data: SendMessagePayload, { rejectWithValue }) => {
@@ -46,7 +47,7 @@ export const sendMessage = createAsyncThunk(
     }
   },
 );
-
+//Fetch messages
 export const getChatMessages = createAsyncThunk(
   "chat/getChatMessages",
   async (chatId: string, { rejectWithValue }) => {
@@ -59,7 +60,7 @@ export const getChatMessages = createAsyncThunk(
     }
   },
 );
-
+//Mark as read
 export const markAsRead = createAsyncThunk(
   "chat/markAsRead",
   async (chatId: string, { rejectWithValue }) => {

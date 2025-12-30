@@ -14,6 +14,7 @@ import axios from "axios";
 export const useAppDispatch: () => AppDispatch = useDispatch;
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 
+//Authentication
 export const useAuthInitialiazer = () => {
   const dispatch = useAppDispatch();
 
@@ -45,7 +46,7 @@ export const useAuthInitialiazer = () => {
         if (axios.isAxiosError(error) && error.response?.status === 401) {
           dispatch(logout());
         } else {
-          console.log("⚠️ Network error, auth state unchanged");
+          console.log("Network error, auth state unchanged");
         }
       } finally {
         dispatch(setInitialized(true));

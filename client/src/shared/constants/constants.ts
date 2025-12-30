@@ -54,6 +54,7 @@ export const API_ROUTES = {
   INTERVIEWS: {
     CANDIDATE: "/candidate/interviews",
     EMPLOYER: "/employer/interviews",
+    UPDATE_STATUS: (id: string) => `/employer/interviews/${id}/status`,
   },
   NOTIFICATIONS: {
     BASE: "/notifications",
@@ -69,6 +70,11 @@ export const API_ROUTES = {
     MESSAGE: "/chat/message",
     MESSAGES: (chatId: string) => `/chat/${chatId}/messages`,
     MARK_READ: (chatId: string) => `/chat/${chatId}/read`,
+  },
+  VIDEO_CALL: {
+    INITIATE: "/video-call/initiate",
+    END: "/video-call/end",
+    STATUS: (interviewId: string) => `/video-call/status/${interviewId}`,
   },
 } as const;
 

@@ -89,13 +89,6 @@ const EmployerLayout: React.FC = () => {
       icon: MessageCircle,
       path: FRONTEND_ROUTES.EMPLOYERMESSAGES,
     },
-
-    // {
-    //   id: "settings",
-    //   label: "Settings",
-    //   icon: Settings,
-    //   path: FRONTEND_ROUTES.EMPLOYERSETTINGS,
-    // },
   ];
 
   const isActive = (path: string) => {

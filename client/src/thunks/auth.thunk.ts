@@ -7,6 +7,7 @@ import type {
   AuthResponse,
 } from "../types/auth/Auth";
 import type { ApiError } from "../types/common/common.type";
+
 //Signup
 export const signup = createAsyncThunk<
   AuthResponse,

@@ -114,7 +114,7 @@ const Chat: React.FC = () => {
         getSocket()?.emit("leave_chat", activeChat.id);
       };
     }
-  }, [activeChat, dispatch, user?._id]);
+  }, [activeChat, dispatch, user?._id, messages]);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });

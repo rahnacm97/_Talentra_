@@ -5,16 +5,9 @@ import {
   fetchSubscriptionHistory,
 } from "../../thunks/subscription.thunk";
 import type {
-  SubscriptionHistoryItemDTO,
   CreateOrderResponseDTO,
-} from "../../types/subscription.types";
-
-interface SubscriptionState {
-  history: SubscriptionHistoryItemDTO[];
-  loading: boolean;
-  error: string | null;
-  currentOrder: CreateOrderResponseDTO | null;
-}
+  SubscriptionState,
+} from "../../types/subscription/subscription.types";
 
 const initialState: SubscriptionState = {
   history: [],
@@ -22,7 +15,7 @@ const initialState: SubscriptionState = {
   error: null,
   currentOrder: null,
 };
-
+//Subscription slice
 const subscriptionSlice = createSlice({
   name: "subscription",
   initialState,

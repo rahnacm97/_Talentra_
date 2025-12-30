@@ -20,13 +20,14 @@ const initialState: EmployersState = {
   error: null,
   selectedEmployer: null,
 };
-
+//Admin employer slice
 const adminEmployerSlice = createSlice({
   name: "adminEmployers",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
+      //Fetch employers
       .addCase(fetchEmployers.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -46,6 +47,7 @@ const adminEmployerSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+      //Block unblock employer
       .addCase(
         blockUnblockEmployer.fulfilled,
         (
@@ -64,6 +66,7 @@ const adminEmployerSlice = createSlice({
           );
         },
       )
+      //Single employer
       .addCase(fetchEmployerById.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -82,6 +85,7 @@ const adminEmployerSlice = createSlice({
           state.error = action.payload?.message || "Failed to fetch employer";
         },
       )
+      //Employer verification
       .addCase(
         verifyEmployer.fulfilled,
         (

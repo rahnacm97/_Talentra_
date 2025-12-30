@@ -14,13 +14,14 @@ const initialState: CandidateState = {
   error: null,
   selectedCandidate: null,
 };
-
+//Admin Candidate slice
 const adminCandidateSlice = createSlice({
   name: "adminCandidates",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
+      //Candidate fetch
       .addCase(fetchCandidates.pending, (state) => {
         state.loading = true;
       })
@@ -33,6 +34,7 @@ const adminCandidateSlice = createSlice({
         state.loading = false;
         state.error = action.error.message || "Error fetching candidates";
       })
+      //Block unblock candidate
       .addCase(toggleBlockCandidate.fulfilled, (state, action) => {
         const updated = action.payload.candidate;
         state.candidates = state.candidates.map((c) =>
@@ -42,6 +44,7 @@ const adminCandidateSlice = createSlice({
           `${updated.name} has been ${updated.blocked ? "blocked" : "unblocked"}`,
         );
       })
+      //Single candidate
       .addCase(fetchCandidateById.pending, (state) => {
         state.loading = true;
         state.error = null;

@@ -3,6 +3,7 @@ import { type InterviewState } from "../../types/interview/interview.types";
 import {
   fetchCandidateInterviews,
   fetchEmployerInterviews,
+  updateInterviewStatus,
 } from "../../thunks/interview.thunks";
 
 const initialState: InterviewState = {
@@ -16,7 +17,7 @@ const initialState: InterviewState = {
     totalPages: 0,
   },
 };
-
+// Interview slice
 const interviewSlice = createSlice({
   name: "interview",
   initialState,
@@ -57,6 +58,18 @@ const interviewSlice = createSlice({
       .addCase(fetchEmployerInterviews.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+      })
+      // Update Interview Status
+      .addCase(updateInterviewStatus.fulfilled, (state, action) => {
+        const index = state.interviews.findIndex(
+          (i) => i.id === action.payload.id,
+        );
+        if (index !== -1) {
+          state.interviews[index] = {
+            ...state.interviews[index],
+            ...action.payload,
+          };
+        }
       });
   },
 });

@@ -8,9 +8,7 @@ export type Status =
   | "rejected"
   | "hired";
 
-export type ExtendedStatus = Status | "accepted";
-
-export type AppStatus = Status | "accepted";
+export type AppStatus = Status;
 
 export interface Application {
   id: string;
@@ -54,6 +52,10 @@ export interface ApplicationsResponseDto {
     | "shortlisted"
     | "hired";
   updatedAt?: string;
+  reviewedAt?: string;
+  shortlistedAt?: string;
+  hiredAt?: string;
+  rejectedAt?: string;
 }
 
 export interface ApplicationResponseDto {
@@ -65,7 +67,7 @@ export interface ApplicationResponseDto {
   resume: string;
   coverLetter?: string;
   appliedAt: string;
-  status: "pending" | "reviewed" | "rejected" | "accepted";
+  status: "pending" | "reviewed" | "rejected" | "hired";
 }
 
 export interface CandidateState {

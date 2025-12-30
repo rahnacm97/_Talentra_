@@ -8,6 +8,7 @@ import {
 import {
   IInterview,
   IInterviewQuery,
+  InterviewStatus,
 } from "../../interfaces/interviews/IInterview";
 import { logger } from "../../shared/utils/logger";
 
@@ -119,5 +120,21 @@ export class InterviewService implements IInterviewService {
         totalPages: Math.ceil(total / limit),
       },
     };
+  }
+
+  async updateInterviewStatus(
+    interviewId: string,
+    status: string,
+  ): Promise<InterviewResponseDto> {
+    const updated = await this._repository.updateOne(interviewId, {
+      status: status as InterviewStatus,
+    });
+
+    if (!updated) {
+      throw new Error("Interview not found or failed to update");
+    }
+
+    logger.info("Interview status updated", { interviewId, status });
+    return this._mapper.toDto(updated);
   }
 }

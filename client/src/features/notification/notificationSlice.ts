@@ -21,7 +21,7 @@ const initialState: NotificationState = {
   total: 0,
   totalPages: 0,
 };
-
+// Notification slice
 const notificationSlice = createSlice({
   name: "notifications",
   initialState,
@@ -58,7 +58,7 @@ const notificationSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
-      // Fetch stats
+      // Fetch status
       .addCase(fetchNotificationStats.fulfilled, (state, action) => {
         state.unreadCount = action.payload.unread;
         state.total = action.payload.total;

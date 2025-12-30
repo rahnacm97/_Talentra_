@@ -1,14 +1,6 @@
-import React from "react";
 import { X, Plus, Save } from "lucide-react";
 import { useJobFormValidation } from "../../hooks/UseJobForm";
-import type { JobFormValues } from "../../shared/validations/JobFormValidation";
-
-interface JobFormModalProps {
-  mode: "post" | "edit" | "view";
-  initialValues?: Partial<JobFormValues>;
-  onSubmit: (values: JobFormValues) => Promise<void>;
-  onClose: () => void;
-}
+import type { JobFormModalProps } from "../../types/job/job.types";
 
 const JobFormModal: React.FC<JobFormModalProps> = ({
   mode,
@@ -148,10 +140,10 @@ const JobFormModal: React.FC<JobFormModalProps> = ({
               onChange={updateExperience}
               options={[
                 { value: "0", label: "Fresher (0 years)" },
-                { value: "1-2", label: "1–2 years" },
-                { value: "3-5", label: "3–5 years" },
-                { value: "6-8", label: "6–8 years" },
-                { value: "9-12", label: "9–12 years" },
+                { value: "1-2", label: "1-2 years" },
+                { value: "3-5", label: "3-5 years" },
+                { value: "6-8", label: "6-8 years" },
+                { value: "9-12", label: "9-12 years" },
                 { value: "13+", label: "13+ years" },
               ]}
               error={getArrayError(errors.experience)}

@@ -15,7 +15,7 @@ const initialState: ChatState = {
   error: null,
   messageSending: false,
 };
-
+//Chat slice
 const chatSlice = createSlice({
   name: "chat",
   initialState,
@@ -101,7 +101,7 @@ const chatSlice = createSlice({
       state.error = action.payload as string;
     });
 
-    // get User Chats
+    // Get User Chats
     builder.addCase(getUserChats.pending, (state) => {
       state.loading = true;
       state.error = null;
@@ -142,7 +142,7 @@ const chatSlice = createSlice({
       state.error = action.payload as string;
     });
 
-    // get ChatMessages
+    // Get Chat Messages
     builder.addCase(getChatMessages.pending, () => {});
     builder.addCase(getChatMessages.fulfilled, (state, action) => {
       state.messages = action.payload;

@@ -6,7 +6,7 @@ import type {
   SubscriptionHistoryResponseDTO,
   PaymentDetailsDTO,
   PlanDetailsDTO,
-} from "../../types/subscription.types";
+} from "../../types/subscription/subscription.types";
 
 //Payment creating
 export const createSubscriptionOrder = async (
@@ -22,6 +22,7 @@ export const createSubscriptionOrder = async (
   );
   return response.data;
 };
+
 //Payment verification
 export const verifySubscriptionPayment = async (
   paymentDetails: PaymentDetailsDTO,
@@ -36,6 +37,7 @@ export const verifySubscriptionPayment = async (
   );
   return response.data;
 };
+
 //Fetch subscription history
 export const getSubscriptionHistory =
   async (): Promise<SubscriptionHistoryResponseDTO> => {
@@ -44,6 +46,7 @@ export const getSubscriptionHistory =
     );
     return response.data;
   };
+
 //Invoice downloading
 export const downloadInvoice = async (
   subscriptionId: string,

@@ -1,3 +1,4 @@
+//Razorpay
 export const loadRazorpayScript = () => {
   return new Promise((resolve) => {
     if (document.getElementById("razorpay-script")) {

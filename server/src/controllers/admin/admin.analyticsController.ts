@@ -17,7 +17,9 @@ export class AdminAnalyticsController implements IAdminAnalyticsController {
     try {
       logger.info("Admin requested dashboard analytics");
 
-      const analytics = await this._analyticsService.getDashboardAnalytics();
+      const timeRange = (req.query.timeRange as string) || "30days";
+      const analytics =
+        await this._analyticsService.getDashboardAnalytics(timeRange);
 
       res.status(HTTP_STATUS.OK).json({
         success: true,

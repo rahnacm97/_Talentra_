@@ -2,6 +2,11 @@ import {
   IDashboardStats,
   ITopPerformingJob,
   IRecentSubscription,
+  IPlatformGrowth,
+  IUserDistribution,
+  IApplicationStatusDistribution,
+  ITopJobCategory,
+  ISubscriptionRevenue,
 } from "../../interfaces/users/admin/IAdminAnalyticsRepository";
 import {
   AdminAnalyticsDTO,
@@ -49,14 +54,24 @@ export class AdminAnalyticsMapper implements IAdminAnalyticsMapper {
   toAdminAnalyticsDTO(
     stats: IDashboardStats,
     topJobs: ITopPerformingJob[],
-    intro: IRecentSubscription[],
+    recentSubscriptions: IRecentSubscription[],
+    platformGrowth: IPlatformGrowth[],
+    userDistribution: IUserDistribution[],
+    applicationStatusDistribution: IApplicationStatusDistribution[],
+    topJobCategories: ITopJobCategory[],
+    subscriptionRevenue: ISubscriptionRevenue[],
   ): AdminAnalyticsDTO {
     return {
       stats: this.toDashboardStatsDTO(stats),
       topJobs: topJobs.map((job) => this.toTopPerformingJobDTO(job)),
-      recentSubscriptions: intro.map((sub) =>
+      recentSubscriptions: recentSubscriptions.map((sub) =>
         this.toRecentSubscriptionDTO(sub),
       ),
+      platformGrowth,
+      userDistribution,
+      applicationStatusDistribution,
+      topJobCategories,
+      subscriptionRevenue,
     };
   }
 }

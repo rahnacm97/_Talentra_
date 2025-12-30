@@ -7,6 +7,7 @@ import {
   deleteNotificationApi,
 } from "../features/notification/notificationApi";
 
+//Fetch all notifications
 export const fetchNotifications = createAsyncThunk(
   "notifications/fetch",
   async (
@@ -24,6 +25,7 @@ export const fetchNotifications = createAsyncThunk(
   },
 );
 
+//Notification status read/unread
 export const fetchNotificationStats = createAsyncThunk(
   "notifications/fetchStats",
   async (_, { rejectWithValue }) => {
@@ -37,7 +39,7 @@ export const fetchNotificationStats = createAsyncThunk(
     }
   },
 );
-
+//Marking read
 export const markAsRead = createAsyncThunk(
   "notifications/markAsRead",
   async (id: string, { rejectWithValue }) => {
@@ -51,7 +53,7 @@ export const markAsRead = createAsyncThunk(
     }
   },
 );
-
+//Marking all read
 export const markAllAsRead = createAsyncThunk(
   "notifications/markAllAsRead",
   async (_, { rejectWithValue }) => {
@@ -64,7 +66,7 @@ export const markAllAsRead = createAsyncThunk(
     }
   },
 );
-
+//Deleting
 export const deleteNotification = createAsyncThunk(
   "notifications/delete",
   async (id: string, { rejectWithValue }) => {

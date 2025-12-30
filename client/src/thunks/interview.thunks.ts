@@ -2,6 +2,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import {
   getCandidateInterviews,
   getEmployerInterviews,
+  updateInterviewStatusApi,
 } from "../features/interview/interviewApi";
 import type { InterviewQueryParams } from "../types/interview/interview.types";
 
@@ -30,6 +31,24 @@ export const fetchEmployerInterviews = createAsyncThunk(
     } catch (err: any) {
       const message =
         err.response?.data?.message || "Failed to fetch scheduled interviews";
+      return rejectWithValue(message);
+    }
+  },
+);
+
+// Update interview status
+export const updateInterviewStatus = createAsyncThunk(
+  "interview/updateInterviewStatus",
+  async (
+    { id, status }: { id: string; status: string },
+    { rejectWithValue },
+  ) => {
+    try {
+      const response = await updateInterviewStatusApi(id, status);
+      return response.data.interview;
+    } catch (err: any) {
+      const message =
+        err.response?.data?.message || "Failed to update interview status";
       return rejectWithValue(message);
     }
   },

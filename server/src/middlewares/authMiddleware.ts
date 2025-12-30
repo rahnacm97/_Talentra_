@@ -14,6 +14,7 @@ const tokenService = new TokenService();
 
 export type AuthUser = ICandidate | IEmployer | IAdmin;
 
+//Authentication middleware
 const authenticate =
   (options: { required: boolean; roles?: string[] }) =>
   async (req: Request, res: Response, next: NextFunction) => {

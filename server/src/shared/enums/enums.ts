@@ -77,6 +77,9 @@ export enum SUCCESS_MESSAGES {
   MESSAGE_SENT = "Message sent successfully",
   MESSAGES_FETCHED = "Messages fetched successfully",
   MESSAGES_MARKED_READ = "Messages marked as read",
+  VIDEO_CALL_INITIATED = "Video call initiated successfully",
+  VIDEO_CALL_ENDED = "Video call ended successfully",
+  VIDEO_CALL_STATUS_FETCHED = "Call status retrieved successfully",
 }
 
 export enum NotificationType {

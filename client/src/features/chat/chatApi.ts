@@ -7,7 +7,7 @@ import type {
   SendMessagePayload,
 } from "../../types/chat/chat";
 
-// Initiate Caht
+//Initiate Caht
 export const createChatApi = async (
   payload: CreateChatPayload,
 ): Promise<IChat> => {
@@ -15,13 +15,13 @@ export const createChatApi = async (
   return response.data.data;
 };
 
-// Fetch chat
+//Fetch chat
 export const getUserChatsApi = async (): Promise<IChat[]> => {
   const response = await api.get(API_ROUTES.CHAT.MY_CHATS);
   return response.data.data;
 };
 
-// Sending message
+//Sending message
 export const sendMessageApi = async (
   payload: SendMessagePayload,
 ): Promise<IMessage> => {

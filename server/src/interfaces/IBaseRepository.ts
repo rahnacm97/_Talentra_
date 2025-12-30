@@ -1,4 +1,4 @@
-import { FilterQuery, UpdateQuery } from "mongoose";
+import { FilterQuery, UpdateQuery, PipelineStage } from "mongoose";
 
 export interface IBaseRepository<T, TCreate = Partial<T>> {
   create(data: TCreate): Promise<T>;
@@ -9,4 +9,7 @@ export interface IBaseRepository<T, TCreate = Partial<T>> {
   update(id: string, data: UpdateQuery<T>): Promise<T | null>;
   delete(id: string): Promise<boolean>;
   verifyEmail(id: string): Promise<T | null>;
+  aggregate<R = Record<string, unknown>>(
+    pipeline: PipelineStage[],
+  ): Promise<R[]>;
 }

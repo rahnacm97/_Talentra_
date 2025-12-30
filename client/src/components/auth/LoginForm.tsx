@@ -8,7 +8,7 @@ import {
   AlertCircle,
   CheckCircle,
 } from "lucide-react";
-import GoogleSignInButton from "../../components/common/GoogleSignInButton";
+import GoogleSignInButton from "../common/auth/GoogleSignInButton";
 import { Link } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
 import { useNavigate } from "react-router-dom";

@@ -21,7 +21,7 @@ import {
   CheckCircle,
   MessageSquare,
 } from "lucide-react";
-import Pagination from "../../components/common/Pagination";
+import Pagination from "../../components/common/pagination/Pagination";
 import { ApplicantDetailsModal } from "../../components/employer/ApplicantDetailModal";
 import { toast } from "react-toastify";
 import { formatFullName } from "../../utils/formatters";

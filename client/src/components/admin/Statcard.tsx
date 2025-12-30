@@ -1,6 +1,6 @@
 import React from "react";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
-import { IconWrapper } from "../common/IconWrapper";
+import { IconWrapper } from "../common/home/IconWrapper";
 import type { SvgIconProps } from "@mui/material/SvgIcon";
 
 type StatCardProps = {

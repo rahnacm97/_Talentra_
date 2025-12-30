@@ -1,36 +1,47 @@
 import { Server, Socket } from "socket.io";
 import { socketAuthMiddleware } from "../middlewares/socketAuthMiddleware";
 import { ChatHandler } from "./handlers/chat.handler";
+import { VideoCallHandler } from "./handlers/videoCall.handler";
+import { VideoCallService } from "../services/videoCall/videoCall.service";
+import { VideoCallRepository } from "../repositories/videoCall/videoCall.repository";
 
 export class SocketManager {
-  private static instance: SocketManager;
-  private io: Server;
+  private static _instance: SocketManager;
+  private _io: Server;
+
+  private _videoCallHandler: VideoCallHandler;
+  private _chatHandler: ChatHandler;
 
   private userSockets: Map<string, string> = new Map();
 
   private constructor(io: Server) {
-    this.io = io;
+    this._io = io;
+
+    const videoCallRepository = new VideoCallRepository();
+    const videoCallService = new VideoCallService(videoCallRepository);
+    this._videoCallHandler = new VideoCallHandler(videoCallService);
+    this._chatHandler = new ChatHandler();
     this._initialize();
   }
 
   public static initialize(io: Server): SocketManager {
-    if (!SocketManager.instance) {
-      SocketManager.instance = new SocketManager(io);
+    if (!SocketManager._instance) {
+      SocketManager._instance = new SocketManager(io);
     }
-    return SocketManager.instance;
+    return SocketManager._instance;
   }
 
   public static getInstance(): SocketManager {
-    if (!SocketManager.instance) {
+    if (!SocketManager._instance) {
       throw new Error("SocketManager not initialized.");
     }
-    return SocketManager.instance;
+    return SocketManager._instance;
   }
 
   private _initialize() {
-    this.io.use(socketAuthMiddleware);
+    this._io.use(socketAuthMiddleware);
 
-    this.io.on("connection", (socket: Socket) => {
+    this._io.on("connection", (socket: Socket) => {
       this.handleConnection(socket);
     });
   }
@@ -45,19 +56,17 @@ export class SocketManager {
     if (userId) {
       console.log(`User connected: ${userId}`);
       this.userSockets.set(userId, socket.id);
-
       socket.broadcast.emit("user_online", userId);
-
       socket.join(userId);
 
-      // Role based rooms
       if (socket.data.role === "Admin") {
         socket.join("admins");
       }
     }
 
-    // Initialize Handlers
-    new ChatHandler(socket);
+    this._chatHandler.handle(socket);
+
+    this._videoCallHandler.handle(socket);
 
     socket.on("disconnect", () => {
       if (userId) {
@@ -69,6 +78,6 @@ export class SocketManager {
   }
 
   public getIO(): Server {
-    return this.io;
+    return this._io;
   }
 }

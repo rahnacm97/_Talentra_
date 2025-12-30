@@ -15,12 +15,12 @@ import {
 } from "lucide-react";
 import Header from "./Header";
 import Footer from "./Footer";
-import SearchAppBar from "../../components/common/Search";
-import { HistoryLock } from "../../components/common/AuthRouteGuard";
-import CategoryCard from "../../components/common/CategoryCard";
-import TestimonialCard from "../../components/common/TestimonialCard";
-import StatsSection from "../../components/common/StatsSection";
-import FeaturedJobsSection from "../../components/common/FeaturedJobs";
+import SearchAppBar from "../../components/common/home/Search";
+import { HistoryLock } from "../../components/common/auth/AuthRouteGuard";
+import CategoryCard from "../../components/common/home/CategoryCard";
+import TestimonialCard from "../../components/common/home/TestimonialCard";
+import StatsSection from "../../components/common/home/StatsSection";
+import FeaturedJobsSection from "../../components/common/home/FeaturedJobs";
 
 const Homepage: React.FC = () => {
   const jobCategories = [

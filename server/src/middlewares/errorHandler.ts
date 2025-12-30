@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { ApiError } from "../shared/utils/ApiError";
 
+//Error handler
 export const errorHandler = (
   err: unknown,
   _req: Request,

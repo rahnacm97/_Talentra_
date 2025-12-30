@@ -1,4 +1,10 @@
-import { Model, Document, FilterQuery, UpdateQuery } from "mongoose";
+import {
+  Model,
+  Document,
+  FilterQuery,
+  UpdateQuery,
+  PipelineStage,
+} from "mongoose";
 import { IBaseRepository } from "../interfaces/IBaseRepository";
 
 export class BaseRepository<T extends Document, TCreate = Partial<T>>
@@ -55,5 +61,11 @@ export class BaseRepository<T extends Document, TCreate = Partial<T>>
         { new: true },
       )
       .exec();
+  }
+
+  async aggregate<R = Record<string, unknown>>(
+    pipeline: PipelineStage[],
+  ): Promise<R[]> {
+    return this.model.aggregate(pipeline).exec();
   }
 }

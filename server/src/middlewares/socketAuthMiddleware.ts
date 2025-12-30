@@ -3,6 +3,7 @@ import { TokenService } from "../services/auth/token.service";
 
 const tokenService = new TokenService();
 
+//Socket authentication middleware
 export const socketAuthMiddleware = (
   socket: Socket,
   next: (err?: Error) => void,

@@ -22,4 +22,9 @@ export interface IInterviewService {
     candidateId: string,
     filters?: IInterviewQuery,
   ): Promise<InterviewsPaginatedDto>;
+
+  updateInterviewStatus(
+    interviewId: string,
+    status: string,
+  ): Promise<InterviewResponseDto>;
 }

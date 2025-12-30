@@ -22,13 +22,18 @@ export interface ApplicationsResponseDto {
     | "accepted"
     | "interview"
     | "shortlisted"
+    | "hired"
     | "all";
+  reviewedAt?: string | undefined;
+  shortlistedAt?: string | undefined;
+  hiredAt?: string | undefined;
+  rejectedAt?: string | undefined;
   page?: number;
   limit?: number;
   total?: number;
   totalPages?: number;
-  interviewDate?: string;
-  updatedAt?: string;
+  interviewDate?: string | undefined;
+  updatedAt?: string | undefined;
 }
 
 export interface ApplicationsPaginatedResponseDto {
@@ -55,6 +60,7 @@ export interface ApplicationResponseDto {
     | "accepted"
     | "interview"
     | "shortlisted"
+    | "hired"
     | "all";
 }
 

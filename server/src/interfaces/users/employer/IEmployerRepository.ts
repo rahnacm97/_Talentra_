@@ -1,8 +1,10 @@
 import { IBaseRepository } from "../../IBaseRepository";
 import { IEmployer } from "./IEmployer";
 import { EmployerDataDTO } from "../../../dto/employer/employer.dto";
+import { AuthSignupDTO } from "../../../dto/auth/auth.dto";
 
-export interface IEmployerRepository extends IBaseRepository<IEmployer> {
+export interface IEmployerRepository
+  extends IBaseRepository<IEmployer, AuthSignupDTO> {
   findByEmail(email: string): Promise<IEmployer | null>;
   updateBlockStatus(
     employerId: string,

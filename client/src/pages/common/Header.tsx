@@ -148,7 +148,9 @@ const Header: React.FC = () => {
               }}
               className="flex items-center space-x-2 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg transition-colors"
             >
-              <span className="font-medium">{user.name}</span>
+              <div className="flex items-center space-x-2">
+                <span className="font-medium">{user.name}</span>
+              </div>
               {renderEmployerBadges()}
               <svg
                 className={`w-4 h-4 ml-1 transition-transform duration-200 ${
@@ -238,7 +240,22 @@ const Header: React.FC = () => {
       ) : (
         <div className="space-y-1">
           <div className="px-4 py-2 bg-gray-100 rounded-lg flex items-center justify-between">
-            <span className="font-medium">{user.name}</span>
+            <div className="flex items-center space-x-2">
+              {user.profileImage ? (
+                <img
+                  src={user.profileImage}
+                  alt={user.name}
+                  className="w-8 h-8 rounded-full object-cover border border-gray-200"
+                />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 border border-blue-200">
+                  <span className="text-xs font-bold">
+                    {user.name.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              )}
+              <span className="font-medium">{user.name}</span>
+            </div>
             {renderEmployerBadges()}
           </div>
 

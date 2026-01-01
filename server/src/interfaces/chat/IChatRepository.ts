@@ -12,4 +12,5 @@ export interface IChatRepository {
   getMessages(chatId: string): Promise<IMessage[]>;
   markMessagesAsRead(chatId: string, userId: string): Promise<void>;
   updateLastMessage(chatId: string, message: string, date: Date): Promise<void>;
+  deleteChat(chatId: string): Promise<void>;
 }

@@ -113,7 +113,6 @@ const JobView: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-
       <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-12 px-4">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-4xl font-bold text-gray-900 mb-2 text-center">

@@ -153,4 +153,17 @@ export class ChatRepository implements IChatRepository {
       lastMessageAt: date,
     });
   }
+
+  async addMessageToChat(chatId: string, message: IMessage): Promise<void> {
+    await Chat.findByIdAndUpdate(chatId, {
+      $push: { messages: message },
+      lastMessage: message.content,
+      lastMessageAt: message.createdAt,
+    });
+  }
+
+  async deleteChat(chatId: string): Promise<void> {
+    await Message.deleteMany({ chatId });
+    await Chat.findByIdAndDelete(chatId);
+  }
 }

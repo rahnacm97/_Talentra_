@@ -11,6 +11,7 @@ import adminAnalyticsReducer from "../features/admin/adminAnalyticsSlice";
 import subscriptionReducer from "../features/subscription/subscriptionSlice";
 import notificationReducer from "../features/notification/notificationSlice";
 import chatReducer from "../features/chat/chatSlice";
+import feedbackReducer from "../features/feedback/feedbackSlice";
 
 //Whole app state store
 export const store = configureStore({
@@ -27,6 +28,7 @@ export const store = configureStore({
     subscription: subscriptionReducer,
     notifications: notificationReducer,
     chat: chatReducer,
+    feedback: feedbackReducer,
   },
 });
 

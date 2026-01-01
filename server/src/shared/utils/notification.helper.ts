@@ -222,6 +222,23 @@ export class NotificationHelper {
     });
   }
 
+  // Admin: New feedback submitted
+  async notifyAdminNewFeedback(
+    userId: string,
+    userName: string,
+  ): Promise<void> {
+    await this.createAndEmit({
+      recipientId: "admin",
+      recipientType: "Admin",
+      type: NotificationType.NEW_FEEDBACK,
+      title: NOTIFICATION_MESSAGES.ADMIN_NEW_FEEDBACK_TITLE,
+      message: formatMessage(NOTIFICATION_MESSAGES.ADMIN_NEW_FEEDBACK_MESSAGE, {
+        userName,
+      }),
+      data: { userId },
+    });
+  }
+
   emitUserBlocked(userId: string, userType: "Candidate" | "Employer"): void {
     try {
       SocketManager.getInstance().getIO().to(userId).emit("user:blocked", {

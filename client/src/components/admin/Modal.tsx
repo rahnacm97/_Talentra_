@@ -8,7 +8,7 @@ interface ModalProps {
   isOpen: boolean;
   onApprove: () => void;
   onCancel: () => void;
-  actionType: "block" | "unblock" | "verify" | "reject";
+  actionType: "block" | "unblock" | "verify" | "reject" | "delete";
   name: string;
   reason?: string;
   onReasonChange?: (reason: string) => void;
@@ -34,17 +34,21 @@ const Modal: React.FC<ModalProps> = ({
     ? "Verify Employer"
     : isReject
       ? "Reject Verification"
-      : `${isBlock ? "Block" : "Unblock"} Employer`;
+      : actionType === "delete"
+        ? "Delete Feedback"
+        : `${isBlock ? "Block" : "Unblock"} Employer`;
 
   const description = isVerify
     ? `Are you sure you want to verify <strong>${name}</strong>? This will mark them as a verified employer on the platform.`
     : isReject
       ? `Are you sure you want to <strong>reject</strong> verification for <strong>${name}</strong>? They will be notified with the reason.`
-      : `Are you sure you want to ${isBlock ? "block" : "unblock"} <strong>${name}</strong>? This action will ${
-          isBlock
-            ? "prevent them from accessing the platform"
-            : "restore their access to the platform"
-        }.`;
+      : actionType === "delete"
+        ? `Are you sure you want to <strong>delete</strong> the feedback from <strong>${name}</strong>? This action cannot be undone.`
+        : `Are you sure you want to ${isBlock ? "block" : "unblock"} <strong>${name}</strong>? This action will ${
+            isBlock
+              ? "prevent them from accessing the platform"
+              : "restore their access to the platform"
+          }.`;
 
   const { icon, bgColor, iconColor } = isBlock
     ? {
@@ -84,7 +88,9 @@ const Modal: React.FC<ModalProps> = ({
       ? "Block"
       : isUnblock
         ? "Unblock"
-        : "Reject";
+        : actionType === "delete"
+          ? "Delete"
+          : "Reject";
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">

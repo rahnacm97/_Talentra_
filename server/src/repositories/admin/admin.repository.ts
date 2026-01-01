@@ -54,8 +54,8 @@ export class AdminRepository
 
 export class AdminAnalyticsRepository implements IAdminAnalyticsRepository {
   constructor(
-    private _candidateRepo: IBaseRepository<ICandidate>,
-    private _employerRepo: IBaseRepository<IEmployer>,
+    private _candidateRepo: IBaseRepository<ICandidate, AuthSignupDTO>,
+    private _employerRepo: IBaseRepository<IEmployer, AuthSignupDTO>,
     private _jobRepo: IJobRepository,
     private _applicationRepo: IApplicationRepository,
     private _interviewRepo: IInterviewRepository,

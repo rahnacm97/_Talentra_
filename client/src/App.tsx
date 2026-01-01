@@ -22,6 +22,7 @@ import CandidateProfile from "./pages/candidate/CandidateProfile";
 import EmployerProfile from "./pages/employer/EmployerProfile";
 import AdminCandidateView from "./pages/admin/AdminCandidateView";
 import AdminEmployerView from "./pages/admin/AdminEmployerView";
+import AdminFeedback from "./pages/admin/AdminFeedback";
 import { ProtectedRoute } from "./components/common/auth/ProtectedRoute";
 import { AdminProtectedRoute } from "./components/admin/AdminProtectedRoute";
 import { FRONTEND_ROUTES } from "./shared/constants/constants";
@@ -228,7 +229,7 @@ const App: React.FC = () => {
                 element={<EmployerInterview />}
               />
               <Route
-                path={FRONTEND_ROUTES.EMPLOYERRBILLING}
+                path={FRONTEND_ROUTES.EMPLOYERBILLING}
                 element={<EmployerBilling />}
               />
               <Route
@@ -280,6 +281,10 @@ const App: React.FC = () => {
               <Route
                 path={FRONTEND_ROUTES.ADMINSETTINGS}
                 element={<AdminSettings />}
+              />
+              <Route
+                path={FRONTEND_ROUTES.ADMINFEEDBACK}
+                element={<AdminFeedback />}
               />
             </Route>
 

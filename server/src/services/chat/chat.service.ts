@@ -1,4 +1,7 @@
-import { IChatService } from "../../interfaces/chat/IChatService";
+import {
+  IChatService,
+  PopulatedUserField,
+} from "../../interfaces/chat/IChatService";
 import { IChatRepository } from "../../interfaces/chat/IChatRepository";
 import { IChatMapper } from "../../interfaces/chat/IChatMapper";
 import { IApplicationRepository } from "../../interfaces/applications/IApplicationRepository";
@@ -8,18 +11,16 @@ import {
   SendMessageDto,
 } from "../../dto/chat/chat.dto";
 import { NotificationResponseDto } from "../../dto/notification/notification.dto";
-import { NotificationSocket } from "../../socket/notification.socket";
-import { ChatSocket } from "../../socket/chat.socket";
-
-export interface PopulatedUserField {
-  _id: { toString(): string };
-}
+import { INotificationSocketService } from "../../interfaces/socket/INotificationSocketService";
+import { IChatSocketService } from "../../interfaces/socket/IChatSocketService";
 
 export class ChatService implements IChatService {
   constructor(
     private _chatRepository: IChatRepository,
     private _applicationRepository: IApplicationRepository,
     private _chatMapper: IChatMapper,
+    private _chatSocket: IChatSocketService,
+    private _notificationSocket: INotificationSocketService,
   ) {}
 
   // Chat initiating
@@ -98,7 +99,7 @@ export class ChatService implements IChatService {
 
       const messageDto = this._chatMapper.toMessageResponseDto(message);
 
-      ChatSocket.getInstance().emitMessageToChat(data.chatId, messageDto);
+      this._chatSocket.emitMessageToChat(data.chatId, messageDto);
 
       const notificationPayload = {
         type: "MESSAGE_RECEIVED",
@@ -108,7 +109,7 @@ export class ChatService implements IChatService {
         data: messageDto as unknown as Record<string, unknown>,
       };
 
-      NotificationSocket.getInstance().emitToUser(
+      this._notificationSocket.emitToUser(
         receiverId as string,
         notificationPayload as unknown as NotificationResponseDto,
       );
@@ -167,5 +168,28 @@ export class ChatService implements IChatService {
     }
 
     await this._chatRepository.markMessagesAsRead(chatId, userId);
+  }
+  //Delete Chat
+  async deleteChat(chatId: string, userId: string): Promise<void> {
+    const chat = await this._chatRepository.findChatById(chatId);
+    if (!chat) return;
+
+    const employerId =
+      typeof chat.employerId === "object"
+        ? (chat.employerId as PopulatedUserField)._id.toString()
+        : chat.employerId.toString();
+    const candidateId =
+      typeof chat.candidateId === "object"
+        ? (chat.candidateId as PopulatedUserField)._id.toString()
+        : chat.candidateId.toString();
+
+    if (userId !== employerId && userId !== candidateId) {
+      throw new Error("Unauthorized to delete this chat");
+    }
+
+    const recipientId = userId === employerId ? candidateId : employerId;
+
+    await this._chatRepository.deleteChat(chatId);
+    this._chatSocket.emitChatDeleted(chatId, recipientId);
   }
 }

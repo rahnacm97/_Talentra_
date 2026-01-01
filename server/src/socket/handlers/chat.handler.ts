@@ -22,7 +22,6 @@ export class ChatHandler implements ISocketHandler {
   private handleLeaveChat(socket: Socket, chatId: string) {
     const userId = socket.data.userId;
     socket.leave(chatId);
-    console.log(`User ${userId} left chat ${chatId}`);
   }
 
   private handleTyping(

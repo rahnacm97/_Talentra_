@@ -5,6 +5,7 @@ import {
   getUserChats,
   sendMessage,
   getChatMessages,
+  deleteChat,
 } from "../../thunks/chat.thunks";
 
 const initialState: ChatState = {
@@ -81,6 +82,13 @@ const chatSlice = createSlice({
         }
       });
     },
+    removeChat: (state, action: PayloadAction<string>) => {
+      state.chats = state.chats.filter((c) => c.id !== action.payload);
+      if (state.activeChat?.id === action.payload) {
+        state.activeChat = null;
+        state.messages = [];
+      }
+    },
   },
   extraReducers: (builder) => {
     // initiateChat
@@ -150,6 +158,24 @@ const chatSlice = createSlice({
     builder.addCase(getChatMessages.rejected, (state, action) => {
       state.error = action.payload as string;
     });
+
+    // deleteChat
+    builder.addCase(deleteChat.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(deleteChat.fulfilled, (state, action) => {
+      state.loading = false;
+      state.chats = state.chats.filter((c) => c.id !== action.payload);
+      if (state.activeChat?.id === action.payload) {
+        state.activeChat = null;
+        state.messages = [];
+      }
+    });
+    builder.addCase(deleteChat.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+    });
   },
 });
 
@@ -160,6 +186,7 @@ export const {
   incrementUnreadCount,
   clearUnreadCount,
   updateUserOnlineStatus,
+  removeChat,
 } = chatSlice.actions;
 
 export const selectTotalUnreadCount = (state: { chat: ChatState }) =>

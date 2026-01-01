@@ -38,9 +38,9 @@ api.interceptors.response.use(
         resp?.data?.message || "Subscription required to access this feature.",
       );
       if (navigate) {
-        navigate(FRONTEND_ROUTES.EMPLOYERRBILLING);
+        navigate(FRONTEND_ROUTES.EMPLOYERBILLING);
       } else {
-        window.location.href = FRONTEND_ROUTES.EMPLOYERRBILLING;
+        window.location.href = FRONTEND_ROUTES.EMPLOYERBILLING;
       }
       return Promise.reject(error);
     }

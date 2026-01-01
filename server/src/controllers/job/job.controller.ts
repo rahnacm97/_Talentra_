@@ -218,7 +218,6 @@ export class CandidateJobController implements ICandidateJobController {
       if (!id)
         throw new ApiError(HTTP_STATUS.BAD_REQUEST, ERROR_MESSAGES.JOB_ID);
 
-      // Get candidateId from JWT token if user is authenticated
       const candidateId = (req.user as { id: string } | undefined)?.id;
 
       const job: JobResponseDto = await this._service.getJobById(

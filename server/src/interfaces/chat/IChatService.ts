@@ -18,4 +18,9 @@ export interface IChatService {
     userId: string,
   ): Promise<MessageResponseDto[]>;
   markMessagesAsRead(chatId: string, userId: string): Promise<void>;
+  deleteChat(chatId: string, userId: string): Promise<void>;
+}
+
+export interface PopulatedUserField {
+  _id: { toString(): string };
 }

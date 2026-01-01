@@ -310,7 +310,21 @@ export class SubscriptionService implements ISubscriptionService {
         employerId,
         { sort: { createdAt: -1 } },
       );
-      return this._subscriptionMapper.toHistoryResponseDTO(subscriptions);
+
+      const now = new Date();
+      const updatedSubscriptions = await Promise.all(
+        subscriptions.map(async (sub) => {
+          if (sub.status === "active" && new Date(sub.endDate) < now) {
+            await this._subscriptionRepository.updateStatus(sub.id, "expired");
+            return { ...sub.toObject(), status: "expired" };
+          }
+          return sub;
+        }),
+      );
+
+      return this._subscriptionMapper.toHistoryResponseDTO(
+        updatedSubscriptions,
+      );
     } catch (error: unknown) {
       const message =
         error instanceof Error

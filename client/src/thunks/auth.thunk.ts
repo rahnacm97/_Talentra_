@@ -24,6 +24,7 @@ export const signup = createAsyncThunk<
         role: response.data.user.role,
         blocked: response.data.user.blocked || false,
         emailVerified: response.data.user.emailVerified || false,
+        profileImage: response.data.user.profileImage,
         ...(response.data.user.role === "Employer" && {
           hasActiveSubscription: response.data.user.hasActiveSubscription,
           trialEndsAt: response.data.user.trialEndsAt,
@@ -54,6 +55,7 @@ export const login = createAsyncThunk<
         role: response.data.user.role,
         blocked: response.data.user.blocked || false,
         emailVerified: response.data.user.emailVerified || false,
+        profileImage: response.data.user.profileImage,
         ...(response.data.user.role === "Employer" && {
           verified: response.data.user.verified ?? false,
           hasActiveSubscription: response.data.user.hasActiveSubscription,
@@ -85,6 +87,7 @@ export const adminLogin = createAsyncThunk<
         role: response.data.user.role,
         blocked: response.data.user.blocked || false,
         emailVerified: response.data.user.emailVerified || true,
+        profileImage: response.data.user.profileImage,
       },
       accessToken: response.data.accessToken,
       refreshToken: response.data.refreshToken,

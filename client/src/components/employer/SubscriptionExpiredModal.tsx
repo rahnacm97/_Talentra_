@@ -30,7 +30,7 @@ const SubscriptionExpiredModal: React.FC<SubscriptionExpiredModalProps> = ({
           accessing premium features, please subscribe to a plan.
         </p>
         <button
-          onClick={() => navigate(FRONTEND_ROUTES.EMPLOYERRBILLING)}
+          onClick={() => navigate(FRONTEND_ROUTES.EMPLOYERBILLING)}
           className="w-full bg-indigo-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-indigo-700 transition-colors"
         >
           View Subscription Plans

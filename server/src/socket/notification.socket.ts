@@ -1,9 +1,10 @@
+import { Server } from "socket.io";
 import { INotificationSocketService } from "../interfaces/socket/INotificationSocketService";
 import { NotificationResponseDto } from "../dto/notification/notification.dto";
-import { SocketManager } from "./socket.manager";
 
 export class NotificationSocket implements INotificationSocketService {
   private static _instance: NotificationSocket;
+  private _io: Server | null = null;
 
   private constructor() {}
 
@@ -14,13 +15,25 @@ export class NotificationSocket implements INotificationSocketService {
     return NotificationSocket._instance;
   }
 
+  public initialize(io: Server): void {
+    this._io = io;
+  }
+
   emitToUser(userId: string, notification: NotificationResponseDto): void {
-    const io = SocketManager.getInstance().getIO();
-    io.to(userId).emit("notification", notification);
+    if (!this._io) {
+      throw new Error(
+        "NotificationSocket not initialized. Call initialize(io) first.",
+      );
+    }
+    this._io.to(userId).emit("notification", notification);
   }
 
   emitToAdmins(notification: NotificationResponseDto): void {
-    const io = SocketManager.getInstance().getIO();
-    io.to("admins").emit("notification", notification);
+    if (!this._io) {
+      throw new Error(
+        "NotificationSocket not initialized. Call initialize(io) first.",
+      );
+    }
+    this._io.to("admins").emit("notification", notification);
   }
 }

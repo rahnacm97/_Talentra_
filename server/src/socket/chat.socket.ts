@@ -1,10 +1,10 @@
+import { Server } from "socket.io";
 import { IChatSocketService } from "../interfaces/socket/IChatSocketService";
 import { MessageResponseDto } from "../dto/chat/chat.dto";
-import { NotificationResponseDto } from "../dto/notification/notification.dto";
-import { SocketManager } from "./socket.manager";
 
 export class ChatSocket implements IChatSocketService {
   private static _instance: ChatSocket;
+  private _io: Server | null = null;
 
   private constructor() {}
 
@@ -14,16 +14,21 @@ export class ChatSocket implements IChatSocketService {
     }
     return ChatSocket._instance;
   }
-  public emitMessageToChat(chatId: string, message: MessageResponseDto): void {
-    const io = SocketManager.getInstance().getIO();
-    io.to(chatId).emit("receive_message", message);
+
+  public initialize(io: Server): void {
+    this._io = io;
   }
 
-  public emitNotification(
-    userId: string,
-    notification: NotificationResponseDto | Record<string, unknown>,
-  ): void {
-    const io = SocketManager.getInstance().getIO();
-    io.to(userId).emit("notification", notification);
+  public emitMessageToChat(chatId: string, message: MessageResponseDto): void {
+    if (!this._io) {
+      throw new Error("ChatSocket not initialized. Call initialize(io) first.");
+    }
+    this._io.to(chatId).emit("receive_message", message);
+  }
+
+  public emitChatDeleted(chatId: string, recipientId: string): void {
+    if (this._io) {
+      this._io.to(recipientId).emit("chat_deleted", chatId);
+    }
   }
 }

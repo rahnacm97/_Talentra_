@@ -7,6 +7,8 @@ import { verifyAuth } from "../../middlewares/authMiddleware";
 import { USER_ROLES } from "../../shared/enums/enums";
 
 import { ChatMapper } from "../../mappers/chat/chat.mapper";
+import { ChatSocket } from "../../socket/chat.socket";
+import { NotificationSocket } from "../../socket/notification.socket";
 
 const chatRouter = Router();
 
@@ -14,10 +16,14 @@ const chatRouter = Router();
 const chatRepository = new ChatRepository();
 const applicationRepository = new ApplicationRepository();
 const chatMapper = new ChatMapper();
+const chatSocket = ChatSocket.getInstance();
+const notificationSocket = NotificationSocket.getInstance();
 const chatService = new ChatService(
   chatRepository,
   applicationRepository,
   chatMapper,
+  chatSocket,
+  notificationSocket,
 );
 // Controller
 const chatController = new ChatController(chatService);
@@ -44,6 +50,12 @@ chatRouter.get(
 chatRouter.put(
   "/:chatId/read",
   chatController.markMessagesAsRead.bind(chatController),
+);
+
+chatRouter.delete(
+  "/:chatId",
+  verifyAuth([USER_ROLES.EMPLOYER, USER_ROLES.CANDIDATE]),
+  chatController.deleteChat.bind(chatController),
 );
 
 export default chatRouter;

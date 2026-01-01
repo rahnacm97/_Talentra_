@@ -7,21 +7,15 @@ import {
 } from "../../shared/constants/ai.prompts";
 
 export class AIService implements IAIService {
-  private _genAI: GoogleGenerativeAI | undefined;
-  private _model: GenerativeModel | undefined;
+  private _genAI: GoogleGenerativeAI;
+  private _model: GenerativeModel;
 
-  constructor() {
-    // Lazy initialization
-  }
-
-  private initModel() {
-    if (this._model) return;
-
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      throw new Error("GEMINI_API_KEY is not defined in environment variables");
+  constructor(apiKey?: string) {
+    const key = apiKey || process.env.GEMINI_API_KEY;
+    if (!key) {
+      throw new Error("GEMINI_API_KEY is not defined");
     }
-    this._genAI = new GoogleGenerativeAI(apiKey);
+    this._genAI = new GoogleGenerativeAI(key);
     this._model = this._genAI.getGenerativeModel({
       model: "gemini-flash-latest",
     });
@@ -31,11 +25,9 @@ export class AIService implements IAIService {
     profileData: Partial<ICandidate>,
   ): Promise<string> {
     try {
-      this.initModel();
-
       const prompt = getCandidateSummaryPrompt(profileData);
 
-      const result = await this._model!.generateContent(prompt);
+      const result = await this._model.generateContent(prompt);
       const response = await result.response;
       return response.text();
     } catch (error) {
@@ -43,17 +35,16 @@ export class AIService implements IAIService {
       throw new Error("Failed to generate candidate summary");
     }
   }
+
   async calculateMatchScore(
     candidate: Partial<ICandidate>,
     jobDescription: string,
     jobTitle: string,
   ): Promise<{ score: number; reason: string }> {
     try {
-      this.initModel();
-
       const prompt = getMatchScorePrompt(candidate, jobTitle, jobDescription);
 
-      const result = await this._model!.generateContent(prompt);
+      const result = await this._model.generateContent(prompt);
       const response = await result.response;
       const text = response.text();
 

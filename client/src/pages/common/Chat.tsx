@@ -8,6 +8,7 @@ import {
   sendMessage,
   markAsRead,
   initiateChat,
+  deleteChat,
 } from "../../thunks/chat.thunks";
 import {
   setActiveChat,
@@ -15,10 +16,13 @@ import {
   incrementUnreadCount,
   clearUnreadCount,
   updateUserOnlineStatus,
+  removeChat,
 } from "../../features/chat/chatSlice";
-import { Send, Search, User } from "lucide-react";
+import { Send, Search, User, Trash2 } from "lucide-react";
 import type { IMessage } from "../../types/chat/chat";
 import { getSocket } from "../../socket/socket";
+import DeleteChatModal from "../../components/common/chat/DeleteChatModal";
+import { toast } from "react-toastify";
 
 const Chat: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -29,6 +33,7 @@ const Chat: React.FC = () => {
 
   const [inputText, setInputText] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Socket listeners
@@ -37,15 +42,16 @@ const Chat: React.FC = () => {
     if (!socket) return;
 
     const handleReceiveMessage = (message: IMessage) => {
-      if (activeChat?.id === message.chatId) {
+      if (activeChat && message.chatId === activeChat.id) {
         dispatch(addMessage(message));
+        dispatch(markAsRead(activeChat.id));
       } else {
         dispatch(incrementUnreadCount(message.chatId));
       }
     };
 
-    const handleNotification = () => {
-      dispatch(getUserChats());
+    const handleNotification = (data: any) => {
+      console.log("Notification received in chat:", data);
     };
 
     const handleUserOnline = (userId: string) => {
@@ -56,16 +62,22 @@ const Chat: React.FC = () => {
       dispatch(updateUserOnlineStatus({ userId, isOnline: false }));
     };
 
+    const handleChatDeleted = (chatId: string) => {
+      dispatch(removeChat(chatId));
+    };
+
     socket.on("receive_message", handleReceiveMessage);
     socket.on("notification", handleNotification);
     socket.on("user_online", handleUserOnline);
     socket.on("user_offline", handleUserOffline);
+    socket.on("chat_deleted", handleChatDeleted);
 
     return () => {
       socket.off("receive_message", handleReceiveMessage);
       socket.off("notification", handleNotification);
       socket.off("user_online", handleUserOnline);
       socket.off("user_offline", handleUserOffline);
+      socket.off("chat_deleted", handleChatDeleted);
     };
   }, [dispatch, activeChat?.id]);
 
@@ -102,19 +114,24 @@ const Chat: React.FC = () => {
   useEffect(() => {
     if (activeChat) {
       dispatch(getChatMessages(activeChat.id));
-      getSocket()?.emit("join_chat", activeChat.id);
-
+      dispatch(markAsRead(activeChat.id));
       dispatch(clearUnreadCount(activeChat.id));
 
-      if (messages.some((m) => !m.isRead && m.senderId !== user?._id)) {
-        dispatch(markAsRead(activeChat.id));
+      const socket = getSocket();
+      if (socket) {
+        socket.emit("join_chat", activeChat.id);
       }
-
-      return () => {
-        getSocket()?.emit("leave_chat", activeChat.id);
-      };
     }
-  }, [activeChat, dispatch, user?._id, messages]);
+
+    return () => {
+      if (activeChat) {
+        const socket = getSocket();
+        if (socket) {
+          socket.emit("leave_chat", activeChat.id);
+        }
+      }
+    };
+  }, [activeChat, dispatch]);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -135,6 +152,17 @@ const Chat: React.FC = () => {
     setInputText("");
   };
 
+  const handleDeleteConfirm = async () => {
+    if (!activeChat) return;
+    try {
+      await dispatch(deleteChat(activeChat.id)).unwrap();
+      toast.success("Conversation deleted successfully");
+      setIsDeleteModalOpen(false);
+    } catch (error: any) {
+      toast.error(error || "Failed to delete conversation");
+    }
+  };
+
   const filteredChats = Array.isArray(chats)
     ? chats.filter((chat) => {
         const name =
@@ -144,7 +172,7 @@ const Chat: React.FC = () => {
     : [];
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
+    <div className="flex flex-col h-full bg-gray-50">
       <div className="flex flex-1 overflow-hidden">
         {/* Chat List Sidebar */}
         <div className="md:block w-80 bg-white border-r border-gray-200 flex flex-col">
@@ -243,37 +271,46 @@ const Chat: React.FC = () => {
           {activeChat ? (
             <>
               {/* Chat Header */}
-              <div className="p-4 border-b border-gray-200 bg-white flex items-center gap-3 shadow-sm">
-                <div className="relative">
-                  {activeChat.avatar ? (
-                    <img
-                      src={activeChat.avatar}
-                      alt="Avatar"
-                      className="h-10 w-10 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="bg-blue-600 p-2 rounded-full text-white">
-                      <User className="h-5 w-5" />
-                    </div>
-                  )}
-                  {activeChat.isOnline && (
-                    <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
-                  )}
+              <div className="p-4 border-b border-gray-200 bg-white flex items-center justify-between shadow-sm">
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    {activeChat.avatar ? (
+                      <img
+                        src={activeChat.avatar}
+                        alt="Avatar"
+                        className="h-10 w-10 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="bg-blue-600 p-2 rounded-full text-white">
+                        <User className="h-5 w-5" />
+                      </div>
+                    )}
+                    {activeChat.isOnline && (
+                      <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
+                    )}
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-800">
+                      {user?.role === "Employer"
+                        ? activeChat.candidateName || "Candidate"
+                        : activeChat.employerName || "Employer"}
+                    </h3>
+                    {activeChat.isOnline ? (
+                      <span className="text-xs text-green-500 flex items-center gap-1">
+                        Online
+                      </span>
+                    ) : (
+                      <span className="text-xs text-gray-400">Offline</span>
+                    )}
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-bold text-gray-800">
-                    {user?.role === "Employer"
-                      ? activeChat.candidateName || "Candidate"
-                      : activeChat.employerName || "Employer"}
-                  </h3>
-                  {activeChat.isOnline ? (
-                    <span className="text-xs text-green-500 flex items-center gap-1">
-                      Online
-                    </span>
-                  ) : (
-                    <span className="text-xs text-gray-400">Offline</span>
-                  )}
-                </div>
+                <button
+                  onClick={() => setIsDeleteModalOpen(true)}
+                  className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
+                  title="Delete Conversation"
+                >
+                  <Trash2 className="h-5 w-5" />
+                </button>
               </div>
 
               {/* Messages */}
@@ -309,6 +346,7 @@ const Chat: React.FC = () => {
                 })}
                 <div ref={scrollRef} />
               </div>
+
               <form
                 onSubmit={handleSendMessage}
                 className="p-4 border-t border-gray-200 bg-white"
@@ -341,6 +379,18 @@ const Chat: React.FC = () => {
           )}
         </div>
       </div>
+
+      <DeleteChatModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDeleteConfirm}
+        chatPartnerName={
+          (user?.role === "Employer"
+            ? activeChat?.candidateName
+            : activeChat?.employerName) || "User"
+        }
+        loading={loading}
+      />
     </div>
   );
 };

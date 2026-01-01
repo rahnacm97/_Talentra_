@@ -63,6 +63,7 @@ export class AuthService implements IAuthService {
           trialEndsAt: (user as IEmployer).trialEndsAt,
           currentPlan: (user as IEmployer).currentPlan,
         }),
+        profileImage: (user as ICandidate | IEmployer).profileImage,
       },
       accessToken: this._tokenService.generateAccessToken({
         id: user._id,
@@ -135,6 +136,7 @@ export class AuthService implements IAuthService {
           trialEndsAt: (user as IEmployer).trialEndsAt,
           currentPlan: (user as IEmployer).currentPlan,
         }),
+        profileImage: (user as ICandidate | IEmployer).profileImage,
       },
       accessToken: this._tokenService.generateAccessToken({
         id: user._id,
@@ -192,6 +194,7 @@ export class AuthService implements IAuthService {
           trialEndsAt: (user as IEmployer).trialEndsAt,
           currentPlan: (user as IEmployer).currentPlan,
         }),
+        profileImage: (user as ICandidate | IEmployer).profileImage,
       },
     };
   }

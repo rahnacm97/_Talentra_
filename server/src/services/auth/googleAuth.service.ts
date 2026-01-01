@@ -55,6 +55,7 @@ export class GoogleAuthService {
                 phoneNumber: "",
                 userType: role,
                 emailVerified: true,
+                profileImage: profile.photos?.[0]?.value,
               })) as GoogleAuthUser;
             } else {
               const existingRole = detected.userType as USER_ROLES;
@@ -78,6 +79,7 @@ export class GoogleAuthService {
               email: foundUser.email,
               name: foundUser.name,
               role,
+              profileImage: foundUser.profileImage,
             };
 
             const accessTokenJwt = jwt.sign(

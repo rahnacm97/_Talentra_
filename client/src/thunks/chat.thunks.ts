@@ -5,6 +5,7 @@ import {
   sendMessageApi,
   getChatMessagesApi,
   markMessagesAsReadApi,
+  deleteChatApi,
 } from "../features/chat/chatApi";
 import type { CreateChatPayload, SendMessagePayload } from "../types/chat/chat";
 
@@ -70,6 +71,20 @@ export const markAsRead = createAsyncThunk(
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to mark as read",
+      );
+    }
+  },
+);
+//Delete chat
+export const deleteChat = createAsyncThunk(
+  "chat/deleteChat",
+  async (chatId: string, { rejectWithValue }) => {
+    try {
+      await deleteChatApi(chatId);
+      return chatId;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to delete chat",
       );
     }
   },

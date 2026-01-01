@@ -9,6 +9,7 @@ import {
   X,
   Calendar,
   MessageCircle,
+  MessageSquareQuote,
 } from "lucide-react";
 import { useAppDispatch } from "../../hooks/hooks";
 import { logout } from "../../features/auth/authSlice";
@@ -26,11 +27,13 @@ interface SidebarItem {
 interface SidebarProps {
   isSidebarOpen: boolean;
   setIsSidebarOpen: (isOpen: boolean) => void;
+  onFeedbackClick: () => void;
 }
 
 const CandidateSidebar: React.FC<SidebarProps> = ({
   isSidebarOpen,
   setIsSidebarOpen,
+  onFeedbackClick,
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -68,6 +71,12 @@ const CandidateSidebar: React.FC<SidebarProps> = ({
       icon: MessageCircle,
       path: FRONTEND_ROUTES.CANDIDATEMESSAGES,
     },
+    {
+      id: "feedback",
+      label: "Feedback",
+      icon: MessageSquareQuote,
+      path: "#feedback",
+    },
   ];
 
   //const isActive = (path: string) => location.pathname === path;
@@ -90,8 +99,12 @@ const CandidateSidebar: React.FC<SidebarProps> = ({
     return current === itemPath;
   };
 
-  const handleNavigation = (path: string) => {
-    navigate(path);
+  const handleNavigation = (item: SidebarItem) => {
+    if (item.id === "feedback") {
+      onFeedbackClick();
+    } else {
+      navigate(item.path);
+    }
     setIsSidebarOpen(false);
   };
 
@@ -121,14 +134,14 @@ const CandidateSidebar: React.FC<SidebarProps> = ({
 
       <aside
         className={`
-          fixed lg:sticky top-0 left-0 h-screen bg-white shadow-lg z-40
+          fixed lg:relative left-0 h-full bg-white shadow-lg z-40
           w-64 transform transition-transform duration-300 ease-in-out
           ${isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
           lg:flex flex-col
         `}
       >
-        <div className="flex-1 overflow-y-auto py-6 px-4 mt-2">
-          <nav className="space-y-2">
+        <div className="flex-1 flex flex-col overflow-y-auto py-6 px-4">
+          <nav className="flex-1 space-y-2">
             {sidebarItems.map((item) => {
               const Icon = item.icon;
               const active = isActive(item.path);
@@ -136,7 +149,7 @@ const CandidateSidebar: React.FC<SidebarProps> = ({
               return (
                 <button
                   key={item.id}
-                  onClick={() => handleNavigation(item.path)}
+                  onClick={() => handleNavigation(item)}
                   className={`
                     w-full flex items-center space-x-3 px-4 py-3 rounded-lg
                     transition-all duration-200 text-left cursor-pointer
@@ -163,10 +176,11 @@ const CandidateSidebar: React.FC<SidebarProps> = ({
               );
             })}
           </nav>
-          <div className="border-t border-gray-200 bg-white p-4 mt-70">
+
+          <div className="border-t border-gray-200 bg-white p-4">
             <button
               onClick={handleLogout}
-              className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-all duration-200 font-medium"
+              className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-all duration-200 font-medium cursor-pointer"
             >
               <LogOut className="w-5 h-5" />
               <span>Logout</span>

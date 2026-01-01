@@ -69,6 +69,10 @@ export const requireActiveSubscription = async (
         if (subscriptionEndDate > now) {
           hasValidSubscription = true;
         } else {
+          // Update subscription status to expired
+          await Subscription.findByIdAndUpdate(latestSubscription._id, {
+            status: "expired",
+          });
           await employerRepo.updateOne(employer._id, {
             hasActiveSubscription: false,
           });

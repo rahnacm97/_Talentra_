@@ -11,6 +11,7 @@ import notificationRoutes from "./routes/notification/notification.routes";
 import chatRoutes from "./routes/chat/chat.routes";
 import videoCallRoutes from "./routes/videoCall/videoCall.routes";
 import aiRoutes from "./routes/ai/ai.routes";
+import feedbackRoutes from "./routes/feedback/feedback.routes";
 import { errorHandler } from "./middlewares/errorHandler";
 import dotenv from "dotenv";
 import http from "http";
@@ -18,12 +19,13 @@ import { Server } from "socket.io";
 import { NotificationSocket } from "./socket/notification.socket";
 import { ChatSocket } from "./socket/chat.socket";
 import { SocketManager } from "./socket/socket.manager";
+import { chatHandler, videoCallHandler } from "./socket/handlers/handler";
 
 const app = express();
 const server = http.createServer(app);
 dotenv.config();
 
-// Socket.io setup
+//Socket.io setup
 const io = new Server(server, {
   cors: {
     origin: [process.env.FRONTEND_URL!, "http://localhost:5173"],
@@ -31,11 +33,15 @@ const io = new Server(server, {
   },
 });
 
-// Initialize Socket Manager
-SocketManager.initialize(io);
-
+//Initialize socket services
 export const notificationSocket = NotificationSocket.getInstance();
+notificationSocket.initialize(io);
+
 export const chatSocket = ChatSocket.getInstance();
+chatSocket.initialize(io);
+
+//Initialize Socket Manager
+SocketManager.initialize(io, [chatHandler, videoCallHandler]);
 
 //Application level middlewares
 app.use(cookieParser());
@@ -61,6 +67,7 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/video-call", videoCallRoutes);
 app.use("/api/ai", aiRoutes);
+app.use("/api/feedback", feedbackRoutes);
 
 // Error handler
 app.use(errorHandler);

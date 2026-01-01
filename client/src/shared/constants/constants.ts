@@ -76,6 +76,13 @@ export const API_ROUTES = {
     END: "/video-call/end",
     STATUS: (interviewId: string) => `/video-call/status/${interviewId}`,
   },
+  FEEDBACK: {
+    BASE: "/feedback",
+    PUBLIC: "/feedback/public",
+    FEATURED: "/feedback/featured",
+    ADMIN: "/feedback/admin",
+    ADMIN_BY_ID: (id: string) => `/feedback/admin/${id}`,
+  },
 } as const;
 
 export const FRONTEND_ROUTES = {
@@ -95,7 +102,7 @@ export const FRONTEND_ROUTES = {
   EMPLOYERJOBS: "/employer/jobs",
   EMPLOYERAPPLICANTS: "/applicants",
   EMPLOYERANALYTICS: "/analytics",
-  EMPLOYERRBILLING: "/subscriptions",
+  EMPLOYERBILLING: "/subscriptions",
   EMPLOYERINTERVIEWS: "/interviews",
   EMPLOYERREPORTS: "/employer/reports",
   EMPLOYERSETTINGS: "/setting",
@@ -113,6 +120,7 @@ export const FRONTEND_ROUTES = {
   ADMINJOBS: "/admin/jobs",
   ADMINNOTIFICATIONS: "/admin/notifications",
   ADMINSETTINGS: "/admin/settings",
+  ADMINFEEDBACK: "/admin/feedback",
   CHAT: "/chat",
   MESSAGES: "/messages",
   CANDIDATEMESSAGES: "/candidate/messages",

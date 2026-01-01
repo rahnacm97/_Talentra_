@@ -98,18 +98,6 @@ const AdminDashboard: React.FC = () => {
             Welcome back! Here's what's happening with your talent platform.
           </p>
         </div>
-        <div className="flex items-center space-x-3">
-          <select
-            value={timeRange}
-            onChange={handleTimeRangeChange}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white shadow-sm"
-          >
-            <option value="7days">Last 7 Days</option>
-            <option value="30days">Last 30 Days</option>
-            <option value="90days">Last 90 Days</option>
-            <option value="1year">Last Year</option>
-          </select>
-        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -256,10 +244,21 @@ const AdminDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Analytics Charts Section */}
+      {/* Analytics Section */}
       <div className="mt-8 space-y-8">
+        <div className="flex items-center space-x-3">
+          <select
+            value={timeRange}
+            onChange={handleTimeRangeChange}
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white shadow-sm"
+          >
+            <option value="7days">Last 7 Days</option>
+            <option value="30days">Last 30 Days</option>
+            <option value="90days">Last 90 Days</option>
+            <option value="1year">Last Year</option>
+          </select>
+        </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* User Growth Chart */}
           <AnalyticsAreaChart
             title="User Growth"
             subtitle="New Candidates and Employers over time"
@@ -272,7 +271,6 @@ const AdminDashboard: React.FC = () => {
             name2="Employers"
           />
 
-          {/* Activity Growth Chart */}
           <AnalyticsAreaChart
             title="Platform Activity"
             subtitle="New Jobs and Applications over time"
@@ -287,7 +285,6 @@ const AdminDashboard: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* User Distribution */}
           <AnalyticsPieChart
             title="User Distribution"
             subtitle="Active/Blocked Candidates & Employers"
@@ -302,7 +299,6 @@ const AdminDashboard: React.FC = () => {
             }
           />
 
-          {/* Application Status Distribution */}
           <AnalyticsPieChart
             title="Application Trends"
             subtitle="Distribution by application status"
@@ -319,7 +315,6 @@ const AdminDashboard: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Subscription Revenue Trends */}
           <AnalyticsAreaChart
             title="Revenue Trends"
             subtitle="Professional vs Enterprise Plan Revenue"
@@ -332,7 +327,6 @@ const AdminDashboard: React.FC = () => {
             name2="Enterprise"
           />
 
-          {/* Top Job Categories */}
           <AnalyticsBarChart
             title="Top Job Categories"
             subtitle="Job distribution by department"

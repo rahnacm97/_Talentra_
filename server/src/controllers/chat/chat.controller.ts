@@ -240,4 +240,42 @@ export class ChatController implements IChatController {
       );
     }
   }
+
+  // Delete chat conversation
+  async deleteChat(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const userId = this.getUserId(req);
+      const { chatId } = req.params;
+
+      if (!chatId) {
+        throw new ApiError(HTTP_STATUS.BAD_REQUEST, "Chat ID is required");
+      }
+
+      await this._chatService.deleteChat(chatId, userId);
+
+      res.status(HTTP_STATUS.OK).json({
+        success: true,
+        message: SUCCESS_MESSAGES.CHAT_DELETED,
+      });
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : ERROR_MESSAGES.SERVER_ERROR;
+
+      logger.error("Failed to delete chat", {
+        error: message,
+        userId: (req.user as { id: string } | undefined)?.id,
+        chatId: req.params.chatId,
+      });
+
+      next(
+        err instanceof ApiError
+          ? err
+          : new ApiError(HTTP_STATUS.INTERNAL_SERVER_ERROR, message),
+      );
+    }
+  }
 }

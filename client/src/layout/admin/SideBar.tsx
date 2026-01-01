@@ -8,6 +8,7 @@ import WorkIcon from "@mui/icons-material/Work";
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import PersonSearchRoundedIcon from "@mui/icons-material/PersonSearchRounded";
 import LogoutIcon from "@mui/icons-material/Logout";
+import RateReviewIcon from "@mui/icons-material/RateReview";
 import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
 import { logout } from "../../features/auth/authSlice";
 import { serverLogout } from "../../thunks/auth.thunk";
@@ -76,6 +77,12 @@ const Sidebar: React.FC<SidebarProps> = ({
       label: "Notifications",
       icon: NotificationsNoneIcon,
       path: FRONTEND_ROUTES.ADMINNOTIFICATIONS,
+    },
+    {
+      id: "feedback",
+      label: "Feedbacks",
+      icon: RateReviewIcon,
+      path: FRONTEND_ROUTES.ADMINFEEDBACK,
     },
   ];
 

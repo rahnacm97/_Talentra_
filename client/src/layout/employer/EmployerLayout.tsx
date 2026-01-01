@@ -8,9 +8,11 @@ import {
   Calendar,
   CreditCard,
   MessageCircle,
+  MessageSquareQuote,
 } from "lucide-react";
 import Header from "../../pages/common/Header";
 import EmployerSidebar from "./EmployerSidebar";
+import FeedbackModal from "../../components/common/feedback/FeedbackModal";
 import { FRONTEND_ROUTES } from "../../shared/constants/constants";
 
 interface SidebarItem {
@@ -27,6 +29,7 @@ import SubscriptionExpiredModal from "../../components/employer/SubscriptionExpi
 
 const EmployerLayout: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = React.useState(false);
   const { user } = useSelector((state: RootState) => state.auth);
   const location = useLocation();
 
@@ -44,7 +47,7 @@ const EmployerLayout: React.FC = () => {
 
   const showSubscriptionModal =
     !isSubscriptionActiveOrTrialing &&
-    location.pathname !== FRONTEND_ROUTES.EMPLOYERRBILLING;
+    location.pathname !== FRONTEND_ROUTES.EMPLOYERBILLING;
 
   const sidebarItems: SidebarItem[] = [
     {
@@ -75,7 +78,7 @@ const EmployerLayout: React.FC = () => {
       id: "subscriptions",
       label: "Subscriptions",
       icon: CreditCard,
-      path: FRONTEND_ROUTES.EMPLOYERRBILLING,
+      path: FRONTEND_ROUTES.EMPLOYERBILLING,
     },
     {
       id: "analytics",
@@ -88,6 +91,12 @@ const EmployerLayout: React.FC = () => {
       label: "Messages",
       icon: MessageCircle,
       path: FRONTEND_ROUTES.EMPLOYERMESSAGES,
+    },
+    {
+      id: "feedback",
+      label: "Feedback",
+      icon: MessageSquareQuote,
+      path: "#feedback",
     },
   ];
 
@@ -106,21 +115,26 @@ const EmployerLayout: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
       <Header />
       <SubscriptionExpiredModal isOpen={showSubscriptionModal} />
-      <div className="flex">
+      <div className="flex flex-1 overflow-hidden">
         <EmployerSidebar
           isSidebarOpen={isSidebarOpen}
           setIsSidebarOpen={setIsSidebarOpen}
           sidebarItems={sidebarItems}
           isActive={isActive}
           activeColor="indigo-600"
+          onFeedbackClick={() => setIsFeedbackModalOpen(true)}
         />
-        <main className="flex-1 lg:ml-0 min-h-screen">
+        <main className="flex-1 overflow-y-auto relative">
           <Outlet />
         </main>
       </div>
+      <FeedbackModal
+        isOpen={isFeedbackModalOpen}
+        onClose={() => setIsFeedbackModalOpen(false)}
+      />
     </div>
   );
 };

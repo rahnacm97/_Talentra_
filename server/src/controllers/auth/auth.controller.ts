@@ -29,6 +29,7 @@ export class AuthController implements IAuthController {
         email: result.user.email,
         name: result.user.name,
         role: data.userType,
+        profileImage: result.user.profileImage,
         ...(data.userType === "Employer" && {
           hasActiveSubscription: (result.user as EmployerUserData)
             .hasActiveSubscription,
@@ -51,6 +52,7 @@ export class AuthController implements IAuthController {
           email: result.user.email,
           name: result.user.name,
           role: data.userType,
+          profileImage: result.user.profileImage,
           ...(data.userType === "Employer" && {
             hasActiveSubscription: (result.user as EmployerUserData)
               .hasActiveSubscription,
@@ -84,6 +86,7 @@ export class AuthController implements IAuthController {
         email: result.user.email,
         name: result.user.name,
         role: result.user.role,
+        profileImage: result.user.profileImage,
         ...(result.user.role === "Employer" && {
           verified: result.user.verified,
           hasActiveSubscription: (result.user as EmployerUserData)
@@ -107,6 +110,7 @@ export class AuthController implements IAuthController {
           email: result.user.email,
           name: result.user.name,
           role: result.user.role,
+          profileImage: result.user.profileImage,
           ...(result.user.role === "Employer" && {
             verified: result.user.verified,
             hasActiveSubscription: (result.user as EmployerUserData)
@@ -149,6 +153,7 @@ export class AuthController implements IAuthController {
         email: result.user.email,
         name: result.user.name,
         role: result.user.role,
+        profileImage: result.user.profileImage,
         ...(result.user.role === "Employer" && {
           verified: result.user.verified,
           hasActiveSubscription: (result.user as EmployerUserData)
@@ -169,6 +174,7 @@ export class AuthController implements IAuthController {
           email: result.user.email,
           name: result.user.name,
           role: result.user.role,
+          profileImage: result.user.profileImage,
           ...(result.user.role === "Employer" && {
             verified: result.user.verified,
             hasActiveSubscription: (result.user as EmployerUserData)

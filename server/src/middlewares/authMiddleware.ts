@@ -98,8 +98,11 @@ const authenticate =
       req.user = {
         id: user._id.toString(),
         _id: user._id.toString(),
+        name: (user as AuthUser & { name: string }).name || "",
         role: decoded.role as USER_ROLES,
         email: decoded.email,
+        profileImage:
+          (user as AuthUser & { profileImage?: string }).profileImage || "",
         blocked: "blocked" in user ? user.blocked : false,
         ...(decoded.role === USER_ROLES.EMPLOYER && {
           hasActiveSubscription: (user as IEmployer).hasActiveSubscription,

@@ -28,6 +28,7 @@ export interface User {
   hasActiveSubscription?: boolean;
   trialEndsAt?: string;
   currentPlan?: "free" | "professional" | "enterprise";
+  profileImage?: string;
 }
 
 export interface AuthResponse {

@@ -9,6 +9,7 @@ export interface AuthResponse {
     blocked: boolean;
     emailVerified?: boolean;
     verified?: boolean;
+    profileImage?: string | undefined;
   };
   accessToken: string;
   refreshToken: string;
@@ -24,6 +25,7 @@ export interface RefreshTokenResponse {
     blocked: boolean;
     emailVerified?: boolean;
     verified?: boolean;
+    profileImage?: string | undefined;
   };
 }
 

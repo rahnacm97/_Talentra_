@@ -13,6 +13,7 @@ export class JobRepository implements IJobRepository {
     "typescript",
     "python",
     "java",
+    "php",
     "aws",
     "docker",
     "mongodb",

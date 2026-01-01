@@ -43,3 +43,9 @@ export const markMessagesAsReadApi = async (chatId: string): Promise<void> => {
   const url = `${API_ROUTES.CHAT.BASE}/${chatId}/read`;
   await api.put(url);
 };
+
+//Delete chat
+export const deleteChatApi = async (chatId: string): Promise<void> => {
+  const url = `${API_ROUTES.CHAT.BASE}/${chatId}`;
+  await api.delete(url);
+};

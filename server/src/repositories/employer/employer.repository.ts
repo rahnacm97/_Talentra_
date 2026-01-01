@@ -2,6 +2,7 @@ import { BaseRepository } from "../base.repository";
 import Employer from "../../models/Employer.model";
 import { IEmployer } from "../../interfaces/users/employer/IEmployer";
 import { EmployerDataDTO } from "../../dto/employer/employer.dto";
+import { AuthSignupDTO } from "../../dto/auth/auth.dto";
 import { IEmployerVerificationRepo } from "../../interfaces/users/employer/IEmployerVerifyRepo";
 import { IEmployerRepository } from "../../interfaces/users/employer/IEmployerRepository";
 import { IEmployerAnalyticsRepository } from "../../interfaces/users/employer/IEmployerRepo";
@@ -23,7 +24,7 @@ import {
 import mongoose from "mongoose";
 
 export class EmployerRepository
-  extends BaseRepository<IEmployer>
+  extends BaseRepository<IEmployer, AuthSignupDTO>
   implements IEmployerVerificationRepo, IEmployerRepository
 {
   constructor() {
@@ -233,7 +234,6 @@ export class EmployerAnalyticsRepository
       if (timeRange === "90days") groupFormat = "%Y-%U";
       if (timeRange === "1year") groupFormat = "%Y-%m";
 
-      // Get jobs for this employer
       const jobs = await this._jobRepository.findByEmployerId(employerId);
       const jobIds = jobs.map((job) =>
         (job._id as mongoose.Types.ObjectId).toString(),

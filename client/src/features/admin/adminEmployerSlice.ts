@@ -17,16 +17,18 @@ const initialState: EmployersState = {
   employers: [],
   total: 0,
   loading: false,
+  actionLoading: false,
   error: null,
   selectedEmployer: null,
 };
-
+//Admin employer slice
 const adminEmployerSlice = createSlice({
   name: "adminEmployers",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
+      //Fetch employers
       .addCase(fetchEmployers.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -46,6 +48,11 @@ const adminEmployerSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+      //Block unblock employer
+      .addCase(blockUnblockEmployer.pending, (state) => {
+        state.actionLoading = true;
+        state.error = null;
+      })
       .addCase(
         blockUnblockEmployer.fulfilled,
         (
@@ -62,8 +69,15 @@ const adminEmployerSlice = createSlice({
           toast.success(
             `${updated.name} has been ${updated.blocked ? "blocked" : "unblocked"}`,
           );
+          state.actionLoading = false;
         },
       )
+      .addCase(blockUnblockEmployer.rejected, (state, action) => {
+        state.actionLoading = false;
+        state.error = (action.payload as string) || "Action failed";
+        toast.error(state.error);
+      })
+      //Single employer
       .addCase(fetchEmployerById.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -82,6 +96,11 @@ const adminEmployerSlice = createSlice({
           state.error = action.payload?.message || "Failed to fetch employer";
         },
       )
+      //Employer verification
+      .addCase(verifyEmployer.pending, (state) => {
+        state.actionLoading = true;
+        state.error = null;
+      })
       .addCase(
         verifyEmployer.fulfilled,
         (
@@ -99,11 +118,18 @@ const adminEmployerSlice = createSlice({
             state.selectedEmployer = updated;
           }
           toast.success(`${updated.name} has been verified`);
+          state.actionLoading = false;
         },
       )
       .addCase(verifyEmployer.rejected, (state, action: PayloadAction<any>) => {
+        state.actionLoading = false;
         state.error = action.payload?.message || "Failed to verify employer";
         toast.error(state.error);
+      })
+      //Employer rejection
+      .addCase(rejectEmployer.pending, (state) => {
+        state.actionLoading = true;
+        state.error = null;
       })
       .addCase(
         rejectEmployer.fulfilled,
@@ -122,9 +148,11 @@ const adminEmployerSlice = createSlice({
             state.selectedEmployer = updated;
           }
           toast.success(`${updated.name}'s verification has been rejected`);
+          state.actionLoading = false;
         },
       )
       .addCase(rejectEmployer.rejected, (state, action) => {
+        state.actionLoading = false;
         state.error = action.payload as string;
         toast.error(state.error);
       });

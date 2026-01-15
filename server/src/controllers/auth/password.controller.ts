@@ -8,7 +8,7 @@ import { ApiError } from "../../shared/utils/ApiError";
 
 export class PasswordController implements IPasswordController {
   constructor(private _passwordService: IPasswordService) {}
-
+  //Password Resting request
   requestReset = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email } = req.body;
@@ -31,7 +31,7 @@ export class PasswordController implements IPasswordController {
       );
     }
   };
-
+  //Reset password
   resetPassword = async (req: Request, res: Response, next: NextFunction) => {
     try {
       await this._passwordService.resetPassword(req.body);

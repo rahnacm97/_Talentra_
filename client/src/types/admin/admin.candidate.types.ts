@@ -75,5 +75,6 @@ export interface CandidateState {
   total: number;
   selectedCandidate: Candidate | null;
   loading: boolean;
+  actionLoading: boolean;
   error: string | null;
 }

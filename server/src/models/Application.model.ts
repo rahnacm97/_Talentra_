@@ -27,15 +27,21 @@ const ApplicationSchema = new Schema<IApplicationDocument>(
         "accepted",
         "interview",
         "shortlisted",
+        "hired",
       ],
       default: "pending",
     },
+    reviewedAt: { type: Date },
+    shortlistedAt: { type: Date },
+    hiredAt: { type: Date },
+    rejectedAt: { type: Date },
   },
   {
     timestamps: true,
   },
 );
 
+// Indexes
 ApplicationSchema.index({ jobId: 1, candidateId: 1 }, { unique: true });
 
 export default mongoose.model<IApplicationDocument>(

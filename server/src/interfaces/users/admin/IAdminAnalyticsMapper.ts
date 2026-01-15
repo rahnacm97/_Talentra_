@@ -1,6 +1,12 @@
 import {
   IDashboardStats,
   ITopPerformingJob,
+  IRecentSubscription,
+  IPlatformGrowth,
+  IUserDistribution,
+  IApplicationStatusDistribution,
+  ITopJobCategory,
+  ISubscriptionRevenue,
 } from "../../../interfaces/users/admin/IAdminAnalyticsRepository";
 import {
   AdminAnalyticsDTO,
@@ -14,5 +20,11 @@ export interface IAdminAnalyticsMapper {
   toAdminAnalyticsDTO(
     stats: IDashboardStats,
     topJobs: ITopPerformingJob[],
+    subscriptions: IRecentSubscription[],
+    platformGrowth: IPlatformGrowth[],
+    userDistribution: IUserDistribution[],
+    applicationStatusDistribution: IApplicationStatusDistribution[],
+    topJobCategories: ITopJobCategory[],
+    subscriptionRevenue: ISubscriptionRevenue[],
   ): AdminAnalyticsDTO;
 }

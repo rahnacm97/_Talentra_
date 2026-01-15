@@ -2,9 +2,9 @@ import {
   ICandidateApplicationService,
   ApplyJobPayload,
   IEmployerApplicationService,
-  IApplicationUpdate,
 } from "../../interfaces/applications/IApplicationService";
 import { IInterviewService } from "../../interfaces/interviews/IInterviewService";
+import { IChatService } from "../../interfaces/chat/IChatService";
 import { GetApplicationsFilters } from "../../type/application/application.type";
 import {
   ICandidateApplicationRepository,
@@ -27,9 +27,11 @@ import { logger } from "../../shared/utils/logger";
 import { IJobRepository } from "../../interfaces/jobs/IJobRepository";
 import { uploadResumeFile } from "../../shared/utils/fileUpload";
 import { ICandidateService } from "../../interfaces/users/candidate/ICandidateService";
-import { IApplicationQuery } from "../../interfaces/applications/IApplication";
-import { sendInterviewScheduledEmail } from "../../shared/utils/email";
-import { NotificationHelper } from "../notification/notification.helper";
+import {
+  IApplicationQuery,
+} from "../../interfaces/applications/IApplication";
+import { NotificationHelper } from "../../shared/utils/notification.helper";
+import { StatusHandlerRegistry } from "./handlers/StatusHandlerRegistry";
 
 export class CandidateApplicationService
   implements ICandidateApplicationService
@@ -128,6 +130,7 @@ export class CandidateApplicationService
         | "accepted"
         | "interview"
         | "shortlisted"
+        | "hired"
         | "all";
       search?: string;
       page?: number;
@@ -197,6 +200,7 @@ export class EmployerApplicationService implements IEmployerApplicationService {
     private readonly _appRepo: IEmployerApplicationRepository,
     private readonly _mapper: IEmployerApplicationMapper,
     private readonly _interviewService?: IInterviewService,
+    private readonly _chatService?: IChatService,
   ) {}
   //Fetching application in employer side
   async getApplicationsForEmployer(
@@ -237,15 +241,17 @@ export class EmployerApplicationService implements IEmployerApplicationService {
         ERROR_MESSAGES.APPLICATION_NOT_FOUND,
       );
 
-    const updateData: IApplicationUpdate = { status: data.status };
+    const handler = StatusHandlerRegistry.getHandler(data.status);
+    await handler.handle({
+      application: app,
+      employerId,
+      data,
+      appRepo: this._appRepo,
+      interviewService: this._interviewService,
+      chatService: this._chatService,
+    });
 
-    if (data.status === "interview") {
-      updateData.interviewDate = data.interviewDate;
-    }
-
-    await this._appRepo.updateOne(applicationId, updateData);
-
-    // Notify candidate of status change
+    // Notifying candidate of status change
     const notificationHelper = NotificationHelper.getInstance();
     await notificationHelper.notifyCandidateApplicationStatusChange(
       app.candidateId,
@@ -256,34 +262,6 @@ export class EmployerApplicationService implements IEmployerApplicationService {
       app.employer.name,
     );
 
-    if (data.status === "interview" && this._interviewService) {
-      try {
-        await this._interviewService.createInterviewFromApplication({
-          applicationId,
-          jobId: app.jobId,
-          candidateId: app.candidateId,
-          employerId,
-          ...(data.interviewDate && { interviewDate: data.interviewDate }),
-        });
-        logger.info("Interview created for application", { applicationId });
-      } catch (e) {
-        logger.error("Failed to create interview", e);
-      }
-    }
-
-    if (data.status === "interview" && data.interviewDate) {
-      try {
-        await sendInterviewScheduledEmail({
-          to: app.email,
-          candidateName: app.fullName,
-          jobTitle: app.job.title,
-          interviewDate: data.interviewDate,
-          companyName: app.employer.name,
-        });
-      } catch (e) {
-        logger.warn("Interview email failed", e);
-      }
-    }
     const apps = await this._appRepo.findByEmployerIdWithJob(employerId, {
       limit: 20,
     });

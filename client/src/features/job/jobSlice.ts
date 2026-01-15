@@ -23,7 +23,7 @@ const initialState: CandidateJobState = {
   savedJobs: [],
   savedJobsLoading: false,
 };
-
+//Candidate job slice
 const candidateJobSlice = createSlice({
   name: "candidateJobs",
   initialState,
@@ -43,6 +43,7 @@ const candidateJobSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      //fech jobs
       .addCase(fetchJobsForCandidate.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -71,6 +72,7 @@ const candidateJobSlice = createSlice({
         state.loading = false;
         state.error = action.error.message || "Failed to load jobs";
       })
+      //Single job
       .addCase(fetchJobById.pending, (state, action) => {
         state.loadingJobId = action.meta.arg;
       })
@@ -87,6 +89,7 @@ const candidateJobSlice = createSlice({
       .addCase(fetchJobById.rejected, (state) => {
         state.loadingJobId = null;
       })
+      //Job apply
       .addCase(applyJob.fulfilled, (state, action) => {
         const { jobId, alreadyApplied } = action.payload;
         const job = state.jobs.find((j) => j.id === jobId);
@@ -123,6 +126,7 @@ const candidateJobSlice = createSlice({
       .addCase(applyJob.rejected, (state, action) => {
         state.error = (action.payload as string) || "Failed to apply";
       })
+      //saved jobs
       .addCase(fetchSavedJobs.pending, (state) => {
         state.savedJobsLoading = true;
         state.error = null;
@@ -149,6 +153,7 @@ const candidateJobSlice = createSlice({
         state.savedJobsLoading = false;
         state.error = action.payload as string;
       })
+      //Save job
       .addCase(saveJob.fulfilled, (state, action) => {
         const { jobId } = action.payload;
         const job = state.jobs.find((j) => j.id === jobId);
@@ -156,6 +161,7 @@ const candidateJobSlice = createSlice({
           state.savedJobs.push(job);
         }
       })
+      //Unsave
       .addCase(unsaveJob.fulfilled, (state, action) => {
         const { jobId } = action.payload;
         state.savedJobs = state.savedJobs.filter((j) => j.id !== jobId);

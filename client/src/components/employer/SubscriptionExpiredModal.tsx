@@ -26,11 +26,11 @@ const SubscriptionExpiredModal: React.FC<SubscriptionExpiredModalProps> = ({
           Trial Period Expired
         </h2>
         <p className="text-gray-600 mb-8">
-          Your one-month free trial has ended. To continue using Talentra and
+          Your free plan trial period has ended. To continue using Talentra and
           accessing premium features, please subscribe to a plan.
         </p>
         <button
-          onClick={() => navigate(FRONTEND_ROUTES.EMPLOYERRBILLING)}
+          onClick={() => navigate(FRONTEND_ROUTES.EMPLOYERBILLING)}
           className="w-full bg-indigo-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-indigo-700 transition-colors"
         >
           View Subscription Plans

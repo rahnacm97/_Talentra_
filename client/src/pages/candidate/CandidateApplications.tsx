@@ -13,7 +13,7 @@ import {
   XCircle,
   Eye,
 } from "lucide-react";
-import Pagination from "../../components/common/Pagination";
+import Pagination from "../../components/common/pagination/Pagination";
 import { useNavigate } from "react-router-dom";
 import { FRONTEND_ROUTES } from "../../shared/constants/constants";
 import {
@@ -26,7 +26,7 @@ import type {
   Status,
   AppStatus,
 } from "../../types/application/application.types";
-import PageHeader from "../../components/common/PageHeader";
+import PageHeader from "../../components/common/auth/PageHeader";
 
 const statusConfig: Record<
   AppStatus,
@@ -68,14 +68,7 @@ const statusConfig: Record<
     icon: "text-red-600",
   },
   hired: {
-    label: "Hired",
-    Icon: CheckCircle,
-    bg: "bg-green-100",
-    text: "text-green-800",
-    icon: "text-green-600",
-  },
-  accepted: {
-    label: "Accepted",
+    label: "Hired!",
     Icon: CheckCircle,
     bg: "bg-green-100",
     text: "text-green-800",

@@ -34,6 +34,7 @@ import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import { toast } from "react-toastify";
 import ProfileModal from "../../components/candidate/ProfileModal";
+import { handleFileDownload } from "../../utils/fileUtils";
 
 const CandidateProfile: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -193,18 +194,8 @@ const CandidateProfile: React.FC = () => {
 
   const handleDownloadResume = () => {
     if (profileData.resume) {
-      try {
-        const link = document.createElement("a");
-        link.href = profileData.resume;
-        link.setAttribute("download", "resume.pdf");
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        toast.info("Downloading resume...");
-      } catch (err) {
-        console.log(err);
-        toast.error("Failed to download resume");
-      }
+      const fileName = `Resume_${profileData.name.replace(/\s+/g, "_")}`;
+      handleFileDownload(profileData.resume, fileName);
     } else {
       toast.warning("No resume uploaded yet");
     }

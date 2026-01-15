@@ -1,5 +1,4 @@
 import { IEmployerService } from "../../interfaces/users/employer/IEmployerService";
-import { EmployerRepository } from "../../repositories/employer/employer.repository";
 import { IEmployer } from "../../interfaces/users/employer/IEmployer";
 import { IEmployerMapper } from "../../interfaces/users/employer/IEmployerMapper";
 import { ApiError } from "../../shared/utils/ApiError";
@@ -29,11 +28,11 @@ import {
   VerifyPaymentResponseDTO,
   SubscriptionHistoryResponseDTO,
 } from "../../dto/subscription/subscription.dto";
-import { NotificationHelper } from "../notification/notification.helper";
+import { NotificationHelper } from "../../shared/utils/notification.helper";
 
 export class EmployerService implements IEmployerService {
   constructor(
-    private _repository = new EmployerRepository(),
+    private _repository: IEmployerRepository,
     private _employerMapper: IEmployerMapper,
   ) {}
 
@@ -121,7 +120,7 @@ export class EmployerService implements IEmployerService {
       data.profileImage = await this.uploadFile(profileImageFile);
     }
 
-    // Check if employer is submitting verification info (CIN number or has business license)
+    // Check if employer is submitting verification info
     if (data.cinNumber && data.cinNumber.trim() !== "") {
       isSubmittingVerification = true;
     }
@@ -139,7 +138,6 @@ export class EmployerService implements IEmployerService {
     }
 
     // Notify admin when employer submits verification documents
-    // Only notify if they haven't been verified yet and are submitting verification info
     if (isSubmittingVerification && !employer.verified) {
       const notificationHelper = NotificationHelper.getInstance();
       await notificationHelper.notifyAdminEmployerVerificationSubmitted(
@@ -171,12 +169,12 @@ export class EmployerAnalyticsService implements IEmployerAnalyticsService {
       hiringFunnel,
       timeToHire,
     ] = await Promise.all([
-      this._repository.getEmployerStats(employerId),
+      this._repository.getEmployerStats(employerId, timeRange),
       this._repository.getApplicationsOverTime(employerId, timeRange),
       this._repository.getApplicationsByStatus(employerId),
-      this._repository.getJobPostingPerformance(employerId),
+      this._repository.getJobPostingPerformance(employerId, timeRange),
       this._repository.getHiring(employerId),
-      this._repository.getTimeToHire(employerId),
+      this._repository.getTimeToHire(employerId, timeRange),
     ]);
 
     return this._mapper.toEmployerAnalyticsDTO(
@@ -311,7 +309,31 @@ export class SubscriptionService implements ISubscriptionService {
         employerId,
         { sort: { createdAt: -1 } },
       );
-      return this._subscriptionMapper.toHistoryResponseDTO(subscriptions);
+
+      const now = new Date();
+      const updatedSubscriptions = await Promise.all(
+        subscriptions.map(async (sub) => {
+          if (sub.status === "active" && new Date(sub.endDate) < now) {
+            await this._subscriptionRepository.updateStatus(sub.id, "expired");
+
+            // Also update employer record if this was their active subscription
+            if (employer.hasActiveSubscription && employer.currentPlan === sub.plan) {
+                await this._employerRepository.updateOne(employerId, {
+                    hasActiveSubscription: false,
+                    currentPlan: "free"
+                });
+                logger.info("Updated employer subscription status to expired in getSubscriptionHistory", { employerId });
+            }
+
+            return { ...sub.toObject(), status: "expired" };
+          }
+          return sub;
+        }),
+      );
+
+      return this._subscriptionMapper.toHistoryResponseDTO(
+        updatedSubscriptions,
+      );
     } catch (error: unknown) {
       const message =
         error instanceof Error

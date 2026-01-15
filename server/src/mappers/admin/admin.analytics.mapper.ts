@@ -1,11 +1,18 @@
 import {
   IDashboardStats,
   ITopPerformingJob,
+  IRecentSubscription,
+  IPlatformGrowth,
+  IUserDistribution,
+  IApplicationStatusDistribution,
+  ITopJobCategory,
+  ISubscriptionRevenue,
 } from "../../interfaces/users/admin/IAdminAnalyticsRepository";
 import {
   AdminAnalyticsDTO,
   DashboardStatsDTO,
   TopPerformingJobDTO,
+  RecentSubscriptionDTO,
 } from "../../dto/admin/admin.analytics.dto";
 import { IAdminAnalyticsMapper } from "../../interfaces/users/admin/IAdminAnalyticsMapper";
 
@@ -33,13 +40,38 @@ export class AdminAnalyticsMapper implements IAdminAnalyticsMapper {
     };
   }
 
+  toRecentSubscriptionDTO(sub: IRecentSubscription): RecentSubscriptionDTO {
+    return {
+      employerName: sub.employerName,
+      employerAvatar: sub.employerAvatar,
+      plan: sub.plan,
+      amount: sub.amount,
+      date: sub.date,
+      status: sub.status,
+    };
+  }
+
   toAdminAnalyticsDTO(
     stats: IDashboardStats,
     topJobs: ITopPerformingJob[],
+    recentSubscriptions: IRecentSubscription[],
+    platformGrowth: IPlatformGrowth[],
+    userDistribution: IUserDistribution[],
+    applicationStatusDistribution: IApplicationStatusDistribution[],
+    topJobCategories: ITopJobCategory[],
+    subscriptionRevenue: ISubscriptionRevenue[],
   ): AdminAnalyticsDTO {
     return {
       stats: this.toDashboardStatsDTO(stats),
       topJobs: topJobs.map((job) => this.toTopPerformingJobDTO(job)),
+      recentSubscriptions: recentSubscriptions.map((sub) =>
+        this.toRecentSubscriptionDTO(sub),
+      ),
+      platformGrowth,
+      userDistribution,
+      applicationStatusDistribution,
+      topJobCategories,
+      subscriptionRevenue,
     };
   }
 }

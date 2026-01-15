@@ -14,6 +14,7 @@ import WorkIcon from "@mui/icons-material/Work";
 import PeopleIcon from "@mui/icons-material/People";
 import { RejectionReasonModal } from "../../components/admin/RejectionModal";
 import DescriptionIcon from "@mui/icons-material/Description";
+import DownloadIcon from "@mui/icons-material/Download";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import Modal from "../../components/admin/Modal";
 import { toast } from "react-toastify";
@@ -26,13 +27,14 @@ import {
   rejectEmployer,
 } from "../../thunks/admin.thunk";
 import { FRONTEND_ROUTES } from "../../shared/constants/constants";
+import { handleFileDownload } from "../../utils/fileUtils";
 
 const AdminEmployerView: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
-  const { selectedEmployer, loading } = useAppSelector(
+  const { selectedEmployer, loading, actionLoading } = useAppSelector(
     (state) => state.adminEmployers,
   );
 
@@ -78,19 +80,25 @@ const AdminEmployerView: React.FC = () => {
           employerId: selectedEmployer.id,
           block: isBlockAction,
         }),
-      ).then(() => dispatch(fetchEmployerById(id!)));
+      ).then((result) => {
+        if (blockUnblockEmployer.fulfilled.match(result)) {
+          dispatch(fetchEmployerById(id!));
+          setShowBlockModal(false);
+          setIsBlockAction(null);
+        }
+      });
     }
-    setShowBlockModal(false);
-    setIsBlockAction(null);
   };
 
   const handleVerifyApprove = () => {
     if (selectedEmployer) {
-      dispatch(verifyEmployer(selectedEmployer.id)).then(() =>
-        dispatch(fetchEmployerById(id!)),
-      );
+      dispatch(verifyEmployer(selectedEmployer.id)).then((result) => {
+        if (verifyEmployer.fulfilled.match(result)) {
+          dispatch(fetchEmployerById(id!));
+          setShowVerifyModal(false);
+        }
+      });
     }
-    setShowVerifyModal(false);
   };
 
   const handleRejectApprove = () => {
@@ -107,16 +115,34 @@ const AdminEmployerView: React.FC = () => {
         employerId: selectedEmployer.id,
         reason: rejectionReason,
       }),
-    ).then(() => dispatch(fetchEmployerById(id!)));
-
-    setShowRejectModal(false);
-    setRejectionReason("");
+    ).then((result) => {
+      if (rejectEmployer.fulfilled.match(result)) {
+        dispatch(fetchEmployerById(id!));
+        setShowRejectModal(false);
+        setRejectionReason("");
+      }
+    });
   };
 
   const handleCancel = () => {
     setShowBlockModal(false);
     setShowVerifyModal(false);
+    setShowRejectModal(false);
+    setRejectionReason("");
     setIsBlockAction(null);
+  };
+
+  const handleDownloadLicense = () => {
+    if (selectedEmployer?.businessLicense) {
+      console.log(
+        "Downloading business license from URL:",
+        selectedEmployer.businessLicense,
+      );
+      const fileName = `License_${selectedEmployer.name.replace(/\s+/g, "_")}`;
+      handleFileDownload(selectedEmployer.businessLicense, fileName);
+    } else {
+      toast.error("Business license URL is missing.");
+    }
   };
 
   if (loading) {
@@ -673,7 +699,8 @@ const AdminEmployerView: React.FC = () => {
               >
                 <div className="flex items-center">
                   <div
-                    className={`p-2 rounded-lg mr-3 "bg-blue-100"
+                    className={`p-2 rounded-lg mr-3 ${
+                      isReSubmitted ? "bg-orange-100" : "bg-blue-100"
                     }`}
                   >
                     <DescriptionIcon
@@ -692,12 +719,11 @@ const AdminEmployerView: React.FC = () => {
                 </div>
 
                 <button
-                  onClick={() =>
-                    window.open(selectedEmployer.businessLicense!, "_blank")
-                  }
-                  className="text-blue-600 hover:text-blue-700"
+                  onClick={handleDownloadLicense}
+                  className="text-blue-600 hover:text-blue-700 p-1 rounded-full hover:bg-blue-50 transition-colors"
+                  title="Download License"
                 >
-                  <LanguageIcon sx={{ fontSize: 18 }} />
+                  <DownloadIcon sx={{ fontSize: 22 }} />
                 </button>
               </div>
             ) : (
@@ -770,6 +796,7 @@ const AdminEmployerView: React.FC = () => {
         onCancel={handleCancel}
         actionType={isBlockAction ? "block" : "unblock"}
         name={selectedEmployer.name}
+        isLoading={actionLoading}
       />
 
       <Modal
@@ -778,19 +805,18 @@ const AdminEmployerView: React.FC = () => {
         onCancel={handleCancel}
         actionType="verify"
         name={selectedEmployer?.name ?? ""}
+        isLoading={actionLoading}
       />
 
       <Modal
         isOpen={showRejectModal}
         onApprove={handleRejectApprove}
-        onCancel={() => {
-          setShowRejectModal(false);
-          setRejectionReason("");
-        }}
+        onCancel={handleCancel}
         actionType="reject"
         name={selectedEmployer.name}
         reason={rejectionReason}
         onReasonChange={setRejectionReason}
+        isLoading={actionLoading}
       />
 
       <RejectionReasonModal

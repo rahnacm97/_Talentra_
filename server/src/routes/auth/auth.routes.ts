@@ -14,14 +14,14 @@ import { PasswordService } from "../../services/auth/password.service";
 import passport from "passport";
 import { GoogleAuthService } from "../../services/auth/googleAuth.service";
 import { GoogleAuthController } from "../../controllers/auth/googleAuth.controller";
-import { UserRepoMap } from "../../type/types";
+import { IUserRepoMap } from "../../type/types";
 import { GoogleAuthUserRepoMap } from "../../type/types";
 import { OtpMapper } from "../../mappers/auth/otp.mapper";
 import { PasswordMapper } from "../../mappers/auth/password.mapper";
 
 const router = Router();
 //Dependencies
-const userRepos: UserRepoMap = {
+const userRepos: IUserRepoMap = {
   Candidate: new CandidateRepository(),
   Employer: new EmployerRepository(),
   Admin: new AdminRepository(),
@@ -36,6 +36,7 @@ const otpRepository = new OtpRepository();
 const tokenService = new TokenService();
 const otpMapper = new OtpMapper();
 const passwordMapper = new PasswordMapper();
+
 //Services with dependencies
 const authService = new AuthService(userRepos, tokenService);
 const emailService = new EmailService();
@@ -68,11 +69,26 @@ router.get("/google", (req, res, next) => {
     state: stateParam,
   })(req, res, next);
 });
-router.get(
-  "/google/callback",
-  passport.authenticate("google", { session: false }),
-  googleAuthController.loginSuccess,
-);
+router.get("/google/callback", (req, res, next) => {
+  passport.authenticate("google", { session: false }, (err, user) => {
+    if (err) {
+      const errorMessage = encodeURIComponent(
+        err.message || "Authentication failed",
+      );
+      return res.redirect(
+        `${process.env.FRONTEND_URL}/login?error=${errorMessage}`,
+      );
+    }
+
+    if (!user) {
+      return res.redirect(
+        `${process.env.FRONTEND_URL}/login?error=Authentication failed`,
+      );
+    }
+    req.user = user;
+    googleAuthController.loginSuccess(req, res);
+  })(req, res, next);
+});
 
 router.get("/me", authController.getMe);
 router.post("/signup", authController.signup);

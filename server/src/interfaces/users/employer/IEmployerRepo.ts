@@ -17,13 +17,19 @@ export interface IEmployerRepo<T> {
 }
 
 export interface IEmployerAnalyticsRepository {
-  getEmployerStats(employerId: string): Promise<IEmployerStats>;
+  getEmployerStats(
+    employerId: string,
+    timeRange?: string,
+  ): Promise<IEmployerStats>;
   getApplicationsOverTime(
     employerId: string,
     timeRange: string,
   ): Promise<IApplicationOverTime[]>;
   getApplicationsByStatus(employerId: string): Promise<IApplicationByStatus[]>;
-  getJobPostingPerformance(employerId: string): Promise<IJobPerformance[]>;
+  getJobPostingPerformance(
+    employerId: string,
+    timeRange?: string,
+  ): Promise<IJobPerformance[]>;
   getHiring(employerId: string): Promise<IHiringStage[]>;
-  getTimeToHire(employerId: string): Promise<ITimeToHire[]>;
+  getTimeToHire(employerId: string, timeRange?: string): Promise<ITimeToHire[]>;
 }

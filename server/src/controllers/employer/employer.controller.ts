@@ -263,10 +263,21 @@ export class SubscriptionController implements ISubscriptionController {
 
       const requestData: CreateOrderRequestDTO = { amount, currency };
 
+      const employerId = (req as AuthenticatedRequest).user?.id;
+      if (!employerId) {
+        throw new ApiError(HTTP_STATUS.UNAUTHORIZED, ERROR_MESSAGES.AUTHENTICATION);
+      }
+
+      // Check if employer already has an active subscription
+      const employer = await this._employerRepository.findById(employerId);
+      if (employer?.hasActiveSubscription) {
+        throw new ApiError(HTTP_STATUS.BAD_REQUEST, "You already have an active subscription plan.");
+      }
+
       logger.info("Creating Razorpay order", {
         amount,
         currency,
-        employerId: (req as AuthenticatedRequest).user?.id,
+        employerId,
       });
 
       const order = await this._subscriptionService.createOrder(requestData);
@@ -324,6 +335,14 @@ export class SubscriptionController implements ISubscriptionController {
         employerId,
         paymentId: paymentDetails.razorpay_payment_id,
       });
+
+      // Final check: prevent activation if user already has an active subscription
+      // (Handles race condition if two tabs paid at once)
+      const employer = await this._employerRepository.findById(employerId);
+      if (employer?.hasActiveSubscription) {
+        logger.warn("Attempted to verify payment for already active subscription", { employerId });
+        throw new ApiError(HTTP_STATUS.BAD_REQUEST, "You already have an active subscription.");
+      }
 
       const result = await this._subscriptionService.verifyPayment(
         employerId,

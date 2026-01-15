@@ -2,6 +2,7 @@ import { api } from "../../api/api";
 import { API_ROUTES } from "../../shared/constants/constants";
 import type { ExperienceLevel } from "../../shared/validations/JobFormValidation";
 
+//Fetch alljobs candidate side
 export const getPublicJobs = (params?: {
   page?: number;
   limit?: number;
@@ -25,18 +26,20 @@ export const getPublicJobs = (params?: {
   const url = `${API_ROUTES.JOBS.PUBLIC}?${queryParams.toString()}`;
   return api.get(url);
 };
-
+// Single job
 export const getJobById = (id: string) =>
   api.get(`${API_ROUTES.JOBS.PUBLIC_BY_ID(id)}`);
 
+// Saving jobs
 export const saveJob = (jobId: string) => {
   return api.post(API_ROUTES.JOBS.SAVE(jobId));
 };
 
+// Unsave job
 export const unsaveJob = (jobId: string) => {
   return api.delete(API_ROUTES.JOBS.UNSAVE(jobId));
 };
-
+//Fetch saved jobs
 export const getSavedJobs = (params?: {
   page?: number;
   limit?: number;

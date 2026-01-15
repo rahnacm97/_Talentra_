@@ -11,16 +11,18 @@ const initialState: CandidateState = {
   candidates: [],
   total: 0,
   loading: false,
+  actionLoading: false,
   error: null,
   selectedCandidate: null,
 };
-
+//Admin Candidate slice
 const adminCandidateSlice = createSlice({
   name: "adminCandidates",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
+      //Candidate fetch
       .addCase(fetchCandidates.pending, (state) => {
         state.loading = true;
       })
@@ -33,6 +35,11 @@ const adminCandidateSlice = createSlice({
         state.loading = false;
         state.error = action.error.message || "Error fetching candidates";
       })
+      //Block unblock candidate
+      .addCase(toggleBlockCandidate.pending, (state) => {
+        state.actionLoading = true;
+        state.error = null;
+      })
       .addCase(toggleBlockCandidate.fulfilled, (state, action) => {
         const updated = action.payload.candidate;
         state.candidates = state.candidates.map((c) =>
@@ -41,7 +48,14 @@ const adminCandidateSlice = createSlice({
         toast.success(
           `${updated.name} has been ${updated.blocked ? "blocked" : "unblocked"}`,
         );
+        state.actionLoading = false;
       })
+      .addCase(toggleBlockCandidate.rejected, (state, action) => {
+        state.actionLoading = false;
+        state.error = (action.payload as string) || "Action failed";
+        toast.error(state.error);
+      })
+      //Single candidate
       .addCase(fetchCandidateById.pending, (state) => {
         state.loading = true;
         state.error = null;

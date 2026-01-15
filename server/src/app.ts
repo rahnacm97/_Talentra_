@@ -8,20 +8,24 @@ import employerRoutes from "./routes/employer/employer.routes";
 import adminRoutes from "./routes/admin/admin.routes";
 import jobRoutes from "./routes/job/job.routes";
 import notificationRoutes from "./routes/notification/notification.routes";
+import chatRoutes from "./routes/chat/chat.routes";
+import videoCallRoutes from "./routes/videoCall/videoCall.routes";
+import aiRoutes from "./routes/ai/ai.routes";
+import feedbackRoutes from "./routes/feedback/feedback.routes";
 import { errorHandler } from "./middlewares/errorHandler";
 import dotenv from "dotenv";
 import http from "http";
 import { Server } from "socket.io";
 import { NotificationSocket } from "./socket/notification.socket";
-import { NotificationService } from "./services/notification/notification.service";
-import { NotificationRepository } from "./repositories/notification/notification.repository";
-import { NotificationMapper } from "./mappers/notification/notification.mapper";
+import { ChatSocket } from "./socket/chat.socket";
+import { SocketManager } from "./socket/socket.manager";
+import { chatHandler, videoCallHandler } from "./socket/handlers/handler";
 
 const app = express();
 const server = http.createServer(app);
 dotenv.config();
 
-// Socket.io setup
+//Socket.io setup
 const io = new Server(server, {
   cors: {
     origin: [process.env.FRONTEND_URL!, "http://localhost:5173"],
@@ -29,18 +33,17 @@ const io = new Server(server, {
   },
 });
 
-// Initialize notification socket
-const notificationRepository = new NotificationRepository();
-const notificationMapper = new NotificationMapper();
-const notificationService = new NotificationService(
-  notificationRepository,
-  notificationMapper,
-);
-export const notificationSocket = new NotificationSocket(
-  io,
-  notificationService,
-);
+//Initialize socket services
+export const notificationSocket = NotificationSocket.getInstance();
+notificationSocket.initialize(io);
 
+export const chatSocket = ChatSocket.getInstance();
+chatSocket.initialize(io);
+
+//Initialize Socket Manager
+SocketManager.initialize(io, [chatHandler, videoCallHandler]);
+
+//Application level middlewares
 app.use(cookieParser());
 app.use(
   cors({
@@ -50,7 +53,6 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
-
 app.use(express.json());
 
 connectDB();
@@ -62,7 +64,12 @@ app.use("/api/employer", employerRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/chat", chatRoutes);
+app.use("/api/video-call", videoCallRoutes);
+app.use("/api/ai", aiRoutes);
+app.use("/api/feedback", feedbackRoutes);
 
+// Error handler
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;

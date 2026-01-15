@@ -14,8 +14,8 @@ import {
   Filter,
   Building2,
 } from "lucide-react";
-import Pagination from "../../components/common/Pagination";
-import ConfirmModal from "../../components/common/ConfirmModal";
+import Pagination from "../../components/common/pagination/Pagination";
+import ConfirmModal from "../../components/common/home/ConfirmModal";
 import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
 import {
   fetchEmployerJobs,
@@ -29,7 +29,7 @@ import JobFormModal from "../../components/employer/JobFormModal";
 import type { JobFormValues } from "../../shared/validations/JobFormValidation";
 import type { Job } from "../../types/job/job.types";
 import { getStatusColor } from "../../utils/StatusColor";
-import PageHeader from "../../components/common/PageHeader";
+import PageHeader from "../../components/common/auth/PageHeader";
 import { StatCard } from "../../components/employer/StatCard";
 
 const EmployerJobs: React.FC = () => {
@@ -138,7 +138,10 @@ const EmployerJobs: React.FC = () => {
       toast.success("Job posted successfully!");
       closeModal();
     } catch (err: any) {
-      toast.error(err.message || "Failed to post job");
+      toast.error(
+        err.message ||
+          "You cannot perform this action. Complete your company verification to post or manage jobs.",
+      );
     }
   };
 

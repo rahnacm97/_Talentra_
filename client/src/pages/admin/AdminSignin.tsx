@@ -7,7 +7,7 @@ import { Eye, EyeOff, Building2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { FRONTEND_ROUTES } from "../../shared/constants/constants";
 import Cookies from "js-cookie";
-import ScreenLeft from "../../components/common/AuthLeft";
+import ScreenLeft from "../../components/common/auth/AuthLeft";
 
 const AdminSignIn: React.FC = () => {
   const dispatch = useAppDispatch();

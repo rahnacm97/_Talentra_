@@ -19,13 +19,14 @@ const initialState: AdminJobsState = {
   loading: false,
   error: null,
 };
-
+//Admin Job slice
 const adminJobsSlice = createSlice({
   name: "adminJobs",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
+      //Fetch all jobs
       .addCase(fetchAdminJobs.pending, (state) => {
         state.loading = true;
         state.error = null;

@@ -10,7 +10,8 @@ import type {
   VerifyPaymentRequestDTO,
   VerifyPaymentResponseDTO,
   SubscriptionHistoryResponseDTO,
-} from "../types/subscription.types";
+} from "../types/subscription/subscription.types";
+
 //Subscription creation
 export const createOrder = createAsyncThunk<
   CreateOrderResponseDTO,
@@ -29,6 +30,7 @@ export const createOrder = createAsyncThunk<
     );
   }
 });
+
 //Payment verification
 export const verifyPayment = createAsyncThunk<
   VerifyPaymentResponseDTO,
@@ -47,6 +49,7 @@ export const verifyPayment = createAsyncThunk<
     );
   }
 });
+
 //Fetching subscription history
 export const fetchSubscriptionHistory = createAsyncThunk<
   SubscriptionHistoryResponseDTO,

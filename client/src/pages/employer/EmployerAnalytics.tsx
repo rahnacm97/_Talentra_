@@ -12,7 +12,6 @@ import {
   Award,
   Target,
   Activity,
-  Download,
 } from "lucide-react";
 import { AnalyticsMetricCard } from "../../components/common/analytics/AnalyticsMetricCard";
 import { AnalyticsAreaChart } from "../../components/common/analytics/AnalyticsAreaChart";
@@ -51,7 +50,6 @@ const EmployerAnalytics: React.FC = () => {
     activePipeline: 0,
   };
 
-  // Placeholder for source analytics as it's not yet in the backend response
   const sourceAnalytics = [
     { source: "LinkedIn", applications: 120, percentage: 40 },
     { source: "Indeed", applications: 90, percentage: 30 },
@@ -59,7 +57,6 @@ const EmployerAnalytics: React.FC = () => {
     { source: "Referrals", applications: 30, percentage: 10 },
   ];
 
-  // Calculate total value for percentage calculation in Pie chart
   const totalApplications = applicationsByStatus.reduce(
     (sum: any, item: any) => sum + item.value,
     0,
@@ -96,10 +93,6 @@ const EmployerAnalytics: React.FC = () => {
               <option value="90days">Last 90 Days</option>
               <option value="1year">Last Year</option>
             </select>
-            <button className="flex items-center space-x-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
-              <Download className="w-4 h-4" />
-              <span>Export</span>
-            </button>
           </div>
         </div>
 

@@ -20,6 +20,7 @@ import {
   toggleBlockCandidate,
 } from "../../thunks/admin.thunk";
 import { FRONTEND_ROUTES } from "../../shared/constants/constants";
+import { handleFileDownload } from "../../utils/fileUtils";
 
 const AdminCandidateView: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -69,7 +70,8 @@ const AdminCandidateView: React.FC = () => {
 
   const handleDownloadResume = () => {
     if (selectedCandidate?.resume) {
-      window.open(selectedCandidate.resume, "_blank");
+      const fileName = `Resume_${selectedCandidate.name.replace(/\s+/g, "_")}`;
+      handleFileDownload(selectedCandidate.resume, fileName);
     }
   };
 
@@ -415,8 +417,7 @@ const AdminCandidateView: React.FC = () => {
                       </div>
                       <div>
                         <p className="text-sm font-medium text-gray-900">
-                          {selectedCandidate.resume.split("/").pop() ||
-                            "Resume.pdf"}
+                          {`Resume_${selectedCandidate.name.replace(/\s+/g, "_")}.pdf`}
                         </p>
                         <p className="text-xs text-gray-500">PDF Document</p>
                       </div>

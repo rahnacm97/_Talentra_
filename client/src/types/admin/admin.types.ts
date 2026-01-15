@@ -37,13 +37,29 @@ export interface TopPerformingJob {
   status: string;
 }
 
+export interface RecentSubscription {
+  employerName: string;
+  employerAvatar: string;
+  plan: string;
+  amount: number;
+  date: string;
+  status: string;
+}
+
 export interface AdminAnalyticsData {
   stats: DashboardStats;
   topJobs: TopPerformingJob[];
+  recentSubscriptions: RecentSubscription[];
+  platformGrowth: any[];
+  userDistribution: any[];
+  applicationStatusDistribution: any[];
+  topJobCategories: any[];
+  subscriptionRevenue: any[];
 }
 
 export interface AdminAnalyticsState {
   data: AdminAnalyticsData | null;
   loading: boolean;
   error: string | null;
+  timeRange: string;
 }

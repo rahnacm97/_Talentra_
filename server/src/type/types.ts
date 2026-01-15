@@ -1,3 +1,4 @@
+import { Request } from "express";
 import { ICandidate } from "../interfaces/users/candidate/ICandidate";
 import { IEmployer } from "../interfaces/users/employer/IEmployer";
 import { IAdmin } from "../interfaces/users/admin/IAdmin";
@@ -6,7 +7,7 @@ import { Document } from "mongoose";
 import { IUserRepository } from "../interfaces/auth/IAuthRepository";
 import { USER_ROLES } from "../shared/enums/enums";
 
-export type UserRepoMap = {
+export type IUserRepoMap = {
   Candidate: IUserRepository<ICandidate>;
   Employer: IUserRepository<IEmployer>;
   Admin: IUserRepository<IAdmin>;
@@ -33,6 +34,7 @@ export interface GoogleAuthUserData {
   email: string;
   name: string;
   role: UserType;
+  profileImage?: string | undefined;
 }
 
 export type GoogleAuthUserRepoMap = {
@@ -50,10 +52,11 @@ export function hasEmailVerification(
 
 export type FullyAuthenticatedRequest = Request & {
   user: {
-    _id: string;
     id: string;
     role: USER_ROLES;
     email: string;
+    name: string;
+    profileImage?: string;
     blocked?: boolean;
     subscription?: {
       active: boolean;

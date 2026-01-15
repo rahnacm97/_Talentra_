@@ -16,7 +16,12 @@ export interface IApplication {
     | "accepted"
     | "interview"
     | "shortlisted"
+    | "hired"
     | "all";
+  reviewedAt?: Date;
+  shortlistedAt?: Date;
+  hiredAt?: Date;
+  rejectedAt?: Date;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -48,6 +53,7 @@ export interface IApplicationQuery {
     | "accepted"
     | "interview"
     | "shortlisted"
+    | "hired"
     | "all";
   sortBy?: string;
   order?: "asc" | "desc";
@@ -86,6 +92,7 @@ export interface IEmployerApplicationResult {
 
 export interface IEmployerApplicationResponse {
   id: string;
+  candidateId: string;
   jobId: string;
   fullName: string;
   email: string;

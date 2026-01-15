@@ -9,8 +9,9 @@ const initialState: AdminAnalyticsState = {
   data: null,
   loading: false,
   error: null,
+  timeRange: "30days",
 };
-
+//Admin analytics slice
 const adminAnalyticsSlice = createSlice({
   name: "adminAnalytics",
   initialState,
@@ -18,6 +19,9 @@ const adminAnalyticsSlice = createSlice({
     clearAnalytics: (state) => {
       state.data = null;
       state.error = null;
+    },
+    setTimeRange: (state, action: PayloadAction<string>) => {
+      state.timeRange = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -40,5 +44,5 @@ const adminAnalyticsSlice = createSlice({
   },
 });
 
-export const { clearAnalytics } = adminAnalyticsSlice.actions;
+export const { clearAnalytics, setTimeRange } = adminAnalyticsSlice.actions;
 export default adminAnalyticsSlice.reducer;

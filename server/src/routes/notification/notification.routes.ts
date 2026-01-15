@@ -12,6 +12,7 @@ const router = Router();
 const repository = new NotificationRepository();
 const mapper = new NotificationMapper();
 const service = new NotificationService(repository, mapper);
+// Controller
 const controller = new NotificationController(service);
 
 // All roles

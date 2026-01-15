@@ -17,4 +17,8 @@ export interface ISubscriptionRepository {
   ): Promise<ISubscription[]>;
   findActiveByEmployerId(employerId: string): Promise<ISubscription | null>;
   count(filter: FilterQuery<ISubscription>): Promise<number>;
+  updateStatus(
+    id: string,
+    status: "active" | "expired" | "past_due" | "cancelled",
+  ): Promise<void>;
 }

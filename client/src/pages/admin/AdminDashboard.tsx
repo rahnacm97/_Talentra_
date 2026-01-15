@@ -9,17 +9,28 @@ import { FileText } from "lucide-react";
 import Table from "../../components/admin/Table";
 import { StatCard } from "../../components/admin/Statcard";
 import { useAppDispatch, useAppSelector } from "../../hooks/hooks";
+import { useNavigate } from "react-router-dom";
 import { fetchAdminAnalytics } from "../../thunks/admin.thunk";
+import { setTimeRange } from "../../features/admin/adminAnalyticsSlice";
+import { API_ROUTES } from "../../shared/constants/constants";
+import { AnalyticsAreaChart } from "../../components/common/analytics/AnalyticsAreaChart";
+import { AnalyticsPieChart } from "../../components/common/analytics/AnalyticsPieChart";
+import { AnalyticsBarChart } from "../../components/common/analytics/AnalyticsBarChart";
 
 const AdminDashboard: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { data, loading, error } = useAppSelector(
+  const navigate = useNavigate();
+  const { data, loading, error, timeRange } = useAppSelector(
     (state) => state.adminAnalytics,
   );
 
   useEffect(() => {
-    dispatch(fetchAdminAnalytics());
-  }, [dispatch]);
+    dispatch(fetchAdminAnalytics(timeRange));
+  }, [dispatch, timeRange]);
+
+  const handleTimeRangeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    dispatch(setTimeRange(e.target.value));
+  };
 
   if (loading) {
     return (
@@ -74,41 +85,19 @@ const AdminDashboard: React.FC = () => {
     },
   ];
 
-  const recentActivity = [
-    {
-      action: "New candidate registered",
-      user: "Sarah Johnson",
-      time: "2 minutes ago",
-    },
-    {
-      action: "Job posting approved",
-      user: "Tech Solutions Inc.",
-      time: "15 minutes ago",
-    },
-    {
-      action: "Application submitted",
-      user: "Michael Chen",
-      time: "1 hour ago",
-    },
-    {
-      action: "Employer account verified",
-      user: "Innovation Labs",
-      time: "2 hours ago",
-    },
-    { action: "Profile updated", user: "Emma Wilson", time: "3 hours ago" },
-  ];
-
   const topJobs = data?.topJobs || [];
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Dashboard Overview
-        </h1>
-        <p className="text-gray-600">
-          Welcome back! Here's what's happening with your talent platform.
-        </p>
+      <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Dashboard Overview
+          </h1>
+          <p className="text-gray-600">
+            Welcome back! Here's what's happening with your talent platform.
+          </p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -119,29 +108,74 @@ const AdminDashboard: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200">
-          <div className="p-6 border-b border-gray-200">
+          <div className="p-6 border-b border-gray-200 flex justify-between items-center">
             <h2 className="text-xl font-bold text-gray-900 flex items-center">
               <NotificationsIcon sx={{ marginRight: 1, color: "#374151" }} />
-              Recent Activity
+              Recent Subscriptions
             </h2>
           </div>
           <div className="p-6">
             <div className="space-y-4">
-              {recentActivity.map((a, i) => (
-                <div
-                  key={i}
-                  className="flex items-center space-x-4 p-3 hover:bg-gray-50 rounded-lg transition-colors duration-200"
-                >
-                  <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900">
-                      {a.action}
-                    </p>
-                    <p className="text-sm text-gray-500">{a.user}</p>
+              {data?.recentSubscriptions?.length === 0 ? (
+                <p className="text-gray-500 text-center">
+                  No recent subscriptions
+                </p>
+              ) : (
+                data?.recentSubscriptions?.map((sub, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center space-x-4 p-3 hover:bg-gray-50 rounded-lg transition-colors duration-200 border border-transparent hover:border-gray-100"
+                  >
+                    {sub.employerAvatar ? (
+                      <img
+                        src={sub.employerAvatar}
+                        alt={sub.employerName}
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold">
+                        {sub.employerName.charAt(0)}
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {sub.employerName}
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`text-xs px-2 py-0.5 rounded-full capitalize ${
+                            sub.plan === "enterprise"
+                              ? "bg-purple-100 text-purple-700"
+                              : sub.plan === "professional"
+                                ? "bg-blue-100 text-blue-700"
+                                : "bg-gray-100 text-gray-700"
+                          }`}
+                        >
+                          {sub.plan}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          ₹{sub.amount}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-xs text-gray-400">
+                        {new Date(sub.date).toLocaleDateString()}
+                      </div>
+
+                      <span
+                        className={`text-xs font-medium ${
+                          sub.status === "active"
+                            ? "text-green-600"
+                            : "text-red-600"
+                        }`}
+                      >
+                        {sub.status}
+                      </span>
+                    </div>
                   </div>
-                  <div className="text-xs text-gray-400">{a.time}</div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
         </div>
@@ -210,6 +244,106 @@ const AdminDashboard: React.FC = () => {
         </div>
       </div>
 
+      {/* Analytics Section */}
+      <div className="mt-8 space-y-8">
+        <div className="flex items-center space-x-3">
+          <select
+            value={timeRange}
+            onChange={handleTimeRangeChange}
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white shadow-sm"
+          >
+            <option value="7days">Last 7 Days</option>
+            <option value="30days">Last 30 Days</option>
+            <option value="90days">Last 90 Days</option>
+            <option value="1year">Last Year</option>
+          </select>
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <AnalyticsAreaChart
+            title="User Growth"
+            subtitle="New Candidates and Employers over time"
+            data={data?.platformGrowth || []}
+            dataKey1="newCandidates"
+            dataKey2="newEmployers"
+            color1="#3B82F6"
+            color2="#10B981"
+            name1="Candidates"
+            name2="Employers"
+          />
+
+          <AnalyticsAreaChart
+            title="Platform Activity"
+            subtitle="New Jobs and Applications over time"
+            data={data?.platformGrowth || []}
+            dataKey1="newJobs"
+            dataKey2="newApplications"
+            color1="#F59E0B"
+            color2="#6366F1"
+            name1="Jobs"
+            name2="Applications"
+          />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <AnalyticsPieChart
+            title="User Distribution"
+            subtitle="Active/Blocked Candidates & Employers"
+            data={data?.userDistribution || []}
+            dataKey="value"
+            nameKey="name"
+            totalValue={
+              data?.userDistribution?.reduce(
+                (acc, curr) => acc + curr.value,
+                0,
+              ) || 0
+            }
+          />
+
+          <AnalyticsPieChart
+            title="Application Trends"
+            subtitle="Distribution by application status"
+            data={data?.applicationStatusDistribution || []}
+            dataKey="value"
+            nameKey="name"
+            totalValue={
+              data?.applicationStatusDistribution?.reduce(
+                (acc, curr) => acc + curr.value,
+                0,
+              ) || 0
+            }
+          />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <AnalyticsAreaChart
+            title="Revenue Trends"
+            subtitle="Professional vs Enterprise Plan Revenue"
+            data={data?.subscriptionRevenue || []}
+            dataKey1="professional"
+            dataKey2="enterprise"
+            color1="#3B82F6"
+            color2="#6366F1"
+            name1="Professional"
+            name2="Enterprise"
+          />
+
+          <AnalyticsBarChart
+            title="Top Job Categories"
+            subtitle="Job distribution by department"
+            data={
+              data?.topJobCategories?.map((item) => ({
+                name: item.category,
+                value: item.count,
+              })) || []
+            }
+            dataKey="value"
+            xAxisKey="name"
+            barColor="#F59E0B"
+            barName="Jobs"
+          />
+        </div>
+      </div>
+
       <div className="mt-8 bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="p-6 border-b border-gray-200">
           <h2 className="text-xl font-bold text-gray-900 flex items-center">
@@ -253,8 +387,15 @@ const AdminDashboard: React.FC = () => {
               ),
             },
           ]}
-          renderActions={() => (
-            <button className="text-blue-600 hover:text-blue-800 flex items-center text-sm font-medium">
+          renderActions={(row: any) => (
+            <button
+              onClick={() => {
+                const searchParams = new URLSearchParams();
+                searchParams.set("search", row.title);
+                navigate(`${API_ROUTES.ADMIN.JOBS}?${searchParams.toString()}`);
+              }}
+              className="text-blue-600 hover:text-blue-800 flex items-center text-sm font-medium"
+            >
               <VisibilityIcon sx={{ fontSize: 16, marginRight: 0.5 }} />
               View
             </button>

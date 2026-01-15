@@ -45,4 +45,11 @@ export class SubscriptionRepository implements ISubscriptionRepository {
   async count(filter: FilterQuery<ISubscription>): Promise<number> {
     return SubscriptionModel.countDocuments(filter).exec();
   }
+
+  async updateStatus(
+    id: string,
+    status: "active" | "expired" | "past_due" | "cancelled",
+  ): Promise<void> {
+    await SubscriptionModel.findByIdAndUpdate(id, { status }).exec();
+  }
 }

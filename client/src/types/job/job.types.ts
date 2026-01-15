@@ -1,4 +1,7 @@
-import type { ExperienceLevel } from "../../shared/validations/JobFormValidation";
+import type {
+  ExperienceLevel,
+  JobFormValues,
+} from "../../shared/validations/JobFormValidation";
 
 export interface Job {
   id: string;
@@ -84,4 +87,11 @@ export interface CandidateJobState {
   selectedSkills: string[];
   savedJobs: JobResponse[];
   savedJobsLoading: boolean;
+}
+
+export interface JobFormModalProps {
+  mode: "post" | "edit" | "view";
+  initialValues?: Partial<JobFormValues>;
+  onSubmit: (values: JobFormValues) => Promise<void>;
+  onClose: () => void;
 }

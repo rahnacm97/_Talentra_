@@ -103,4 +103,44 @@ export class EmployerInterviewController
       );
     }
   }
+
+  async updateInterviewStatus(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+
+      if (!id || !status) {
+        throw new ApiError(
+          HTTP_STATUS.BAD_REQUEST,
+          "Interview ID and status are required",
+        );
+      }
+
+      const result = await this._service.updateInterviewStatus(
+        id as string,
+        status as string,
+      );
+
+      res.status(HTTP_STATUS.OK).json({
+        message: "Interview status updated successfully",
+        interview: result,
+      });
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : ERROR_MESSAGES.SERVER_ERROR;
+      logger.error("Failed to update interview status", {
+        error: message,
+        interviewId: req.params.id,
+      });
+      next(
+        err instanceof ApiError
+          ? err
+          : new ApiError(HTTP_STATUS.INTERNAL_SERVER_ERROR, message),
+      );
+    }
+  }
 }

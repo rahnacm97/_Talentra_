@@ -6,6 +6,7 @@ import { GoogleUser } from "../../interfaces/auth/IGoogleUser";
 import { setAuthCookies } from "../../shared/utils/cookie.utils";
 
 export class GoogleAuthController implements IGoogleAuthController {
+  //Google authentication success
   loginSuccess = async (req: Request, res: Response) => {
     if (!req.user) {
       return res
@@ -20,7 +21,11 @@ export class GoogleAuthController implements IGoogleAuthController {
       accessToken,
     } = req.user as GoogleUser;
 
-    const userInfo = JSON.stringify({ name: user?.name, role });
+    const userInfo = JSON.stringify({
+      name: user?.name,
+      role,
+      profileImage: user?.profileImage,
+    });
     setAuthCookies(res, refreshToken, userInfo);
 
     const redirectUrl = `${process.env.FRONTEND_URL}/auth-success?token=${accessToken}&role=${role}`;

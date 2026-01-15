@@ -19,7 +19,10 @@ const AdminJobs: React.FC = () => {
     (state) => state.adminJobs,
   );
 
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("search") || "";
+  });
   const debouncedSearch = useDebounce(searchTerm, 450);
   const [statusFilter] = useState<"active" | "closed" | "all">("all");
   const [localPage, setLocalPage] = useState(page);

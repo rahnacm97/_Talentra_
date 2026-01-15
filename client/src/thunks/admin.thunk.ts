@@ -15,6 +15,7 @@ import type { ApiError } from "../types/common/common.type";
 import type { Candidate } from "../types/admin/admin.candidate.types";
 import type { EmployerResponseDTO } from "../types/admin/admin.employer.types";
 import type { AdminAnalyticsData } from "../types/admin/admin.types";
+
 //fetch candidates
 export const fetchCandidates = createAsyncThunk(
   "adminCandidates/fetchAll",
@@ -150,11 +151,14 @@ export const fetchAdminJobs = createAsyncThunk(
   },
 );
 //Fetch admin dashboard details
-export const fetchAdminAnalytics = createAsyncThunk<AdminAnalyticsData, void>(
+export const fetchAdminAnalytics = createAsyncThunk<
+  AdminAnalyticsData,
+  string | undefined
+>(
   "admin/analytics/fetch",
-  async (_, { rejectWithValue }) => {
+  async (timeRange = "30days", { rejectWithValue }) => {
     try {
-      const data = await fetchAdminAnalyticsApi();
+      const data = await fetchAdminAnalyticsApi(timeRange);
       return data;
     } catch (error: any) {
       const message =

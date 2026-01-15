@@ -9,7 +9,8 @@ import {
 import type { ApiError } from "../types/common/common.type";
 import type { ProfileData } from "../types/candidate/candidate.types";
 import { toast } from "react-toastify";
-//candidate profile
+
+//Candidate profile
 export const fetchCandidateProfile = createAsyncThunk(
   "candidate/fetchProfile",
   async (_, { rejectWithValue }) => {
@@ -26,7 +27,7 @@ export const fetchCandidateProfile = createAsyncThunk(
     }
   },
 );
-//profile updation
+//Profile updation
 export const updateCandidateProfile = createAsyncThunk(
   "candidate/updateProfile",
   async (
@@ -75,7 +76,7 @@ export const updateCandidateProfile = createAsyncThunk(
     }
   },
 );
-//apply for job
+//Apply for job
 export const applyJob = createAsyncThunk(
   "candidate/applyJob",
   async (
@@ -101,7 +102,7 @@ export const applyJob = createAsyncThunk(
     }
   },
 );
-//fetch candidate applications
+//Fetch candidate applications
 export const fetchMyApplications = createAsyncThunk(
   "candidate/applications",
   async (
@@ -121,7 +122,7 @@ export const fetchMyApplications = createAsyncThunk(
     }
   },
 );
-//single application
+//Single application
 export const fetchApplicationById = createAsyncThunk(
   "candidate/fetchApplicationById",
   async (applicationId: string, { rejectWithValue }) => {

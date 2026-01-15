@@ -12,8 +12,10 @@ declare global {
     interface User {
       _id: string;
       id: string;
+      name: string;
       role: USER_ROLES;
       email: string;
+      profileImage?: string;
       blocked?: boolean;
       subscription?: {
         active: boolean;

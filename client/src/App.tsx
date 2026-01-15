@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import { useAuthInitialiazer } from "./hooks/hooks";
 import "react-toastify/dist/ReactToastify.css";
-import PublicRoute from "./components/common/PublicRoute";
+import PublicRoute from "./components/common/auth/PublicRoute";
 import Homepage from "./pages/common/HomePage";
 import AdminSignIn from "./pages/admin/AdminSignin";
 import Signup from "./pages/auth/SignUp";
@@ -22,13 +22,14 @@ import CandidateProfile from "./pages/candidate/CandidateProfile";
 import EmployerProfile from "./pages/employer/EmployerProfile";
 import AdminCandidateView from "./pages/admin/AdminCandidateView";
 import AdminEmployerView from "./pages/admin/AdminEmployerView";
-import { ProtectedRoute } from "./components/common/ProtectedRoute";
+import AdminFeedback from "./pages/admin/AdminFeedback";
+import { ProtectedRoute } from "./components/common/auth/ProtectedRoute";
 import { AdminProtectedRoute } from "./components/admin/AdminProtectedRoute";
 import { FRONTEND_ROUTES } from "./shared/constants/constants";
 import AuthRouteGuard, {
   HistoryLock,
-} from "./components/common/AuthRouteGuard";
-import NavigationProvider from "./components/common/NavigationProvider";
+} from "./components/common/auth/AuthRouteGuard";
+import NavigationProvider from "./components/common/home/NavigationProvider";
 import EmployerJobs from "./pages/employer/EmployerJobs";
 import EmployerApplicants from "./pages/employer/EmployerApplicants";
 import EmployerAnalytics from "./pages/employer/EmployerAnalytics";
@@ -48,18 +49,26 @@ import NotFound from "./pages/common/NotFound";
 import JobDetails from "./pages/job/JobDetails";
 import ApplicationDetails from "./pages/candidate/CandidateApplicationDetails";
 import EmployerBilling from "./pages/employer/EmployerBilling";
+import Chat from "./pages/common/Chat";
+import { VideoCallProvider } from "./contexts/VideoCallContext";
 import { initializeSocket, disconnectSocket } from "./socket/socket";
+import { VideoCallWindow } from "./components/common/video/VideoCallWindow";
 import { useNotifications } from "./hooks/useNotifications";
-import { useAppSelector } from "./hooks/hooks";
+import { useAppDispatch, useAppSelector } from "./hooks/hooks";
+import { getUserChats } from "./thunks/chat.thunks";
 import { useEffect } from "react";
 
 const App: React.FC = () => {
   useAuthInitialiazer();
   const { user, accessToken } = useAppSelector((state) => state.auth);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (user && accessToken) {
       initializeSocket(accessToken);
+      if (user.role === "Employer" || user.role === "Candidate") {
+        dispatch(getUserChats());
+      }
     } else {
       disconnectSocket();
     }
@@ -67,12 +76,12 @@ const App: React.FC = () => {
     return () => {
       disconnectSocket();
     };
-  }, [user, accessToken]);
+  }, [user, accessToken, dispatch]);
 
   useNotifications();
 
   return (
-    <>
+    <VideoCallProvider>
       <Router>
         <NavigationProvider />
         <HistoryLock />
@@ -186,6 +195,10 @@ const App: React.FC = () => {
                 path={FRONTEND_ROUTES.CANDIDATESETTINGS}
                 element={<CandidateSettings />}
               />
+              <Route
+                path={FRONTEND_ROUTES.CANDIDATEMESSAGES}
+                element={<Chat />}
+              />
             </Route>
 
             <Route
@@ -216,7 +229,7 @@ const App: React.FC = () => {
                 element={<EmployerInterview />}
               />
               <Route
-                path={FRONTEND_ROUTES.EMPLOYERRBILLING}
+                path={FRONTEND_ROUTES.EMPLOYERBILLING}
                 element={<EmployerBilling />}
               />
               <Route
@@ -226,6 +239,10 @@ const App: React.FC = () => {
               <Route
                 path={FRONTEND_ROUTES.EMPLOYERSETTINGS}
                 element={<EmployerSettings />}
+              />
+              <Route
+                path={FRONTEND_ROUTES.EMPLOYERMESSAGES}
+                element={<Chat />}
               />
             </Route>
 
@@ -265,13 +282,18 @@ const App: React.FC = () => {
                 path={FRONTEND_ROUTES.ADMINSETTINGS}
                 element={<AdminSettings />}
               />
+              <Route
+                path={FRONTEND_ROUTES.ADMINFEEDBACK}
+                element={<AdminFeedback />}
+              />
             </Route>
 
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthRouteGuard>
       </Router>
-    </>
+      <VideoCallWindow />
+    </VideoCallProvider>
   );
 };
 

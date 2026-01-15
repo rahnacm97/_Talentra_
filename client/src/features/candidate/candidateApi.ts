@@ -5,11 +5,12 @@ import type {
 } from "../../types/candidate/candidate.types";
 import { API_ROUTES } from "../../shared/constants/constants";
 
+//Candidate profile fetch
 export const getCandidateProfileApi = async (): Promise<ICandidate> => {
   const response = await api.get(API_ROUTES.CANDIDATE.PROFILE);
   return response.data.data;
 };
-
+//Update profile
 export const updateCandidateProfileApi = async (
   data: ProfileData | FormData,
 ): Promise<ICandidate> => {
@@ -19,7 +20,7 @@ export const updateCandidateProfileApi = async (
   });
   return response.data.data;
 };
-
+//Applying job
 export const applyJobApi = async (
   jobId: string,
   data: FormData,
@@ -29,7 +30,7 @@ export const applyJobApi = async (
   });
   return response.data.data;
 };
-
+//Fetching applications
 export const getMyApplications = async (filters?: {
   status?: string;
   search?: string;
@@ -46,7 +47,7 @@ export const getMyApplications = async (filters?: {
   const { data } = await api.get(url);
   return data;
 };
-
+//Single application
 export const getApplicationByIdApi = async (applicationId: string) => {
   const response = await api.get(
     `${API_ROUTES.CANDIDATE.APPLICATIONS}/${applicationId}`,

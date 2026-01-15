@@ -1,5 +1,4 @@
 import { ICandidateService } from "../../interfaces/users/candidate/ICandidateService";
-import { CandidateRepository } from "../../repositories/candidate/candidate.repository";
 import { ICandidate } from "../../interfaces/users/candidate/ICandidate";
 import { ICandidateMapper } from "../../interfaces/users/candidate/ICandidateMapper";
 import { ApiError } from "../../shared/utils/ApiError";
@@ -10,10 +9,11 @@ import { ProfileDataDTO } from "../../dto/candidate/candidate.dto";
 import cloudinary from "../../config/cloudinary";
 import { UploadApiResponse, UploadApiOptions } from "cloudinary";
 import fs from "fs/promises";
+import { ICandidateRepo } from "../../interfaces/users/candidate/ICandidateRepository";
 
 export class CandidateService implements ICandidateService {
   constructor(
-    private _repository = new CandidateRepository(),
+    private _repository: ICandidateRepo,
     private _candidateMapper: ICandidateMapper,
   ) {}
 

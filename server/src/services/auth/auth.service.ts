@@ -7,14 +7,14 @@ import type {
 } from "../../interfaces/auth/IAuthService";
 import { detectUserByEmail } from "../../shared/utils/user.utils";
 import { ITokenService } from "../../interfaces/auth/ITokenService";
-import { UserRepoMap } from "../../type/types";
+import { IUserRepoMap } from "../../type/types";
 import { ICandidate } from "../../interfaces/users/candidate/ICandidate";
 import { IEmployer } from "../../interfaces/users/employer/IEmployer";
 import { hasEmailVerification } from "../../type/types";
 
 export class AuthService implements IAuthService {
   constructor(
-    private _repos: UserRepoMap,
+    private _repos: IUserRepoMap,
     private _tokenService: ITokenService,
   ) {}
 
@@ -63,6 +63,7 @@ export class AuthService implements IAuthService {
           trialEndsAt: (user as IEmployer).trialEndsAt,
           currentPlan: (user as IEmployer).currentPlan,
         }),
+        profileImage: (user as ICandidate | IEmployer).profileImage,
       },
       accessToken: this._tokenService.generateAccessToken({
         id: user._id,
@@ -135,6 +136,7 @@ export class AuthService implements IAuthService {
           trialEndsAt: (user as IEmployer).trialEndsAt,
           currentPlan: (user as IEmployer).currentPlan,
         }),
+        profileImage: (user as ICandidate | IEmployer).profileImage,
       },
       accessToken: this._tokenService.generateAccessToken({
         id: user._id,
@@ -192,6 +194,7 @@ export class AuthService implements IAuthService {
           trialEndsAt: (user as IEmployer).trialEndsAt,
           currentPlan: (user as IEmployer).currentPlan,
         }),
+        profileImage: (user as ICandidate | IEmployer).profileImage,
       },
     };
   }

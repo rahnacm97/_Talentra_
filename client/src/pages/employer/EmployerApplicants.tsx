@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../app/store";
 import { updateApplicationStatusApi } from "../../features/employer/employerApi";
 import { fetchEmployerApplications } from "../../thunks/employer.thunk";
-import type { EmployerApplicationsPaginatedDto } from "../../types/application/application.types";
+import type { EmployerApplicationResponseDto } from "../../types/application/application.types";
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
 import { Download } from "@mui/icons-material";
@@ -21,10 +21,11 @@ import {
   CheckCircle,
   MessageSquare,
 } from "lucide-react";
-import Pagination from "../../components/common/Pagination";
+import Pagination from "../../components/common/pagination/Pagination";
 import { ApplicantDetailsModal } from "../../components/employer/ApplicantDetailModal";
 import { toast } from "react-toastify";
 import { formatFullName } from "../../utils/formatters";
+import { handleFileDownload } from "../../utils/fileUtils";
 
 const EmployerApplicants: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -42,7 +43,7 @@ const EmployerApplicants: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [selectedApplicant, setSelectedApplicant] =
-    useState<EmployerApplicationsPaginatedDto | null>(null);
+    useState<EmployerApplicationResponseDto | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const jobTitles = Array.from(new Set(applications.map((a) => a.jobTitle)));
@@ -81,7 +82,7 @@ const EmployerApplicants: React.FC = () => {
     setCurrentPage(1);
   }, [searchTerm, filterStatus, filterJob]);
 
-  const openModal = (app: EmployerApplicationsPaginatedDto) => {
+  const openModal = (app: EmployerApplicationResponseDto) => {
     setSelectedApplicant(app);
     setIsModalOpen(true);
   };
@@ -326,15 +327,16 @@ const EmployerApplicants: React.FC = () => {
                           Resume:
                         </strong>
                       </div>
-                      <a
-                        href={app.resume}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 ml-7 px-4 py-2 bg-white text-indigo-600 font-semibold rounded-lg hover:bg-indigo-600 hover:text-white transition-all duration-200 shadow-sm"
+                      <button
+                        onClick={() => {
+                          const fileName = `Resume_${app.fullName.replace(/\s+/g, "_")}`;
+                          handleFileDownload(app.resume, fileName);
+                        }}
+                        className="inline-flex items-center gap-2 ml-7 px-4 py-2 bg-white text-indigo-600 font-semibold rounded-lg hover:bg-indigo-600 hover:text-white transition-all duration-200 shadow-sm cursor-pointer"
                       >
                         <Download className="w-4 h-4" />
                         Download Resume
-                      </a>
+                      </button>
                     </div>
                   </div>
                 )}

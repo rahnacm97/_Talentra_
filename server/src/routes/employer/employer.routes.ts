@@ -28,6 +28,11 @@ import { employerInterviewRouter } from "../interview/interview.routes";
 import { EmployerAnalyticsService } from "../../services/employer/employer.service";
 import { JobRepository } from "../../repositories/job/job.repository";
 import subscriptionRoutes from "../subscription/subscription.routes";
+import { ChatService } from "../../services/chat/chat.service";
+import { ChatRepository } from "../../repositories/chat/chat.repository";
+import { ChatMapper } from "../../mappers/chat/chat.mapper";
+import { ChatSocket } from "../../socket/chat.socket";
+import { NotificationSocket } from "../../socket/notification.socket";
 
 const router = Router();
 //Dependencies
@@ -44,10 +49,22 @@ const jobRepo = new JobRepository();
 
 //Service with dependency
 const interviewService = new InterviewService(interviewRepo, interviewMapper);
+const chatRepository = new ChatRepository();
+const chatMapper = new ChatMapper();
+const chatSocket = ChatSocket.getInstance();
+const notificationSocket = NotificationSocket.getInstance();
+const chatService = new ChatService(
+  chatRepository,
+  applicationRepo,
+  chatMapper,
+  chatSocket,
+  notificationSocket,
+);
 const employerApplicationService = new EmployerApplicationService(
   applicationRepo,
   applicationMapper,
   interviewService,
+  chatService,
 );
 const analyticsRepository = new EmployerAnalyticsRepository(
   jobRepo,

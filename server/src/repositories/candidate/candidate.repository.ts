@@ -4,9 +4,10 @@ import { ICandidate } from "../../interfaces/users/candidate/ICandidate";
 import { ProfileData } from "../../type/candidate/candidate.types";
 import { ICandidateRepo } from "../../interfaces/users/candidate/ICandidateRepository";
 import { IJob } from "../../interfaces/jobs/IJob";
+import { AuthSignupDTO } from "../../dto/auth/auth.dto";
 
 export class CandidateRepository
-  extends BaseRepository<ICandidate>
+  extends BaseRepository<ICandidate, AuthSignupDTO>
   implements ICandidateRepo
 {
   constructor() {

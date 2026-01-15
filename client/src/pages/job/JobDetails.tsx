@@ -24,8 +24,11 @@ import {
   X,
   CheckCircle,
   Calendar,
+  Sparkles,
 } from "lucide-react";
 import { toast } from "react-toastify";
+import { aiService } from "../../services/aiService";
+import { Loader2 } from "lucide-react";
 import Header from "../common/Header";
 import { FRONTEND_ROUTES } from "../../shared/constants/constants";
 import { JobApplyModal } from "../../components/job/JobApplyModal";
@@ -47,6 +50,31 @@ const JobDetails: React.FC = () => {
   const loading = loadingJobId === id;
 
   const [showApplyModal, setShowApplyModal] = useState(false);
+
+  // AI Match Score State
+  const [matchScore, setMatchScore] = useState<{
+    score: number;
+    reason: string;
+  } | null>(null);
+  const [loadingScore, setLoadingScore] = useState(false);
+
+  const handleCheckMatch = async () => {
+    if (!candidateId || !id) {
+      toast.error("Please log in to check compatibility");
+      return;
+    }
+
+    setLoadingScore(true);
+    try {
+      const result = await aiService.getMatchScore(candidateId, id);
+      setMatchScore(result);
+    } catch (error) {
+      toast.error("Failed to analyze compatibility");
+      console.log(error);
+    } finally {
+      setLoadingScore(false);
+    }
+  };
 
   const handleApplySubmit = async (formData: FormData) => {
     if (!candidateId || !id) return;
@@ -160,7 +188,6 @@ const JobDetails: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 py-3">
           <div className="flex items-center text-sm text-gray-600">
@@ -293,6 +320,72 @@ const JobDetails: React.FC = () => {
                   )}
                 </div>
               </div>
+            </div>
+
+            {/* AI Compatibility Score Section */}
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl shadow-sm p-6 mb-6 border border-blue-100">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-indigo-600" />
+                  AI Compatibility Match
+                </h2>
+                {!matchScore && (
+                  <button
+                    onClick={handleCheckMatch}
+                    disabled={loadingScore}
+                    className="px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-indigo-700 transition-colors shadow-sm disabled:opacity-70 flex items-center gap-2"
+                  >
+                    {loadingScore ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />{" "}
+                        Analyzing...
+                      </>
+                    ) : (
+                      "Check Match"
+                    )}
+                  </button>
+                )}
+              </div>
+
+              {matchScore && (
+                <div className="flex items-start gap-6 animate-fade-in">
+                  <div className="relative w-24 h-24 flex-shrink-0">
+                    <svg className="w-full h-full" viewBox="0 0 36 36">
+                      <path
+                        className="text-gray-200"
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                      />
+                      <path
+                        className={`${matchScore.score >= 70 ? "text-green-500" : matchScore.score >= 40 ? "text-yellow-500" : "text-red-500"} transition-all duration-1000 ease-out`}
+                        strokeDasharray={`${matchScore.score}, 100`}
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                      />
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center flex-col">
+                      <span className="text-xl font-bold text-gray-900">
+                        {matchScore.score}%
+                      </span>
+                      <span className="text-[10px] text-gray-500 uppercase font-semibold">
+                        Match
+                      </span>
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 mb-1">
+                      Analysis Result
+                    </h4>
+                    <p className="text-gray-700 text-sm leading-relaxed">
+                      {matchScore.reason}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="bg-white rounded-xl shadow-sm p-6 mb-6">

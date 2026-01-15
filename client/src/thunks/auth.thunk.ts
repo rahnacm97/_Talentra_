@@ -5,8 +5,10 @@ import type {
   LoginRequest,
   SignupRequest,
   AuthResponse,
+  User,
 } from "../types/auth/Auth";
 import type { ApiError } from "../types/common/common.type";
+
 //Signup
 export const signup = createAsyncThunk<
   AuthResponse,
@@ -23,6 +25,7 @@ export const signup = createAsyncThunk<
         role: response.data.user.role,
         blocked: response.data.user.blocked || false,
         emailVerified: response.data.user.emailVerified || false,
+        profileImage: response.data.user.profileImage,
         ...(response.data.user.role === "Employer" && {
           hasActiveSubscription: response.data.user.hasActiveSubscription,
           trialEndsAt: response.data.user.trialEndsAt,
@@ -53,6 +56,7 @@ export const login = createAsyncThunk<
         role: response.data.user.role,
         blocked: response.data.user.blocked || false,
         emailVerified: response.data.user.emailVerified || false,
+        profileImage: response.data.user.profileImage,
         ...(response.data.user.role === "Employer" && {
           verified: response.data.user.verified ?? false,
           hasActiveSubscription: response.data.user.hasActiveSubscription,
@@ -84,6 +88,7 @@ export const adminLogin = createAsyncThunk<
         role: response.data.user.role,
         blocked: response.data.user.blocked || false,
         emailVerified: response.data.user.emailVerified || true,
+        profileImage: response.data.user.profileImage,
       },
       accessToken: response.data.accessToken,
       refreshToken: response.data.refreshToken,
@@ -144,13 +149,31 @@ export const serverLogout = createAsyncThunk<
 });
 
 export const refreshToken = createAsyncThunk<
-  { accessToken: string },
+  { accessToken: string; user: User },
   void,
   { rejectValue: string }
 >("auth/refreshToken", async (_, { rejectWithValue }) => {
   try {
     const response = await api.post(API_ROUTES.AUTH.REFRESH);
-    return { accessToken: response.data.accessToken };
+    const { accessToken, user } = response.data;
+    return {
+      accessToken,
+      user: {
+        _id: user._id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        blocked: user.blocked || false,
+        emailVerified: user.emailVerified || false,
+        profileImage: user.profileImage,
+        ...(user.role === "Employer" && {
+          verified: user.verified ?? false,
+          hasActiveSubscription: user.hasActiveSubscription,
+          trialEndsAt: user.trialEndsAt,
+          currentPlan: user.currentPlan,
+        }),
+      },
+    };
   } catch (err: unknown) {
     const error = err as ApiError;
     return rejectWithValue(

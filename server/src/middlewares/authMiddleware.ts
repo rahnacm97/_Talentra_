@@ -14,24 +14,32 @@ const tokenService = new TokenService();
 
 export type AuthUser = ICandidate | IEmployer | IAdmin;
 
-export const verifyAuth =
-  (roles: string[]) =>
+//Authentication middleware
+const authenticate =
+  (options: { required: boolean; roles?: string[] }) =>
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const authHeader = req.headers.authorization;
 
       if (!authHeader?.startsWith("Bearer ")) {
-        return res
-          .status(HTTP_STATUS.UNAUTHORIZED)
-          .json({ success: false, message: ERROR_MESSAGES.NOT_AUTHENTICATED });
+        if (options.required) {
+          return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+            success: false,
+            message: ERROR_MESSAGES.NOT_AUTHENTICATED,
+          });
+        }
+        return next();
       }
 
       const token = authHeader.split(" ")[1];
       if (!token) {
-        return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-          success: false,
-          message: ERROR_MESSAGES.INVALID_CREDENTIALS,
-        });
+        if (options.required) {
+          return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+            success: false,
+            message: ERROR_MESSAGES.INVALID_CREDENTIALS,
+          });
+        }
+        return next();
       }
 
       const decoded = tokenService.verifyAccessToken(token) as {
@@ -40,7 +48,11 @@ export const verifyAuth =
         email: string;
       };
 
-      if (!roles.includes(decoded.role)) {
+      if (
+        options.required &&
+        options.roles &&
+        !options.roles.includes(decoded.role)
+      ) {
         return res.status(HTTP_STATUS.FORBIDDEN).json({
           success: false,
           message: ERROR_MESSAGES.NOT_AUTHENTICATED,
@@ -61,28 +73,36 @@ export const verifyAuth =
       }
 
       if (!user) {
-        return res.status(HTTP_STATUS.UNAUTHORIZED).json({
-          success: false,
-          message: ERROR_MESSAGES.NOT_AUTHENTICATED,
-        });
+        if (options.required) {
+          return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+            success: false,
+            message: ERROR_MESSAGES.NOT_AUTHENTICATED,
+          });
+        }
+        return next();
       }
 
-      if (
-        decoded.role !== USER_ROLES.ADMIN &&
-        "blocked" in user &&
-        user.blocked
-      ) {
-        return res.status(HTTP_STATUS.FORBIDDEN).json({
-          success: false,
-          message: ERROR_MESSAGES.USER_BLOCKED,
-        });
+      const isBlocked =
+        decoded.role !== USER_ROLES.ADMIN && "blocked" in user && user.blocked;
+
+      if (isBlocked) {
+        if (options.required) {
+          return res.status(HTTP_STATUS.FORBIDDEN).json({
+            success: false,
+            message: ERROR_MESSAGES.USER_BLOCKED,
+          });
+        }
+        return next();
       }
 
       req.user = {
         id: user._id.toString(),
         _id: user._id.toString(),
+        name: (user as AuthUser & { name: string }).name || "",
         role: decoded.role as USER_ROLES,
         email: decoded.email,
+        profileImage:
+          (user as AuthUser & { profileImage?: string }).profileImage || "",
         blocked: "blocked" in user ? user.blocked : false,
         ...(decoded.role === USER_ROLES.EMPLOYER && {
           hasActiveSubscription: (user as IEmployer).hasActiveSubscription,
@@ -93,69 +113,17 @@ export const verifyAuth =
       next();
     } catch (error) {
       console.error("Auth middleware error:", error);
-      return res
-        .status(HTTP_STATUS.UNAUTHORIZED)
-        .json({ success: false, message: ERROR_MESSAGES.NOT_AUTHENTICATED });
+      if (options.required) {
+        return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+          success: false,
+          message: ERROR_MESSAGES.NOT_AUTHENTICATED,
+        });
+      }
+      next();
     }
   };
 
-export const optionalAuth = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    const authHeader = req.headers.authorization;
+export const verifyAuth = (roles: string[]) =>
+  authenticate({ required: true, roles });
 
-    if (!authHeader?.startsWith("Bearer ")) {
-      return next();
-    }
-
-    const token = authHeader.split(" ")[1];
-    if (!token) {
-      return next();
-    }
-
-    const decoded = tokenService.verifyAccessToken(token) as {
-      id: string;
-      role: string;
-      email: string;
-    };
-
-    let user: AuthUser | null = null;
-
-    if (decoded.role === USER_ROLES.CANDIDATE) {
-      const candidateRepo = new CandidateRepository();
-      user = await candidateRepo.findById(decoded.id);
-    } else if (decoded.role === USER_ROLES.EMPLOYER) {
-      const employerRepo = new EmployerRepository();
-      user = await employerRepo.findById(decoded.id);
-    } else if (decoded.role === USER_ROLES.ADMIN) {
-      const adminRepo = new AdminRepository();
-      user = await adminRepo.findById(decoded.id);
-    }
-
-    if (user) {
-      const isBlocked =
-        decoded.role !== USER_ROLES.ADMIN && "blocked" in user && user.blocked;
-
-      if (!isBlocked) {
-        req.user = {
-          id: user._id.toString(),
-          _id: user._id.toString(),
-          role: decoded.role as USER_ROLES,
-          email: decoded.email,
-          blocked: "blocked" in user ? user.blocked : false,
-          ...(decoded.role === USER_ROLES.EMPLOYER && {
-            hasActiveSubscription: (user as IEmployer).hasActiveSubscription,
-            trialEndsAt: (user as IEmployer).trialEndsAt,
-          }),
-        };
-      }
-    }
-    next();
-  } catch (error) {
-    console.error("Optional auth middleware error:", error);
-    next();
-  }
-};
+export const optionalAuth = authenticate({ required: false });

@@ -22,6 +22,7 @@ import { useNavigate } from "react-router-dom";
 import { FRONTEND_ROUTES } from "../../shared/constants/constants";
 import EmployerModal from "../../components/employer/EmployerModal";
 import { toast } from "react-toastify";
+import { handleFileDownload } from "../../utils/fileUtils";
 
 const CIN_REGEX = /^[LU][0-9]{5}[A-Z]{2}[0-9]{4}[A-Z]{3}[0-9]{6}$/;
 
@@ -520,27 +521,37 @@ const EmployerProfile: React.FC = () => {
                           </span>
                         )}
                         {profileData.businessLicense && !licenseFile && (
-                          <a
-                            href={profileData.businessLicense}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-sm text-indigo-600 hover:text-indigo-800"
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const fileName = `License_${profileData.name.replace(/\s+/g, "_")}`;
+                              handleFileDownload(
+                                profileData.businessLicense,
+                                fileName,
+                              );
+                            }}
+                            className="text-sm text-indigo-600 hover:text-indigo-800 cursor-pointer"
                           >
                             View Current License
-                          </a>
+                          </button>
                         )}
                       </div>
                     ) : (
                       <p className="text-lg font-semibold text-gray-900">
                         {profileData.businessLicense ? (
-                          <a
-                            href={profileData.businessLicense}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-indigo-600 hover:text-indigo-800"
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const fileName = `License_${profileData.name.replace(/\s+/g, "_")}`;
+                              handleFileDownload(
+                                profileData.businessLicense,
+                                fileName,
+                              );
+                            }}
+                            className="text-indigo-600 hover:text-indigo-800 cursor-pointer"
                           >
                             View License
-                          </a>
+                          </button>
                         ) : (
                           "No license uploaded"
                         )}

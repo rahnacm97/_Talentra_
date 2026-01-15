@@ -21,7 +21,7 @@ const initialState: AuthState = {
   isInitialized: false,
   blocked: false,
 };
-
+//Authentication slice
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -83,6 +83,7 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      //Signup
       .addCase(signup.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -100,6 +101,7 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
+      //Login
       .addCase(login.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -118,6 +120,7 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
+      //Admin login
       .addCase(adminLogin.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -136,6 +139,7 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
+      //Otp send
       .addCase(sendOtp.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -147,6 +151,7 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
+      //Logout
       .addCase(serverLogout.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -162,14 +167,19 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
+      //Token
       .addCase(refreshToken.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(
         refreshToken.fulfilled,
-        (state, action: PayloadAction<{ accessToken: string }>) => {
+        (
+          state,
+          action: PayloadAction<{ accessToken: string; user: any }>,
+        ) => {
           state.accessToken = action.payload.accessToken;
+          state.user = action.payload.user;
           state.loading = false;
           state.error = null;
         },
@@ -191,5 +201,6 @@ export const {
   loginSuccess,
   setInitialized,
   setBlocked,
+  updateSubscriptionStatus,
 } = authSlice.actions;
 export default authSlice.reducer;

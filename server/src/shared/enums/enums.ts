@@ -47,6 +47,7 @@ export enum ERROR_MESSAGES {
 export enum SUCCESS_MESSAGES {
   USER_REGISTERED = "User registered successfully.",
   LOGIN_SUCCESS = "Login successful.",
+  CHAT_DELETED = "Chat conversation deleted successfully",
   LOGOUT_SUCCESS = "Logout successful.",
   SEND_OTP_TO_MAIL = "OTP sent to registered email successfully.",
   OTP_VERIFIED = "OTP verified successfully.",
@@ -70,6 +71,19 @@ export enum SUCCESS_MESSAGES {
   NOTIFICATION_READ = "Notification marked as read",
   ALL_READ = "All notifications marked as read",
   NOTIFICATION_DELETED = "Notification deleted",
+  NOTIFICATIONS_FETCHED = "Notifictaions fetched successfully",
+  NOTIFICATION_STATS_FETCHED = "Notification status fetched",
+  CHAT_INITIATED = "Chat initiated successfully",
+  CHATS_FETCHED = "Chats fetched successfully",
+  MESSAGE_SENT = "Message sent successfully",
+  MESSAGES_FETCHED = "Messages fetched successfully",
+  MESSAGES_MARKED_READ = "Messages marked as read",
+  VIDEO_CALL_INITIATED = "Video call initiated successfully",
+  VIDEO_CALL_ENDED = "Video call ended successfully",
+  VIDEO_CALL_STATUS_FETCHED = "Call status retrieved successfully",
+  FEEDBACK_FETCHED = "Feedback fetched successfully",
+  FEEDBACK_MODERATED = "Feedback moderated successfully",
+  FEEDBACK_DELETED = "Feedback deleted successfully",
 }
 
 export enum NotificationType {
@@ -83,6 +97,7 @@ export enum NotificationType {
   APPLICATION_REJECTED = "application_rejected",
   INTERVIEW_SCHEDULED = "interview_scheduled",
   INTERVIEW_CANCELLED = "interview_cancelled",
+  NEW_FEEDBACK = "new_feedback",
 }
 
 export enum NOTIFICATION_MESSAGES {
@@ -106,6 +121,8 @@ export enum NOTIFICATION_MESSAGES {
   VERIFICATION_REJECTED = "Your verification request was rejected",
   USER_BLOCKED = "Your account has been blocked by admin.",
   USER_UNBLOCKED = "Your account has been unblocked. You can now log in.",
+  ADMIN_NEW_FEEDBACK_TITLE = "New Feedback Received",
+  ADMIN_NEW_FEEDBACK_MESSAGE = "You have received new feedback from {{userName}}.",
 }
 
 export enum USER_ROLES {

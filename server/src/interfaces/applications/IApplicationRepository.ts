@@ -46,7 +46,7 @@ export interface IEmployerApplicationRepository {
   ): Promise<number>;
   updateOne(
     applicationId: string,
-    data: { status?: string; notes?: string; rating?: number },
+    data: Partial<IApplication>,
   ): Promise<IApplication | null>;
   findByIdAndEmployer(
     applicationId: string,

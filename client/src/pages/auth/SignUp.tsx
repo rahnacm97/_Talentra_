@@ -11,7 +11,7 @@ import {
   Lock,
   Check,
 } from "lucide-react";
-import ScreenLeft from "../../components/common/AuthLeft";
+import ScreenLeft from "../../components/common/auth/AuthLeft";
 import {
   validateFullName,
   validateEmail,

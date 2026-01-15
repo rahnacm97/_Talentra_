@@ -26,7 +26,9 @@ import { TimelineStep } from "../../components/candidate/TimelineStep";
 import { ActionButton } from "../../components/candidate/ActionButton";
 import { fetchApplicationById } from "../../thunks/candidate.thunks";
 import { ApplicationDetailsSkeleton } from "../../components/candidate/ApplicationSkelton";
+import { formatDate, formatInterviewDate } from "../../utils/formatters";
 import { FRONTEND_ROUTES } from "../../shared/constants/constants";
+import { handleFileDownload } from "../../utils/fileUtils";
 
 const ApplicationDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -50,53 +52,6 @@ const ApplicationDetails: React.FC = () => {
 
   if (currentAppLoading) return <ApplicationDetailsSkeleton />;
 
-  const formatDate = (dateInput: string | Date) => {
-    const date = new Date(dateInput);
-    if (isNaN(date.getTime())) return "Date not set";
-
-    return date.toLocaleDateString("en-US", {
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    });
-  };
-
-  const formatInterviewDate = (dateInput?: string) => {
-    if (!dateInput) return "Date not set";
-    const date = new Date(dateInput);
-    if (isNaN(date.getTime())) return "Date not set";
-
-    return date.toLocaleDateString("en-US", {
-      weekday: "long",
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true,
-    });
-  };
-
-  const handleGoback = () => {
-    if (location.key !== "default") {
-      navigate(-1);
-    } else {
-      navigate(FRONTEND_ROUTES.CANDIDATEAPPLICATIONS);
-    }
-  };
-
-  const statusOptions = [
-    { value: "pending", label: "Application Submitted" },
-    { value: "reviewed", label: "Under Review" },
-    { value: "shortlisted", label: "Shortlisted" },
-    { value: "interview", label: "Interview Scheduled" },
-    { value: "rejected", label: "Not Selected" },
-    { value: "hired", label: "Hired!" },
-  ];
-
   if (!application) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -109,7 +64,13 @@ const ApplicationDetails: React.FC = () => {
             The application you're looking for doesn't exist.
           </p>
           <button
-            onClick={handleGoback}
+            onClick={() => {
+              if (location.key !== "default") {
+                navigate(-1);
+              } else {
+                navigate(FRONTEND_ROUTES.CANDIDATEAPPLICATIONS);
+              }
+            }}
             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium"
           >
             Go Back
@@ -118,6 +79,46 @@ const ApplicationDetails: React.FC = () => {
       </div>
     );
   }
+
+  const getStatusOptions = () => {
+    const options = [
+      { value: "pending", label: "Application Submitted" },
+      { value: "reviewed", label: "Under Review" },
+    ];
+
+    const isRejected = application.status === "rejected";
+
+    if (isRejected) {
+      if (application.shortlistedAt) {
+        options.push({ value: "shortlisted", label: "Shortlisted" });
+      }
+      if (application.interviewDate || application.status === "interview") {
+        options.push({ value: "interview", label: "Interview Scheduled" });
+      }
+      options.push({ value: "rejected", label: "Not Selected" });
+    } else {
+      options.push({ value: "shortlisted", label: "Shortlisted" });
+
+      if (
+        application.interviewDate ||
+        application.status === "interview" ||
+        application.status === "hired"
+      ) {
+        options.push({ value: "interview", label: "Interview Scheduled" });
+      }
+
+      if (application.status === "hired") {
+        options.push({ value: "hired", label: "Hired!" });
+      } else {
+        options.push({ value: "rejected", label: "Not Selected" });
+        options.push({ value: "hired", label: "Hired!" });
+      }
+    }
+
+    return options;
+  };
+
+  const statusOptions = getStatusOptions();
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -229,7 +230,6 @@ const ApplicationDetails: React.FC = () => {
               </div>
             </div>
 
-            {/* Your Application */}
             <div className="bg-white rounded-xl shadow-lg p-6">
               <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                 <FileText className="w-5 h-5 text-blue-600" />
@@ -283,11 +283,12 @@ const ApplicationDetails: React.FC = () => {
                     <label className="text-sm font-medium text-gray-600 block mb-2">
                       Resume
                     </label>
-                    <a
-                      href={application.resume}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-200 hover:bg-blue-100 transition group"
+                    <button
+                      onClick={() => {
+                        const fileName = `Resume_${application.jobTitle.replace(/\s+/g, "_")}`;
+                        handleFileDownload(application.resume, fileName);
+                      }}
+                      className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-200 hover:bg-blue-100 transition group w-full text-left"
                     >
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
@@ -298,12 +299,12 @@ const ApplicationDetails: React.FC = () => {
                             Resume.pdf
                           </p>
                           <p className="text-sm text-gray-600">
-                            Click to view or download
+                            Click to download
                           </p>
                         </div>
                       </div>
                       <Download className="w-5 h-5 text-blue-600 group-hover:text-blue-700" />
-                    </a>
+                    </button>
                   </div>
                 )}
               </div>
@@ -337,20 +338,35 @@ const ApplicationDetails: React.FC = () => {
 
                   let displayDate: string | undefined;
 
-                  if (index === 0) {
+                  if (opt.value === "pending") {
                     displayDate = formatDate(application.appliedAt);
-                  } else if (index <= currentIndex) {
-                    if (
-                      opt.value === "interview" &&
-                      application.interviewDate
-                    ) {
-                      displayDate = formatInterviewDate(
-                        application.interviewDate,
-                      );
-                    } else if (application.updatedAt) {
+                  } else if (opt.value === "reviewed") {
+                    displayDate = application.reviewedAt
+                      ? formatDate(application.reviewedAt)
+                      : undefined;
+                  } else if (opt.value === "shortlisted") {
+                    displayDate = application.shortlistedAt
+                      ? formatDate(application.shortlistedAt)
+                      : undefined;
+                  } else if (opt.value === "interview") {
+                    displayDate = application.interviewDate
+                      ? formatInterviewDate(application.interviewDate)
+                      : undefined;
+                  } else if (opt.value === "hired") {
+                    displayDate = application.hiredAt
+                      ? formatDate(application.hiredAt)
+                      : undefined;
+                  } else if (opt.value === "rejected") {
+                    displayDate = application.rejectedAt
+                      ? formatDate(application.rejectedAt)
+                      : undefined;
+                  }
+
+                  if (!displayDate && index <= currentIndex) {
+                    if (application.updatedAt) {
                       const updated = new Date(application.updatedAt);
                       const applied = new Date(application.appliedAt);
-                      if (updated > applied) {
+                      if (updated.getTime() > applied.getTime() + 1000) {
                         displayDate = formatDate(application.updatedAt);
                       }
                     }
@@ -365,18 +381,14 @@ const ApplicationDetails: React.FC = () => {
                       highlightInterview={
                         opt.value === "interview" && !!application.interviewDate
                       }
-                      date={
-                        opt.value === "interview"
-                          ? formatInterviewDate(application.interviewDate)
-                          : displayDate
-                      }
+                      date={displayDate}
                     />
                   );
                 })}
               </div>
 
-              {/* Banners */}
-              {application.status === "hired" && (
+              {(application.status === "hired" ||
+                application.status === "accepted") && (
                 <div className="mt-8 p-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border-2 border-green-200">
                   <div className="flex items-center gap-3">
                     <CheckCircle className="w-10 h-10 text-green-600" />
@@ -410,7 +422,6 @@ const ApplicationDetails: React.FC = () => {
               )}
             </div>
 
-            {/* Quick Actions */}
             <div className="bg-white rounded-xl shadow-lg p-6">
               <h3 className="text-lg font-bold text-gray-900 mb-4">
                 Quick Actions

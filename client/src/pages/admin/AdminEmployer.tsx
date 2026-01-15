@@ -17,7 +17,9 @@ import { StatCard } from "../../components/admin/Statcard";
 
 const AdminEmployers: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { employers, total } = useAppSelector((state) => state.adminEmployers);
+  const { employers, total, actionLoading } = useAppSelector(
+    (state) => state.adminEmployers,
+  );
 
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -64,11 +66,14 @@ const AdminEmployers: React.FC = () => {
           employerId: selectedEmployerId,
           block: isBlockAction,
         }),
-      );
-      setShowModal(false);
-      setSelectedEmployerId(null);
-      setSelectedEmployerName("");
-      setIsBlockAction(null);
+      ).then((result) => {
+        if (blockUnblockEmployer.fulfilled.match(result)) {
+          setShowModal(false);
+          setSelectedEmployerId(null);
+          setSelectedEmployerName("");
+          setIsBlockAction(null);
+        }
+      });
     }
   };
 
@@ -248,6 +253,7 @@ const AdminEmployers: React.FC = () => {
         onCancel={handleCancel}
         actionType={isBlockAction ? "block" : "unblock"}
         name={selectedEmployerName}
+        isLoading={actionLoading}
       />
     </div>
   );

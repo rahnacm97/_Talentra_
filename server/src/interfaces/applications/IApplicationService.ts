@@ -31,6 +31,7 @@ export interface ICandidateApplicationService {
         | "accepted"
         | "interview"
         | "shortlisted"
+        | "hired"
         | "all"
         | undefined;
       search?: string | undefined;

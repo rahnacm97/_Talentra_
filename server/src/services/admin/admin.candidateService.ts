@@ -1,5 +1,4 @@
 import { FilterQuery } from "mongoose";
-import { CandidateRepository } from "../../repositories/candidate/candidate.repository";
 import { IAdminCandidateService } from "../../interfaces/users/admin/IAdminCandidateService";
 import {
   BlockCandidateDTO,
@@ -7,11 +6,12 @@ import {
 } from "../../dto/admin/candidate.dto";
 import { ICandidate } from "../../interfaces/users/candidate/ICandidate";
 import { ICandidateMapper } from "../../interfaces/users/admin/ICandidateMapper";
-import { NotificationHelper } from "../notification/notification.helper";
+import { NotificationHelper } from "../../shared/utils/notification.helper";
+import { ICandidateRepo } from "../../interfaces/users/candidate/ICandidateRepository";
 
 export class AdminCandidateService implements IAdminCandidateService {
   constructor(
-    private _candidateRepo: CandidateRepository,
+    private _candidateRepo: ICandidateRepo,
     private _candidateMapper: ICandidateMapper,
   ) {}
   //Fetching all candidates

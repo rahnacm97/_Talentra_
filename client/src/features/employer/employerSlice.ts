@@ -43,6 +43,7 @@ const employerSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      //Profile fetching
       .addCase(fetchEmployerProfile.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -55,7 +56,7 @@ const employerSlice = createSlice({
         state.loading = false;
         state.error = action.error.message || "Failed to fetch profile";
       })
-
+      //Update profile
       .addCase(updateEmployerProfile.pending, (state) => {
         state.loading = true;
       })
@@ -67,6 +68,7 @@ const employerSlice = createSlice({
         state.loading = false;
         state.error = action.error.message || "Failed to update profile";
       })
+      //Fetch applications
       .addCase(fetchEmployerApplications.pending, (state) => {
         state.appLoading = true;
         state.error = null;
@@ -80,6 +82,7 @@ const employerSlice = createSlice({
         state.appLoading = false;
         state.error = action.payload as string;
       })
+      //Fetch analytics
       .addCase(fetchEmployerAnalytics.pending, (state) => {
         state.analytics.loading = true;
         state.analytics.error = null;

@@ -18,12 +18,15 @@ import {
 } from "lucide-react";
 import type { EmployerApplicationResponseDto } from "../../types/application/application.types";
 import { InterviewScheduleModal } from "./InterviewSchedule";
+import { aiService } from "../../services/aiService";
+import { toast } from "react-toastify";
+import { Sparkles } from "lucide-react";
+import { handleFileDownload } from "../../utils/fileUtils";
 
 interface ApplicantDetailsModalProps {
   applicant: EmployerApplicationResponseDto;
   isOpen: boolean;
   onClose: () => void;
-  // Updated: now accepts interviewDateTime
   onStatusChange: (
     newStatus: string,
     interviewDateTime?: string,
@@ -47,6 +50,22 @@ export const ApplicantDetailsModal: React.FC<ApplicantDetailsModalProps> = ({
 }) => {
   const [isUpdating, setIsUpdating] = React.useState(false);
   const [showInterviewModal, setShowInterviewModal] = React.useState(false);
+  const [summary, setSummary] = React.useState<string | null>(null);
+  const [isSummarizing, setIsSummarizing] = React.useState(false);
+
+  const handleSummarize = async () => {
+    if (summary) return;
+    setIsSummarizing(true);
+    try {
+      const result = await aiService.summarizeCandidate(applicant.candidateId);
+      setSummary(result);
+    } catch (error) {
+      toast.error("Failed to generate AI summary");
+      console.log(error);
+    } finally {
+      setIsSummarizing(false);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -80,7 +99,6 @@ export const ApplicantDetailsModal: React.FC<ApplicantDetailsModalProps> = ({
     return map[s] || <Clock className="w-4 h-4" />;
   };
 
-  // Unified handler
   const handleStatusUpdate = async (
     newStatus: string,
     interviewDateTime?: string,
@@ -156,6 +174,49 @@ export const ApplicantDetailsModal: React.FC<ApplicantDetailsModalProps> = ({
                     "{applicant.candidate.about}"
                   </p>
                 </div>
+              )}
+            </div>
+
+            {/* AI Summary Section */}
+            <div className="bg-gradient-to-r from-violet-50 to-fuchsia-50 border-2 border-violet-100 rounded-xl p-6 relative overflow-hidden group">
+              <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                <Sparkles className="w-24 h-24 text-violet-600" />
+              </div>
+
+              <div className="flex justify-between items-start mb-4 relative z-10">
+                <h3 className="text-lg font-bold text-violet-900 flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-violet-600" />
+                  AI Profile Summary
+                </h3>
+                {!summary && (
+                  <button
+                    onClick={handleSummarize}
+                    disabled={isSummarizing}
+                    className="px-4 py-2 bg-violet-600 text-white text-sm font-semibold rounded-lg hover:bg-violet-700 transition-colors shadow-md disabled:opacity-70 flex items-center gap-2"
+                  >
+                    {isSummarizing ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Generating...
+                      </>
+                    ) : (
+                      <>Generate Summary</>
+                    )}
+                  </button>
+                )}
+              </div>
+
+              {summary && (
+                <div className="bg-white/60 backdrop-blur-sm rounded-lg p-4 text-violet-900 leading-relaxed whitespace-pre-wrap shadow-sm border border-violet-100 relative z-10 animate-fade-in">
+                  {summary}
+                </div>
+              )}
+
+              {!summary && !isSummarizing && (
+                <p className="text-violet-600/80 text-sm relative z-10">
+                  Get a quick AI-powered overview of the candidate's strengths
+                  and best fit.
+                </p>
               )}
             </div>
 
@@ -315,15 +376,16 @@ export const ApplicantDetailsModal: React.FC<ApplicantDetailsModalProps> = ({
                 <FileText className="w-5 h-5 text-indigo-600" />
                 Resume
               </h3>
-              <a
-                href={applicant.resume}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white font-semibold rounded-lg hover:from-indigo-700 hover:to-indigo-800 transition-all duration-200 shadow-md hover:shadow-lg"
+              <button
+                onClick={() => {
+                  const fileName = `Resume_${applicant.fullName.replace(/\s+/g, "_")}`;
+                  handleFileDownload(applicant.resume, fileName);
+                }}
+                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white font-semibold rounded-lg hover:from-indigo-700 hover:to-indigo-800 transition-all duration-200 shadow-sm hover:shadow-lg"
               >
                 <Download className="w-5 h-5" />
                 Download Resume
-              </a>
+              </button>
             </div>
 
             {/* Status Update Section */}

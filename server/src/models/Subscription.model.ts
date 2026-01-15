@@ -56,9 +56,8 @@ const subscriptionSchema = new Schema<ISubscription>(
   },
 );
 
-// Index for faster queries by employerId
+// Indexes
 subscriptionSchema.index({ employerId: 1 });
-// Index for finding active subscriptions
 subscriptionSchema.index({ employerId: 1, status: 1, endDate: 1 });
 
 export default model<ISubscription>("Subscription", subscriptionSchema);

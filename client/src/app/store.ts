@@ -10,7 +10,10 @@ import interviewReducer from "../features/interview/interviewSlice";
 import adminAnalyticsReducer from "../features/admin/adminAnalyticsSlice";
 import subscriptionReducer from "../features/subscription/subscriptionSlice";
 import notificationReducer from "../features/notification/notificationSlice";
+import chatReducer from "../features/chat/chatSlice";
+import feedbackReducer from "../features/feedback/feedbackSlice";
 
+//Whole app state store
 export const store = configureStore({
   reducer: {
     auth: authReducer,
@@ -24,6 +27,8 @@ export const store = configureStore({
     interview: interviewReducer,
     subscription: subscriptionReducer,
     notifications: notificationReducer,
+    chat: chatReducer,
+    feedback: feedbackReducer,
   },
 });
 

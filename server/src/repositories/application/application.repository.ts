@@ -354,6 +354,7 @@ export class ApplicationRepository
       $project: {
         _id: 0,
         id: { $toString: "$_id" },
+        candidateId: "$candidateId",
         jobId: "$jobId",
         fullName: 1,
         email: 1,
@@ -393,6 +394,7 @@ export class ApplicationRepository
 
     return result.map((doc: EmployerApplicationAggResult) => ({
       id: doc.id,
+      candidateId: doc.candidateId,
       jobId: doc.jobId,
       fullName: doc.fullName,
       email: doc.email,

@@ -8,13 +8,13 @@ import {
 import { detectUserByEmail } from "../../shared/utils/user.utils";
 import bcrypt from "bcryptjs";
 import { IPasswordService } from "../../interfaces/auth/IPasswordService";
-import { UserRepoMap } from "../../type/types";
+import { IUserRepoMap } from "../../type/types";
 import { IPasswordMapper } from "../../interfaces/auth/IPasswordMapper";
 
 export class PasswordService implements IPasswordService {
   constructor(
     private _otpService: IOtpService,
-    private _userRepos: UserRepoMap,
+    private _userRepos: IUserRepoMap,
     private _passwordMapper: IPasswordMapper,
   ) {}
   //Password reset

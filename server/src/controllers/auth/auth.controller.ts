@@ -14,7 +14,7 @@ import { ApiError } from "../../shared/utils/ApiError";
 
 export class AuthController implements IAuthController {
   constructor(private _authService: IAuthService) {}
-
+  //Signup
   signup = async (
     req: Request,
     res: Response,
@@ -29,6 +29,7 @@ export class AuthController implements IAuthController {
         email: result.user.email,
         name: result.user.name,
         role: data.userType,
+        profileImage: result.user.profileImage,
         ...(data.userType === "Employer" && {
           hasActiveSubscription: (result.user as EmployerUserData)
             .hasActiveSubscription,
@@ -51,6 +52,7 @@ export class AuthController implements IAuthController {
           email: result.user.email,
           name: result.user.name,
           role: data.userType,
+          profileImage: result.user.profileImage,
           ...(data.userType === "Employer" && {
             hasActiveSubscription: (result.user as EmployerUserData)
               .hasActiveSubscription,
@@ -69,7 +71,7 @@ export class AuthController implements IAuthController {
       next(new ApiError(HTTP_STATUS.BAD_REQUEST, message));
     }
   };
-
+  //Login
   login = async (
     req: Request,
     res: Response,
@@ -84,6 +86,7 @@ export class AuthController implements IAuthController {
         email: result.user.email,
         name: result.user.name,
         role: result.user.role,
+        profileImage: result.user.profileImage,
         ...(result.user.role === "Employer" && {
           verified: result.user.verified,
           hasActiveSubscription: (result.user as EmployerUserData)
@@ -107,6 +110,7 @@ export class AuthController implements IAuthController {
           email: result.user.email,
           name: result.user.name,
           role: result.user.role,
+          profileImage: result.user.profileImage,
           ...(result.user.role === "Employer" && {
             verified: result.user.verified,
             hasActiveSubscription: (result.user as EmployerUserData)
@@ -126,7 +130,7 @@ export class AuthController implements IAuthController {
       next(new ApiError(HTTP_STATUS.UNAUTHORIZED, message));
     }
   };
-
+  //Refresh token
   refreshToken = async (
     req: Request,
     res: Response,
@@ -149,6 +153,7 @@ export class AuthController implements IAuthController {
         email: result.user.email,
         name: result.user.name,
         role: result.user.role,
+        profileImage: result.user.profileImage,
         ...(result.user.role === "Employer" && {
           verified: result.user.verified,
           hasActiveSubscription: (result.user as EmployerUserData)
@@ -169,6 +174,7 @@ export class AuthController implements IAuthController {
           email: result.user.email,
           name: result.user.name,
           role: result.user.role,
+          profileImage: result.user.profileImage,
           ...(result.user.role === "Employer" && {
             verified: result.user.verified,
             hasActiveSubscription: (result.user as EmployerUserData)
@@ -219,7 +225,7 @@ export class AuthController implements IAuthController {
       );
     }
   };
-
+  //Logout
   logout = async (
     req: Request,
     res: Response,

@@ -18,13 +18,14 @@ const initialState: CandidateState = {
   currentApplication: null,
   currentAppLoading: false,
 };
-
+//Candidate slice
 const candidateSlice = createSlice({
   name: "candidate",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
+      //Profile fetch
       .addCase(fetchCandidateProfile.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -38,6 +39,7 @@ const candidateSlice = createSlice({
         state.error =
           action.error.message || "Failed to fetch candidate profile";
       })
+      //Update profile
       .addCase(updateCandidateProfile.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -53,6 +55,7 @@ const candidateSlice = createSlice({
             ? action.payload.message
             : String(action.payload);
       })
+      //Job apply
       .addCase(applyJob.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -64,6 +67,7 @@ const candidateSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
+      //Applications fetch
       .addCase(fetchMyApplications.pending, (s) => {
         s.appsLoading = true;
       })
@@ -75,6 +79,7 @@ const candidateSlice = createSlice({
       .addCase(fetchMyApplications.rejected, (s) => {
         s.appsLoading = false;
       })
+      //Single application
       .addCase(fetchApplicationById.pending, (state) => {
         state.currentAppLoading = true;
         state.currentApplication = null;

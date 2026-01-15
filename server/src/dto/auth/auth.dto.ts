@@ -5,6 +5,7 @@ export interface AuthSignupDTO {
   phoneNumber: string;
   userType: "Candidate" | "Employer";
   emailVerified?: boolean;
+  profileImage?: string | undefined;
 }
 
 export interface AuthLoginDTO {

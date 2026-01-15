@@ -15,12 +15,12 @@ import {
 } from "lucide-react";
 import Header from "./Header";
 import Footer from "./Footer";
-import SearchAppBar from "../../components/common/Search";
-import { HistoryLock } from "../../components/common/AuthRouteGuard";
-import CategoryCard from "../../components/common/CategoryCard";
-import TestimonialCard from "../../components/common/TestimonialCard";
-import StatsSection from "../../components/common/StatsSection";
-import FeaturedJobsSection from "../../components/common/FeaturedJobs";
+import SearchAppBar from "../../components/common/home/Search";
+import { HistoryLock } from "../../components/common/auth/AuthRouteGuard";
+import CategoryCard from "../../components/common/home/CategoryCard";
+import StatsSection from "../../components/common/home/StatsSection";
+import FeaturedJobsSection from "../../components/common/home/FeaturedJobs";
+import TestimonialSlider from "../../components/home/TestimonialSlider";
 
 const Homepage: React.FC = () => {
   const jobCategories = [
@@ -31,25 +31,6 @@ const Homepage: React.FC = () => {
     { icon: Heart, title: "Healthcare", jobCount: "900+", color: "pink" },
     { icon: Shield, title: "Finance", jobCount: "1,500+", color: "indigo" },
   ] as const;
-
-  const testimonials = [
-    {
-      quote:
-        "Talentra helped me find my dream job in just 2 weeks! The platform is intuitive and connects you with amazing opportunities.",
-      author: "Sarah Johnson",
-      position: "Software Engineer",
-      company: "Google",
-      rating: 5,
-    },
-    {
-      quote:
-        "As a hiring manager, I've found exceptional talent through Talentra. The quality of candidates is outstanding.",
-      author: "Michael Chen",
-      position: "Head of Talent",
-      company: "Microsoft",
-      rating: 5,
-    },
-  ];
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -152,25 +133,7 @@ const Homepage: React.FC = () => {
 
       <FeaturedJobsSection />
 
-      <section className="py-20 px-4 bg-white">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              What Our Users Say
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Join thousands of satisfied professionals who found their perfect
-              match through Talentra.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <TestimonialCard key={index} {...testimonial} />
-            ))}
-          </div>
-        </div>
-      </section>
+      <TestimonialSlider />
 
       <Footer />
     </div>

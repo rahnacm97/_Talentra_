@@ -1,4 +1,4 @@
-import type { EmployerApplicationsPaginatedDto } from "../../types/application/application.types";
+import type { EmployerApplicationResponseDto } from "../../types/application/application.types";
 
 export interface IEmployer {
   _id: string;
@@ -91,7 +91,7 @@ export interface EmployerState {
   profile: IEmployer | null;
   loading: boolean;
   error: string | null;
-  applications: EmployerApplicationsPaginatedDto[];
+  applications: EmployerApplicationResponseDto[];
   appPagination: {
     page: number;
     limit: number;

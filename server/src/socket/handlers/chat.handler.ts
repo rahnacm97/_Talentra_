@@ -15,12 +15,10 @@ export class ChatHandler implements ISocketHandler {
   }
 
   private handleJoinChat(socket: Socket, chatId: string) {
-    //const userId = socket.data.userId;
     socket.join(chatId);
   }
 
   private handleLeaveChat(socket: Socket, chatId: string) {
-    const userId = socket.data.userId;
     socket.leave(chatId);
   }
 

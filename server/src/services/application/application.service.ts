@@ -29,13 +29,9 @@ import { uploadResumeFile } from "../../shared/utils/fileUpload";
 import { ICandidateService } from "../../interfaces/users/candidate/ICandidateService";
 import {
   IApplicationQuery,
-  IApplication,
 } from "../../interfaces/applications/IApplication";
-import {
-  sendInterviewScheduledEmail,
-  sendHiredEmail,
-} from "../../shared/utils/email";
 import { NotificationHelper } from "../../shared/utils/notification.helper";
+import { StatusHandlerRegistry } from "./handlers/StatusHandlerRegistry";
 
 export class CandidateApplicationService
   implements ICandidateApplicationService
@@ -245,20 +241,15 @@ export class EmployerApplicationService implements IEmployerApplicationService {
         ERROR_MESSAGES.APPLICATION_NOT_FOUND,
       );
 
-    const updateData: Partial<IApplication> = {
-      status: data.status as IApplication["status"],
-    };
-
-    if (data.status === "reviewed") updateData.reviewedAt = new Date();
-    if (data.status === "shortlisted") updateData.shortlistedAt = new Date();
-    if (data.status === "hired") updateData.hiredAt = new Date();
-    if (data.status === "rejected") updateData.rejectedAt = new Date();
-
-    if (data.status === "interview" && data.interviewDate) {
-      updateData.interviewDate = new Date(data.interviewDate);
-    }
-
-    await this._appRepo.updateOne(applicationId, updateData);
+    const handler = StatusHandlerRegistry.getHandler(data.status);
+    await handler.handle({
+      application: app,
+      employerId,
+      data,
+      appRepo: this._appRepo,
+      interviewService: this._interviewService,
+      chatService: this._chatService,
+    });
 
     // Notifying candidate of status change
     const notificationHelper = NotificationHelper.getInstance();
@@ -271,66 +262,6 @@ export class EmployerApplicationService implements IEmployerApplicationService {
       app.employer.name,
     );
 
-    if (data.status === "interview" && this._interviewService) {
-      try {
-        await this._interviewService.createInterviewFromApplication({
-          applicationId,
-          jobId: app.jobId,
-          candidateId: app.candidateId,
-          employerId,
-          ...(data.interviewDate && { interviewDate: data.interviewDate }),
-        });
-        logger.info("Interview created for application", { applicationId });
-      } catch (e) {
-        logger.error("Failed to create interview", e);
-      }
-    }
-
-    if (data.status === "interview" && data.interviewDate) {
-      try {
-        await sendInterviewScheduledEmail({
-          to: app.email,
-          candidateName: app.fullName,
-          jobTitle: app.job.title,
-          interviewDate: data.interviewDate,
-          companyName: app.employer.name,
-        });
-      } catch (e) {
-        logger.warn("Interview email failed", e);
-      }
-    }
-
-    if (data.status === "hired") {
-      try {
-        await sendHiredEmail({
-          to: app.email,
-          candidateName: app.fullName,
-          jobTitle: app.job.title,
-          companyName: app.employer.name,
-        });
-        logger.info("Hired email sent for application", { applicationId });
-      } catch (e) {
-        logger.error("Failed to send hired email", e);
-      }
-    }
-
-    // Auto-creating chat if shortlisted
-    if (data.status === "shortlisted" && this._chatService) {
-      try {
-        await this._chatService.initiateChat(
-          employerId,
-          app.candidateId,
-          app.jobId,
-          applicationId,
-        );
-        logger.info("Auto-initiated chat for shortlisted candidate", {
-          applicationId,
-        });
-      } catch (e: unknown) {
-        const errorMessage = e instanceof Error ? e.message : "Unknown error";
-        logger.error("Failed to auto-initiate chat", { error: errorMessage });
-      }
-    }
     const apps = await this._appRepo.findByEmployerIdWithJob(employerId, {
       limit: 20,
     });

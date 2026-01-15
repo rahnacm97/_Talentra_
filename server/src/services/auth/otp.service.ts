@@ -1,17 +1,18 @@
-import { OtpRepository } from "../../repositories/auth/otp.repository";
 import { INotificationService } from "../../interfaces/auth/INotificationService";
 import crypto from "crypto";
 import { detectUserByEmail } from "../../shared/utils/user.utils";
 import { IOtpService } from "../../interfaces/auth/IOtpService";
-import { UserRepoMap } from "../../type/types";
+import { IUserRepoMap } from "../../type/types";
 import { SendOtpDTO, VerifyOtpDTO } from "../../dto/auth/otp.dto";
 import { IOtpMapper } from "../../interfaces/auth/IOtpMapper";
+import { IOtpRepository } from "../../interfaces/auth/IOtpRepository";
+import { OTP_TTL_MINUTES } from "../../shared/constants/constants";
 
 export class OtpService implements IOtpService {
   constructor(
-    private _otpRepository: OtpRepository,
+    private _otpRepository: IOtpRepository,
     private _notificationService: INotificationService,
-    private _userRepos: UserRepoMap,
+    private _userRepos: IUserRepoMap,
     private _otpMapper: IOtpMapper,
   ) {}
   //Otp generation
@@ -22,7 +23,7 @@ export class OtpService implements IOtpService {
     await this._otpRepository.deleteOtp(email, purpose);
 
     const otp = crypto.randomInt(100000, 999999).toString();
-    const expiresAt = new Date(Date.now() + 60 * 1000);
+    const expiresAt = new Date(Date.now() + OTP_TTL_MINUTES * 60 * 1000);
 
     await this._otpRepository.createOtp({
       email,

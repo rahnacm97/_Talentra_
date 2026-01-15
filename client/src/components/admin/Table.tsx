@@ -1,15 +1,8 @@
 import PersonIcon from "@mui/icons-material/Person";
 import EmailIcon from "@mui/icons-material/Email";
 import DescriptionIcon from "@mui/icons-material/Description";
-import DownloadIcon from "@mui/icons-material/Download";
 
 const Table = ({ data, columns, renderActions }: any) => {
-  const truncateFileName = (fileName: string, maxLength: number = 30) => {
-    if (!fileName) return "Resume.pdf";
-    const name = fileName.split("/").pop() || "Resume.pdf";
-    if (name.length <= maxLength) return name;
-    return `${name.substring(0, maxLength - 3)}...`;
-  };
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
       <div className="overflow-x-auto">
@@ -76,12 +69,11 @@ const Table = ({ data, columns, renderActions }: any) => {
                             marginRight: 1,
                           }}
                         />
-                        <span className="text-blue-600 hover:underline cursor-pointer">
-                          {truncateFileName(row[col.key])}
+                        <span className="text-gray-600">
+                          {row[col.key]
+                            ? `Resume_${(row.name || "Candidate").replace(/\s+/g, "_")}.pdf`
+                            : "No resume"}
                         </span>
-                        <button className="ml-2 text-gray-400 hover:text-blue-600">
-                          <DownloadIcon sx={{ fontSize: 16 }} />
-                        </button>
                       </div>
                     ) : (
                       <span>{row[col.key]}</span>

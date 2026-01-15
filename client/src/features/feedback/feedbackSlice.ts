@@ -17,6 +17,7 @@ const initialState: FeedbackState = {
   featuredFeedbacks: [],
   publicFeedbacks: [],
   loading: false,
+  actionLoading: false,
   error: null,
   total: 0,
 };
@@ -81,6 +82,9 @@ const feedbackSlice = createSlice({
         state.error = action.payload as string;
       })
       // Update feedback
+      .addCase(updateFeedback.pending, (state) => {
+        state.actionLoading = true;
+      })
       .addCase(updateFeedback.fulfilled, (state, action) => {
         const feedback = action.payload;
         const index = state.feedbacks.findIndex(
@@ -89,12 +93,25 @@ const feedbackSlice = createSlice({
         if (index !== -1) {
           state.feedbacks[index] = feedback;
         }
+        state.actionLoading = false;
+      })
+      .addCase(updateFeedback.rejected, (state, action) => {
+        state.actionLoading = false;
+        state.error = action.payload as string;
       })
       // Delete feedback
+      .addCase(deleteFeedback.pending, (state) => {
+        state.actionLoading = true;
+      })
       .addCase(deleteFeedback.fulfilled, (state, action) => {
         state.feedbacks = state.feedbacks.filter(
           (f: Feedback) => f.id !== action.payload,
         );
+        state.actionLoading = false;
+      })
+      .addCase(deleteFeedback.rejected, (state, action) => {
+        state.actionLoading = false;
+        state.error = action.payload as string;
       });
   },
 });

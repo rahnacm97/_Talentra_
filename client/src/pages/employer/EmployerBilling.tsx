@@ -7,7 +7,10 @@ import {
   fetchSubscriptionHistory,
 } from "../../thunks/subscription.thunk";
 import { downloadInvoice } from "../../features/subscription/subscriptionApi";
-import { Check, Zap, Shield, Loader2 } from "lucide-react";
+import { Check, Zap, Shield, Loader2, Calendar } from "lucide-react";
+import ActiveSubscriptionModal from "../../components/employer/ActiveSubscriptionModal";
+import PaymentInProgressModal from "../../components/employer/PaymentInProgressModal";
+import { updateSubscriptionStatus } from "../../features/auth/authSlice";
 
 interface Plan {
   id: "free" | "professional" | "enterprise";
@@ -36,6 +39,8 @@ const EmployerBilling: React.FC = () => {
   );
   const [selectedPlan, setSelectedPlan] = useState<Plan["id"]>("professional");
   const [processingPlanId, setProcessingPlanId] = useState<string | null>(null);
+  const [showActiveModal, setShowActiveModal] = useState(false);
+  const [showPaymentInProgressModal, setShowPaymentInProgressModal] = useState(false);
 
   useEffect(() => {
     dispatch(fetchSubscriptionHistory());
@@ -50,8 +55,50 @@ const EmployerBilling: React.FC = () => {
     };
   }, [dispatch]);
 
+  // Sync Redux auth state with latest subscription history
+  useEffect(() => {
+    if (history && history.length > 0 && user?.role === "Employer") {
+      const latest = history[0];
+      const isActuallyActive = latest.status === "active";
+
+      if (user.hasActiveSubscription !== isActuallyActive) {
+        dispatch(
+          updateSubscriptionStatus({
+            hasActiveSubscription: isActuallyActive,
+            currentPlan: isActuallyActive ? latest.plan : "free",
+          }),
+        );
+      }
+    }
+  }, [history, user, dispatch]);
+
   const handleUpgrade = async (plan: Plan) => {
     if (plan.id === "free") return;
+    if (isActive) {
+      setShowActiveModal(true);
+      return;
+    }
+
+    // Check for cross-tab payment lock
+    const paymentLock = localStorage.getItem("talentra_payment_lock");
+    if (paymentLock) {
+      const lockData = JSON.parse(paymentLock);
+      // Lock for 10 minutes to handle tab crashes but allow eventual retry
+      if (Date.now() - lockData.timestamp < 10 * 60 * 1000) {
+        setShowPaymentInProgressModal(true);
+        return;
+      }
+    }
+
+    // Set lock
+    localStorage.setItem(
+      "talentra_payment_lock",
+      JSON.stringify({
+        timestamp: Date.now(),
+        planId: plan.id,
+      }),
+    );
+
     setProcessingPlanId(plan.id);
 
     try {
@@ -80,6 +127,8 @@ const EmployerBilling: React.FC = () => {
                 },
               }),
             );
+            // Clear payment lock on success
+            localStorage.removeItem("talentra_payment_lock");
             // Refresh user data or history
             dispatch(fetchSubscriptionHistory());
             window.location.reload(); // Simple reload to refresh auth state/subscription status
@@ -95,6 +144,7 @@ const EmployerBilling: React.FC = () => {
           modal: {
             ondismiss: function () {
               setProcessingPlanId(null);
+              localStorage.removeItem("talentra_payment_lock");
             },
           },
         };
@@ -103,10 +153,12 @@ const EmployerBilling: React.FC = () => {
         rzp1.open();
       } else {
         setProcessingPlanId(null);
+        localStorage.removeItem("talentra_payment_lock");
       }
     } catch (error) {
       console.error("Payment initiation failed", error);
       setProcessingPlanId(null);
+      localStorage.removeItem("talentra_payment_lock");
     }
   };
 
@@ -155,6 +207,15 @@ const EmployerBilling: React.FC = () => {
   const currentPlan = user?.currentPlan || "free";
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
+      <ActiveSubscriptionModal
+        isOpen={showActiveModal}
+        onClose={() => setShowActiveModal(false)}
+        currentPlan={currentPlan}
+      />
+      <PaymentInProgressModal
+        isOpen={showPaymentInProgressModal}
+        onClose={() => setShowPaymentInProgressModal(false)}
+      />
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -167,14 +228,38 @@ const EmployerBilling: React.FC = () => {
         </div>
 
         {/* Active Plan Info */}
-        {isActive && (
-          <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
-            <p className="font-semibold text-green-800">
-              Active Plan: {currentPlan === "enterprise" ? "Annual" : "Monthly"}
+        <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <p className="font-semibold text-blue-800">
+            Current Plan:{" "}
+            {isActive
+              ? currentPlan === "enterprise"
+                ? "Professional Annual"
+                : "Professional Monthly"
+              : history && history.length > 0 && history[0].status === "expired"
+                ? "No Plan"
+                : "Free Plan"}
+          </p>
+          <p className="text-sm text-blue-700 mt-1">
+            Status: {isActive 
+              ? "Active" 
+              : history && history.length > 0 && history[0].status === "expired"
+                ? "Expired"
+                : "Standard"}
+          </p>
+          {!isActive && user?.trialEndsAt && (
+            <p className="text-sm text-red-600 mt-2 font-medium flex items-center gap-2">
+              <Calendar className="w-4 h-4" />
+              Trial ends on: {new Date(user.trialEndsAt).toLocaleDateString('en-US', {
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric'
+              })}
+              <span className="text-gray-500 font-normal">
+                ({Math.ceil((new Date(user.trialEndsAt).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days remaining)
+              </span>
             </p>
-            <p className="text-sm text-green-700 mt-1">Status: Active</p>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Plans Grid */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
@@ -184,7 +269,9 @@ const EmployerBilling: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
             {plans.map((plan) => {
-              const isCurrent = isActive && currentPlan === plan.id;
+              const isCurrent =
+                (isActive && currentPlan === plan.id) ||
+                (!isActive && plan.id === "free");
               const isProcessing = loading && processingPlanId === plan.id;
 
               return (
@@ -444,10 +531,10 @@ const EmployerBilling: React.FC = () => {
                           No billing history yet
                         </h4>
                         <p className="text-gray-600 mb-1">
-                          You are currently on the free trial
+                          You are currently on the free plan
                         </p>
                         <p className="text-sm text-gray-500">
-                          Your trial will end in one month
+                          Upgrade to a professional plan for more features
                         </p>
                       </div>
                     </td>

@@ -7,7 +7,7 @@ import { Document } from "mongoose";
 import { IUserRepository } from "../interfaces/auth/IAuthRepository";
 import { USER_ROLES } from "../shared/enums/enums";
 
-export type UserRepoMap = {
+export type IUserRepoMap = {
   Candidate: IUserRepository<ICandidate>;
   Employer: IUserRepository<IEmployer>;
   Admin: IUserRepository<IAdmin>;

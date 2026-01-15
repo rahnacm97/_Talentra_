@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { X, CheckCircle, Upload, FileText, AlertCircle } from "lucide-react";
 import type { FormErrors } from "../../shared/validations/JobApplyValidation";
+import { handleFileDownload } from "../../utils/fileUtils";
 
 interface JobApplyModalProps {
   jobTitle: string;
@@ -290,14 +291,16 @@ export const JobApplyModal: React.FC<JobApplyModalProps> = ({
                           </p>
                         </div>
                       </div>
-                      <a
-                        href={profileResumeUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-indigo-600 hover:underline text-sm font-medium"
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const fileName = `Resume_${(profile?.name || "Candidate").replace(/\s+/g, "_")}`;
+                          handleFileDownload(profileResumeUrl!, fileName);
+                        }}
+                        className="text-indigo-600 hover:text-indigo-800 text-sm font-medium cursor-pointer"
                       >
                         View
-                      </a>
+                      </button>
                     </div>
                   </div>
                 )}

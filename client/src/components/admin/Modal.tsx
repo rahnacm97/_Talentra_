@@ -3,6 +3,7 @@ import BlockIcon from "@mui/icons-material/Block";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CloseIcon from "@mui/icons-material/Close";
 import VerifiedIcon from "@mui/icons-material/Verified";
+import { Loader2 } from "lucide-react";
 
 interface ModalProps {
   isOpen: boolean;
@@ -12,6 +13,7 @@ interface ModalProps {
   name: string;
   reason?: string;
   onReasonChange?: (reason: string) => void;
+  isLoading?: boolean;
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -22,6 +24,7 @@ const Modal: React.FC<ModalProps> = ({
   name,
   reason = "",
   onReasonChange,
+  isLoading = false,
 }) => {
   if (!isOpen) return null;
 
@@ -122,6 +125,7 @@ const Modal: React.FC<ModalProps> = ({
               className="w-full p-3 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-red-500 focus:border-transparent outline-none transition-all"
               rows={4}
               required
+              disabled={isLoading}
             />
             {!reason.trim() && (
               <p className="text-xs text-red-500 mt-1">Reason is required</p>
@@ -132,19 +136,21 @@ const Modal: React.FC<ModalProps> = ({
         <div className="flex space-x-3">
           <button
             onClick={onCancel}
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+            disabled={isLoading}
+            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Cancel
           </button>
           <button
             onClick={onApprove}
-            disabled={isReject && !reason.trim()}
-            className={`flex-1 px-4 py-2 rounded-lg text-white font-medium transition-colors ${
-              isReject && !reason.trim()
+            disabled={isLoading || (isReject && !reason.trim())}
+            className={`flex-1 px-4 py-2 rounded-lg text-white font-medium transition-colors flex items-center justify-center gap-2 ${
+              (isReject && !reason.trim()) || isLoading
                 ? "bg-gray-400 cursor-not-allowed"
                 : approveBtnClass
             }`}
           >
+            {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
             {approveLabel}
           </button>
         </div>

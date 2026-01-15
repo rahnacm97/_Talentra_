@@ -1,7 +1,8 @@
 import OtpModel from "../../models/Otp.model";
 import { IOtp } from "../../interfaces/auth/IOtp";
+import { IOtpRepository } from "../../interfaces/auth/IOtpRepository";
 
-export class OtpRepository {
+export class OtpRepository implements IOtpRepository {
   async createOtp(data: IOtp): Promise<IOtp> {
     return await OtpModel.create(data);
   }

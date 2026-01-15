@@ -26,8 +26,6 @@ const FeedbackViewModal: React.FC<FeedbackViewModalProps> = ({
       ? feedback.userId.name
       : feedback.userName;
 
-
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gradient-to-br from-black/60 via-black/50 to-black/60 backdrop-blur-md animate-in fade-in duration-300">
       <div

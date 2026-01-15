@@ -9,7 +9,7 @@ const otpSchema = new Schema<IOtp>({
     enum: ["signup", "forgot-password"],
     required: true,
   },
-  expiresAt: { type: Date, required: true },
+  expiresAt: { type: Date, required: true, index: { expires: 0 } },
   createdAt: { type: Date, default: Date.now },
 });
 

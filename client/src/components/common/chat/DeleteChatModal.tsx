@@ -25,15 +25,18 @@ const DeleteChatModal: React.FC<DeleteChatModalProps> = ({
           <div className="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full mb-4">
             <AlertTriangle className="h-6 w-6 text-red-600" />
           </div>
-          
+
           <h3 className="text-xl font-bold text-gray-900 text-center mb-2">
             Delete Conversation
           </h3>
-          
+
           <p className="text-gray-500 text-center mb-6">
             Are you sure you want to delete your conversation with{" "}
-            <span className="font-semibold text-gray-900">{chatPartnerName}</span>? 
-            This action cannot be undone and all messages will be permanently removed.
+            <span className="font-semibold text-gray-900">
+              {chatPartnerName}
+            </span>
+            ? This action cannot be undone and all messages will be permanently
+            removed.
           </p>
 
           <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">

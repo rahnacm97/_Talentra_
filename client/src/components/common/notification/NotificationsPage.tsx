@@ -20,7 +20,7 @@ const NotificationsPage: React.FC = () => {
     dispatch(
       fetchNotifications({
         page: 1,
-        limit: 20,
+        limit: 5,
         ...(filter === "unread" && { isRead: false }),
       }),
     );
@@ -45,7 +45,7 @@ const NotificationsPage: React.FC = () => {
       dispatch(
         fetchNotifications({
           page: page + 1,
-          limit: 20,
+          limit: 5,
           ...(filter === "unread" && { isRead: false }),
         }),
       );

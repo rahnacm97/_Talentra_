@@ -72,6 +72,7 @@ export interface EmployersState {
   employers: EmployerResponseDTO[];
   total: number;
   loading: boolean;
+  actionLoading: boolean;
   error: string | null;
   selectedEmployer: EmployerResponseDTO | null;
 }

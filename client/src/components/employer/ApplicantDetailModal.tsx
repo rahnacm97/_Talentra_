@@ -21,6 +21,7 @@ import { InterviewScheduleModal } from "./InterviewSchedule";
 import { aiService } from "../../services/aiService";
 import { toast } from "react-toastify";
 import { Sparkles } from "lucide-react";
+import { handleFileDownload } from "../../utils/fileUtils";
 
 interface ApplicantDetailsModalProps {
   applicant: EmployerApplicationResponseDto;
@@ -375,15 +376,16 @@ export const ApplicantDetailsModal: React.FC<ApplicantDetailsModalProps> = ({
                 <FileText className="w-5 h-5 text-indigo-600" />
                 Resume
               </h3>
-              <a
-                href={applicant.resume}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white font-semibold rounded-lg hover:from-indigo-700 hover:to-indigo-800 transition-all duration-200 shadow-md hover:shadow-lg"
+              <button
+                onClick={() => {
+                  const fileName = `Resume_${applicant.fullName.replace(/\s+/g, "_")}`;
+                  handleFileDownload(applicant.resume, fileName);
+                }}
+                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white font-semibold rounded-lg hover:from-indigo-700 hover:to-indigo-800 transition-all duration-200 shadow-sm hover:shadow-lg"
               >
                 <Download className="w-5 h-5" />
                 Download Resume
-              </a>
+              </button>
             </div>
 
             {/* Status Update Section */}

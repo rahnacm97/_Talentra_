@@ -25,6 +25,7 @@ import Pagination from "../../components/common/pagination/Pagination";
 import { ApplicantDetailsModal } from "../../components/employer/ApplicantDetailModal";
 import { toast } from "react-toastify";
 import { formatFullName } from "../../utils/formatters";
+import { handleFileDownload } from "../../utils/fileUtils";
 
 const EmployerApplicants: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -326,15 +327,16 @@ const EmployerApplicants: React.FC = () => {
                           Resume:
                         </strong>
                       </div>
-                      <a
-                        href={app.resume}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 ml-7 px-4 py-2 bg-white text-indigo-600 font-semibold rounded-lg hover:bg-indigo-600 hover:text-white transition-all duration-200 shadow-sm"
+                      <button
+                        onClick={() => {
+                          const fileName = `Resume_${app.fullName.replace(/\s+/g, "_")}`;
+                          handleFileDownload(app.resume, fileName);
+                        }}
+                        className="inline-flex items-center gap-2 ml-7 px-4 py-2 bg-white text-indigo-600 font-semibold rounded-lg hover:bg-indigo-600 hover:text-white transition-all duration-200 shadow-sm cursor-pointer"
                       >
                         <Download className="w-4 h-4" />
                         Download Resume
-                      </a>
+                      </button>
                     </div>
                   </div>
                 )}

@@ -1,5 +1,4 @@
 import { FilterQuery } from "mongoose";
-import { EmployerRepository } from "../../repositories/employer/employer.repository";
 import { IAdminEmployerService } from "../../interfaces/users/admin/IAdminEmployerService";
 import {
   BlockEmployerDTO,
@@ -13,10 +12,11 @@ import { HTTP_STATUS } from "../../shared/httpStatus/httpStatusCode";
 import { ERROR_MESSAGES } from "../../shared/enums/enums";
 import { logger } from "../../shared/utils/logger";
 import { NotificationHelper } from "../../shared/utils/notification.helper";
+import { IEmployerRepository } from "../../interfaces/users/employer/IEmployerRepository";
 
 export class AdminEmployerService implements IAdminEmployerService {
   constructor(
-    private _employerRepo: EmployerRepository,
+    private _employerRepo: IEmployerRepository,
     private _employerMapper: IEmployerMapper,
     private _emailService: INotificationService,
   ) {}

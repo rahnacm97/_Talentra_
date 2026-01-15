@@ -18,7 +18,7 @@ import {
 
 const AdminCandidates: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { candidates, total, loading } = useAppSelector(
+  const { candidates, total, loading, actionLoading } = useAppSelector(
     (state) => state.adminCandidates,
   );
 
@@ -67,12 +67,15 @@ const AdminCandidates: React.FC = () => {
           candidateId: selectedCandidateId,
           block: isBlockAction,
         }),
-      );
+      ).then((result) => {
+        if (toggleBlockCandidate.fulfilled.match(result)) {
+          setShowModal(false);
+          setSelectedCandidateId(null);
+          setSelectedCandidateName("");
+          setIsBlockAction(null);
+        }
+      });
     }
-    setShowModal(false);
-    setSelectedCandidateId(null);
-    setSelectedCandidateName("");
-    setIsBlockAction(null);
   };
 
   const handleCancel = () => {
@@ -208,6 +211,7 @@ const AdminCandidates: React.FC = () => {
         onCancel={handleCancel}
         actionType={isBlockAction ? "block" : "unblock"}
         name={selectedCandidateName}
+        isLoading={actionLoading}
       />
     </div>
   );

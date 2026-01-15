@@ -33,6 +33,7 @@ export interface FeedbackState {
   featuredFeedbacks: Feedback[];
   publicFeedbacks: Feedback[];
   loading: boolean;
+  actionLoading: boolean;
   error: string | null;
   total: number;
 }

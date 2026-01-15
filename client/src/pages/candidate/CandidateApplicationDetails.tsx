@@ -28,6 +28,7 @@ import { fetchApplicationById } from "../../thunks/candidate.thunks";
 import { ApplicationDetailsSkeleton } from "../../components/candidate/ApplicationSkelton";
 import { formatDate, formatInterviewDate } from "../../utils/formatters";
 import { FRONTEND_ROUTES } from "../../shared/constants/constants";
+import { handleFileDownload } from "../../utils/fileUtils";
 
 const ApplicationDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -282,11 +283,12 @@ const ApplicationDetails: React.FC = () => {
                     <label className="text-sm font-medium text-gray-600 block mb-2">
                       Resume
                     </label>
-                    <a
-                      href={application.resume}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-200 hover:bg-blue-100 transition group"
+                    <button
+                      onClick={() => {
+                        const fileName = `Resume_${application.jobTitle.replace(/\s+/g, "_")}`;
+                        handleFileDownload(application.resume, fileName);
+                      }}
+                      className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-200 hover:bg-blue-100 transition group w-full text-left"
                     >
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
@@ -297,12 +299,12 @@ const ApplicationDetails: React.FC = () => {
                             Resume.pdf
                           </p>
                           <p className="text-sm text-gray-600">
-                            Click to view or download
+                            Click to download
                           </p>
                         </div>
                       </div>
                       <Download className="w-5 h-5 text-blue-600 group-hover:text-blue-700" />
-                    </a>
+                    </button>
                   </div>
                 )}
               </div>

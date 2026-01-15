@@ -1,5 +1,4 @@
 import { IEmployerService } from "../../interfaces/users/employer/IEmployerService";
-import { EmployerRepository } from "../../repositories/employer/employer.repository";
 import { IEmployer } from "../../interfaces/users/employer/IEmployer";
 import { IEmployerMapper } from "../../interfaces/users/employer/IEmployerMapper";
 import { ApiError } from "../../shared/utils/ApiError";
@@ -33,7 +32,7 @@ import { NotificationHelper } from "../../shared/utils/notification.helper";
 
 export class EmployerService implements IEmployerService {
   constructor(
-    private _repository = new EmployerRepository(),
+    private _repository: IEmployerRepository,
     private _employerMapper: IEmployerMapper,
   ) {}
 
@@ -316,6 +315,16 @@ export class SubscriptionService implements ISubscriptionService {
         subscriptions.map(async (sub) => {
           if (sub.status === "active" && new Date(sub.endDate) < now) {
             await this._subscriptionRepository.updateStatus(sub.id, "expired");
+
+            // Also update employer record if this was their active subscription
+            if (employer.hasActiveSubscription && employer.currentPlan === sub.plan) {
+                await this._employerRepository.updateOne(employerId, {
+                    hasActiveSubscription: false,
+                    currentPlan: "free"
+                });
+                logger.info("Updated employer subscription status to expired in getSubscriptionHistory", { employerId });
+            }
+
             return { ...sub.toObject(), status: "expired" };
           }
           return sub;

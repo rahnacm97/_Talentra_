@@ -21,7 +21,7 @@ import FeedbackViewModal from "../../components/admin/FeedbackViewModal";
 
 const AdminFeedback: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { feedbacks, loading, total } = useAppSelector(
+  const { feedbacks, loading, actionLoading, total } = useAppSelector(
     (state: RootState) => state.feedback,
   );
   const [currentPage, setCurrentPage] = useState(1);
@@ -89,12 +89,10 @@ const AdminFeedback: React.FC = () => {
     const result = await dispatch(deleteFeedback(selectedFeedbackId));
     if (deleteFeedback.fulfilled.match(result)) {
       toast.success("Feedback deleted successfully");
-    } else {
-      toast.error(result.payload as string);
+      setShowModal(false);
+      setSelectedFeedbackId(null);
+      setSelectedUserName("");
     }
-    setShowModal(false);
-    setSelectedFeedbackId(null);
-    setSelectedUserName("");
   };
 
   const handleCancel = () => {
@@ -320,6 +318,7 @@ const AdminFeedback: React.FC = () => {
         onCancel={handleCancel}
         actionType="delete"
         name={selectedUserName}
+        isLoading={actionLoading}
       />
 
       {showViewModal && viewFeedback && (

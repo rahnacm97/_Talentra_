@@ -75,6 +75,7 @@ export const requireActiveSubscription = async (
           });
           await employerRepo.updateOne(employer._id, {
             hasActiveSubscription: false,
+            currentPlan: "free",
           });
         }
       } else {

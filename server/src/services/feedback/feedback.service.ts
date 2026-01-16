@@ -46,7 +46,7 @@ export class FeedbackService implements IFeedbackService {
   //Fetch feedback
   async getAllFeedback(
     page = 1,
-    limit = 10,
+    limit = 5,
     search = "",
   ): Promise<{ feedbacks: FeedbackResponseDTO[]; total: number }> {
     await this._feedbackRepo.repairFeedbackData();

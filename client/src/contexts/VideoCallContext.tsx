@@ -10,6 +10,7 @@ import { endVideoCall } from "../features/videocall/videoCallApi";
 import { useSelector } from "react-redux";
 import { type RootState } from "../app/store";
 import type { VideoCallContextType } from "../types/videocall/videocall.types";
+import { toast } from "react-toastify";
 
 //Context
 const VideoCallContext = createContext<VideoCallContextType | undefined>(
@@ -338,7 +339,7 @@ export const VideoCallProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 
   const handleRemoteEndCall = React.useCallback(() => {
-    alert("The other party has ended the call.");
+    toast.info("The other party has ended the call.");
     closeCall();
   }, [closeCall]);
 

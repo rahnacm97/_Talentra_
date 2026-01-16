@@ -57,7 +57,7 @@ export class SocketManager {
       }
     }
 
-    // Delegate to all registered handlers
+    // handling all registered handlers
     this._handlers.forEach((handler) => {
       handler.handle(socket);
     });

@@ -103,65 +103,65 @@ export const requireActiveSubscription = async (
   }
 };
 
-export const checkPlanAccess = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    const authenticatedReq = req as AuthenticatedRequest;
+// export const checkPlanAccess = async (
+//   req: Request,
+//   res: Response,
+//   next: NextFunction,
+// ) => {
+//   try {
+//     const authenticatedReq = req as AuthenticatedRequest;
 
-    if (
-      !authenticatedReq.user ||
-      authenticatedReq.user.role !== USER_ROLES.EMPLOYER
-    ) {
-      return next();
-    }
+//     if (
+//       !authenticatedReq.user ||
+//       authenticatedReq.user.role !== USER_ROLES.EMPLOYER
+//     ) {
+//       return next();
+//     }
 
-    const plan = authenticatedReq.user.currentPlan || "free";
+//     const plan = authenticatedReq.user.currentPlan || "free";
 
-    if (req.method === "POST" && req.originalUrl.includes("/jobs")) {
-      if (plan === "free") {
-        const count = await JobModel.countDocuments({
-          employerId: authenticatedReq.user._id,
-          status: { $in: ["active", "draft", "closed", "all"] },
-        });
+//     if (req.method === "POST" && req.originalUrl.includes("/jobs")) {
+//       if (plan === "free") {
+//         const count = await JobModel.countDocuments({
+//           employerId: authenticatedReq.user._id,
+//           status: { $in: ["active", "draft", "closed", "all"] },
+//         });
 
-        if (count >= 10) {
-          return res.status(HTTP_STATUS.FORBIDDEN).json({
-            success: false,
-            message:
-              "You've reached the free plan limit of 10 jobs. Upgrade to Professional to post more.",
-            upgradeRequired: true,
-            currentPlan: "free",
-            used: count,
-            limit: 10,
-          });
-        }
-      }
-    }
+//         if (count >= 10) {
+//           return res.status(HTTP_STATUS.FORBIDDEN).json({
+//             success: false,
+//             message:
+//               "You've reached the free plan limit of 10 jobs. Upgrade to Professional to post more.",
+//             upgradeRequired: true,
+//             currentPlan: "free",
+//             used: count,
+//             limit: 10,
+//           });
+//         }
+//       }
+//     }
 
-    if (req.originalUrl.includes("/applications")) {
-      if (plan === "free") {
-        authenticatedReq.maskApplications = true;
+//     if (req.originalUrl.includes("/applications")) {
+//       if (plan === "free") {
+//         authenticatedReq.maskApplications = true;
 
-        if (req.method === "PATCH" || req.method === "PUT") {
-          return res.status(HTTP_STATUS.FORBIDDEN).json({
-            success: false,
-            message:
-              "Free plan users can only view applications. Upgrade to Professional to shortlist or contact candidates.",
-            upgradeRequired: true,
-          });
-        }
-      }
-    }
+//         if (req.method === "PATCH" || req.method === "PUT") {
+//           return res.status(HTTP_STATUS.FORBIDDEN).json({
+//             success: false,
+//             message:
+//               "Free plan users can only view applications. Upgrade to Professional to shortlist or contact candidates.",
+//             upgradeRequired: true,
+//           });
+//         }
+//       }
+//     }
 
-    next();
-  } catch (error) {
-    console.error("Subscription check error:", error);
-    return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: ERROR_MESSAGES.SERVER_ERROR,
-    });
-  }
-};
+//     next();
+//   } catch (error) {
+//     console.error("Subscription check error:", error);
+//     return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+//       success: false,
+//       message: ERROR_MESSAGES.SERVER_ERROR,
+//     });
+//   }
+// };

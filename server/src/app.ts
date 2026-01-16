@@ -28,7 +28,7 @@ dotenv.config();
 //Socket.io setup
 const io = new Server(server, {
   cors: {
-    origin: [process.env.FRONTEND_URL!, "http://localhost:5173"],
+    origin: [process.env.FRONTEND_URL!, "https://vr0t3mt2-5173.inc1.devtunnels.ms", "http://localhost:5173"],
     credentials: true,
   },
 });
@@ -47,7 +47,7 @@ SocketManager.initialize(io, [chatHandler, videoCallHandler]);
 app.use(cookieParser());
 app.use(
   cors({
-    origin: [process.env.FRONTEND_URL!, "http://localhost:5173"],
+    origin: [process.env.FRONTEND_URL!,"https://vr0t3mt2-5173.inc1.devtunnels.ms", "http://localhost:5173"],
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],

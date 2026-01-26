@@ -10,12 +10,16 @@ import {
 import { ApiError } from "../../shared/utils/ApiError";
 import { HTTP_STATUS } from "../../shared/httpStatus/httpStatusCode";
 import { Types, FilterQuery } from "mongoose";
-import { NotificationHelper } from "../../shared/utils/notification.helper";
+
+import { INotificationService } from "../../interfaces/shared/INotificationService";
 
 export class FeedbackService implements IFeedbackService {
   constructor(
     private readonly _feedbackRepo: IFeedbackRepository,
     private readonly _feedbackMapper: IFeedbackMapper,
+
+    private readonly _notificationService: INotificationService,
+
   ) {}
 
   //Feedback submission
@@ -35,7 +39,9 @@ export class FeedbackService implements IFeedbackService {
     const feedback = await this._feedbackRepo.create(feedbackData);
 
     // Notify Admin
-    await NotificationHelper.getInstance().notifyAdminNewFeedback(
+
+    await this._notificationService.notifyAdminNewFeedback(
+
       data.userId,
       data.userName,
     );

@@ -1,32 +1,35 @@
-import { FilterQuery } from "mongoose";
+
 import { IAdminCandidateService } from "../../interfaces/users/admin/IAdminCandidateService";
 import {
   BlockCandidateDTO,
   CandidateResponseDTO,
 } from "../../dto/admin/candidate.dto";
-import { ICandidate } from "../../interfaces/users/candidate/ICandidate";
 import { ICandidateMapper } from "../../interfaces/users/admin/ICandidateMapper";
-import { NotificationHelper } from "../../shared/utils/notification.helper";
+import { INotificationService } from "../../interfaces/shared/INotificationService";
 import { ICandidateRepo } from "../../interfaces/users/candidate/ICandidateRepository";
+import { CandidateFilterProcessor } from "./filters/candidate/CandidateFilterProcessor";
+import { CandidateSearchFilter } from "./filters/candidate/CandidateSearchFilter";
+import { CandidateStatusFilter } from "./filters/candidate/CandidateStatusFilter";
+
 
 export class AdminCandidateService implements IAdminCandidateService {
   constructor(
     private _candidateRepo: ICandidateRepo,
     private _candidateMapper: ICandidateMapper,
+    private _notificationService: INotificationService,
   ) {}
   //Fetching all candidates
   async getAllCandidates(
     page: number,
     limit: number,
     search?: string,
+    status?: "active" | "blocked",
   ): Promise<{ data: CandidateResponseDTO[]; total: number }> {
-    const query: FilterQuery<ICandidate> = {};
-    if (search) {
-      query.$or = [
-        { name: { $regex: search, $options: "i" } },
-        { email: { $regex: search, $options: "i" } },
-      ];
-    }
+    const filterProcessor = new CandidateFilterProcessor();
+    filterProcessor.addFilter(new CandidateSearchFilter(search));
+    filterProcessor.addFilter(new CandidateStatusFilter(status));
+
+    const query = filterProcessor.buildQuery();
 
     const candidates = await this._candidateRepo.findAll(query, page, limit);
     const total = await this._candidateRepo.count(query);
@@ -48,19 +51,22 @@ export class AdminCandidateService implements IAdminCandidateService {
     );
     if (!candidate) throw new Error("Candidate not found");
 
-    const notificationHelper = NotificationHelper.getInstance();
 
     if (candidateEntity.block) {
-      notificationHelper.emitUserBlocked(
+      this._notificationService.emitUserBlocked(
+
         candidateEntity.candidateId,
         "Candidate",
       );
     } else {
-      notificationHelper.emitUserUnblocked(
+
+      this._notificationService.emitUserUnblocked(
+
         candidateEntity.candidateId,
         "Candidate",
       );
     }
+
 
     return this._candidateMapper.toCandidateResponseDTO(candidate);
   }

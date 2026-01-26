@@ -53,6 +53,10 @@ export interface IEmployerApplicationRepository {
     employerId: string,
   ): Promise<IApplication | null>;
   findOneWithJob(applicationId: string): Promise<IApplicationWithJob | null>;
+  findByIdForEmployer(
+    applicationId: string,
+    employerId: string,
+  ): Promise<IEmployerApplicationResponse | null>;
 }
 
 export interface IApplicationRepository

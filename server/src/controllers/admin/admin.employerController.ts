@@ -15,14 +15,32 @@ export class AdminEmployerController implements IAdminEmployerController {
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
       const search = req.query.search as string | undefined;
+      const status = req.query.status as
+        | "active"
+        | "blocked"
+        | "all"
+        | undefined;
+      const verification = req.query.verification as
+        | "verified"
+        | "pending"
+        | "all"
+        | undefined;
 
       const result = await this._employerService.getAllEmployers(
         page,
         limit,
         search,
+        status === "all" ? undefined : status,
+        verification === "all" ? undefined : verification,
       );
 
-      logger.info("Fetching all employers", { page, limit, search });
+      logger.info("Fetching all employers", {
+        page,
+        limit,
+        search,
+        status,
+        verification,
+      });
       res
         .status(HTTP_STATUS.OK)
         .json({ message: SUCCESS_MESSAGES.FETCH_SUCCESS, data: result });
@@ -34,6 +52,8 @@ export class AdminEmployerController implements IAdminEmployerController {
         page: req.query.page,
         limit: req.query.limit,
         search: req.query.search,
+        status: req.query.status,
+        verification: req.query.verification,
       });
       next(
         error instanceof ApiError

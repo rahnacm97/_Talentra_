@@ -1,8 +1,5 @@
 import Interview, { IInterviewDocument } from "../../models/Interview.model";
-import {
-  ICandidateInterviewRepository,
-  IEmployerInterviewRepository,
-} from "../../interfaces/interviews/IInterviewRepository";
+import { IInterviewRepository } from "../../interfaces/interviews/IInterviewRepository";
 import {
   IInterview,
   IInterviewQuery,
@@ -11,9 +8,7 @@ import {
 import { PipelineStage, FilterQuery } from "mongoose";
 import mongoose from "mongoose";
 
-export class InterviewRepository
-  implements ICandidateInterviewRepository, IEmployerInterviewRepository
-{
+export class InterviewRepository implements IInterviewRepository {
   async create(data: Partial<IInterview>): Promise<IInterview> {
     const doc = await Interview.create(data);
     return this.toDomain(doc);
@@ -32,6 +27,117 @@ export class InterviewRepository
     return doc ? this.toDomain(doc) : null;
   }
 
+  async findByIdWithDetails(
+    interviewId: string,
+  ): Promise<IInterviewWithDetails | null> {
+    if (!mongoose.Types.ObjectId.isValid(interviewId)) {
+      return null;
+    }
+
+    const pipeline: PipelineStage[] = [
+      { $match: { _id: new mongoose.Types.ObjectId(interviewId) } },
+      { $addFields: { jobIdObj: { $toObjectId: "$jobId" } } },
+      {
+        $lookup: {
+          from: "jobs",
+          localField: "jobIdObj",
+          foreignField: "_id",
+          as: "job",
+        },
+      },
+      { $unwind: { path: "$job", preserveNullAndEmptyArrays: true } },
+      { $addFields: { candidateIdObj: { $toObjectId: "$candidateId" } } },
+      {
+        $lookup: {
+          from: "candidates",
+          localField: "candidateIdObj",
+          foreignField: "_id",
+          as: "candidate",
+        },
+      },
+      { $unwind: { path: "$candidate", preserveNullAndEmptyArrays: true } },
+      { $addFields: { employerIdObj: { $toObjectId: "$employerId" } } },
+      {
+        $lookup: {
+          from: "employers",
+          localField: "employerIdObj",
+          foreignField: "_id",
+          as: "employer",
+        },
+      },
+      { $unwind: { path: "$employer", preserveNullAndEmptyArrays: true } },
+      { $addFields: { applicationIdObj: { $toObjectId: "$applicationId" } } },
+      {
+        $lookup: {
+          from: "applications",
+          localField: "applicationIdObj",
+          foreignField: "_id",
+          as: "application",
+        },
+      },
+      { $unwind: { path: "$application", preserveNullAndEmptyArrays: true } },
+      {
+        $project: {
+          _id: 1,
+          applicationId: 1,
+          jobId: 1,
+          candidateId: 1,
+          employerId: 1,
+          interviewDate: 1,
+          status: 1,
+          notes: 1,
+          feedback: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          applicationStatus: "$application.status",
+          job: {
+            title: "$job.title",
+            location: "$job.location",
+            type: "$job.type",
+          },
+          candidate: {
+            fullName: "$candidate.name",
+            email: "$candidate.email",
+            phone: "$candidate.phoneNumber",
+            profileImage: "$candidate.profileImage",
+          },
+          employer: {
+            name: "$employer.name",
+            companyName: "$employer.name", // Using name since companyName field doesn't exist in model
+            logo: "$employer.logo",
+          },
+        },
+      },
+    ];
+
+    const docs = await Interview.aggregate(pipeline).exec();
+    if (!docs || docs.length === 0) return null;
+
+    const doc = docs[0];
+    return {
+      id: doc._id.toString(),
+      applicationId: doc.applicationId,
+      jobId: doc.jobId,
+      candidateId: doc.candidateId,
+      employerId: doc.employerId,
+      interviewDate: doc.interviewDate,
+      status: doc.status,
+      notes: doc.notes,
+      feedback: doc.feedback,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
+      job: doc.job || { title: "", location: "", type: "" },
+      candidate: doc.candidate || {
+        fullName: "",
+        email: "",
+        phone: "",
+        profileImage: "",
+      },
+      employer: doc.employer || { name: "", companyName: "", logo: "" },
+      applicationStatus: doc.applicationStatus,
+    };
+  }
+
   async findByEmployerId(
     employerId: string,
     query: IInterviewQuery = {},
@@ -43,12 +149,18 @@ export class InterviewRepository
     const match: Record<string, unknown> = { employerId };
 
     if (query.status && query.status !== "all") {
-      match.status = query.status;
+      if (query.status === "scheduled") {
+        match.status = { $in: ["scheduled", "rescheduled"] };
+      } else if (query.status === "completed") {
+        match.status = { $in: ["completed", "hired", "rejected"] };
+      } else {
+        match.status = query.status;
+      }
     }
 
     const sort: Record<string, 1 | -1> = query.sortBy
       ? { [query.sortBy]: query.order === "desc" ? -1 : 1 }
-      : { interviewDate: -1 };
+      : { updatedAt: -1 };
 
     const pipeline: PipelineStage[] = [
       { $match: match },
@@ -82,6 +194,16 @@ export class InterviewRepository
         },
       },
       { $unwind: { path: "$employer", preserveNullAndEmptyArrays: true } },
+      { $addFields: { applicationIdObj: { $toObjectId: "$applicationId" } } },
+      {
+        $lookup: {
+          from: "applications",
+          localField: "applicationIdObj",
+          foreignField: "_id",
+          as: "application",
+        },
+      },
+      { $unwind: { path: "$application", preserveNullAndEmptyArrays: true } },
     ];
 
     if (query.search?.trim()) {
@@ -111,6 +233,7 @@ export class InterviewRepository
           feedback: 1,
           createdAt: 1,
           updatedAt: 1,
+          applicationStatus: "$application.status",
           job: {
             title: "$job.title",
             location: "$job.location",
@@ -124,7 +247,7 @@ export class InterviewRepository
           },
           employer: {
             name: "$employer.name",
-            companyName: "$employer.companyName",
+            companyName: "$employer.name", // Using name since companyName field doesn't exist in model
             logo: "$employer.logo",
           },
         },
@@ -156,6 +279,7 @@ export class InterviewRepository
         profileImage: "",
       },
       employer: doc.employer || { name: "", companyName: "", logo: "" },
+      applicationStatus: doc.applicationStatus,
     }));
   }
 
@@ -170,12 +294,18 @@ export class InterviewRepository
     const match: Record<string, unknown> = { candidateId };
 
     if (query.status && query.status !== "all") {
-      match.status = query.status;
+      if (query.status === "scheduled") {
+        match.status = { $in: ["scheduled", "rescheduled"] };
+      } else if (query.status === "completed") {
+        match.status = { $in: ["completed", "hired", "rejected"] };
+      } else {
+        match.status = query.status;
+      }
     }
 
     const sort: Record<string, 1 | -1> = query.sortBy
       ? { [query.sortBy]: query.order === "desc" ? -1 : 1 }
-      : { interviewDate: -1 };
+      : { updatedAt: -1 };
 
     const pipeline: PipelineStage[] = [
       { $match: match },
@@ -199,6 +329,16 @@ export class InterviewRepository
         },
       },
       { $unwind: { path: "$employer", preserveNullAndEmptyArrays: true } },
+      { $addFields: { applicationIdObj: { $toObjectId: "$applicationId" } } },
+      {
+        $lookup: {
+          from: "applications",
+          localField: "applicationIdObj",
+          foreignField: "_id",
+          as: "application",
+        },
+      },
+      { $unwind: { path: "$application", preserveNullAndEmptyArrays: true } },
       { $addFields: { candidateIdObj: { $toObjectId: "$candidateId" } } },
       {
         $lookup: {
@@ -238,6 +378,7 @@ export class InterviewRepository
           feedback: 1,
           createdAt: 1,
           updatedAt: 1,
+          applicationStatus: "$application.status",
           job: {
             title: "$job.title",
             location: "$job.location",
@@ -251,7 +392,7 @@ export class InterviewRepository
           },
           employer: {
             name: "$employer.name",
-            companyName: "$employer.companyName",
+            companyName: "$employer.name", // Using name since companyName field doesn't exist in model
             logo: "$employer.logo",
           },
         },
@@ -283,6 +424,7 @@ export class InterviewRepository
         profileImage: "",
       },
       employer: doc.employer || { name: "", companyName: "", logo: "" },
+      applicationStatus: doc.applicationStatus,
     }));
   }
 
@@ -293,7 +435,13 @@ export class InterviewRepository
     const match: Record<string, unknown> = { employerId };
 
     if (filters.status && filters.status !== "all") {
-      match.status = filters.status;
+      if (filters.status === "scheduled") {
+        match.status = { $in: ["scheduled", "rescheduled"] };
+      } else if (filters.status === "completed") {
+        match.status = { $in: ["completed", "hired", "rejected"] };
+      } else {
+        match.status = filters.status;
+      }
     }
 
     const pipeline: PipelineStage[] = [{ $match: match }];
@@ -346,7 +494,13 @@ export class InterviewRepository
     const match: Record<string, unknown> = { candidateId };
 
     if (filters.status && filters.status !== "all") {
-      match.status = filters.status;
+      if (filters.status === "scheduled") {
+        match.status = { $in: ["scheduled", "rescheduled"] };
+      } else if (filters.status === "completed") {
+        match.status = { $in: ["completed", "hired", "rejected"] };
+      } else {
+        match.status = filters.status;
+      }
     }
 
     const pipeline: PipelineStage[] = [{ $match: match }];

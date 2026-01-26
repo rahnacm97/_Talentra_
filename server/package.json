@@ -25,9 +25,12 @@
     "@types/nodemailer": "^7.0.1",
     "@types/passport": "^1.0.17",
     "@types/passport-google-oauth20": "^2.0.16",
+
+    "@types/uuid": "^11.0.0",
+
     "@types/pdfkit": "^0.17.4",
     "@types/socket.io": "^3.0.2",
-    "@types/uuid": "^11.0.0",
+
     "@typescript-eslint/eslint-plugin": "^8.43.0",
     "@typescript-eslint/parser": "^8.43.0",
     "eslint": "^9.35.0",
@@ -41,7 +44,10 @@
     "endOfLine": "auto"
   },
   "dependencies": {
+
     "@google/generative-ai": "^0.24.1",
+    "@types/uuid": "^11.0.0",
+
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
     "cloudinary": "^2.8.0",

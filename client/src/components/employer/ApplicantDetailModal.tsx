@@ -1,36 +1,39 @@
 import React from "react";
 import {
-  Filter,
-  Download,
+  X,
   Eye,
-  MessageSquare,
-  Star,
+  Mail,
+  Phone,
   Clock,
+  Calendar,
+  Download,
+  FileText,
+  MapPin,
+  Star,
   CheckCircle,
   XCircle,
-  Calendar,
-  Mail,
+  Filter,
+  Sparkles,
   Briefcase,
-  X,
-  Phone,
-  MapPin,
-  FileText,
+  MessageSquare,
 } from "lucide-react";
 import type { EmployerApplicationResponseDto } from "../../types/application/application.types";
+
 import { InterviewScheduleModal } from "./InterviewSchedule";
+
 import { aiService } from "../../services/aiService";
 import { toast } from "react-toastify";
-import { Sparkles } from "lucide-react";
 import { handleFileDownload } from "../../utils/fileUtils";
+import RejectionModal from "./RejectionModal";
+
 
 interface ApplicantDetailsModalProps {
   applicant: EmployerApplicationResponseDto;
   isOpen: boolean;
   onClose: () => void;
-  onStatusChange: (
-    newStatus: string,
-    interviewDateTime?: string,
-  ) => Promise<void>;
+
+  onStatusChange: (newStatus: string, data?: any) => Promise<void>;
+
 }
 
 const statusOptions = [
@@ -49,7 +52,10 @@ export const ApplicantDetailsModal: React.FC<ApplicantDetailsModalProps> = ({
   onStatusChange,
 }) => {
   const [isUpdating, setIsUpdating] = React.useState(false);
+
   const [showInterviewModal, setShowInterviewModal] = React.useState(false);
+
+  const [showRejectionModal, setShowRejectionModal] = React.useState(false);
   const [summary, setSummary] = React.useState<string | null>(null);
   const [isSummarizing, setIsSummarizing] = React.useState(false);
 
@@ -66,6 +72,7 @@ export const ApplicantDetailsModal: React.FC<ApplicantDetailsModalProps> = ({
       setIsSummarizing(false);
     }
   };
+
 
   if (!isOpen) return null;
 
@@ -99,15 +106,14 @@ export const ApplicantDetailsModal: React.FC<ApplicantDetailsModalProps> = ({
     return map[s] || <Clock className="w-4 h-4" />;
   };
 
-  const handleStatusUpdate = async (
-    newStatus: string,
-    interviewDateTime?: string,
-  ) => {
+
+  const handleStatusUpdate = async (newStatus: string, data?: any) => {
+
     if (applicant.status === newStatus) return;
 
     setIsUpdating(true);
     try {
-      await onStatusChange(newStatus, interviewDateTime);
+      await onStatusChange(newStatus, data);
     } finally {
       setIsUpdating(false);
     }
@@ -177,7 +183,6 @@ export const ApplicantDetailsModal: React.FC<ApplicantDetailsModalProps> = ({
               )}
             </div>
 
-            {/* AI Summary Section */}
             <div className="bg-gradient-to-r from-violet-50 to-fuchsia-50 border-2 border-violet-100 rounded-xl p-6 relative overflow-hidden group">
               <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                 <Sparkles className="w-24 h-24 text-violet-600" />
@@ -376,16 +381,15 @@ export const ApplicantDetailsModal: React.FC<ApplicantDetailsModalProps> = ({
                 <FileText className="w-5 h-5 text-indigo-600" />
                 Resume
               </h3>
-              <button
-                onClick={() => {
-                  const fileName = `Resume_${applicant.fullName.replace(/\s+/g, "_")}`;
-                  handleFileDownload(applicant.resume, fileName);
-                }}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white font-semibold rounded-lg hover:from-indigo-700 hover:to-indigo-800 transition-all duration-200 shadow-sm hover:shadow-lg"
+              <a
+                href={applicant.resume}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white font-semibold rounded-lg hover:from-indigo-700 hover:to-indigo-800 transition-all duration-200 shadow-md hover:shadow-lg"
               >
                 <Download className="w-5 h-5" />
                 Download Resume
-              </button>
+              </a>
             </div>
 
             {/* Status Update Section */}
@@ -457,9 +461,12 @@ export const ApplicantDetailsModal: React.FC<ApplicantDetailsModalProps> = ({
                     <button
                       key={opt.value}
                       onClick={() => {
-                        if (opt.value === "interview") {
-                          setShowInterviewModal(true);
-                        } else if (!isPastOrCurrent) {
+                        if (opt.value === "rejected") {
+                          setShowRejectionModal(true);
+                        } else if (
+                          !isPastOrCurrent ||
+                          opt.value === "interview"
+                        ) {
                           handleStatusUpdate(opt.value);
                         }
                       }}
@@ -506,15 +513,16 @@ export const ApplicantDetailsModal: React.FC<ApplicantDetailsModalProps> = ({
         </div>
       </div>
 
-      {/* Interview Scheduling Modal */}
-      <InterviewScheduleModal
-        isOpen={showInterviewModal}
-        onClose={() => setShowInterviewModal(false)}
-        onSchedule={async (date, time) => {
-          const interviewDateTime = `${date}T${time}:00`;
-          await handleStatusUpdate("interview", interviewDateTime);
-        }}
-      />
+      {showRejectionModal && (
+        <RejectionModal
+          candidateName={applicant.fullName}
+          onClose={() => setShowRejectionModal(false)}
+          onSuccess={() => {
+            // Success logic if any, the parent status change will trigger UI update
+          }}
+          updateApplicationStatus={onStatusChange}
+        />
+      )}
     </>
   );
 };

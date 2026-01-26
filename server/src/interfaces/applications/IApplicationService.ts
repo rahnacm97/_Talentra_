@@ -4,6 +4,7 @@ import {
   EmployerApplicationsPaginatedDto,
   EmployerApplicationResponseDto,
 } from "../../dto/application/application.dto";
+import { ApplicationStatus } from "./IApplication";
 
 export interface ApplyJobPayload {
   fullName: string;
@@ -54,6 +55,14 @@ export interface ICandidateApplicationService {
   ): Promise<ApplicationsResponseDto>;
 }
 
+export interface IApplicationStatusUpdatePayload {
+  status: string;
+  interviewDate?: string;
+  interviewLink?: string;
+  rejectionReason?: string;
+  rejectionFeedback?: string;
+}
+
 export interface IEmployerApplicationService {
   getApplicationsForEmployer(
     employerId: string,
@@ -68,11 +77,17 @@ export interface IEmployerApplicationService {
   updateApplicationStatus(
     employerId: string,
     applicationId: string,
-    data: { status: string; interviewDate?: string; interviewLink?: string },
+    data: IApplicationStatusUpdatePayload,
   ): Promise<EmployerApplicationResponseDto>;
 }
 
 export interface IApplicationUpdate {
-  status: string;
-  interviewDate?: string | undefined;
+  status: ApplicationStatus;
+  interviewDate?: Date;
+  reviewedAt?: Date;
+  shortlistedAt?: Date;
+  hiredAt?: Date;
+  rejectedAt?: Date;
+  rejectionReason?: string;
+  rejectionFeedback?: string;
 }

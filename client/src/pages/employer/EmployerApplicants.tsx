@@ -21,7 +21,10 @@ import {
   CheckCircle,
   MessageSquare,
 } from "lucide-react";
+
 import Pagination from "../../components/common/pagination/Pagination";
+import PageHeader from "../../components/common/auth/PageHeader";
+
 import { ApplicantDetailsModal } from "../../components/employer/ApplicantDetailModal";
 import { toast } from "react-toastify";
 import { formatFullName } from "../../utils/formatters";
@@ -92,21 +95,13 @@ const EmployerApplicants: React.FC = () => {
     setSelectedApplicant(null);
   };
 
-  const handleStatusUpdate = async (
-    newStatus: string,
-    interviewDateTime?: string,
-  ) => {
+  const handleStatusUpdate = async (newStatus: string, data?: any) => {
     if (!selectedApplicant || !employerId) return;
 
-    const payload: {
-      status: string;
-      interviewDate?: string;
-      interviewLink?: string;
-    } = { status: newStatus };
-
-    if (newStatus === "interview" && interviewDateTime) {
-      payload.interviewDate = interviewDateTime;
-    }
+    const payload: any = {
+      status: newStatus,
+      ...data,
+    };
 
     try {
       await updateApplicationStatusApi(selectedApplicant.id, payload);
@@ -125,6 +120,7 @@ const EmployerApplicants: React.FC = () => {
       closeModal();
     } catch (err: any) {
       toast.error(err.response?.data?.message || "Failed to update status");
+      throw err;
     }
   };
 
@@ -140,17 +136,10 @@ const EmployerApplicants: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-indigo-600 rounded-lg">
-              <Briefcase className="w-6 h-6 text-white" />
-            </div>
-            <h1 className="text-4xl font-bold text-gray-900">Applications</h1>
-          </div>
-          <p className="text-lg text-gray-600 ml-14">
-            Review and manage your job applications efficiently
-          </p>
-        </div>
+        <PageHeader
+          title="Applications"
+          description="Review and manage your job applications efficiently"
+        />
 
         {/* Filters */}
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-100 p-6 mb-8">
@@ -215,6 +204,21 @@ const EmployerApplicants: React.FC = () => {
               <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
             </div>
           </div>
+          {(searchTerm || filterStatus !== "all" || filterJob !== "all") && (
+            <div className="flex justify-end mt-4">
+              <button
+                onClick={() => {
+                  setSearchTerm("");
+                  setFilterStatus("all");
+                  setFilterJob("all");
+                }}
+                className="text-red-600 hover:text-red-800 px-4 py-2 rounded-lg flex items-center gap-2 transition font-medium bg-red-50 hover:bg-red-100 cursor-pointer"
+              >
+                <CloseIcon className="w-4 h-4" />
+                Clear All Filters
+              </button>
+            </div>
+          )}
         </div>
 
         {appLoading && (

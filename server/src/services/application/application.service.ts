@@ -3,6 +3,7 @@ import {
   ApplyJobPayload,
   IEmployerApplicationService,
 } from "../../interfaces/applications/IApplicationService";
+import { INotificationService } from "../../interfaces/shared/INotificationService";
 import { IInterviewService } from "../../interfaces/interviews/IInterviewService";
 import { IChatService } from "../../interfaces/chat/IChatService";
 import { GetApplicationsFilters } from "../../type/application/application.type";
@@ -27,11 +28,13 @@ import { logger } from "../../shared/utils/logger";
 import { IJobRepository } from "../../interfaces/jobs/IJobRepository";
 import { uploadResumeFile } from "../../shared/utils/fileUpload";
 import { ICandidateService } from "../../interfaces/users/candidate/ICandidateService";
-import {
-  IApplicationQuery,
-} from "../../interfaces/applications/IApplication";
-import { NotificationHelper } from "../../shared/utils/notification.helper";
+
+import { IApplicationQuery } from "../../interfaces/applications/IApplication";
+
+import { sendInterviewScheduledEmail } from "../../shared/utils/email";
+
 import { StatusHandlerRegistry } from "./handlers/StatusHandlerRegistry";
+
 
 export class CandidateApplicationService
   implements ICandidateApplicationService
@@ -41,6 +44,7 @@ export class CandidateApplicationService
     private readonly _jobRepo: IJobRepository,
     private readonly _mapper: IApplicationMapper,
     private readonly _candidateService: ICandidateService,
+    private readonly _notificationService: INotificationService,
   ) {}
   //Candidate Job apply
   async apply(
@@ -100,15 +104,17 @@ export class CandidateApplicationService
 
     await this._jobRepo.incrementApplicants(jobId);
 
+
     // Notify employer of new application
-    const notificationHelper = NotificationHelper.getInstance();
-    await notificationHelper.notifyEmployerNewApplication(
+    await this._notificationService.notifyEmployerNewApplication(
+
       job.employerId,
       payload.fullName,
       job.title,
       jobId,
       application.id,
     );
+
 
     logger.info("Application submitted", {
       applicationId: application.id,
@@ -199,6 +205,7 @@ export class EmployerApplicationService implements IEmployerApplicationService {
   constructor(
     private readonly _appRepo: IEmployerApplicationRepository,
     private readonly _mapper: IEmployerApplicationMapper,
+    private readonly _notificationService: INotificationService,
     private readonly _interviewService?: IInterviewService,
     private readonly _chatService?: IChatService,
   ) {}
@@ -231,7 +238,11 @@ export class EmployerApplicationService implements IEmployerApplicationService {
   async updateApplicationStatus(
     employerId: string,
     applicationId: string,
-    data: { status: string; interviewDate?: string },
+    data: {
+      status: string;
+      interviewDate?: string;
+      interviewLink?: string;
+    },
   ): Promise<EmployerApplicationResponseDto> {
     const app = await this._appRepo.findOneWithJob(applicationId);
 
@@ -241,19 +252,49 @@ export class EmployerApplicationService implements IEmployerApplicationService {
         ERROR_MESSAGES.APPLICATION_NOT_FOUND,
       );
 
+// <<<<<<< HEAD
+//     const handler = StatusHandlerRegistry.getHandler(data.status);
+//     await handler.handle({
+//       application: app,
+//       employerId,
+//       data,
+//       appRepo: this._appRepo,
+//       interviewService: this._interviewService,
+//       chatService: this._chatService,
+//     });
+// =======
+// <<<<<<< Updated upstream
+//     const updateData: IApplicationUpdate = { status: data.status };
+// >>>>>>> a4015c2 (Implement interview feature with rounds, feedback, and video flow)
+
+//     // Notifying candidate of status change
+//     const notificationHelper = NotificationHelper.getInstance();
+//     await notificationHelper.notifyCandidateApplicationStatusChange(
+//       app.candidateId,
+//       data.status,
+//       app.job.title,
+//       app.jobId,
+//       applicationId,
+//       app.employer.name,
+//     );
+
+//     const apps = await this._appRepo.findByEmployerIdWithJob(employerId, {
+//       limit: 20,
+//     });
+//     const freshData = apps.find((a) => a.id === applicationId);
+// =======
     const handler = StatusHandlerRegistry.getHandler(data.status);
     await handler.handle({
       application: app,
       employerId,
-      data,
+      data: data,
       appRepo: this._appRepo,
       interviewService: this._interviewService,
       chatService: this._chatService,
     });
 
     // Notifying candidate of status change
-    const notificationHelper = NotificationHelper.getInstance();
-    await notificationHelper.notifyCandidateApplicationStatusChange(
+    await this._notificationService.notifyCandidateApplicationStatusChange(
       app.candidateId,
       data.status,
       app.job.title,
@@ -262,10 +303,10 @@ export class EmployerApplicationService implements IEmployerApplicationService {
       app.employer.name,
     );
 
-    const apps = await this._appRepo.findByEmployerIdWithJob(employerId, {
-      limit: 20,
-    });
-    const freshData = apps.find((a) => a.id === applicationId);
+    const freshData = await this._appRepo.findByIdForEmployer(
+      applicationId,
+      employerId,
+    );
     if (!freshData)
       throw new ApiError(
         HTTP_STATUS.INTERNAL_SERVER_ERROR,

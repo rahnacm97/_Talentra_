@@ -4,12 +4,18 @@ import React, {
   useEffect,
   useRef,
   useState,
+  useCallback,
 } from "react";
 import { getSocket } from "../socket/socket";
 import { endVideoCall } from "../features/videocall/videoCallApi";
 import { useSelector } from "react-redux";
 import { type RootState } from "../app/store";
-import type { VideoCallContextType } from "../types/videocall/videocall.types";
+import type {
+  VideoCallContextType,
+  CallStatus,
+  WaitingParticipant,
+  ChatMessage,
+} from "../types/videocall/videocall.types";
 import { toast } from "react-toastify";
 
 //Context
@@ -22,7 +28,9 @@ export const VideoCallProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
-  const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
+  const [remoteStreams, setRemoteStreams] = useState<Map<string, MediaStream>>(
+    new Map(),
+  );
   const [isCallActive, setIsCallActive] = useState(false);
   const [incomingCall, setIncomingCall] = useState<{
     roomId: string;
@@ -35,14 +43,21 @@ export const VideoCallProvider: React.FC<{ children: React.ReactNode }> = ({
     name: string;
     image?: string;
   } | null>(null);
-  const [remoteUserInfo, setRemoteUserInfo] = useState<{
-    name: string;
-    image?: string;
-  } | null>(null);
+  // Multi-party support
+  const [remoteUsers, setRemoteUsers] = useState<
+    Map<string, { name: string; image?: string }>
+  >(new Map());
   const [interviewDetails, setInterviewDetails] = useState<{
     jobTitle: string;
     interviewDate: string;
   } | null>(null);
+
+  // Waiting Room & Chat State
+  const [callStatus, setCallStatus] = useState<CallStatus>("idle");
+  const [waitingParticipants, setWaitingParticipants] = useState<
+    WaitingParticipant[]
+  >([]);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
 
   const localStreamRef = useRef<MediaStream | null>(null);
   const localUserInfoRef = useRef<{ name: string; image?: string } | null>(
@@ -61,7 +76,7 @@ export const VideoCallProvider: React.FC<{ children: React.ReactNode }> = ({
   const screenStreamRef = useRef<MediaStream | null>(null);
   const cameraStreamRef = useRef<MediaStream | null>(null);
 
-  const peerConnection = useRef<RTCPeerConnection | null>(null);
+  const peerConnections = useRef<Map<string, RTCPeerConnection>>(new Map());
   const [activeSocket, setActiveSocket] = useState<any | null>(getSocket());
   const currentRoomId = useRef<string | null>(null);
   const currentUser = useSelector((state: RootState) => state.auth.user);
@@ -95,13 +110,16 @@ export const VideoCallProvider: React.FC<{ children: React.ReactNode }> = ({
     [],
   );
 
-  const iceCandidatesQueue = useRef<RTCIceCandidateInit[]>([]);
+  const iceCandidatesQueues = useRef<Map<string, RTCIceCandidateInit[]>>(
+    new Map(),
+  );
 
   const closeCall = React.useCallback(() => {
-    if (peerConnection.current) {
-      peerConnection.current.close();
-      peerConnection.current = null;
-    }
+    peerConnections.current.forEach((pc) => {
+      pc.close();
+    });
+    peerConnections.current.clear();
+
     if (localStream) {
       localStream.getTracks().forEach((track) => track.stop());
       setLocalStream(null);
@@ -114,117 +132,55 @@ export const VideoCallProvider: React.FC<{ children: React.ReactNode }> = ({
       screenStreamRef.current.getTracks().forEach((t) => t.stop());
       screenStreamRef.current = null;
     }
-    setRemoteStream(null);
+    setRemoteStreams(new Map());
+    setRemoteUsers(new Map());
     setIsCallActive(false);
     setIsScreenSharing(false);
-    setRemoteUserInfo(null);
     setLocalUserInfo(null);
     setInterviewDetails(null);
+    setCallStatus("idle");
+    setWaitingParticipants([]);
+    setChatMessages([]);
     currentRoomId.current = null;
   }, [localStream]);
 
-  const createPeerConnection = React.useCallback(async () => {
-    const pc = new RTCPeerConnection(iceServers);
+  const createPeerConnection = React.useCallback(
+    async (userId: string) => {
+      const pc = new RTCPeerConnection(iceServers);
 
-    pc.onicecandidate = (event) => {
-      if (event.candidate && currentRoomId.current) {
-        console.log("WebRTC Sending ICE candidate");
-        activeSocket?.emit("ice_candidate", {
-          roomId: currentRoomId.current,
-          candidate: event.candidate,
+      pc.onicecandidate = (event) => {
+        if (event.candidate && currentRoomId.current) {
+          activeSocket?.emit("ice_candidate", {
+            roomId: currentRoomId.current,
+            candidate: event.candidate,
+            targetUserId: userId,
+          });
+        }
+      };
+
+      pc.ontrack = (event) => {
+        setRemoteStreams((prev) => {
+          const newMap = new Map(prev);
+          newMap.set(userId, event.streams[0]);
+          return newMap;
+        });
+      };
+
+      if (localStreamRef.current) {
+        const tracks = localStreamRef.current.getTracks();
+        tracks.forEach((track) => {
+          pc.addTrack(track, localStreamRef.current!);
         });
       }
-    };
 
-    pc.ontrack = (event) => {
-      setRemoteStream(event.streams[0]);
-    };
-
-    pc.oniceconnectionstatechange = () => {
-      console.log("WebRTC ICE Connection State:", pc.iceConnectionState);
-    };
-
-    pc.onsignalingstatechange = () => {
-      console.log("WebRTC Signaling State:", pc.signalingState);
-    };
-
-    pc.onconnectionstatechange = () => {
-      console.log("WebRTC Connection State:", pc.connectionState);
-    };
-
-    if (localStreamRef.current) {
-      const tracks = localStreamRef.current.getTracks();
-      console.log(
-        `WebRTC Adding ${tracks.length} tracks to PC:`,
-        tracks.map((t) => t.kind),
-      );
-      tracks.forEach((track) => {
-        pc.addTrack(track, localStreamRef.current!);
-      });
-    } else {
-      console.warn("WebRTC No local stream to add to PC!");
-    }
-
-    peerConnection.current = pc;
-    console.log("WebRTC PeerConnection created successfully");
-    return pc;
-  }, [activeSocket, iceServers]);
-
-  const createMockStream = React.useCallback(() => {
-    const canvas = document.createElement("canvas");
-    canvas.width = 640;
-    canvas.height = 480;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return null;
-
-    const stream = canvas.captureStream(30);
-
-    const audioCtx = new AudioContext();
-    const osc = audioCtx.createOscillator();
-    const dst = audioCtx.createMediaStreamDestination();
-    osc.connect(dst);
-
-    const audioTrack = dst.stream.getAudioTracks()[0];
-    stream.addTrack(audioTrack);
-
-    let x = 0;
-    let speed = 2;
-    const draw = () => {
-      ctx.fillStyle = "#333";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "white";
-      ctx.font = "40px Arial";
-      ctx.fillText("TEST STREAM", 50, 100);
-
-      ctx.fillStyle = "red";
-      ctx.beginPath();
-      ctx.arc(x, 240, 40, 0, Math.PI * 2);
-      ctx.fill();
-
-      x += speed;
-      if (x > canvas.width || x < 0) speed = -speed;
-
-      requestAnimationFrame(draw);
-    };
-    draw();
-
-    return stream;
-  }, []);
+      peerConnections.current.set(userId, pc);
+      return pc;
+    },
+    [activeSocket, iceServers],
+  );
 
   const getMediaStream = React.useCallback(async () => {
     try {
-      const useTestStream = localStorage.getItem("useTestStream") === "true";
-
-      if (useTestStream) {
-        const mock = createMockStream();
-        if (mock) {
-          setLocalStream(mock);
-          localStreamRef.current = mock;
-          cameraStreamRef.current = mock;
-          return mock;
-        }
-      }
-
       const stream = await navigator.mediaDevices.getUserMedia({
         video: true,
         audio: true,
@@ -235,45 +191,47 @@ export const VideoCallProvider: React.FC<{ children: React.ReactNode }> = ({
       return stream;
     } catch (error) {
       console.error("Error accessing media devices:", error);
+      toast.error("Failed to access camera/microphone");
       return null;
     }
-  }, [createMockStream]);
+  }, []);
 
-  const processIceQueue = React.useCallback(async () => {
-    const pc = peerConnection.current;
+  const processIceQueue = React.useCallback(async (userId: string) => {
+    const pc = peerConnections.current.get(userId);
     if (!pc || !pc.remoteDescription) return;
 
-    while (iceCandidatesQueue.current.length > 0) {
-      const candidate = iceCandidatesQueue.current.shift();
+    const queue = iceCandidatesQueues.current.get(userId) || [];
+    while (queue.length > 0) {
+      const candidate = queue.shift();
       if (candidate) {
         try {
           await pc.addIceCandidate(new RTCIceCandidate(candidate));
         } catch (e) {
-          console.error("Error processing queued ice candidate", e);
+          console.error(
+            `Error processing queued ice candidate for ${userId}`,
+            e,
+          );
         }
       }
     }
+    iceCandidatesQueues.current.set(userId, []);
   }, []);
 
   const handleUserJoined = React.useCallback(
     async (userId: string) => {
-      console.log("WebRTC User joined:", userId);
-
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       try {
-        const pc = await createPeerConnection();
-        console.log("WebRTC Creating offer...");
+        const pc = await createPeerConnection(userId);
         const offer = await pc.createOffer();
         await pc.setLocalDescription(offer);
-        console.log("WebRTC Offer created and set as local description");
 
         activeSocket?.emit("offer", {
           roomId: currentRoomId.current,
           offer,
           userData: localUserInfoRef.current,
+          targetUserId: userId,
         });
-        console.log("WebRTC Offer sent to room:", currentRoomId.current);
       } catch (error) {
         console.error("WebRTC Error in handleUserJoined:", error);
       }
@@ -285,13 +243,22 @@ export const VideoCallProvider: React.FC<{ children: React.ReactNode }> = ({
     async (payload: {
       offer: RTCSessionDescriptionInit;
       userData?: { name: string; image?: string };
+      fromUserId: string;
     }) => {
-      const { offer, userData } = payload;
-      if (userData) setRemoteUserInfo(userData);
+      const { offer, userData, fromUserId } = payload;
+      if (userData) {
+        setRemoteUsers((prev) => {
+          const newMap = new Map(prev);
+          newMap.set(fromUserId, userData);
+          return newMap;
+        });
+      }
 
-      const pc = peerConnection.current || (await createPeerConnection());
+      const pc =
+        peerConnections.current.get(fromUserId) ||
+        (await createPeerConnection(fromUserId));
       await pc.setRemoteDescription(new RTCSessionDescription(offer));
-      await processIceQueue();
+      await processIceQueue(fromUserId);
 
       const answer = await pc.createAnswer();
       await pc.setLocalDescription(answer);
@@ -300,6 +267,7 @@ export const VideoCallProvider: React.FC<{ children: React.ReactNode }> = ({
         roomId: currentRoomId.current,
         answer,
         userData: localUserInfoRef.current,
+        targetUserId: fromUserId,
       });
     },
     [activeSocket, createPeerConnection, processIceQueue],
@@ -309,22 +277,30 @@ export const VideoCallProvider: React.FC<{ children: React.ReactNode }> = ({
     async (payload: {
       answer: RTCSessionDescriptionInit;
       userData?: { name: string; image?: string };
+      fromUserId: string;
     }) => {
-      const { answer, userData } = payload;
-      if (userData) setRemoteUserInfo(userData);
+      const { answer, userData, fromUserId } = payload;
+      if (userData) {
+        setRemoteUsers((prev) => {
+          const newMap = new Map(prev);
+          newMap.set(fromUserId, userData);
+          return newMap;
+        });
+      }
 
-      const pc = peerConnection.current;
+      const pc = peerConnections.current.get(fromUserId);
       if (pc) {
         await pc.setRemoteDescription(new RTCSessionDescription(answer));
-        await processIceQueue();
+        await processIceQueue(fromUserId);
       }
     },
     [processIceQueue],
   );
 
   const handleNewIceCandidate = React.useCallback(
-    async (candidate: RTCIceCandidateInit) => {
-      const pc = peerConnection.current;
+    async (payload: { candidate: RTCIceCandidateInit; fromUserId: string }) => {
+      const { candidate, fromUserId } = payload;
+      const pc = peerConnections.current.get(fromUserId);
       if (pc && pc.remoteDescription) {
         try {
           await pc.addIceCandidate(new RTCIceCandidate(candidate));
@@ -332,7 +308,10 @@ export const VideoCallProvider: React.FC<{ children: React.ReactNode }> = ({
           console.error("Error adding received ice candidate", e);
         }
       } else {
-        iceCandidatesQueue.current.push(candidate);
+        if (!iceCandidatesQueues.current.has(fromUserId)) {
+          iceCandidatesQueues.current.set(fromUserId, []);
+        }
+        iceCandidatesQueues.current.get(fromUserId)!.push(candidate);
       }
     },
     [],
@@ -343,19 +322,44 @@ export const VideoCallProvider: React.FC<{ children: React.ReactNode }> = ({
     closeCall();
   }, [closeCall]);
 
+  const handleParticipantWaiting = useCallback((data: WaitingParticipant) => {
+    setWaitingParticipants((prev) => {
+      if (prev.find((p) => p.socketId === data.socketId)) return prev;
+      return [...prev, data];
+    });
+    toast.info(`${data.name} is requesting to join.`);
+  }, []);
+
+  const handleParticipantAdmitted = useCallback(
+    async (data: { roomId: string }) => {
+      setCallStatus("in-call");
+      toast.success("You have been admitted to the call!");
+
+      activeSocket?.emit("join_call", {
+        roomId: data.roomId,
+        userId: currentUser?._id || "guest",
+        isHost: false,
+      });
+    },
+    [activeSocket, currentUser],
+  );
+
+  const handleParticipantDenied = useCallback(() => {
+    setCallStatus("denied");
+    toast.error("Your request to join was denied.");
+  }, []);
+
+  const handleNewMessage = useCallback((data: ChatMessage) => {
+    setChatMessages((prev) => [
+      ...prev,
+      { ...data, timestamp: new Date(data.timestamp) },
+    ]);
+  }, []);
+
   useEffect(() => {
-    if (!activeSocket) {
-      return;
-    }
+    if (!activeSocket) return;
 
-    console.log(
-      "WebRTC Setting up listeners for socket:",
-      activeSocket.id || "connecting...",
-    );
-
-    const handleJoined = (userId: string) => {
-      handleUserJoined(userId);
-    };
+    const handleJoined = (userId: string) => handleUserJoined(userId);
 
     activeSocket.on("user_joined", handleJoined);
     activeSocket.on("offer", handleReceiveOffer);
@@ -363,7 +367,10 @@ export const VideoCallProvider: React.FC<{ children: React.ReactNode }> = ({
     activeSocket.on("ice_candidate", handleNewIceCandidate);
     activeSocket.on("call_ended", handleRemoteEndCall);
 
-    console.log("WebRTC Listeners registered on socket:", activeSocket.id);
+    activeSocket.on("participant_waiting", handleParticipantWaiting);
+    activeSocket.on("participant_admitted", handleParticipantAdmitted);
+    activeSocket.on("participant_denied", handleParticipantDenied);
+    activeSocket.on("new_message", handleNewMessage);
 
     return () => {
       activeSocket.off("user_joined", handleJoined);
@@ -371,6 +378,10 @@ export const VideoCallProvider: React.FC<{ children: React.ReactNode }> = ({
       activeSocket.off("answer", handleReceiveAnswer);
       activeSocket.off("ice_candidate", handleNewIceCandidate);
       activeSocket.off("call_ended", handleRemoteEndCall);
+      activeSocket.off("participant_waiting", handleParticipantWaiting);
+      activeSocket.off("participant_admitted", handleParticipantAdmitted);
+      activeSocket.off("participant_denied", handleParticipantDenied);
+      activeSocket.off("new_message", handleNewMessage);
     };
   }, [
     activeSocket,
@@ -379,59 +390,129 @@ export const VideoCallProvider: React.FC<{ children: React.ReactNode }> = ({
     handleReceiveAnswer,
     handleNewIceCandidate,
     handleRemoteEndCall,
+    handleParticipantWaiting,
+    handleParticipantAdmitted,
+    handleParticipantDenied,
+    handleNewMessage,
   ]);
 
-  //Video call start
   const startCall = async (
     roomId: string,
     _recipientId: string,
     userInfo: { name: string; image?: string },
     interviewDetails?: { jobTitle: string; interviewDate: string },
   ) => {
-    console.log("WebRTC START CALL clicked! Room:", roomId);
     currentRoomId.current = roomId;
     setLocalUserInfo(userInfo);
     localUserInfoRef.current = userInfo;
     if (interviewDetails) setInterviewDetails(interviewDetails);
+
     const stream = await getMediaStream();
     if (!stream) return;
 
     setIsCallActive(true);
-    console.log(
-      "WebRTC Emitting join_call to server. Room:",
+    setCallStatus("in-call");
+    activeSocket?.emit("join_call", {
       roomId,
-      "User:",
-      currentUser?._id,
-    );
-    activeSocket?.emit("join_call", { roomId, userId: currentUser?._id });
+      userId: currentUser?._id,
+      isHost: true,
+    });
   };
 
-  //Joining call
   const joinCall = async (
     roomId: string,
     userInfo: { name: string; image?: string },
     interviewDetails?: { jobTitle: string; interviewDate: string },
   ) => {
-    console.log("WebRTC JOIN CALL clicked! Room:", roomId);
     currentRoomId.current = roomId;
     setLocalUserInfo(userInfo);
     if (interviewDetails) setInterviewDetails(interviewDetails);
+
     const stream = await getMediaStream();
     if (!stream) return;
 
     setIsCallActive(true);
-    console.log(
-      "WebRTC Emitting join_call to server. Room:",
+    setCallStatus("in-call");
+    activeSocket?.emit("join_call", {
       roomId,
-      "User:",
-      currentUser?._id,
-    );
-    activeSocket?.emit("join_call", { roomId, userId: currentUser?._id });
+      userId: currentUser?._id,
+      isHost: false,
+    });
   };
 
-  //call end
-  const endCall = () => {
+  const requestJoin = async (
+    roomId: string,
+    userInfo: { name: string; image?: string },
+    userType: string,
+  ) => {
+    currentRoomId.current = roomId;
+    setLocalUserInfo(userInfo);
+    localUserInfoRef.current = userInfo;
+
+    const stream = await getMediaStream();
+    if (!stream) return;
+
+    setIsCallActive(true);
+    setCallStatus("waiting");
+
+    activeSocket?.emit("request_to_join", {
+      roomId,
+      userId: currentUser?._id || "guest-" + Date.now(),
+      name: userInfo.name,
+      userType,
+    });
+  };
+
+  const admitParticipant = (socketId: string) => {
     if (currentRoomId.current) {
+      activeSocket?.emit("admit_participant", {
+        socketId,
+        roomId: currentRoomId.current,
+      });
+      setWaitingParticipants((prev) =>
+        prev.filter((p) => p.socketId !== socketId),
+      );
+    }
+  };
+
+  const denyParticipant = (socketId: string) => {
+    if (currentRoomId.current) {
+      activeSocket?.emit("deny_participant", {
+        socketId,
+        roomId: currentRoomId.current,
+      });
+      setWaitingParticipants((prev) =>
+        prev.filter((p) => p.socketId !== socketId),
+      );
+    }
+  };
+
+  const sendMessage = (text: string) => {
+    if (!currentRoomId.current || !text.trim()) return;
+    const messageData = {
+      roomId: currentRoomId.current,
+      message: text,
+      sender: localUserInfo?.name || "Me",
+    };
+    activeSocket?.emit("group_message", messageData);
+
+    setChatMessages((prev) => [
+      ...prev,
+      {
+        sender: "Me",
+        message: text,
+        timestamp: new Date(),
+        isLocal: true,
+      },
+    ]);
+  };
+
+  const cancelJoinRequest = () => {
+    closeCall();
+  };
+
+  const endCall = () => {
+    if (currentRoomId.current && callStatus === "in-call") {
       activeSocket?.emit("end_call", {
         roomId: currentRoomId.current,
         userId: currentUser?._id,
@@ -443,38 +524,41 @@ export const VideoCallProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const toggleAudio = () => {
     if (localStream) {
+      const enabled = !isAudioEnabled;
       localStream
         .getAudioTracks()
-        .forEach((track) => (track.enabled = !track.enabled));
-      setIsAudioEnabled(!isAudioEnabled);
+        .forEach((track) => (track.enabled = enabled));
+      setIsAudioEnabled(enabled);
     }
   };
 
   const toggleVideo = () => {
     if (localStream) {
+      const enabled = !isVideoEnabled;
       localStream
         .getVideoTracks()
-        .forEach((track) => (track.enabled = !track.enabled));
-      setIsVideoEnabled(!isVideoEnabled);
+        .forEach((track) => (track.enabled = enabled));
+      setIsVideoEnabled(enabled);
     }
   };
 
   const stopScreenSharing = async () => {
-    console.log("ScreenShare Stopping screen share...");
     if (screenStreamRef.current) {
       screenStreamRef.current.getTracks().forEach((t) => t.stop());
       screenStreamRef.current = null;
     }
 
     if (cameraStreamRef.current) {
-      if (peerConnection.current) {
-        const videoTrack = cameraStreamRef.current.getVideoTracks()[0];
-        const senders = peerConnection.current.getSenders();
-        const sender = senders.find((s) => s.track?.kind === "video");
-        if (sender) {
-          await sender.replaceTrack(videoTrack);
-          console.log("ScreenShare Camera track restored to peer connection");
-        }
+      const videoTrack = cameraStreamRef.current.getVideoTracks()[0];
+
+      if (peerConnections.current.size > 0) {
+        peerConnections.current.forEach(async (pc) => {
+          const senders = pc.getSenders();
+          const sender = senders.find((s) => s.track?.kind === "video");
+          if (sender) {
+            await sender.replaceTrack(videoTrack);
+          }
+        });
       }
       setLocalStream(cameraStreamRef.current);
     }
@@ -486,7 +570,6 @@ export const VideoCallProvider: React.FC<{ children: React.ReactNode }> = ({
     if (isScreenSharing) {
       await stopScreenSharing();
     } else {
-      console.log("ScreenShare Starting screen share...");
       try {
         const stream = await navigator.mediaDevices.getDisplayMedia({
           video: true,
@@ -494,19 +577,19 @@ export const VideoCallProvider: React.FC<{ children: React.ReactNode }> = ({
         const screenTrack = stream.getVideoTracks()[0];
 
         screenTrack.onended = () => {
-          console.log("ScreenShare ended via browser UI");
           stopScreenSharing();
         };
 
         screenStreamRef.current = stream;
 
-        if (peerConnection.current) {
-          const senders = peerConnection.current.getSenders();
-          const sender = senders.find((s) => s.track?.kind === "video");
-          if (sender) {
-            await sender.replaceTrack(screenTrack);
-            console.log("ScreenShare Screen track sent to peer connection");
-          }
+        if (peerConnections.current.size > 0) {
+          peerConnections.current.forEach(async (pc) => {
+            const senders = pc.getSenders();
+            const sender = senders.find((s) => s.track?.kind === "video");
+            if (sender) {
+              await sender.replaceTrack(screenTrack);
+            }
+          });
         }
 
         if (cameraStreamRef.current) {
@@ -524,6 +607,36 @@ export const VideoCallProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  const handleUserLeft = React.useCallback((data: { userId: string }) => {
+    const pc = peerConnections.current.get(data.userId);
+    if (pc) {
+      pc.close();
+      peerConnections.current.delete(data.userId);
+    }
+    setRemoteStreams((prev) => {
+      const newMap = new Map(prev);
+      newMap.delete(data.userId);
+      return newMap;
+    });
+    setRemoteUsers((prev) => {
+      const newMap = new Map(prev);
+      newMap.delete(data.userId);
+      return newMap;
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!activeSocket) return;
+
+    activeSocket.on("user_left", handleUserLeft);
+    activeSocket.on("call_ended", handleUserLeft);
+
+    return () => {
+      activeSocket.off("user_left", handleUserLeft);
+      activeSocket.off("call_ended", handleUserLeft);
+    };
+  }, [activeSocket, handleUserLeft]);
+
   const acceptCall = () => {
     if (incomingCall) {
       joinCall(incomingCall.roomId, { name: currentUser?.name || "User" });
@@ -539,11 +652,13 @@ export const VideoCallProvider: React.FC<{ children: React.ReactNode }> = ({
     <VideoCallContext.Provider
       value={{
         localStream,
-        remoteStream,
+        remoteStreams,
         isCallActive,
         startCall,
         joinCall,
+        requestJoin,
         endCall,
+        cancelJoinRequest,
         toggleAudio,
         toggleVideo,
         toggleScreenShare,
@@ -554,8 +669,14 @@ export const VideoCallProvider: React.FC<{ children: React.ReactNode }> = ({
         acceptCall,
         rejectCall,
         localUserInfo,
-        remoteUserInfo,
+        remoteUsers,
         interviewDetails,
+        callStatus,
+        waitingParticipants,
+        admitParticipant,
+        denyParticipant,
+        chatMessages,
+        sendMessage,
       }}
     >
       {children}

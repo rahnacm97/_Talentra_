@@ -19,13 +19,19 @@ export class AdminCandidateController implements IAdminCandidateController {
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
       const search = req.query.search as string | undefined;
+      const status = req.query.status as
+        | "active"
+        | "blocked"
+        | "all"
+        | undefined;
 
-      logger.info("Fetching all candidates", { page, limit, search });
+      logger.info("Fetching all candidates", { page, limit, search, status });
 
       const result = await this._candidateService.getAllCandidates(
         page,
         limit,
         search,
+        status === "all" ? undefined : status,
       );
       res
         .status(HTTP_STATUS.OK)
@@ -38,6 +44,7 @@ export class AdminCandidateController implements IAdminCandidateController {
         page: req.query.page,
         limit: req.query.limit,
         search: req.query.search,
+        status: req.query.status,
       });
       next(
         error instanceof ApiError

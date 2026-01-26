@@ -1,10 +1,8 @@
 import { Request, Response, NextFunction } from "express";
-import JobModel from "../models/Job.model";
 import { USER_ROLES } from "../shared/enums/enums";
-import { HTTP_STATUS } from "../shared/httpStatus/httpStatusCode";
-import { ERROR_MESSAGES } from "../shared/enums/enums";
 import { EmployerRepository } from "../repositories/employer/employer.repository";
 import Subscription from "../models/Subscription.model";
+
 
 export type AuthenticatedRequest = Request & {
   user?:

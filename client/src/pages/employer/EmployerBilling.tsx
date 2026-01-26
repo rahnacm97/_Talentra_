@@ -32,6 +32,7 @@ declare global {
 }
 
 const EmployerBilling: React.FC = () => {
+
   const dispatch = useDispatch<AppDispatch>();
   const { user } = useSelector((state: RootState) => state.auth);
   const { history, loading } = useSelector(
@@ -40,7 +41,9 @@ const EmployerBilling: React.FC = () => {
   const [selectedPlan, setSelectedPlan] = useState<Plan["id"]>("professional");
   const [processingPlanId, setProcessingPlanId] = useState<string | null>(null);
   const [showActiveModal, setShowActiveModal] = useState(false);
-  const [showPaymentInProgressModal, setShowPaymentInProgressModal] = useState(false);
+
+  const [showPaymentInProgressModal, setShowPaymentInProgressModal] =
+    useState(false);
 
   useEffect(() => {
     dispatch(fetchSubscriptionHistory());
@@ -228,6 +231,7 @@ const EmployerBilling: React.FC = () => {
         </div>
 
         {/* Active Plan Info */}
+
         <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
           <p className="font-semibold text-blue-800">
             Current Plan:{" "}
@@ -240,8 +244,11 @@ const EmployerBilling: React.FC = () => {
                 : "Free Plan"}
           </p>
           <p className="text-sm text-blue-700 mt-1">
-            Status: {isActive 
-              ? "Active" 
+
+            Status:{" "}
+            {isActive
+              ? "Active"
+
               : history && history.length > 0 && history[0].status === "expired"
                 ? "Expired"
                 : "Standard"}
@@ -249,14 +256,23 @@ const EmployerBilling: React.FC = () => {
           {!isActive && user?.trialEndsAt && (
             <p className="text-sm text-red-600 mt-2 font-medium flex items-center gap-2">
               <Calendar className="w-4 h-4" />
-              Trial ends on: {new Date(user.trialEndsAt).toLocaleDateString('en-US', {
-                month: 'long',
-                day: 'numeric',
-                year: 'numeric'
+
+              Trial ends on:{" "}
+              {new Date(user.trialEndsAt).toLocaleDateString("en-US", {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
               })}
               <span className="text-gray-500 font-normal">
-                ({Math.ceil((new Date(user.trialEndsAt).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days remaining)
+                (
+                {Math.ceil(
+                  (new Date(user.trialEndsAt).getTime() -
+                    new Date().getTime()) /
+                    (1000 * 60 * 60 * 24),
+                )}{" "}
+                days remaining)
               </span>
+
             </p>
           )}
         </div>

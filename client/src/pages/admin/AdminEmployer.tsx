@@ -8,6 +8,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import BusinessIcon from "@mui/icons-material/Business";
 import EmailIcon from "@mui/icons-material/Email";
 import VerifiedIcon from "@mui/icons-material/Verified";
+import FilterListOffIcon from "@mui/icons-material/FilterListOff";
 import WarningIcon from "@mui/icons-material/Warning";
 import Table from "../../components/admin/Table";
 import Pagination from "../../components/admin/Pagination";
@@ -32,6 +33,12 @@ const AdminEmployers: React.FC = () => {
   );
   const [selectedEmployerName, setSelectedEmployerName] = useState("");
   const [isBlockAction, setIsBlockAction] = useState<boolean | null>(null);
+  const [statusFilter, setStatusFilter] = useState<
+    "active" | "blocked" | "all"
+  >("all");
+  const [verificationFilter, setVerificationFilter] = useState<
+    "verified" | "pending" | "all"
+  >("all");
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -48,9 +55,17 @@ const AdminEmployers: React.FC = () => {
         page: currentPage,
         limit: itemsPerPage,
         search: debouncedSearch,
+        status: statusFilter,
+        verification: verificationFilter,
       }),
     );
-  }, [dispatch, currentPage, debouncedSearch]);
+  }, [
+    dispatch,
+    currentPage,
+    debouncedSearch,
+    statusFilter,
+    verificationFilter,
+  ]);
 
   const openModal = (id: string, name: string, blocked: boolean) => {
     setSelectedEmployerId(id);
@@ -82,6 +97,13 @@ const AdminEmployers: React.FC = () => {
     setSelectedEmployerId(null);
     setSelectedEmployerName("");
     setIsBlockAction(null);
+  };
+
+  const clearFilters = () => {
+    setSearchTerm("");
+    setStatusFilter("all");
+    setVerificationFilter("all");
+    setCurrentPage(1);
   };
 
   const verifiedCount = employers.filter((e: any) => e.verified).length;
@@ -136,7 +158,52 @@ const AdminEmployers: React.FC = () => {
           onChange={(e: any) => setSearchTerm(e.target.value)}
           placeholder="Search by company name or email…"
         />
-        <div className="flex items-center space-x-3"></div>
+
+       
+
+      <div className="flex items-center space-x-3">
+
+        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
+          <select
+            value={verificationFilter}
+            onChange={(e) =>
+              setVerificationFilter(
+                e.target.value as "verified" | "pending" | "all",
+              )
+            }
+            className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+          >
+            <option value="all">All Verification</option>
+            <option value="verified">Verified</option>
+            <option value="pending">Pending</option>
+          </select>
+
+          <select
+            value={statusFilter}
+            onChange={(e) =>
+              setStatusFilter(e.target.value as "active" | "blocked" | "all")
+            }
+            className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+          >
+            <option value="all">All Status</option>
+            <option value="active">Active</option>
+            <option value="blocked">Blocked</option>
+          </select>
+          {(searchTerm ||
+            statusFilter !== "all" ||
+            verificationFilter !== "all") && (
+            <button
+              onClick={clearFilters}
+              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors flex items-center"
+            >
+              <FilterListOffIcon sx={{ fontSize: 18, marginRight: 0.5 }} />
+              Clear Filters
+            </button>
+          )}
+
+        </div>
+        </div>
+
       </div>
 
       <Table

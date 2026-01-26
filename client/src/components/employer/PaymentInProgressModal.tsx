@@ -17,7 +17,7 @@ const PaymentInProgressModal: React.FC<PaymentInProgressModalProps> = ({
       <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full relative overflow-hidden">
         {/* Decoration */}
         <div className="absolute top-0 left-0 w-full h-2 bg-yellow-500" />
-        
+
         <button
           onClick={onClose}
           className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
@@ -38,12 +38,14 @@ const PaymentInProgressModal: React.FC<PaymentInProgressModalProps> = ({
           <p className="text-gray-600 mb-6 font-medium">
             A checkout session is already active in another tab or window.
           </p>
-          
+
           <div className="bg-yellow-50 border border-yellow-100 rounded-xl p-4 mb-8 text-sm text-left">
             <div className="flex gap-3 text-yellow-800">
               <ExternalLink className="w-5 h-5 flex-shrink-0 mt-0.5" />
               <p className="leading-relaxed">
-                To prevent duplicate charges, we only allow one payment session at a time. Please complete the transaction in the other tab or close it before trying again.
+                To prevent duplicate charges, we only allow one payment session
+                at a time. Please complete the transaction in the other tab or
+                close it before trying again.
               </p>
             </div>
           </div>

@@ -1,38 +1,42 @@
-import { FilterQuery } from "mongoose";
+
 import { IAdminEmployerService } from "../../interfaces/users/admin/IAdminEmployerService";
 import {
   BlockEmployerDTO,
   EmployerResponseDTO,
 } from "../../dto/admin/employer.dto";
-import { IEmployer } from "../../interfaces/users/employer/IEmployer";
 import { IEmployerMapper } from "../../interfaces/users/admin/IEmployerMapper";
-import { INotificationService } from "../../interfaces/auth/INotificationService";
+import { INotificationService } from "../../interfaces/shared/INotificationService";
 import { ApiError } from "../../shared/utils/ApiError";
 import { HTTP_STATUS } from "../../shared/httpStatus/httpStatusCode";
 import { ERROR_MESSAGES } from "../../shared/enums/enums";
 import { logger } from "../../shared/utils/logger";
-import { NotificationHelper } from "../../shared/utils/notification.helper";
 import { IEmployerRepository } from "../../interfaces/users/employer/IEmployerRepository";
+import { EmployerFilterProcessor } from "./filters/employer/EmployerFilterProcessor";
+import { EmployerSearchFilter } from "./filters/employer/EmployerSearchFilter";
+import { EmployerStatusFilter } from "./filters/employer/EmployerStatusFilter";
+import { EmployerVerificationFilter } from "./filters/employer/EmployerVerificationFilter";
+
 
 export class AdminEmployerService implements IAdminEmployerService {
   constructor(
     private _employerRepo: IEmployerRepository,
     private _employerMapper: IEmployerMapper,
-    private _emailService: INotificationService,
+    private _notificationService: INotificationService,
   ) {}
   //Fecthing all employers
   async getAllEmployers(
     page: number,
     limit: number,
     search?: string,
+    status?: "active" | "blocked",
+    verification?: "verified" | "pending",
   ): Promise<{ data: EmployerResponseDTO[]; total: number }> {
-    const query: FilterQuery<IEmployer> = {};
-    if (search) {
-      query.$or = [
-        { name: { $regex: search, $options: "i" } },
-        { email: { $regex: search, $options: "i" } },
-      ];
-    }
+    const filterProcessor = new EmployerFilterProcessor();
+    filterProcessor.addFilter(new EmployerSearchFilter(search));
+    filterProcessor.addFilter(new EmployerStatusFilter(status));
+    filterProcessor.addFilter(new EmployerVerificationFilter(verification));
+
+    const query = filterProcessor.buildQuery();
 
     const employers = await this._employerRepo.findAll(query, page, limit);
     const total = await this._employerRepo.count(query);
@@ -53,16 +57,20 @@ export class AdminEmployerService implements IAdminEmployerService {
     );
     if (!employer) throw new Error("Employer not found");
 
-    const notificationHelper = NotificationHelper.getInstance();
 
     if (employerEntity.block) {
-      notificationHelper.emitUserBlocked(employerEntity.employerId, "Employer");
+      this._notificationService.emitUserBlocked(
+        employerEntity.employerId,
+        "Employer",
+      );
     } else {
-      notificationHelper.emitUserUnblocked(
+      this._notificationService.emitUserUnblocked(
+
         employerEntity.employerId,
         "Employer",
       );
     }
+
 
     return this._employerMapper.toEmployerResponseDTO(employer);
   }
@@ -94,12 +102,12 @@ export class AdminEmployerService implements IAdminEmployerService {
 
     const dto = this._employerMapper.toEmployerResponseDTO(updated);
 
+
     // Notify employer of verification approval
-    const notificationHelper = NotificationHelper.getInstance();
-    await notificationHelper.notifyEmployerVerificationApproved(id);
+    await this._notificationService.notifyEmployerVerificationApproved(id);
 
     try {
-      await this._emailService.sendEmployerVerificationEmail({
+      await this._notificationService.sendEmployerVerificationEmail({
         to: employer.email,
         name: employer.name,
         companyName: employer.name,
@@ -135,11 +143,12 @@ export class AdminEmployerService implements IAdminEmployerService {
     const dto = this._employerMapper.toEmployerResponseDTO(updated);
 
     // Notify employer of verification rejection
-    const notificationHelper = NotificationHelper.getInstance();
-    await notificationHelper.notifyEmployerVerificationRejected(id, reason);
-
+    await this._notificationService.notifyEmployerVerificationRejected(
+      id,
+      reason,
+    );
     try {
-      await this._emailService.sendEmployerRejectionEmail({
+      await this._notificationService.sendEmployerRejectionEmail({
         to: employer.email,
         name: employer.name,
         companyName: employer.name,

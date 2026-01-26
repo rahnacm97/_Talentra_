@@ -3,7 +3,7 @@ export interface SignupRequest {
   email: string;
   password: string;
   phoneNumber: string;
-  userType: "Candidate" | "Employer";
+  userType: "Candidate" | "Employer" | "Guest";
 }
 
 export interface LoginRequest {
@@ -21,7 +21,7 @@ export interface User {
   name: string;
   email: string;
   phoneNumber?: string;
-  role: "Candidate" | "Employer" | "Admin";
+  role: "Candidate" | "Employer" | "Admin" | "Guest";
   blocked: boolean;
   emailVerified?: boolean;
   verified?: boolean;

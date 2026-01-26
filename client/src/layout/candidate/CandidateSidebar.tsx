@@ -84,7 +84,10 @@ const CandidateSidebar: React.FC<SidebarProps> = ({
   const isActive = (itemPath: string) => {
     const current = location.pathname;
 
-    if (itemPath === FRONTEND_ROUTES.CANDIDATEAPPLICATIONS) {
+    if (
+      itemPath === FRONTEND_ROUTES.CANDIDATEAPPLICATIONS ||
+      itemPath === FRONTEND_ROUTES.CANDIDATEINTERVIEW
+    ) {
       return (
         current === itemPath ||
         current.startsWith(`${itemPath}/`) ||

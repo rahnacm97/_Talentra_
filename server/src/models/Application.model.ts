@@ -31,10 +31,15 @@ const ApplicationSchema = new Schema<IApplicationDocument>(
       ],
       default: "pending",
     },
+
     reviewedAt: { type: Date },
     shortlistedAt: { type: Date },
     hiredAt: { type: Date },
     rejectedAt: { type: Date },
+    rejectionReason: { type: String },
+    rejectionFeedback: { type: String },
+    rejectionFeedbackShared: { type: Boolean, default: false },
+
   },
   {
     timestamps: true,

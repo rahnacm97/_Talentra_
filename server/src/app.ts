@@ -12,6 +12,8 @@ import chatRoutes from "./routes/chat/chat.routes";
 import videoCallRoutes from "./routes/videoCall/videoCall.routes";
 import aiRoutes from "./routes/ai/ai.routes";
 import feedbackRoutes from "./routes/feedback/feedback.routes";
+import { interviewRoutes } from "./routes/interview/interview.routes";
+import meetingRoutes from "./routes/meeting.routes";
 import { errorHandler } from "./middlewares/errorHandler";
 import dotenv from "dotenv";
 import http from "http";
@@ -28,7 +30,7 @@ dotenv.config();
 //Socket.io setup
 const io = new Server(server, {
   cors: {
-    origin: [process.env.FRONTEND_URL!, "https://vr0t3mt2-5173.inc1.devtunnels.ms", "http://localhost:5173"],
+    origin: [process.env.FRONTEND_URL!, "http://localhost:5173"],
     credentials: true,
   },
 });
@@ -47,7 +49,8 @@ SocketManager.initialize(io, [chatHandler, videoCallHandler]);
 app.use(cookieParser());
 app.use(
   cors({
-    origin: [process.env.FRONTEND_URL!,"https://vr0t3mt2-5173.inc1.devtunnels.ms", "http://localhost:5173"],
+    origin: [process.env.FRONTEND_URL!, "http://localhost:5173"],
+
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -68,6 +71,9 @@ app.use("/api/chat", chatRoutes);
 app.use("/api/video-call", videoCallRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/feedback", feedbackRoutes);
+app.use("/api/interviews", interviewRoutes);
+app.use("/api/meeting", meetingRoutes);
+
 
 // Error handler
 app.use(errorHandler);

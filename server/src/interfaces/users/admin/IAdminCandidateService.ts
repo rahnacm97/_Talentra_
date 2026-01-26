@@ -8,6 +8,7 @@ export interface IAdminCandidateService {
     page: number,
     limit: number,
     search?: string,
+    status?: "active" | "blocked",
   ): Promise<{ data: CandidateResponseDTO[]; total: number }>;
   blockUnblockCandidate(data: BlockCandidateDTO): Promise<CandidateResponseDTO>;
   getCandidateById(id: string): Promise<CandidateResponseDTO | null>;

@@ -43,3 +43,8 @@ export interface FeedbackViewModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
+
+export interface FeedbackModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}

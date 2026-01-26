@@ -1,9 +1,8 @@
 import { Router } from "express";
-import {
-  EmployerController,
-  EmployerApplicationsController,
-  EmployerAnalyticsController,
-} from "../../controllers/employer/employer.controller";
+
+import { EmployerController } from "../../controllers/employer/employer.controller";
+import { EmployerAnalyticsController } from "../../controllers/employer/employerAnalytics.controller";
+import { EmployerApplicationsController } from "../../controllers/employer/employerApplication.controller";
 import { verifyAuth } from "../../middlewares/authMiddleware";
 import { requireActiveSubscription } from "../../middlewares/subscriptionCheck";
 import { EmployerService } from "../../services/employer/employer.service";
@@ -24,7 +23,6 @@ import { ApplicationRepository } from "../../repositories/application/applicatio
 import { InterviewRepository } from "../../repositories/interview/interview.repository";
 import { InterviewService } from "../../services/interview/interview.service";
 import { InterviewMapper } from "../../mappers/interview/interview.mapper";
-import { employerInterviewRouter } from "../interview/interview.routes";
 import { EmployerAnalyticsService } from "../../services/employer/employer.service";
 import { JobRepository } from "../../repositories/job/job.repository";
 import subscriptionRoutes from "../subscription/subscription.routes";
@@ -33,26 +31,35 @@ import { ChatRepository } from "../../repositories/chat/chat.repository";
 import { ChatMapper } from "../../mappers/chat/chat.mapper";
 import { ChatSocket } from "../../socket/chat.socket";
 import { NotificationSocket } from "../../socket/notification.socket";
+import { NotificationAdapter } from "../../services/notification/NotificationAdapter";
 
 const router = Router();
 //Dependencies
 const employerMapper = new EmployerMapper();
 const employerRepository = new EmployerRepository();
-const employerService = new EmployerService(employerRepository, employerMapper);
+const notificationAdapter = new NotificationAdapter();
+const employerService = new EmployerService(
+  employerRepository,
+  employerMapper,
+  notificationAdapter,
+);
 const employerController = new EmployerController(employerService);
 const applicationMapper = new EmployerApplicationMapper();
 const applicationRepo = new ApplicationRepository();
 const interviewRepo = new InterviewRepository();
 const interviewMapper = new InterviewMapper();
+
+const interviewService = new InterviewService(interviewRepo, interviewMapper);
+
 const mapper = new EmployerAnalyticsMapper();
 const jobRepo = new JobRepository();
 
-//Service with dependency
-const interviewService = new InterviewService(interviewRepo, interviewMapper);
 const chatRepository = new ChatRepository();
 const chatMapper = new ChatMapper();
 const chatSocket = ChatSocket.getInstance();
 const notificationSocket = NotificationSocket.getInstance();
+
+
 const chatService = new ChatService(
   chatRepository,
   applicationRepo,
@@ -60,12 +67,15 @@ const chatService = new ChatService(
   chatSocket,
   notificationSocket,
 );
+
 const employerApplicationService = new EmployerApplicationService(
   applicationRepo,
   applicationMapper,
+  notificationAdapter,
   interviewService,
   chatService,
 );
+
 const analyticsRepository = new EmployerAnalyticsRepository(
   jobRepo,
   applicationRepo,
@@ -75,7 +85,10 @@ const analyticsService = new EmployerAnalyticsService(
   analyticsRepository,
   mapper,
 );
+
+
 //Controller
+
 const employerApplicationsController = new EmployerApplicationsController(
   employerApplicationService,
 );
@@ -83,13 +96,12 @@ const analyticsController = new EmployerAnalyticsController(analyticsService);
 //Routes
 router.use("/subscription", subscriptionRoutes);
 
-router.use("/interviews", requireActiveSubscription, employerInterviewRouter);
-
 router.get(
   "/analytics",
   verifyAuth([USER_ROLES.EMPLOYER]),
   requireActiveSubscription,
-  analyticsController.getEmployerAnalytics,
+  analyticsController.getEmployerAnalytics.bind(analyticsController),
+
 );
 
 router.get(

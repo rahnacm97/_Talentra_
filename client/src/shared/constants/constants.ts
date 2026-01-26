@@ -52,9 +52,32 @@ export const API_ROUTES = {
     HISTORY: "/employer/subscription/history",
   },
   INTERVIEWS: {
-    CANDIDATE: "/candidate/interviews",
-    EMPLOYER: "/employer/interviews",
-    UPDATE_STATUS: (id: string) => `/employer/interviews/${id}/status`,
+    CANDIDATE: "/interviews/candidate",
+    EMPLOYER: "/interviews/employer",
+    UPDATE_STATUS: (id: string) => `/interviews/employer/${id}/status`,
+  },
+  INTERVIEW_ROUNDS: {
+    BASE: "/interviews/rounds",
+    APPLICATION: (id: string) => `/interviews/rounds/application/${id}`,
+    CANDIDATE: "/interviews/rounds/candidate",
+    EMPLOYER: "/interviews/rounds/employer",
+    BY_ID: (id: string) => `/interviews/rounds/${id}`,
+    STATUS: (id: string) => `/interviews/rounds/${id}/status`,
+    RESCHEDULE: (id: string) => `/interviews/rounds/${id}/reschedule`,
+    CANCEL: (id: string) => `/interviews/rounds/${id}/cancel`,
+    VALIDATE: (id: string, token: string) =>
+      `/interviews/rounds/${id}/validate/${token}`,
+  },
+  INTERVIEW_FEEDBACK: {
+    ROUND: (roundId: string) => `/interviews/rounds/${roundId}/feedback`,
+    APPLICATION: (applicationId: string) =>
+      `/interviews/rounds/feedback/application/${applicationId}`,
+    SUMMARY: (roundId: string) =>
+      `/interviews/rounds/${roundId}/feedback/summary`,
+    CANDIDATE_ROUND: (roundId: string) =>
+      `/interviews/rounds/${roundId}/feedback/candidate`,
+    BY_ID: (id: string) => `/interviews/feedback/${id}`,
+    SHARE: (id: string) => `/interviews/feedback/${id}/share`,
   },
   NOTIFICATIONS: {
     BASE: "/notifications",
@@ -104,6 +127,7 @@ export const FRONTEND_ROUTES = {
   EMPLOYERANALYTICS: "/analytics",
   EMPLOYERBILLING: "/subscriptions",
   EMPLOYERINTERVIEWS: "/interviews",
+  EMPLOYERINTERVIEWDETAIL: "/interviews/:id",
   EMPLOYERREPORTS: "/employer/reports",
   EMPLOYERSETTINGS: "/setting",
   EMPLOYERNOTIFICATIONS: "/notification",
@@ -113,6 +137,7 @@ export const FRONTEND_ROUTES = {
   CANDIDATESAVEDJOBS: "/saved",
   CANDIDATESETTINGS: "/settings",
   CANDIDATEINTERVIEW: "/interview",
+  CANDIDATEINTERVIEWDETAIL: "/interview/:id",
   ADMINEMPLOYERS: "/employers",
   ADMINCANDIDATES: "/candidates",
   ADMINCANDIDATEVIEW: "/candidates/view/:id",

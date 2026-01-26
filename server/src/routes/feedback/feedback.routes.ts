@@ -5,12 +5,21 @@ import { FeedbackRepository } from "../../repositories/feedback/feedback.reposit
 import { FeedbackMapper } from "../../mappers/feedback/feedback.mapper";
 import { verifyAuth } from "../../middlewares/authMiddleware";
 import { USER_ROLES } from "../../shared/enums/enums";
+import { NotificationAdapter } from "../../services/notification/NotificationAdapter";
+
 
 const router = Router();
 //Dependencies
 const feedbackRepo = new FeedbackRepository();
 const feedbackMapper = new FeedbackMapper();
-const feedbackService = new FeedbackService(feedbackRepo, feedbackMapper);
+
+const notificationAdapter = new NotificationAdapter();
+const feedbackService = new FeedbackService(
+  feedbackRepo,
+  feedbackMapper,
+  notificationAdapter,
+);
+
 const feedbackController = new FeedbackController(feedbackService);
 
 // Public routes

@@ -38,4 +38,5 @@ export interface AdminJobQueryParams {
   limit: number;
   search?: string;
   status?: "active" | "closed" | "all";
+  type?: string;
 }

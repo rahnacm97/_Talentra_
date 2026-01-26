@@ -1,5 +1,6 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Response } from "express";
 import { EmployerDataDTO } from "../../../dto/employer/employer.dto";
+import { FullyAuthenticatedRequest } from "../../../type/types";
 
 export interface UpdateProfileResponse {
   message: string;
@@ -8,12 +9,12 @@ export interface UpdateProfileResponse {
 
 export interface IEmployerController {
   getProfile(
-    req: Request<{ id: string }>,
+    req: FullyAuthenticatedRequest,
     res: Response,
     next: NextFunction,
   ): Promise<void>;
   updateProfile(
-    req: Request<{ id: string }, UpdateProfileResponse, EmployerDataDTO>,
+    req: FullyAuthenticatedRequest,
     res: Response,
     next: NextFunction,
   ): Promise<void>;
@@ -21,12 +22,12 @@ export interface IEmployerController {
 
 export interface IEmployerApplicationsController {
   getApplications(
-    req: Request,
+    req: FullyAuthenticatedRequest,
     res: Response,
     next: NextFunction,
   ): Promise<void>;
   updateApplicationStatus(
-    req: Request,
+    req: FullyAuthenticatedRequest,
     res: Response,
     next: NextFunction,
   ): Promise<void>;
@@ -34,8 +35,10 @@ export interface IEmployerApplicationsController {
 
 export interface IEmployerAnalyticsController {
   getEmployerAnalytics(
-    req: Request,
+    req: FullyAuthenticatedRequest,
+
     res: Response,
     next: NextFunction,
   ): Promise<void>;
 }
+

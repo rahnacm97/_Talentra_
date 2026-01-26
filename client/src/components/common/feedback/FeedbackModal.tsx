@@ -2,13 +2,9 @@ import React, { useState } from "react";
 import { Star, X } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../../../hooks/hooks";
 import { submitFeedback } from "../../../thunks/feedback.thunk";
+import { type FeedbackModalProps } from "../../../types/feedback/feedback.types";
 import type { RootState } from "../../../app/store";
 import { toast } from "react-toastify";
-
-interface FeedbackModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
 
 const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose }) => {
   const [rating, setRating] = useState(0);

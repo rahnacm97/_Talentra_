@@ -25,16 +25,12 @@ export class InterviewService implements IInterviewService {
     employerId: string;
     interviewDate?: string;
   }): Promise<InterviewResponseDto> {
-    const existing = await this._repository.findByApplicationId(
+    const existingInterview = await this._repository.findByApplicationId(
       data.applicationId,
     );
 
-    if (existing) {
-      logger.info("Interview already exists for application", {
-        applicationId: data.applicationId,
-        interviewId: existing.id,
-      });
-      return this._mapper.toDto(existing);
+    if (existingInterview) {
+      throw new Error("Interview already scheduled for this application");
     }
 
     const interviewData: Partial<IInterview> = {
@@ -125,13 +121,25 @@ export class InterviewService implements IInterviewService {
   async updateInterviewStatus(
     interviewId: string,
     status: string,
+    employerId: string,
   ): Promise<InterviewResponseDto> {
+    const interview = await this._repository.findById(interviewId);
+    if (!interview) {
+      throw new Error("Interview not found");
+    }
+
+    if (interview.employerId !== employerId) {
+      throw new Error("Unauthorized: You do not own this interview");
+    }
+
     const updated = await this._repository.updateOne(interviewId, {
       status: status as InterviewStatus,
     });
 
     if (!updated) {
-      throw new Error("Interview not found or failed to update");
+
+      throw new Error("Failed to update interview status");
+
     }
 
     logger.info("Interview status updated", { interviewId, status });

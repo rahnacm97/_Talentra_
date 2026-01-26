@@ -14,7 +14,13 @@ import { PasswordService } from "../../services/auth/password.service";
 import passport from "passport";
 import { GoogleAuthService } from "../../services/auth/googleAuth.service";
 import { GoogleAuthController } from "../../controllers/auth/googleAuth.controller";
-import { IUserRepoMap } from "../../type/types";
+
+import {
+  IUserRepoMap,
+  FullyAuthenticatedRequest,
+  IAuthenticatedUser,
+} from "../../type/types";
+
 import { GoogleAuthUserRepoMap } from "../../type/types";
 import { OtpMapper } from "../../mappers/auth/otp.mapper";
 import { PasswordMapper } from "../../mappers/auth/password.mapper";
@@ -69,6 +75,13 @@ router.get("/google", (req, res, next) => {
     state: stateParam,
   })(req, res, next);
 });
+
+router.get(
+  "/google/callback",
+  passport.authenticate("google", { session: false }),
+  googleAuthController.loginSuccess,
+);
+
 router.get("/google/callback", (req, res, next) => {
   passport.authenticate("google", { session: false }, (err, user) => {
     if (err) {
@@ -85,10 +98,12 @@ router.get("/google/callback", (req, res, next) => {
         `${process.env.FRONTEND_URL}/login?error=Authentication failed`,
       );
     }
-    req.user = user;
-    googleAuthController.loginSuccess(req, res);
+
+    (req as FullyAuthenticatedRequest).user = user as IAuthenticatedUser;
+    googleAuthController.loginSuccess(req as FullyAuthenticatedRequest, res);
   })(req, res, next);
 });
+
 
 router.get("/me", authController.getMe);
 router.post("/signup", authController.signup);

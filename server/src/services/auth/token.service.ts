@@ -22,7 +22,7 @@ export class TokenService implements ITokenService {
   generateAccessToken(payload: {
     id: string;
     email: string;
-    role: "Candidate" | "Employer" | "Admin";
+    role: "Candidate" | "Employer" | "Admin" | "Guest";
   }): string {
     return jwt.sign(payload, this._accessTokenSecret, { expiresIn: "10m" });
   }
@@ -30,7 +30,7 @@ export class TokenService implements ITokenService {
   generateRefreshToken(payload: {
     id: string;
     email: string;
-    role: "Candidate" | "Employer" | "Admin";
+    role: "Candidate" | "Employer" | "Admin" | "Guest";
   }): string {
     return jwt.sign(payload, this._refreshTokenSecret, { expiresIn: "7d" });
   }

@@ -65,7 +65,8 @@ export interface IAdminJobService {
     page: number;
     limit: number;
     search?: string;
-    status?: "active" | "closed" | "all";
+    status?: "active" | "closed" | "draft" | "all";
+    type?: string;
   }): Promise<{
     jobs: AdminJob[];
     total: number;

@@ -1,6 +1,10 @@
 export interface SignalData {
   roomId: string;
   userData?: Record<string, unknown>;
+
+  targetUserId?: string;
+  fromUserId?: string;
+
 }
 
 export interface OfferPayload extends SignalData {
@@ -14,4 +18,8 @@ export interface AnswerPayload extends SignalData {
 export interface CandidatePayload {
   roomId: string;
   candidate: Record<string, unknown>;
+
+  targetUserId?: string;
+  fromUserId?: string;
+
 }

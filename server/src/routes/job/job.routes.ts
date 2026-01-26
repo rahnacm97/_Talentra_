@@ -9,11 +9,12 @@ import { USER_ROLES } from "../../shared/enums/enums";
 import { JobRepository } from "../../repositories/job/job.repository";
 import { EmployerRepository } from "../../repositories/employer/employer.repository";
 import { ApplicationRepository } from "../../repositories/application/application.repository";
+import { FullyAuthenticatedRequest } from "../../type/types";
 import { JobMapper } from "../../mappers/job/job.mapper";
 import { EmployerJobService } from "../../services/job/job.service";
 import { CandidateJobService } from "../../services/job/job.service";
-import { EmployerJobController } from "../../controllers/job/job.controller";
-import { CandidateJobController } from "../../controllers/job/job.controller";
+import { EmployerJobController } from "../../controllers/job/employerJob.controller";
+import { CandidateJobController } from "../../controllers/job/candidateJob.controller";
 import { CandidateRepository } from "../../repositories/candidate/candidate.repository";
 
 //Dependencies
@@ -40,11 +41,16 @@ const candidateController = new CandidateJobController(candidateService);
 
 const router = Router();
 
+
+router.get("/", candidateController.getPublicJobs.bind(candidateController));
+
 router.get(
   "/",
   optionalAuth,
   (req: Request, res: Response, next: NextFunction) => {
-    const user = req.user as { role: string } | undefined;
+
+    const user = (req as FullyAuthenticatedRequest).user;
+
 
     if (user?.role === USER_ROLES.EMPLOYER) {
       return employerController.getJobs(req, res, next);
@@ -76,6 +82,7 @@ router.patch(
 );
 
 // Candidate specific routes
+
 router.get(
   "/public/:id",
   optionalAuth,

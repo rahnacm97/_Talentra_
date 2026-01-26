@@ -1,5 +1,6 @@
+
 import { Router } from "express";
-import { SubscriptionController } from "../../controllers/employer/employer.controller";
+import { SubscriptionController } from "../../controllers/employer/employerSubscription.controller";
 import { SubscriptionService } from "../../services/employer/employer.service";
 import { SubscriptionRepository } from "../../repositories/subscription/subscription.repository";
 import { SubscriptionMapper } from "../../mappers/subscription/subscription.mapper";

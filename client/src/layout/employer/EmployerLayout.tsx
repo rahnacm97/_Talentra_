@@ -100,6 +100,7 @@ const EmployerLayout: React.FC = () => {
     },
   ];
 
+
   const isActive = (path: string) => {
     const current = location.pathname;
 
@@ -107,12 +108,18 @@ const EmployerLayout: React.FC = () => {
       return current === path || current.startsWith(path + "/");
     }
 
-    if (path === FRONTEND_ROUTES.EMPLOYERAPPLICANTS) {
+
+    if (
+      path === FRONTEND_ROUTES.EMPLOYERAPPLICANTS ||
+      path === FRONTEND_ROUTES.EMPLOYERINTERVIEWS
+    ) {
+
       return current.startsWith(path);
     }
 
     return current === path;
   };
+
 
   return (
     <div className="h-screen flex flex-col bg-gray-50 overflow-hidden">

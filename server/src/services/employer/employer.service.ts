@@ -1,4 +1,5 @@
 import { IEmployerService } from "../../interfaces/users/employer/IEmployerService";
+import { INotificationService } from "../../interfaces/shared/INotificationService";
 import { IEmployer } from "../../interfaces/users/employer/IEmployer";
 import { IEmployerMapper } from "../../interfaces/users/employer/IEmployerMapper";
 import { ApiError } from "../../shared/utils/ApiError";
@@ -28,12 +29,15 @@ import {
   VerifyPaymentResponseDTO,
   SubscriptionHistoryResponseDTO,
 } from "../../dto/subscription/subscription.dto";
+
 import { NotificationHelper } from "../../shared/utils/notification.helper";
+
 
 export class EmployerService implements IEmployerService {
   constructor(
     private _repository: IEmployerRepository,
     private _employerMapper: IEmployerMapper,
+    private _notificationService: INotificationService,
   ) {}
 
   async getEmployerById(employerId: string): Promise<IEmployer | null> {
@@ -137,19 +141,22 @@ export class EmployerService implements IEmployerService {
       );
     }
 
+
     // Notify admin when employer submits verification documents
     if (isSubmittingVerification && !employer.verified) {
-      const notificationHelper = NotificationHelper.getInstance();
-      await notificationHelper.notifyAdminEmployerVerificationSubmitted(
+      await this._notificationService.notifyAdminEmployerVerificationSubmitted(
+
         employerId,
         updatedEmployer.name || "An employer",
       );
     }
 
+
     logger.info("Employer profile updated", { employerId });
     return this._employerMapper.toProfileDataDTO(updatedEmployer);
   }
 }
+
 
 export class EmployerAnalyticsService implements IEmployerAnalyticsService {
   constructor(
@@ -317,12 +324,20 @@ export class SubscriptionService implements ISubscriptionService {
             await this._subscriptionRepository.updateStatus(sub.id, "expired");
 
             // Also update employer record if this was their active subscription
-            if (employer.hasActiveSubscription && employer.currentPlan === sub.plan) {
-                await this._employerRepository.updateOne(employerId, {
-                    hasActiveSubscription: false,
-                    currentPlan: "free"
-                });
-                logger.info("Updated employer subscription status to expired in getSubscriptionHistory", { employerId });
+
+            if (
+              employer.hasActiveSubscription &&
+              employer.currentPlan === sub.plan
+            ) {
+              await this._employerRepository.updateOne(employerId, {
+                hasActiveSubscription: false,
+                currentPlan: "free",
+              });
+              logger.info(
+                "Updated employer subscription status to expired in getSubscriptionHistory",
+                { employerId },
+              );
+
             }
 
             return { ...sub.toObject(), status: "expired" };
@@ -347,3 +362,4 @@ export class SubscriptionService implements ISubscriptionService {
     }
   }
 }
+

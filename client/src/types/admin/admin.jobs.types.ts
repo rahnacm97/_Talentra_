@@ -20,7 +20,8 @@ export interface GetAdminJobsParams {
   page: number;
   limit: number;
   search?: string;
-  status?: "active" | "closed" | "all";
+  status?: "active" | "closed" | "draft" | "all";
+  type?: string;
 }
 
 export interface AdminJobsResponse {

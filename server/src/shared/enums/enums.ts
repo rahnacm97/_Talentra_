@@ -34,8 +34,6 @@ export enum ERROR_MESSAGES {
   AUTHENTICATION = "Authentication required",
   APPLICATION_NOT_FOUND = "Application not found",
   FAILED_LOADING = "Failed to load updated application",
-<<<<<<< Updated upstream
-=======
   ENV_ERROR = "Razorpay credentials not configured. Please add RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET to your .env file",
   RAZORPAY_ERROR = "Error creating Razorpay order",
   SIGNATURE_ERROR = "Invalid signature",
@@ -74,7 +72,6 @@ export enum ERROR_MESSAGES {
   ROUND_ID_TOKEN_REQUIRED = "Round ID and token are required",
   INVALID_MEETLINK = "Invalid or expired meeting link",
   VALIDATE_ACCESS = "Failed to validate access",
->>>>>>> Stashed changes
 }
 
 export enum SUCCESS_MESSAGES {
@@ -99,8 +96,6 @@ export enum SUCCESS_MESSAGES {
   INTERVIEWS_FETCHED = "Interviews fetched successfully",
   INTERVIEW_CANCELLED = "Interview cancelled successfully",
   INTERVIEW_RESCHEDULED = "Interview rescheduled successfully",
-<<<<<<< Updated upstream
-=======
   SUBSCRIPTION_ACTIVATED = "Subscription activated successfully",
   NOTIFICATION_READ = "Notification marked as read",
   ALL_READ = "All notifications marked as read",
@@ -174,8 +169,8 @@ export enum NOTIFICATION_MESSAGES {
   USER_UNBLOCKED = "Your account has been unblocked. You can now log in.",
   ADMIN_NEW_FEEDBACK_TITLE = "New Feedback Received",
   ADMIN_NEW_FEEDBACK_MESSAGE = "You have received new feedback from {{userName}}.",
->>>>>>> Stashed changes
 }
+
 
 export enum USER_ROLES {
   CANDIDATE = "Candidate",

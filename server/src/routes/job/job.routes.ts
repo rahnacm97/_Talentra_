@@ -1,5 +1,5 @@
-import { Router } from "express";
-import { verifyAuth } from "../../middlewares/authMiddleware";
+import { Router, Request, Response, NextFunction } from "express";
+import { verifyAuth, optionalAuth } from "../../middlewares/authMiddleware";
 import {
   validate,
   verifyEmployer,
@@ -43,14 +43,11 @@ const candidateController = new CandidateJobController(candidateService);
 
 const router = Router();
 
-<<<<<<< Updated upstream
-router.get("/", candidateController.getPublicJobs.bind(candidateController));
-=======
 router.get(
   "/",
   optionalAuth,
   (req: Request, res: Response, next: NextFunction) => {
-    const user = (req as FullyAuthenticatedRequest).user;
+    const user = (req as unknown as FullyAuthenticatedRequest).user;
 
     if (user?.role === USER_ROLES.EMPLOYER) {
       return employerController.getJobs(req, res, next);
@@ -82,7 +79,6 @@ router.patch(
 );
 
 // Candidate specific routes
->>>>>>> Stashed changes
 router.get(
   "/public/:id",
   candidateController.getJobById.bind(candidateController),

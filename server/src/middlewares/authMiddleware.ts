@@ -83,6 +83,8 @@ export const verifyAuth =
         _id: user._id.toString(),
         role: decoded.role as USER_ROLES,
         email: decoded.email,
+        name: user.name,
+        profileImage: "profileImage" in user ? (user as any).profileImage : undefined,
         blocked: "blocked" in user ? user.blocked : false,
         ...(decoded.role === USER_ROLES.EMPLOYER && {
           subscription: (user as IEmployer).subscription,
@@ -97,3 +99,56 @@ export const verifyAuth =
         .json({ success: false, message: ERROR_MESSAGES.NOT_AUTHENTICATED });
     }
   };
+
+export const optionalAuth = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader?.startsWith("Bearer ")) {
+      return next();
+    }
+
+    const token = authHeader.split(" ")[1];
+    if (!token) {
+      return next();
+    }
+
+    const decoded = tokenService.verifyAccessToken(token) as {
+      id: string;
+      role: string;
+      email: string;
+    };
+
+    let user: AuthUser | null = null;
+
+    if (decoded.role === USER_ROLES.CANDIDATE) {
+      const candidateRepo = new CandidateRepository();
+      user = await candidateRepo.findById(decoded.id);
+    } else if (decoded.role === USER_ROLES.EMPLOYER) {
+      const employerRepo = new EmployerRepository();
+      user = await employerRepo.findById(decoded.id);
+    }
+
+    if (!user) {
+      return next();
+    }
+
+    req.user = {
+      id: user._id.toString(),
+      _id: user._id.toString(),
+      role: decoded.role as USER_ROLES,
+      email: decoded.email,
+      name: user.name,
+      profileImage: "profileImage" in user ? (user as any).profileImage : undefined,
+      blocked: "blocked" in user ? user.blocked : false,
+    };
+
+    next();
+  } catch (error) {
+    next();
+  }
+};

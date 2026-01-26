@@ -32,8 +32,6 @@ export interface IEmployerApplicationsController {
     next: NextFunction,
   ): Promise<void>;
 }
-<<<<<<< Updated upstream
-=======
 
 export interface IEmployerAnalyticsController {
   getEmployerAnalytics(
@@ -42,4 +40,3 @@ export interface IEmployerAnalyticsController {
     next: NextFunction,
   ): Promise<void>;
 }
->>>>>>> Stashed changes

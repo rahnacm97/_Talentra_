@@ -82,26 +82,3 @@ export function hasEmailVerification(
 ): user is ICandidate | IEmployer {
   return user && "emailVerified" in user;
 }
-
-<<<<<<< Updated upstream
-export type FullyAuthenticatedRequest = Request & {
-  user: {
-    _id: string;
-    id: string;
-    role: USER_ROLES;
-    email: string;
-    blocked?: boolean;
-    subscription?: {
-      active: boolean;
-      plan: "free" | "professional" | "enterprise";
-      status: string;
-      currentPeriodEnd?: Date | null;
-      razorpaySubscriptionId?: string | null;
-      trialEndsAt?: Date | null;
-    };
-  };
-  maskApplications?: boolean;
-};
-=======
-// Replaced by global augmentation and IAuthenticatedUser
->>>>>>> Stashed changes

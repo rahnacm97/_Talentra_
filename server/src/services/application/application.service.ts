@@ -29,11 +29,7 @@ import { IJobRepository } from "../../interfaces/jobs/IJobRepository";
 import { uploadResumeFile } from "../../shared/utils/fileUpload";
 import { ICandidateService } from "../../interfaces/users/candidate/ICandidateService";
 import { IApplicationQuery } from "../../interfaces/applications/IApplication";
-<<<<<<< Updated upstream
-import { sendInterviewScheduledEmail } from "../../shared/utils/email";
-=======
 import { StatusHandlerRegistry } from "./handlers/StatusHandlerRegistry";
->>>>>>> Stashed changes
 
 export class CandidateApplicationService
   implements ICandidateApplicationService
@@ -103,8 +99,6 @@ export class CandidateApplicationService
 
     await this._jobRepo.incrementApplicants(jobId);
 
-<<<<<<< Updated upstream
-=======
     // Notify employer of new application
     await this._notificationService.notifyEmployerNewApplication(
       job.employerId,
@@ -114,7 +108,6 @@ export class CandidateApplicationService
       application.id,
     );
 
->>>>>>> Stashed changes
     logger.info("Application submitted", {
       applicationId: application.id,
       jobId,
@@ -205,6 +198,7 @@ export class EmployerApplicationService implements IEmployerApplicationService {
     private readonly _mapper: IEmployerApplicationMapper,
     private readonly _notificationService: INotificationService,
     private readonly _interviewService?: IInterviewService,
+    private readonly _chatService?: any,
   ) {}
   //Fetching application in employer side
   async getApplicationsForEmployer(
@@ -249,48 +243,6 @@ export class EmployerApplicationService implements IEmployerApplicationService {
         ERROR_MESSAGES.APPLICATION_NOT_FOUND,
       );
 
-<<<<<<< Updated upstream
-    const updateData: IApplicationUpdate = { status: data.status };
-
-    if (data.status === "interview") {
-      updateData.interviewDate = data.interviewDate;
-    }
-
-    await this._appRepo.updateOne(applicationId, updateData);
-
-    if (data.status === "interview" && this._interviewService) {
-      try {
-        await this._interviewService.createInterviewFromApplication({
-          applicationId,
-          jobId: app.jobId,
-          candidateId: app.candidateId,
-          employerId,
-          ...(data.interviewDate && { interviewDate: data.interviewDate }),
-        });
-        logger.info("Interview created for application", { applicationId });
-      } catch (e) {
-        logger.error("Failed to create interview", e);
-      }
-    }
-
-    if (data.status === "interview" && data.interviewDate) {
-      try {
-        await sendInterviewScheduledEmail({
-          to: app.email,
-          candidateName: app.fullName,
-          jobTitle: app.job.title,
-          interviewDate: data.interviewDate,
-          companyName: app.employer.name,
-        });
-      } catch (e) {
-        logger.warn("Interview email failed", e);
-      }
-    }
-    const apps = await this._appRepo.findByEmployerIdWithJob(employerId, {
-      limit: 20,
-    });
-    const freshData = apps.find((a) => a.id === applicationId);
-=======
     const handler = StatusHandlerRegistry.getHandler(data.status);
     await handler.handle({
       application: app,
@@ -315,7 +267,6 @@ export class EmployerApplicationService implements IEmployerApplicationService {
       applicationId,
       employerId,
     );
->>>>>>> Stashed changes
     if (!freshData)
       throw new ApiError(
         HTTP_STATUS.INTERNAL_SERVER_ERROR,

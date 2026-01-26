@@ -1,22 +1,14 @@
-<<<<<<< Updated upstream
-import { FilterQuery } from "mongoose";
 import { CandidateRepository } from "../../repositories/candidate/candidate.repository";
-=======
->>>>>>> Stashed changes
 import { IAdminCandidateService } from "../../interfaces/users/admin/IAdminCandidateService";
 import {
   BlockCandidateDTO,
   CandidateResponseDTO,
 } from "../../dto/admin/candidate.dto";
 import { ICandidateMapper } from "../../interfaces/users/admin/ICandidateMapper";
-<<<<<<< Updated upstream
-=======
 import { INotificationService } from "../../interfaces/shared/INotificationService";
-import { ICandidateRepo } from "../../interfaces/users/candidate/ICandidateRepository";
 import { CandidateFilterProcessor } from "./filters/candidate/CandidateFilterProcessor";
 import { CandidateSearchFilter } from "./filters/candidate/CandidateSearchFilter";
 import { CandidateStatusFilter } from "./filters/candidate/CandidateStatusFilter";
->>>>>>> Stashed changes
 
 export class AdminCandidateService implements IAdminCandidateService {
   constructor(
@@ -57,8 +49,6 @@ export class AdminCandidateService implements IAdminCandidateService {
     );
     if (!candidate) throw new Error("Candidate not found");
 
-<<<<<<< Updated upstream
-=======
     if (candidateEntity.block) {
       this._notificationService.emitUserBlocked(
         candidateEntity.candidateId,
@@ -71,7 +61,6 @@ export class AdminCandidateService implements IAdminCandidateService {
       );
     }
 
->>>>>>> Stashed changes
     return this._candidateMapper.toCandidateResponseDTO(candidate);
   }
   //Fetching single candidate

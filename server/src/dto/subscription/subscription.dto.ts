@@ -66,3 +66,52 @@ export interface SubscriptionResponseDTO {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface CreateOrderRequestDTO {
+  amount: number;
+  currency?: string;
+  planId: string;
+}
+
+export interface CreateOrderResponseDTO {
+  id: string;
+  entity: string;
+  amount: number;
+  amount_paid: number;
+  amount_due: number;
+  currency: string;
+  receipt: string;
+  status: string;
+  attempts: number;
+  notes: any;
+  created_at: number;
+}
+
+export interface VerifyPaymentRequestDTO {
+  paymentDetails: {
+    razorpay_payment_id: string;
+    razorpay_order_id: string;
+    razorpay_signature: string;
+  };
+  planDetails: {
+    plan: "free" | "professional" | "enterprise";
+    amount: number;
+  };
+}
+
+export interface VerifyPaymentResponseDTO {
+  success: boolean;
+  message: string;
+}
+
+export interface SubscriptionHistoryResponseDTO {
+  subscriptions: Array<{
+    id: string;
+    plan: string;
+    status: string;
+    startDate: Date;
+    endDate: Date;
+    amount: number;
+    paymentId: string;
+  }>;
+}

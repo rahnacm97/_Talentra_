@@ -6,12 +6,6 @@ import { EmployerInterviewController } from "../../controllers/interview/intervi
 import { InterviewService } from "../../services/interview/interview.service";
 import { InterviewRepository } from "../../repositories/interview/interview.repository";
 import { InterviewMapper } from "../../mappers/interview/interview.mapper";
-<<<<<<< Updated upstream
-
-const candidateRouter = Router();
-const employerRouter = Router();
-
-=======
 import { NotificationAdapter } from "../../services/notification/NotificationAdapter";
 import { InterviewRoundController } from "../../controllers/interview/interviewRound.controller";
 import { InterviewRoundService } from "../../services/interview/interviewRound.service";
@@ -24,13 +18,10 @@ const router = Router();
 
 // Dependencies
 const notificationAdapter = new NotificationAdapter();
->>>>>>> Stashed changes
 const interviewRepo = new InterviewRepository();
 const interviewMapper = new InterviewMapper();
 const interviewService = new InterviewService(interviewRepo, interviewMapper);
 
-<<<<<<< Updated upstream
-=======
 const roundRepo = new InterviewRoundRepository();
 const roundService = new InterviewRoundService(
   roundRepo,
@@ -47,8 +38,6 @@ const feedbackService = new InterviewFeedbackService(
 );
 const feedbackController = new InterviewFeedbackController(feedbackService);
 
-//Interview routes
->>>>>>> Stashed changes
 const candidateInterviewController = new CandidateInterviewController(
   interviewService,
 );
@@ -56,13 +45,8 @@ const employerInterviewController = new EmployerInterviewController(
   interviewService,
 );
 
-<<<<<<< Updated upstream
-candidateRouter.get(
-  "/",
-=======
 router.get(
   "/candidate",
->>>>>>> Stashed changes
   verifyAuth([USER_ROLES.CANDIDATE]),
   candidateInterviewController.getMyInterviews.bind(
     candidateInterviewController,
@@ -73,13 +57,7 @@ router.get(
   verifyAuth([USER_ROLES.EMPLOYER]),
   employerInterviewController.getInterviews.bind(employerInterviewController),
 );
-<<<<<<< Updated upstream
 
-export {
-  candidateRouter as candidateInterviewRouter,
-  employerRouter as employerInterviewRouter,
-};
-=======
 router.patch(
   "/employer/:id/status",
   verifyAuth([USER_ROLES.EMPLOYER]),
@@ -163,5 +141,8 @@ router.patch(
   feedbackController.shareFeedbackWithCandidate.bind(feedbackController),
 );
 
-export { router as interviewRoutes };
->>>>>>> Stashed changes
+export {
+  router as interviewRoutes,
+  router as employerInterviewRouter,
+  router as candidateInterviewRouter,
+};

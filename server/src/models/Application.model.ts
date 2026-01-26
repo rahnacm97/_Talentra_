@@ -30,8 +30,6 @@ const ApplicationSchema = new Schema<IApplicationDocument>(
       ],
       default: "pending",
     },
-<<<<<<< Updated upstream
-=======
     reviewedAt: { type: Date },
     shortlistedAt: { type: Date },
     hiredAt: { type: Date },
@@ -39,7 +37,6 @@ const ApplicationSchema = new Schema<IApplicationDocument>(
     rejectionReason: { type: String },
     rejectionFeedback: { type: String },
     rejectionFeedbackShared: { type: Boolean, default: false },
->>>>>>> Stashed changes
   },
   {
     timestamps: true,

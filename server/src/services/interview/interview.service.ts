@@ -105,8 +105,6 @@ export class InterviewService implements IInterviewService {
       },
     };
   }
-<<<<<<< Updated upstream
-=======
 
   async updateInterviewStatus(
     interviewId: string,
@@ -123,7 +121,7 @@ export class InterviewService implements IInterviewService {
     }
 
     const updated = await this._repository.updateOne(interviewId, {
-      status: status as InterviewStatus,
+      status: status as any,
     });
 
     if (!updated) {
@@ -133,5 +131,4 @@ export class InterviewService implements IInterviewService {
     logger.info("Interview status updated", { interviewId, status });
     return this._mapper.toDto(updated);
   }
->>>>>>> Stashed changes
 }

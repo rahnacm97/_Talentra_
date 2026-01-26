@@ -30,13 +30,13 @@ export class SubscriptionController implements ISubscriptionController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const { amount, currency } = req.body;
+      const { amount, currency, planId } = req.body;
 
       if (!amount || amount <= 0) {
         throw new ApiError(HTTP_STATUS.BAD_REQUEST, "Valid amount is required");
       }
 
-      const requestData: CreateOrderRequestDTO = { amount, currency };
+      const requestData: CreateOrderRequestDTO = { amount, currency, planId };
 
       const employerId = (req as AuthenticatedRequest).user?.id;
       if (!employerId) {
@@ -152,7 +152,7 @@ export class SubscriptionController implements ISubscriptionController {
     }
   };
   //Fetching payment history
-  getHistory = async (
+  getSubscriptionHistory = async (
     req: Request,
     res: Response,
     next: NextFunction,

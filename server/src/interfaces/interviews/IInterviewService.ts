@@ -30,15 +30,12 @@ export interface IInterviewService {
     candidateId: string,
     filters?: IInterviewQuery,
   ): Promise<InterviewsPaginatedDto>;
-<<<<<<< Updated upstream
-=======
 
   updateInterviewStatus(
     interviewId: string,
     status: string,
     employerId: string,
   ): Promise<InterviewResponseDto>;
->>>>>>> Stashed changes
 }
 
 export interface IInterviewFeedbackService {

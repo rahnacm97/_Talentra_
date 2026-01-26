@@ -1,26 +1,20 @@
 import { IEmployerService } from "../../interfaces/users/employer/IEmployerService";
-<<<<<<< Updated upstream
-import { EmployerRepository } from "../../repositories/employer/employer.repository";
-=======
 import { INotificationService } from "../../interfaces/shared/INotificationService";
->>>>>>> Stashed changes
 import { IEmployer } from "../../interfaces/users/employer/IEmployer";
 import { IEmployerMapper } from "../../interfaces/users/employer/IEmployerMapper";
 import { ApiError } from "../../shared/utils/ApiError";
 import { HTTP_STATUS } from "../../shared/httpStatus/httpStatusCode";
-import { ERROR_MESSAGES } from "../../shared/enums/enums";
+import { ERROR_MESSAGES, SUCCESS_MESSAGES } from "../../shared/enums/enums";
 import { logger } from "../../shared/utils/logger";
 import { EmployerDataDTO } from "../../dto/employer/employer.dto";
 import cloudinary from "../../config/cloudinary";
 import { UploadApiResponse, UploadApiOptions } from "cloudinary";
 import fs from "fs/promises";
-<<<<<<< Updated upstream
-=======
 import Razorpay from "razorpay";
 import crypto from "crypto";
 import { ISubscriptionService } from "../../interfaces/subscription/ISubscriptionService";
 import { ISubscriptionRepository } from "../../interfaces/subscription/ISubscriptionRepo";
-import { IEmployerRepository } from "../../interfaces/users/employer/IEmployerRepository";
+import { IEmployerRepository } from "../../interfaces/users/employer/IEmployerRepo";
 import { ISubscriptionMapper } from "../../interfaces/subscription/ISubscriptionMapper";
 import {
   CreateOrderRequestDTO,
@@ -29,11 +23,11 @@ import {
   VerifyPaymentResponseDTO,
   SubscriptionHistoryResponseDTO,
 } from "../../dto/subscription/subscription.dto";
->>>>>>> Stashed changes
+import { EmployerRepository } from "../../repositories/employer/employer.repository";
 
 export class EmployerService implements IEmployerService {
   constructor(
-    private _repository = new EmployerRepository(),
+    private _repository: EmployerRepository,
     private _employerMapper: IEmployerMapper,
     private _notificationService: INotificationService,
   ) {}
@@ -124,10 +118,9 @@ export class EmployerService implements IEmployerService {
         "Failed to update profile",
       );
     }
-<<<<<<< Updated upstream
-=======
 
     // Notify admin when employer submits verification documents
+    const isSubmittingVerification = !!businessLicenseFile || !!data.cinNumber;
     if (isSubmittingVerification && !employer.verified) {
       await this._notificationService.notifyAdminEmployerVerificationSubmitted(
         employerId,
@@ -135,48 +128,8 @@ export class EmployerService implements IEmployerService {
       );
     }
 
->>>>>>> Stashed changes
     logger.info("Employer profile updated", { employerId });
     return this._employerMapper.toProfileDataDTO(updatedEmployer);
-  }
-}
-<<<<<<< Updated upstream
-=======
-
-export class EmployerAnalyticsService implements IEmployerAnalyticsService {
-  constructor(
-    private _repository: IEmployerAnalyticsRepository,
-    private _mapper: IEmployerAnalyticsMapper,
-  ) {}
-
-  async getEmployerAnalytics(
-    employerId: string,
-    timeRange: string,
-  ): Promise<EmployerAnalyticsDTO> {
-    const [
-      stats,
-      applicationsOverTime,
-      applicationsByStatus,
-      jobPostingPerformance,
-      hiringFunnel,
-      timeToHire,
-    ] = await Promise.all([
-      this._repository.getEmployerStats(employerId, timeRange),
-      this._repository.getApplicationsOverTime(employerId, timeRange),
-      this._repository.getApplicationsByStatus(employerId),
-      this._repository.getJobPostingPerformance(employerId, timeRange),
-      this._repository.getHiring(employerId),
-      this._repository.getTimeToHire(employerId, timeRange),
-    ]);
-
-    return this._mapper.toEmployerAnalyticsDTO(
-      stats,
-      applicationsOverTime,
-      applicationsByStatus,
-      jobPostingPerformance,
-      hiringFunnel,
-      timeToHire,
-    );
   }
 }
 
@@ -217,7 +170,7 @@ export class SubscriptionService implements ISubscriptionService {
 
     try {
       const order = await this._razorpay.orders.create(options);
-      return order as CreateOrderResponseDTO;
+      return order as unknown as CreateOrderResponseDTO;
     } catch (error: unknown) {
       logger.error("Failed to create payment ", { error });
       throw new ApiError(
@@ -266,9 +219,11 @@ export class SubscriptionService implements ISubscriptionService {
       await this._subscriptionRepository.create(subscriptionData);
 
       await this._employerRepository.updateOne(employerId, {
-        hasActiveSubscription: true,
-        currentPlan: planDetails.plan,
-        trialEndsAt: null,
+        subscription: {
+          active: true,
+          plan: planDetails.plan,
+          status: "active",
+        },
       });
       logger.info("Subscription activetd for the employer");
       return {
@@ -310,12 +265,15 @@ export class SubscriptionService implements ISubscriptionService {
 
             // Also update employer record if this was their active subscription
             if (
-              employer.hasActiveSubscription &&
-              employer.currentPlan === sub.plan
+              employer.subscription?.active &&
+              employer.subscription?.plan === sub.plan
             ) {
               await this._employerRepository.updateOne(employerId, {
-                hasActiveSubscription: false,
-                currentPlan: "free",
+                subscription: {
+                  ...employer.subscription,
+                  active: false,
+                  plan: "free",
+                },
               });
               logger.info(
                 "Updated employer subscription status to expired in getSubscriptionHistory",
@@ -345,4 +303,3 @@ export class SubscriptionService implements ISubscriptionService {
     }
   }
 }
->>>>>>> Stashed changes

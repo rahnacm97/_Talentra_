@@ -106,11 +106,8 @@ export const sendInterviewScheduledEmail = async (data: InterviewEmailData) => {
       console.error("Failed to send interview email:", error.message);
     } else {
       console.error("Unknown error occurred while sending email");
-    }
   }
 };
-<<<<<<< Updated upstream
-=======
 
 export const sendHiredEmail = async (data: {
   to: string;
@@ -400,4 +397,3 @@ export const sendInterviewCancelledEmail = async (
     console.error("Failed to send cancellation email:", error);
   }
 };
->>>>>>> Stashed changes

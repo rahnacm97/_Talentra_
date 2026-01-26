@@ -19,16 +19,6 @@ export interface IApplication {
   coverLetter?: string;
   appliedAt: Date;
   interviewDate: Date;
-<<<<<<< Updated upstream
-  status:
-    | "pending"
-    | "reviewed"
-    | "rejected"
-    | "accepted"
-    | "interview"
-    | "shortlisted"
-    | "all";
-=======
   status: ApplicationStatus;
   reviewedAt?: Date;
   shortlistedAt?: Date;
@@ -39,7 +29,6 @@ export interface IApplication {
   rejectionFeedbackShared?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
->>>>>>> Stashed changes
 }
 
 export interface IApplicationWithJob extends IApplication {

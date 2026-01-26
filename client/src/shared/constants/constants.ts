@@ -53,10 +53,6 @@ export const API_ROUTES = {
     CANCEL: "/subscription/cancel",
   },
   INTERVIEWS: {
-<<<<<<< Updated upstream
-    CANDIDATE: "/candidate/interviews",
-    EMPLOYER: "/employer/interviews",
-=======
     CANDIDATE: "/interviews/candidate",
     EMPLOYER: "/interviews/employer",
     UPDATE_STATUS: (id: string) => `/interviews/employer/${id}/status`,
@@ -110,7 +106,6 @@ export const API_ROUTES = {
     FEATURED: "/feedback/featured",
     ADMIN: "/feedback/admin",
     ADMIN_BY_ID: (id: string) => `/feedback/admin/${id}`,
->>>>>>> Stashed changes
   },
 } as const;
 
@@ -131,7 +126,7 @@ export const FRONTEND_ROUTES = {
   EMPLOYERJOBS: "/employer/jobs",
   EMPLOYERAPPLICANTS: "/applicants",
   EMPLOYERANALYTICS: "/analytics",
-  EMPLOYERRBILLING: "/subscriptions",
+  EMPLOYERBILLING: "/subscriptions",
   EMPLOYERINTERVIEWS: "/interviews",
   EMPLOYERINTERVIEWDETAIL: "/interviews/:id",
   EMPLOYERREPORTS: "/employer/reports",

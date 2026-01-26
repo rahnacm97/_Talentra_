@@ -50,19 +50,8 @@ import ChatPage from "./pages/common/Chat";
 import VideoCallPage from "./pages/common/VideoCall";
 import ApplicationDetails from "./pages/candidate/CandidateApplicationDetails";
 import EmployerBilling from "./pages/employer/EmployerBilling";
-<<<<<<< Updated upstream
-=======
 import GuestVideoJoin from "./pages/common/GuestVideoJoin";
-import Chat from "./pages/common/Chat";
-import { VideoCallProvider } from "./contexts/VideoCallContext";
-import { initializeSocket, disconnectSocket } from "./socket/socket";
-import { VideoCallWindow } from "./components/common/video/VideoCallWindow";
-import { useNotifications } from "./hooks/useNotifications";
-import { useAppDispatch, useAppSelector } from "./hooks/hooks";
-import { getUserChats } from "./thunks/chat.thunks";
-import { useEffect } from "react";
 import MeetingJoinPage from "./pages/common/MeetingJoinPage";
->>>>>>> Stashed changes
 
 const App: React.FC = () => {
   useAuthInitialiazer();
@@ -233,15 +222,11 @@ const App: React.FC = () => {
                 element={<EmployerInterview />}
               />
               <Route
-<<<<<<< Updated upstream
-                path={FRONTEND_ROUTES.EMPLOYERRBILLING}
-=======
                 path={FRONTEND_ROUTES.EMPLOYERINTERVIEWDETAIL}
                 element={<EmployerInterviewDetail />}
               />
               <Route
                 path={FRONTEND_ROUTES.EMPLOYERBILLING}
->>>>>>> Stashed changes
                 element={<EmployerBilling />}
               />
               <Route

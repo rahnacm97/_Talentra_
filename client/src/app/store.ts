@@ -7,9 +7,18 @@ import employerReducer from "../features/employer/employerSlice";
 import candidateJobReducer from "../features/job/jobSlice";
 import adminJobsReducer from "../features/admin/adminJobSlice";
 import interviewReducer from "../features/interview/interviewSlice";
+<<<<<<< Updated upstream
 import adminAnalyticsReducer from "../slices/adminAnalyticsSlice";
 import employerAnalyticsReducer from "../slices/employerAnalyticsSlice";
 import homepageReducer from "../slices/homepageSlice";
+=======
+import interviewRoundReducer from "../features/interviewRound/interviewRoundSlice";
+import adminAnalyticsReducer from "../features/admin/adminAnalyticsSlice";
+import subscriptionReducer from "../features/subscription/subscriptionSlice";
+import notificationReducer from "../features/notification/notificationSlice";
+import chatReducer from "../features/chat/chatSlice";
+import feedbackReducer from "../features/feedback/feedbackSlice";
+>>>>>>> Stashed changes
 
 export const store = configureStore({
   reducer: {
@@ -21,9 +30,17 @@ export const store = configureStore({
     candidateJobs: candidateJobReducer,
     adminJobs: adminJobsReducer,
     interview: interviewReducer,
+<<<<<<< Updated upstream
     adminAnalytics: adminAnalyticsReducer,
     employerAnalytics: employerAnalyticsReducer,
     homepage: homepageReducer,
+=======
+    interviewRound: interviewRoundReducer,
+    subscription: subscriptionReducer,
+    notifications: notificationReducer,
+    chat: chatReducer,
+    feedback: feedbackReducer,
+>>>>>>> Stashed changes
   },
 });
 

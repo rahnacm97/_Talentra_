@@ -3,7 +3,7 @@ export interface SignupRequest {
   email: string;
   password: string;
   phoneNumber: string;
-  userType: "Candidate" | "Employer";
+  userType: "Candidate" | "Employer" | "Guest";
 }
 
 export interface LoginRequest {
@@ -20,7 +20,12 @@ export interface User {
   _id: string;
   name: string;
   email: string;
+<<<<<<< Updated upstream
   role: "Candidate" | "Employer" | "Admin";
+=======
+  phoneNumber?: string;
+  role: "Candidate" | "Employer" | "Admin" | "Guest";
+>>>>>>> Stashed changes
   blocked: boolean;
   emailVerified?: boolean;
   verified?: boolean;

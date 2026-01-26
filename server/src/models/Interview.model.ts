@@ -14,7 +14,14 @@ const InterviewSchema = new Schema<IInterviewDocument>(
     interviewDate: { type: Date },
     status: {
       type: String,
-      enum: ["scheduled", "completed", "cancelled", "rescheduled"],
+      enum: [
+        "scheduled",
+        "completed",
+        "cancelled",
+        "rescheduled",
+        "hired",
+        "rejected",
+      ],
       default: "scheduled",
     },
     notes: { type: String },

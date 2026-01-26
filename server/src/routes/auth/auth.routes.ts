@@ -14,7 +14,15 @@ import { PasswordService } from "../../services/auth/password.service";
 import passport from "passport";
 import { GoogleAuthService } from "../../services/auth/googleAuth.service";
 import { GoogleAuthController } from "../../controllers/auth/googleAuth.controller";
+<<<<<<< Updated upstream
 import { UserRepoMap } from "../../type/types";
+=======
+import {
+  IUserRepoMap,
+  FullyAuthenticatedRequest,
+  IAuthenticatedUser,
+} from "../../type/types";
+>>>>>>> Stashed changes
 import { GoogleAuthUserRepoMap } from "../../type/types";
 import { OtpMapper } from "../../mappers/auth/otp.mapper";
 import { PasswordMapper } from "../../mappers/auth/password.mapper";
@@ -67,11 +75,34 @@ router.get("/google", (req, res, next) => {
     state: stateParam,
   })(req, res, next);
 });
+<<<<<<< Updated upstream
 router.get(
   "/google/callback",
   passport.authenticate("google", { session: false }),
   googleAuthController.loginSuccess,
 );
+=======
+router.get("/google/callback", (req, res, next) => {
+  passport.authenticate("google", { session: false }, (err, user) => {
+    if (err) {
+      const errorMessage = encodeURIComponent(
+        err.message || "Authentication failed",
+      );
+      return res.redirect(
+        `${process.env.FRONTEND_URL}/login?error=${errorMessage}`,
+      );
+    }
+
+    if (!user) {
+      return res.redirect(
+        `${process.env.FRONTEND_URL}/login?error=Authentication failed`,
+      );
+    }
+    (req as FullyAuthenticatedRequest).user = user as IAuthenticatedUser;
+    googleAuthController.loginSuccess(req as FullyAuthenticatedRequest, res);
+  })(req, res, next);
+});
+>>>>>>> Stashed changes
 
 router.get("/me", authController.getMe);
 router.post("/signup", authController.signup);

@@ -4,6 +4,7 @@ import {
   IEmployerApplicationService,
   IApplicationUpdate,
 } from "../../interfaces/applications/IApplicationService";
+import { INotificationService } from "../../interfaces/shared/INotificationService";
 import { IInterviewService } from "../../interfaces/interviews/IInterviewService";
 import { GetApplicationsFilters } from "../../type/application/application.type";
 import {
@@ -28,7 +29,11 @@ import { IJobRepository } from "../../interfaces/jobs/IJobRepository";
 import { uploadResumeFile } from "../../shared/utils/fileUpload";
 import { ICandidateService } from "../../interfaces/users/candidate/ICandidateService";
 import { IApplicationQuery } from "../../interfaces/applications/IApplication";
+<<<<<<< Updated upstream
 import { sendInterviewScheduledEmail } from "../../shared/utils/email";
+=======
+import { StatusHandlerRegistry } from "./handlers/StatusHandlerRegistry";
+>>>>>>> Stashed changes
 
 export class CandidateApplicationService
   implements ICandidateApplicationService
@@ -38,6 +43,7 @@ export class CandidateApplicationService
     private readonly _jobRepo: IJobRepository,
     private readonly _mapper: IApplicationMapper,
     private readonly _candidateService: ICandidateService,
+    private readonly _notificationService: INotificationService,
   ) {}
   //Candidate Job apply
   async apply(
@@ -97,6 +103,18 @@ export class CandidateApplicationService
 
     await this._jobRepo.incrementApplicants(jobId);
 
+<<<<<<< Updated upstream
+=======
+    // Notify employer of new application
+    await this._notificationService.notifyEmployerNewApplication(
+      job.employerId,
+      payload.fullName,
+      job.title,
+      jobId,
+      application.id,
+    );
+
+>>>>>>> Stashed changes
     logger.info("Application submitted", {
       applicationId: application.id,
       jobId,
@@ -185,6 +203,7 @@ export class EmployerApplicationService implements IEmployerApplicationService {
   constructor(
     private readonly _appRepo: IEmployerApplicationRepository,
     private readonly _mapper: IEmployerApplicationMapper,
+    private readonly _notificationService: INotificationService,
     private readonly _interviewService?: IInterviewService,
   ) {}
   //Fetching application in employer side
@@ -216,7 +235,11 @@ export class EmployerApplicationService implements IEmployerApplicationService {
   async updateApplicationStatus(
     employerId: string,
     applicationId: string,
-    data: { status: string; interviewDate?: string },
+    data: {
+      status: string;
+      interviewDate?: string;
+      interviewLink?: string;
+    },
   ): Promise<EmployerApplicationResponseDto> {
     const app = await this._appRepo.findOneWithJob(applicationId);
 
@@ -226,6 +249,7 @@ export class EmployerApplicationService implements IEmployerApplicationService {
         ERROR_MESSAGES.APPLICATION_NOT_FOUND,
       );
 
+<<<<<<< Updated upstream
     const updateData: IApplicationUpdate = { status: data.status };
 
     if (data.status === "interview") {
@@ -266,6 +290,32 @@ export class EmployerApplicationService implements IEmployerApplicationService {
       limit: 20,
     });
     const freshData = apps.find((a) => a.id === applicationId);
+=======
+    const handler = StatusHandlerRegistry.getHandler(data.status);
+    await handler.handle({
+      application: app,
+      employerId,
+      data: data,
+      appRepo: this._appRepo,
+      interviewService: this._interviewService,
+      chatService: this._chatService,
+    });
+
+    // Notifying candidate of status change
+    await this._notificationService.notifyCandidateApplicationStatusChange(
+      app.candidateId,
+      data.status,
+      app.job.title,
+      app.jobId,
+      applicationId,
+      app.employer.name,
+    );
+
+    const freshData = await this._appRepo.findByIdForEmployer(
+      applicationId,
+      employerId,
+    );
+>>>>>>> Stashed changes
     if (!freshData)
       throw new ApiError(
         HTTP_STATUS.INTERNAL_SERVER_ERROR,

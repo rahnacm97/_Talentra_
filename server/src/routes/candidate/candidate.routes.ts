@@ -1,8 +1,6 @@
 import { Router } from "express";
-import {
-  CandidateApplicationsController,
-  CandidateController,
-} from "../../controllers/candidate/candidate.controller";
+import { CandidateController } from "../../controllers/candidate/candidate.controller";
+import { CandidateApplicationsController } from "../../controllers/candidate/candidateApplication.controller";
 import { verifyAuth } from "../../middlewares/authMiddleware";
 import { CandidateService } from "../../services/candidate/candidate.service";
 import { CandidateApplicationService } from "../../services/application/application.service";
@@ -13,12 +11,24 @@ import { JobRepository } from "../../repositories/job/job.repository";
 import { ApplicationMapper } from "../../mappers/application/application.mapper";
 import { upload } from "../../config/multer";
 import { USER_ROLES } from "../../shared/enums/enums";
+<<<<<<< Updated upstream
 import { verifyCandidate } from "../../middlewares/validationMiddleware";
 import { candidateInterviewRouter } from "../interview/interview.routes";
+=======
+import { NotificationAdapter } from "../../services/notification/NotificationAdapter";
+>>>>>>> Stashed changes
 
 const router = Router();
 const candidateMapper = new CandidateMapper();
 const candidateRepository = new CandidateRepository();
+<<<<<<< Updated upstream
+=======
+const applRepository = new ApplicationRepository();
+const jobRepository = new JobRepository();
+
+const applMapper = new ApplicationMapper();
+const notificationAdapter = new NotificationAdapter();
+>>>>>>> Stashed changes
 
 const candidateService = new CandidateService(
   candidateRepository,
@@ -32,6 +42,7 @@ const applicationService = new CandidateApplicationService(
   jobRepository,
   applMapper,
   candidateService,
+  notificationAdapter,
 );
 const candidateController = new CandidateController(
   candidateService,
@@ -41,9 +52,13 @@ const candidateController = new CandidateController(
 const candidateApplicationsController = new CandidateApplicationsController(
   applicationService,
 );
+<<<<<<< Updated upstream
 
 router.use("/interviews", candidateInterviewRouter);
 
+=======
+//Routes
+>>>>>>> Stashed changes
 router.get(
   "/applications",
   verifyAuth([USER_ROLES.CANDIDATE]),

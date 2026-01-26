@@ -350,8 +350,9 @@ export class JobRepository implements IJobRepository {
     limit: number;
     search?: string;
     status?: "active" | "closed" | "draft" | "all";
+    type?: string;
   }): Promise<{ jobs: (IJob & { employer?: IEmployer })[]; total: number }> {
-    const { page, limit, search, status } = params;
+    const { page, limit, search, status, type } = params;
     const skip = (page - 1) * limit;
 
     const pipeline: PipelineStage[] = [
@@ -390,6 +391,10 @@ export class JobRepository implements IJobRepository {
 
     if (status && status !== "all") {
       matchConditions.status = status;
+    }
+
+    if (type && type !== "all") {
+      matchConditions.type = { $regex: `^${type}$`, $options: "i" };
     }
 
     if (Object.keys(matchConditions).length > 0) {

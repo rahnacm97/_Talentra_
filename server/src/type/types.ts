@@ -24,6 +24,41 @@ export interface IUserEntity extends Document {
   blocked: boolean;
 }
 
+export interface IAuthenticatedUser {
+  id: string;
+  _id: string;
+  role: USER_ROLES;
+  email: string;
+  name: string;
+  profileImage?: string;
+  blocked?: boolean;
+  hasActiveSubscription?: boolean;
+  trialEndsAt?: Date | null;
+  subscription?: {
+    active: boolean;
+    plan: "free" | "professional" | "enterprise";
+    status: string;
+    currentPeriodEnd?: Date | null;
+    razorpaySubscriptionId?: string | null;
+    trialEndsAt?: Date | null;
+  };
+}
+
+/* eslint-disable @typescript-eslint/no-namespace */
+declare global {
+  namespace Express {
+    // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+    interface User extends IAuthenticatedUser {}
+    interface Request {
+      maskApplications?: boolean;
+    }
+  }
+}
+
+export type FullyAuthenticatedRequest = Request & {
+  user: IAuthenticatedUser;
+};
+
 export type AnyUser = IUserEntity | ICandidate | IEmployer | IAdmin;
 
 export type GoogleAuthUser = ICandidate | IEmployer;
@@ -48,6 +83,7 @@ export function hasEmailVerification(
   return user && "emailVerified" in user;
 }
 
+<<<<<<< Updated upstream
 export type FullyAuthenticatedRequest = Request & {
   user: {
     _id: string;
@@ -66,3 +102,6 @@ export type FullyAuthenticatedRequest = Request & {
   };
   maskApplications?: boolean;
 };
+=======
+// Replaced by global augmentation and IAuthenticatedUser
+>>>>>>> Stashed changes

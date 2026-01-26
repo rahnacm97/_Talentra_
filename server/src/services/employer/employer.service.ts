@@ -1,5 +1,9 @@
 import { IEmployerService } from "../../interfaces/users/employer/IEmployerService";
+<<<<<<< Updated upstream
 import { EmployerRepository } from "../../repositories/employer/employer.repository";
+=======
+import { INotificationService } from "../../interfaces/shared/INotificationService";
+>>>>>>> Stashed changes
 import { IEmployer } from "../../interfaces/users/employer/IEmployer";
 import { IEmployerMapper } from "../../interfaces/users/employer/IEmployerMapper";
 import { ApiError } from "../../shared/utils/ApiError";
@@ -10,11 +14,28 @@ import { EmployerDataDTO } from "../../dto/employer/employer.dto";
 import cloudinary from "../../config/cloudinary";
 import { UploadApiResponse, UploadApiOptions } from "cloudinary";
 import fs from "fs/promises";
+<<<<<<< Updated upstream
+=======
+import Razorpay from "razorpay";
+import crypto from "crypto";
+import { ISubscriptionService } from "../../interfaces/subscription/ISubscriptionService";
+import { ISubscriptionRepository } from "../../interfaces/subscription/ISubscriptionRepo";
+import { IEmployerRepository } from "../../interfaces/users/employer/IEmployerRepository";
+import { ISubscriptionMapper } from "../../interfaces/subscription/ISubscriptionMapper";
+import {
+  CreateOrderRequestDTO,
+  CreateOrderResponseDTO,
+  VerifyPaymentRequestDTO,
+  VerifyPaymentResponseDTO,
+  SubscriptionHistoryResponseDTO,
+} from "../../dto/subscription/subscription.dto";
+>>>>>>> Stashed changes
 
 export class EmployerService implements IEmployerService {
   constructor(
     private _repository = new EmployerRepository(),
     private _employerMapper: IEmployerMapper,
+    private _notificationService: INotificationService,
   ) {}
 
   async getEmployerById(employerId: string): Promise<IEmployer | null> {
@@ -103,7 +124,225 @@ export class EmployerService implements IEmployerService {
         "Failed to update profile",
       );
     }
+<<<<<<< Updated upstream
+=======
+
+    // Notify admin when employer submits verification documents
+    if (isSubmittingVerification && !employer.verified) {
+      await this._notificationService.notifyAdminEmployerVerificationSubmitted(
+        employerId,
+        updatedEmployer.name || "An employer",
+      );
+    }
+
+>>>>>>> Stashed changes
     logger.info("Employer profile updated", { employerId });
     return this._employerMapper.toProfileDataDTO(updatedEmployer);
   }
 }
+<<<<<<< Updated upstream
+=======
+
+export class EmployerAnalyticsService implements IEmployerAnalyticsService {
+  constructor(
+    private _repository: IEmployerAnalyticsRepository,
+    private _mapper: IEmployerAnalyticsMapper,
+  ) {}
+
+  async getEmployerAnalytics(
+    employerId: string,
+    timeRange: string,
+  ): Promise<EmployerAnalyticsDTO> {
+    const [
+      stats,
+      applicationsOverTime,
+      applicationsByStatus,
+      jobPostingPerformance,
+      hiringFunnel,
+      timeToHire,
+    ] = await Promise.all([
+      this._repository.getEmployerStats(employerId, timeRange),
+      this._repository.getApplicationsOverTime(employerId, timeRange),
+      this._repository.getApplicationsByStatus(employerId),
+      this._repository.getJobPostingPerformance(employerId, timeRange),
+      this._repository.getHiring(employerId),
+      this._repository.getTimeToHire(employerId, timeRange),
+    ]);
+
+    return this._mapper.toEmployerAnalyticsDTO(
+      stats,
+      applicationsOverTime,
+      applicationsByStatus,
+      jobPostingPerformance,
+      hiringFunnel,
+      timeToHire,
+    );
+  }
+}
+
+export class SubscriptionService implements ISubscriptionService {
+  private _razorpay: Razorpay;
+
+  constructor(
+    private _subscriptionRepository: ISubscriptionRepository,
+    private _employerRepository: IEmployerRepository,
+    private _subscriptionMapper: ISubscriptionMapper,
+  ) {
+    if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+      throw new ApiError(
+        HTTP_STATUS.INTERNAL_SERVER_ERROR,
+        ERROR_MESSAGES.ENV_ERROR,
+      );
+    }
+
+    this._razorpay = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET,
+    });
+  }
+  //Razorpayment creating
+  async createOrder(
+    request: CreateOrderRequestDTO,
+  ): Promise<CreateOrderResponseDTO> {
+    const { amount, currency = "INR" } = request;
+
+    const GST_RATE = 0.18;
+    const totalAmount = amount + amount * GST_RATE;
+
+    const options = {
+      amount: Math.round(totalAmount * 100),
+      currency,
+      receipt: `receipt_${Date.now()}`,
+    };
+
+    try {
+      const order = await this._razorpay.orders.create(options);
+      return order as CreateOrderResponseDTO;
+    } catch (error: unknown) {
+      logger.error("Failed to create payment ", { error });
+      throw new ApiError(
+        HTTP_STATUS.BAD_REQUEST,
+        ERROR_MESSAGES.RAZORPAY_ERROR,
+      );
+    }
+  }
+  //Payment verification
+  async verifyPayment(
+    employerId: string,
+    request: VerifyPaymentRequestDTO,
+  ): Promise<VerifyPaymentResponseDTO> {
+    try {
+      const { paymentDetails, planDetails } = request;
+      const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
+        paymentDetails;
+
+      const body = razorpay_order_id + "|" + razorpay_payment_id;
+      const expectedSignature = crypto
+        .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET || "")
+        .update(body.toString())
+        .digest("hex");
+
+      if (expectedSignature !== razorpay_signature) {
+        throw new ApiError(
+          HTTP_STATUS.BAD_REQUEST,
+          ERROR_MESSAGES.SIGNATURE_ERROR,
+        );
+      }
+
+      const employer = await this._employerRepository.findById(employerId);
+      if (!employer) {
+        throw new ApiError(
+          HTTP_STATUS.NOT_FOUND,
+          ERROR_MESSAGES.EMPLOYER_NOT_FOUND,
+        );
+      }
+
+      const subscriptionData = this._subscriptionMapper.toCreateData(
+        employerId,
+        planDetails,
+        razorpay_payment_id,
+      );
+
+      await this._subscriptionRepository.create(subscriptionData);
+
+      await this._employerRepository.updateOne(employerId, {
+        hasActiveSubscription: true,
+        currentPlan: planDetails.plan,
+        trialEndsAt: null,
+      });
+      logger.info("Subscription activetd for the employer");
+      return {
+        success: true,
+        message: SUCCESS_MESSAGES.SUBSCRIPTION_ACTIVATED,
+      };
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : ERROR_MESSAGES.PAYMENT_VERIFICATION_ERROR;
+      logger.error("Failed to verify payment ", { error: message });
+      throw new ApiError(
+        HTTP_STATUS.INTERNAL_SERVER_ERROR,
+        ERROR_MESSAGES.PAYMENT_VERIFICATION_ERROR,
+      );
+    }
+  }
+  //Fetching history of payment
+  async getSubscriptionHistory(
+    employerId: string,
+  ): Promise<SubscriptionHistoryResponseDTO> {
+    try {
+      const employer = await this._employerRepository.findById(employerId);
+      if (!employer) {
+        throw new Error("Employer not found");
+      }
+
+      const subscriptions = await this._subscriptionRepository.findByEmployerId(
+        employerId,
+        { sort: { createdAt: -1 } },
+      );
+
+      const now = new Date();
+      const updatedSubscriptions = await Promise.all(
+        subscriptions.map(async (sub) => {
+          if (sub.status === "active" && new Date(sub.endDate) < now) {
+            await this._subscriptionRepository.updateStatus(sub.id, "expired");
+
+            // Also update employer record if this was their active subscription
+            if (
+              employer.hasActiveSubscription &&
+              employer.currentPlan === sub.plan
+            ) {
+              await this._employerRepository.updateOne(employerId, {
+                hasActiveSubscription: false,
+                currentPlan: "free",
+              });
+              logger.info(
+                "Updated employer subscription status to expired in getSubscriptionHistory",
+                { employerId },
+              );
+            }
+
+            return { ...sub.toObject(), status: "expired" };
+          }
+          return sub;
+        }),
+      );
+
+      return this._subscriptionMapper.toHistoryResponseDTO(
+        updatedSubscriptions,
+      );
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : ERROR_MESSAGES.SUBSCRIPTION_HISTORY_ERROR;
+      logger.error("Failed to fetch history ", { error: message });
+      throw new ApiError(
+        HTTP_STATUS.INTERNAL_SERVER_ERROR,
+        ERROR_MESSAGES.SUBSCRIPTION_HISTORY_ERROR,
+      );
+    }
+  }
+}
+>>>>>>> Stashed changes

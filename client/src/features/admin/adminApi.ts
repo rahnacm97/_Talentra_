@@ -30,9 +30,10 @@ export const getAllCandidatesApi = async (
   page: number,
   limit: number,
   search: string = "",
+  status?: "active" | "blocked" | "all",
 ): Promise<CandidateListResponse> => {
   const response = await api.get(API_ROUTES.ADMIN.CANDIDATES, {
-    params: { page, limit, search },
+    params: { page, limit, search, status },
   });
   return response.data.data;
 };

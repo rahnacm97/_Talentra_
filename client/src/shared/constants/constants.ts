@@ -53,8 +53,64 @@ export const API_ROUTES = {
     CANCEL: "/subscription/cancel",
   },
   INTERVIEWS: {
+<<<<<<< Updated upstream
     CANDIDATE: "/candidate/interviews",
     EMPLOYER: "/employer/interviews",
+=======
+    CANDIDATE: "/interviews/candidate",
+    EMPLOYER: "/interviews/employer",
+    UPDATE_STATUS: (id: string) => `/interviews/employer/${id}/status`,
+  },
+  INTERVIEW_ROUNDS: {
+    BASE: "/interviews/rounds",
+    APPLICATION: (id: string) => `/interviews/rounds/application/${id}`,
+    CANDIDATE: "/interviews/rounds/candidate",
+    EMPLOYER: "/interviews/rounds/employer",
+    BY_ID: (id: string) => `/interviews/rounds/${id}`,
+    STATUS: (id: string) => `/interviews/rounds/${id}/status`,
+    RESCHEDULE: (id: string) => `/interviews/rounds/${id}/reschedule`,
+    CANCEL: (id: string) => `/interviews/rounds/${id}/cancel`,
+    VALIDATE: (id: string, token: string) =>
+      `/interviews/rounds/${id}/validate/${token}`,
+  },
+  INTERVIEW_FEEDBACK: {
+    ROUND: (roundId: string) => `/interviews/rounds/${roundId}/feedback`,
+    APPLICATION: (applicationId: string) =>
+      `/interviews/rounds/feedback/application/${applicationId}`,
+    SUMMARY: (roundId: string) =>
+      `/interviews/rounds/${roundId}/feedback/summary`,
+    CANDIDATE_ROUND: (roundId: string) =>
+      `/interviews/rounds/${roundId}/feedback/candidate`,
+    BY_ID: (id: string) => `/interviews/feedback/${id}`,
+    SHARE: (id: string) => `/interviews/feedback/${id}/share`,
+  },
+  NOTIFICATIONS: {
+    BASE: "/notifications",
+    STATS: "/notifications/stats",
+    MARK_READ: (id: string) => `/notifications/${id}/read`,
+    MARK_ALL_READ: "/notifications/read-all",
+    DELETE: (id: string) => `/notifications/${id}`,
+  },
+  CHAT: {
+    BASE: "/chat",
+    CREATE: "/chat/create",
+    MY_CHATS: "/chat/my-chats",
+    MESSAGE: "/chat/message",
+    MESSAGES: (chatId: string) => `/chat/${chatId}/messages`,
+    MARK_READ: (chatId: string) => `/chat/${chatId}/read`,
+  },
+  VIDEO_CALL: {
+    INITIATE: "/video-call/initiate",
+    END: "/video-call/end",
+    STATUS: (interviewId: string) => `/video-call/status/${interviewId}`,
+  },
+  FEEDBACK: {
+    BASE: "/feedback",
+    PUBLIC: "/feedback/public",
+    FEATURED: "/feedback/featured",
+    ADMIN: "/feedback/admin",
+    ADMIN_BY_ID: (id: string) => `/feedback/admin/${id}`,
+>>>>>>> Stashed changes
   },
 } as const;
 
@@ -77,6 +133,7 @@ export const FRONTEND_ROUTES = {
   EMPLOYERANALYTICS: "/analytics",
   EMPLOYERRBILLING: "/subscriptions",
   EMPLOYERINTERVIEWS: "/interviews",
+  EMPLOYERINTERVIEWDETAIL: "/interviews/:id",
   EMPLOYERREPORTS: "/employer/reports",
   EMPLOYERSETTINGS: "/setting",
   EMPLOYERNOTIFICATIONS: "/notification",
@@ -86,6 +143,7 @@ export const FRONTEND_ROUTES = {
   CANDIDATESAVEDJOBS: "/saved-jobs",
   CANDIDATESETTINGS: "/settings",
   CANDIDATEINTERVIEW: "/interview",
+  CANDIDATEINTERVIEWDETAIL: "/interview/:id",
   ADMINEMPLOYERS: "/employers",
   ADMINCANDIDATES: "/candidates",
   ADMINCANDIDATEVIEW: "/candidates/view/:id",

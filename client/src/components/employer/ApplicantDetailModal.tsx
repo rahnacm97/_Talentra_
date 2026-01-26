@@ -1,33 +1,45 @@
 import React from "react";
 import {
-  Filter,
-  Download,
+  X,
   Eye,
-  MessageSquare,
-  Star,
+  Mail,
+  Phone,
   Clock,
+  Calendar,
+  Download,
+  FileText,
+  MapPin,
+  Star,
   CheckCircle,
   XCircle,
-  Calendar,
-  Mail,
+  Filter,
+  Sparkles,
   Briefcase,
-  X,
-  Phone,
-  MapPin,
-  FileText,
+  MessageSquare,
 } from "lucide-react";
 import type { EmployerApplicationResponseDto } from "../../types/application/application.types";
+<<<<<<< Updated upstream
 import { InterviewScheduleModal } from "./InterviewSchedule";
+=======
+import { aiService } from "../../services/aiService";
+import { toast } from "react-toastify";
+import { handleFileDownload } from "../../utils/fileUtils";
+import RejectionModal from "./RejectionModal";
+>>>>>>> Stashed changes
 
 interface ApplicantDetailsModalProps {
   applicant: EmployerApplicationResponseDto;
   isOpen: boolean;
   onClose: () => void;
+<<<<<<< Updated upstream
   // Updated: now accepts interviewDateTime
   onStatusChange: (
     newStatus: string,
     interviewDateTime?: string,
   ) => Promise<void>;
+=======
+  onStatusChange: (newStatus: string, data?: any) => Promise<void>;
+>>>>>>> Stashed changes
 }
 
 const statusOptions = [
@@ -46,7 +58,27 @@ export const ApplicantDetailsModal: React.FC<ApplicantDetailsModalProps> = ({
   onStatusChange,
 }) => {
   const [isUpdating, setIsUpdating] = React.useState(false);
+<<<<<<< Updated upstream
   const [showInterviewModal, setShowInterviewModal] = React.useState(false);
+=======
+  const [showRejectionModal, setShowRejectionModal] = React.useState(false);
+  const [summary, setSummary] = React.useState<string | null>(null);
+  const [isSummarizing, setIsSummarizing] = React.useState(false);
+
+  const handleSummarize = async () => {
+    if (summary) return;
+    setIsSummarizing(true);
+    try {
+      const result = await aiService.summarizeCandidate(applicant.candidateId);
+      setSummary(result);
+    } catch (error) {
+      toast.error("Failed to generate AI summary");
+      console.log(error);
+    } finally {
+      setIsSummarizing(false);
+    }
+  };
+>>>>>>> Stashed changes
 
   if (!isOpen) return null;
 
@@ -80,16 +112,20 @@ export const ApplicantDetailsModal: React.FC<ApplicantDetailsModalProps> = ({
     return map[s] || <Clock className="w-4 h-4" />;
   };
 
+<<<<<<< Updated upstream
   // Unified handler
   const handleStatusUpdate = async (
     newStatus: string,
     interviewDateTime?: string,
   ) => {
+=======
+  const handleStatusUpdate = async (newStatus: string, data?: any) => {
+>>>>>>> Stashed changes
     if (applicant.status === newStatus) return;
 
     setIsUpdating(true);
     try {
-      await onStatusChange(newStatus, interviewDateTime);
+      await onStatusChange(newStatus, data);
     } finally {
       setIsUpdating(false);
     }
@@ -159,6 +195,51 @@ export const ApplicantDetailsModal: React.FC<ApplicantDetailsModalProps> = ({
               )}
             </div>
 
+<<<<<<< Updated upstream
+=======
+            <div className="bg-gradient-to-r from-violet-50 to-fuchsia-50 border-2 border-violet-100 rounded-xl p-6 relative overflow-hidden group">
+              <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                <Sparkles className="w-24 h-24 text-violet-600" />
+              </div>
+
+              <div className="flex justify-between items-start mb-4 relative z-10">
+                <h3 className="text-lg font-bold text-violet-900 flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-violet-600" />
+                  AI Profile Summary
+                </h3>
+                {!summary && (
+                  <button
+                    onClick={handleSummarize}
+                    disabled={isSummarizing}
+                    className="px-4 py-2 bg-violet-600 text-white text-sm font-semibold rounded-lg hover:bg-violet-700 transition-colors shadow-md disabled:opacity-70 flex items-center gap-2"
+                  >
+                    {isSummarizing ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        Generating...
+                      </>
+                    ) : (
+                      <>Generate Summary</>
+                    )}
+                  </button>
+                )}
+              </div>
+
+              {summary && (
+                <div className="bg-white/60 backdrop-blur-sm rounded-lg p-4 text-violet-900 leading-relaxed whitespace-pre-wrap shadow-sm border border-violet-100 relative z-10 animate-fade-in">
+                  {summary}
+                </div>
+              )}
+
+              {!summary && !isSummarizing && (
+                <p className="text-violet-600/80 text-sm relative z-10">
+                  Get a quick AI-powered overview of the candidate's strengths
+                  and best fit.
+                </p>
+              )}
+            </div>
+
+>>>>>>> Stashed changes
             {/* Contact Info */}
             <div className="bg-white border-2 border-gray-200 rounded-xl p-6">
               <h3 className="text-lg font-bold text-gray-900 mb-4">
@@ -395,9 +476,12 @@ export const ApplicantDetailsModal: React.FC<ApplicantDetailsModalProps> = ({
                     <button
                       key={opt.value}
                       onClick={() => {
-                        if (opt.value === "interview") {
-                          setShowInterviewModal(true);
-                        } else if (!isPastOrCurrent) {
+                        if (opt.value === "rejected") {
+                          setShowRejectionModal(true);
+                        } else if (
+                          !isPastOrCurrent ||
+                          opt.value === "interview"
+                        ) {
                           handleStatusUpdate(opt.value);
                         }
                       }}
@@ -444,15 +528,16 @@ export const ApplicantDetailsModal: React.FC<ApplicantDetailsModalProps> = ({
         </div>
       </div>
 
-      {/* Interview Scheduling Modal */}
-      <InterviewScheduleModal
-        isOpen={showInterviewModal}
-        onClose={() => setShowInterviewModal(false)}
-        onSchedule={async (date, time) => {
-          const interviewDateTime = `${date}T${time}:00`;
-          await handleStatusUpdate("interview", interviewDateTime);
-        }}
-      />
+      {showRejectionModal && (
+        <RejectionModal
+          candidateName={applicant.fullName}
+          onClose={() => setShowRejectionModal(false)}
+          onSuccess={() => {
+            // Success logic if any, the parent status change will trigger UI update
+          }}
+          updateApplicationStatus={onStatusChange}
+        />
+      )}
     </>
   );
 };

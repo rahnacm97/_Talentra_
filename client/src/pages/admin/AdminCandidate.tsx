@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import FilterListOffIcon from "@mui/icons-material/FilterListOff";
 import BlockIcon from "@mui/icons-material/Block";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import PersonIcon from "@mui/icons-material/Person";
@@ -33,6 +34,9 @@ const AdminCandidates: React.FC = () => {
   const [isBlockAction, setIsBlockAction] = useState<boolean | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+  const [statusFilter, setStatusFilter] = useState<
+    "active" | "blocked" | "all"
+  >("all");
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -49,9 +53,10 @@ const AdminCandidates: React.FC = () => {
         page: currentPage,
         limit: itemsPerPage,
         search: debouncedSearch,
+        status: statusFilter,
       }),
-    ).then(() => {});
-  }, [dispatch, currentPage, debouncedSearch]);
+    );
+  }, [dispatch, currentPage, debouncedSearch, statusFilter]);
 
   const openModal = (id: string, name: string, blocked: boolean) => {
     setSelectedCandidateId(id);
@@ -80,6 +85,12 @@ const AdminCandidates: React.FC = () => {
     setSelectedCandidateId(null);
     setSelectedCandidateName("");
     setIsBlockAction(null);
+  };
+
+  const clearFilters = () => {
+    setSearchTerm("");
+    setStatusFilter("all");
+    setCurrentPage(1);
   };
 
   const verifiedCount = candidates.filter((c: any) => !c.blocked).length;
@@ -130,10 +141,35 @@ const AdminCandidates: React.FC = () => {
       <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
         <SearchInput
           value={searchTerm}
-          onChange={(e: any) => setSearchTerm(e.target.value)}
-          placeholder="Search candidates by name, email..."
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Search candidates..."
         />
+<<<<<<< Updated upstream
         {/*  */}
+=======
+        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
+          <select
+            value={statusFilter}
+            onChange={(e) =>
+              setStatusFilter(e.target.value as "active" | "blocked" | "all")
+            }
+            className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+          >
+            <option value="all">All Status</option>
+            <option value="active">Active</option>
+            <option value="blocked">Blocked</option>
+          </select>
+          {(searchTerm || statusFilter !== "all") && (
+            <button
+              onClick={clearFilters}
+              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors flex items-center"
+            >
+              <FilterListOffIcon sx={{ fontSize: 18, marginRight: 0.5 }} />
+              Clear Filters
+            </button>
+          )}
+        </div>
+>>>>>>> Stashed changes
       </div>
 
       {loading ? (

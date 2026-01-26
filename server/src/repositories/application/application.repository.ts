@@ -253,7 +253,7 @@ export class ApplicationRepository
           },
           employer: {
             name: "$employer.name",
-            companyName: "$employer.companyName",
+            companyName: "$employer.name", // Using name since companyName field doesn't exist in model
             profileImage: "$employer.logo",
           },
         },
@@ -499,6 +499,122 @@ export class ApplicationRepository
       { new: true },
     );
     return doc ? this.toDomain(doc) : null;
+  }
+
+  async findByIdForEmployer(
+    applicationId: string,
+    employerId: string,
+  ): Promise<IEmployerApplicationResponse | null> {
+    const pipeline: PipelineStage[] = [
+      { $match: { _id: new mongoose.Types.ObjectId(applicationId) } },
+      {
+        $addFields: {
+          jobIdObj: { $toObjectId: "$jobId" },
+          candidateIdObj: { $toObjectId: "$candidateId" },
+        },
+      },
+      {
+        $lookup: {
+          from: "jobs",
+          localField: "jobIdObj",
+          foreignField: "_id",
+          as: "job",
+          pipeline: [{ $match: { employerId: employerId } }],
+        },
+      },
+      { $unwind: { path: "$job", preserveNullAndEmptyArrays: false } },
+      {
+        $lookup: {
+          from: "candidates",
+          localField: "candidateIdObj",
+          foreignField: "_id",
+          as: "candidate",
+        },
+      },
+      { $unwind: { path: "$candidate", preserveNullAndEmptyArrays: true } },
+      {
+        $project: {
+          _id: 0,
+          id: { $toString: "$_id" },
+          candidateId: "$candidateId",
+          jobId: "$jobId",
+          fullName: 1,
+          email: 1,
+          phone: 1,
+          resume: 1,
+          coverLetter: { $ifNull: ["$coverLetter", ""] },
+          appliedAt: 1,
+          status: 1,
+          interviewDate: 1,
+          rating: { $ifNull: ["$rating", 0] },
+          notes: { $ifNull: ["$notes", ""] },
+          jobTitle: "$job.title",
+          name: "$job.employer.name",
+          jobLocation: "$job.location",
+          salaryRange: "$job.salaryRange",
+          jobType: "$job.type",
+          candidate: {
+            profileImage: { $ifNull: ["$candidate.profileImage", ""] },
+            location: { $ifNull: ["$candidate.location", ""] },
+            title: { $ifNull: ["$candidate.title", ""] },
+            about: { $ifNull: ["$candidate.about", ""] },
+            skills: { $ifNull: ["$candidate.skills", []] },
+            experience: { $ifNull: ["$candidate.experience", []] },
+            education: { $ifNull: ["$candidate.education", []] },
+            resume: { $ifNull: ["$candidate.resume", ""] },
+          },
+        },
+      },
+    ];
+
+    const result = await Application.aggregate(pipeline).exec();
+    if (result.length === 0) return null;
+
+    const doc = result[0] as EmployerApplicationAggResult;
+    return {
+      id: doc.id,
+      candidateId: doc.candidateId,
+      jobId: doc.jobId,
+      fullName: doc.fullName,
+      email: doc.email,
+      phone: doc.phone,
+      resume: doc.resume,
+      coverLetter: doc.coverLetter ?? "",
+      appliedAt: doc.appliedAt,
+      status: doc.status,
+      rating: doc.rating ?? 0,
+      notes: doc.notes ?? "",
+      jobTitle: doc.jobTitle,
+      name: doc.name,
+      jobLocation: doc.jobLocation || "",
+      salaryRange: doc.salaryRange || "",
+      jobType: doc.jobType || "Full-time",
+      interviewDate: doc.interviewDate,
+      candidate: doc.candidate
+        ? {
+            profileImage: doc.candidate.profileImage || "",
+            location: doc.candidate.location || "",
+            title: doc.candidate.title || "",
+            about: doc.candidate.about || "",
+            skills: doc.candidate.skills ?? [],
+            experience: doc.candidate.experience ?? [],
+            education: doc.candidate.education ?? [],
+            resume: doc.candidate.resume || "",
+          }
+        : undefined,
+      experienceYears: doc.candidate?.experience
+        ? doc.candidate.experience.reduce(
+            (total: number, exp: CandidateExperience) => {
+              const start = new Date(exp.startDate).getFullYear();
+              const end = exp.current
+                ? new Date().getFullYear()
+                : new Date(exp.endDate || Date.now()).getFullYear();
+              return total + (end - start);
+            },
+            0,
+          )
+        : 0,
+    };
   }
 
   async findByIdAndEmployer(

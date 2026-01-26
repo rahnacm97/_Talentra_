@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { SUCCESS_MESSAGES, ERROR_MESSAGES } from "../../shared/enums/enums";
 import { HTTP_STATUS } from "../../shared/httpStatus/httpStatusCode";
+<<<<<<< Updated upstream
 import {
   IEmployerApplicationsController,
   IEmployerController,
@@ -15,17 +16,23 @@ import {
   EmployerApplicationQuery,
   ApplicationStatus,
 } from "../../type/application/application.type";
+=======
+import { IEmployerController } from "../../interfaces/users/employer/IEmployerController";
+import { IEmployerService } from "../../interfaces/users/employer/IEmployerService";
+import { logger } from "../../shared/utils/logger";
+import { ApiError } from "../../shared/utils/ApiError";
+>>>>>>> Stashed changes
 
 export class EmployerController implements IEmployerController {
   constructor(private _employerService: IEmployerService) {}
   //Employer fetch profile
-  async getProfile(
-    req: Request<{ id: string }>,
-    res: Response,
-    next: NextFunction,
-  ) {
+  async getProfile(req: Request, res: Response, next: NextFunction) {
     try {
+<<<<<<< Updated upstream
       const employerId = req.params.id;
+=======
+      const employerId = req.user!.id;
+>>>>>>> Stashed changes
       logger.info("Fetching candidate profile", { employerId });
       const employer = await this._employerService.getEmployerById(employerId);
       if (!employer) {
@@ -49,7 +56,11 @@ export class EmployerController implements IEmployerController {
         err instanceof Error ? err.message : ERROR_MESSAGES.SERVER_ERROR;
       logger.error("Failed to fetch candidate profile", {
         error: message,
+<<<<<<< Updated upstream
         employerId: req.params.id,
+=======
+        employerId: req.user?.id,
+>>>>>>> Stashed changes
       });
       next(
         err instanceof ApiError
@@ -61,12 +72,16 @@ export class EmployerController implements IEmployerController {
   }
   //Employer profile update
   async updateProfile(
-    req: Request<{ id: string }, UpdateProfileResponse, EmployerDataDTO>,
+    req: Request,
     res: Response,
     next: NextFunction,
   ): Promise<void> {
     try {
+<<<<<<< Updated upstream
       const employerId = req.params.id;
+=======
+      const employerId = req.user!.id;
+>>>>>>> Stashed changes
       const profileData = req.body;
       logger.info("Updating employer profile", { employerId });
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
@@ -85,7 +100,11 @@ export class EmployerController implements IEmployerController {
         err instanceof Error ? err.message : ERROR_MESSAGES.SERVER_ERROR;
       logger.error("Failed to update employer profile", {
         error: message,
+<<<<<<< Updated upstream
         employerId: req.params.id,
+=======
+        employerId: req.user?.id,
+>>>>>>> Stashed changes
       });
       next(
         err instanceof ApiError
@@ -95,6 +114,7 @@ export class EmployerController implements IEmployerController {
     }
   }
 }
+<<<<<<< Updated upstream
 
 export class EmployerApplicationsController
   implements IEmployerApplicationsController
@@ -176,3 +196,5 @@ export class EmployerApplicationsController
     }
   }
 }
+=======
+>>>>>>> Stashed changes

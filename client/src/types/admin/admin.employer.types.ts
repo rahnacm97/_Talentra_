@@ -80,6 +80,8 @@ export interface GetAllEmployersParams {
   page: number;
   limit: number;
   search?: string;
+  status?: "active" | "blocked" | "all";
+  verification?: "verified" | "pending" | "all";
 }
 
 export interface GetAllEmployersResponse {

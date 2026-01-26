@@ -36,8 +36,10 @@ import CandidateSavedJobs from "./pages/candidate/CandidateSavedjobs";
 import CandidateNotifications from "./pages/candidate/CandidateNotifications";
 import CandidateSettings from "./pages/candidate/CandidateSettings";
 import EmployerInterview from "./pages/employer/EmployerInterview";
+import EmployerInterviewDetail from "./pages/employer/InterviewDetailPage";
 import EmployerNotifications from "./pages/employer/EmployerNotifications";
 import CandidateInterviews from "./pages/candidate/CandidateInterviews";
+import CandidateInterviewDetail from "./pages/candidate/InterviewDetailPage";
 import AdminJobs from "./pages/admin/AdminJobs";
 import AdminNotifications from "./pages/admin/AdminNotifications";
 import AdminSettings from "./pages/admin/AdminSettings";
@@ -48,6 +50,19 @@ import ChatPage from "./pages/common/Chat";
 import VideoCallPage from "./pages/common/VideoCall";
 import ApplicationDetails from "./pages/candidate/CandidateApplicationDetails";
 import EmployerBilling from "./pages/employer/EmployerBilling";
+<<<<<<< Updated upstream
+=======
+import GuestVideoJoin from "./pages/common/GuestVideoJoin";
+import Chat from "./pages/common/Chat";
+import { VideoCallProvider } from "./contexts/VideoCallContext";
+import { initializeSocket, disconnectSocket } from "./socket/socket";
+import { VideoCallWindow } from "./components/common/video/VideoCallWindow";
+import { useNotifications } from "./hooks/useNotifications";
+import { useAppDispatch, useAppSelector } from "./hooks/hooks";
+import { getUserChats } from "./thunks/chat.thunks";
+import { useEffect } from "react";
+import MeetingJoinPage from "./pages/common/MeetingJoinPage";
+>>>>>>> Stashed changes
 
 const App: React.FC = () => {
   useAuthInitialiazer();
@@ -115,6 +130,8 @@ const App: React.FC = () => {
               path={FRONTEND_ROUTES.AUTHSUCCESS}
               element={<AuthSuccess />}
             />
+            {/* Public Meet Route for Guests */}
+            <Route path="/meet/:roundId/:token" element={<GuestVideoJoin />} />
             <Route
               path={FRONTEND_ROUTES.JOBVIEW}
               element={
@@ -171,6 +188,10 @@ const App: React.FC = () => {
                 element={<CandidateInterviews />}
               />
               <Route
+                path={FRONTEND_ROUTES.CANDIDATEINTERVIEWDETAIL}
+                element={<CandidateInterviewDetail />}
+              />
+              <Route
                 path={FRONTEND_ROUTES.CANDIDATESAVEDJOBS}
                 element={<CandidateSavedJobs />}
               />
@@ -212,7 +233,15 @@ const App: React.FC = () => {
                 element={<EmployerInterview />}
               />
               <Route
+<<<<<<< Updated upstream
                 path={FRONTEND_ROUTES.EMPLOYERRBILLING}
+=======
+                path={FRONTEND_ROUTES.EMPLOYERINTERVIEWDETAIL}
+                element={<EmployerInterviewDetail />}
+              />
+              <Route
+                path={FRONTEND_ROUTES.EMPLOYERBILLING}
+>>>>>>> Stashed changes
                 element={<EmployerBilling />}
               />
               <Route
@@ -264,6 +293,7 @@ const App: React.FC = () => {
             </Route>
 
             <Route path="*" element={<NotFound />} />
+            <Route path="/meet/:token" element={<MeetingJoinPage />} />
           </Routes>
         </AuthRouteGuard>
       </Router>

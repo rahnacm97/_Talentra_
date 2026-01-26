@@ -7,6 +7,7 @@ import Pagination from "../../components/admin/Pagination";
 import SearchInput from "../../components/admin/SearchInput";
 import { StatCard } from "../../components/admin/Statcard";
 import ToggleOnIcon from "@mui/icons-material/ToggleOn";
+import FilterListOffIcon from "@mui/icons-material/FilterListOff";
 import ToggleOffIcon from "@mui/icons-material/ToggleOff";
 import WorkIcon from "@mui/icons-material/Work";
 import ScheduleIcon from "@mui/icons-material/Schedule";
@@ -21,7 +22,10 @@ const AdminJobs: React.FC = () => {
 
   const [searchTerm, setSearchTerm] = useState("");
   const debouncedSearch = useDebounce(searchTerm, 450);
-  const [statusFilter] = useState<"active" | "closed" | "all">("all");
+  const [statusFilter, setStatusFilter] = useState<
+    "active" | "closed" | "draft" | "all"
+  >("all");
+  const [typeFilter, setTypeFilter] = useState("all");
   const [localPage, setLocalPage] = useState(page);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedJobForDetails, setSelectedJobForDetails] =
@@ -34,13 +38,14 @@ const AdminJobs: React.FC = () => {
         limit: 5,
         search: debouncedSearch || undefined,
         status: statusFilter === "all" ? undefined : statusFilter,
+        type: typeFilter === "all" ? undefined : typeFilter,
       }),
     );
-  }, [dispatch, limit, debouncedSearch, statusFilter, localPage]);
+  }, [dispatch, limit, debouncedSearch, statusFilter, typeFilter, localPage]);
 
   useEffect(() => {
     setLocalPage(1);
-  }, [debouncedSearch, statusFilter]);
+  }, [debouncedSearch, statusFilter, typeFilter]);
 
   useEffect(() => {
     setLocalPage(page);
@@ -55,6 +60,13 @@ const AdminJobs: React.FC = () => {
   const openDetailsModal = (job: AdminJob) => {
     setSelectedJobForDetails(job);
     setShowDetailsModal(true);
+  };
+
+  const clearFilters = () => {
+    setSearchTerm("");
+    setStatusFilter("all");
+    setTypeFilter("all");
+    setLocalPage(1);
   };
 
   if (loading) return <div className="p-6">Loading jobs...</div>;
@@ -108,11 +120,44 @@ const AdminJobs: React.FC = () => {
           onChange={(e: any) => setSearchTerm(e.target.value)}
           placeholder="Search jobs by name, company..."
         />
-        {debouncedSearch !== searchTerm && (
-          <p className="absolute -bottom-5 left-0 text-xs text-gray-500 animate-pulse">
-            Searching…
-          </p>
-        )}
+
+        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto mt-4 sm:mt-0">
+          <select
+            value={typeFilter}
+            onChange={(e) => setTypeFilter(e.target.value)}
+            className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+          >
+            <option value="all">All Types</option>
+            <option value="Full-time">Full-time</option>
+            <option value="Part-time">Part-time</option>
+            <option value="Contract">Contract</option>
+            <option value="Freelance">Freelance</option>
+            <option value="Internship">Internship</option>
+          </select>
+
+          <select
+            value={statusFilter}
+            onChange={(e) =>
+              setStatusFilter(
+                e.target.value as "active" | "closed" | "draft" | "all",
+              )
+            }
+            className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+          >
+            <option value="all">All Status</option>
+            <option value="active">Active</option>
+            <option value="closed">Closed</option>
+          </select>
+          {(searchTerm || statusFilter !== "all" || typeFilter !== "all") && (
+            <button
+              onClick={clearFilters}
+              className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors flex items-center"
+            >
+              <FilterListOffIcon sx={{ fontSize: 18, marginRight: 0.5 }} />
+              Clear Filters
+            </button>
+          )}
+        </div>
       </div>
 
       <Table

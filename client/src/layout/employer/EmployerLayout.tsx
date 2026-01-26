@@ -75,6 +75,26 @@ const EmployerLayout: React.FC = () => {
     },
   ];
 
+<<<<<<< Updated upstream
+=======
+  const isActive = (path: string) => {
+    const current = location.pathname;
+
+    if (path === FRONTEND_ROUTES.EMPLOYERMESSAGES) {
+      return current === path || current.startsWith(path + "/");
+    }
+
+    if (
+      path === FRONTEND_ROUTES.EMPLOYERAPPLICANTS ||
+      path === FRONTEND_ROUTES.EMPLOYERINTERVIEWS
+    ) {
+      return current.startsWith(path);
+    }
+
+    return current === path;
+  };
+
+>>>>>>> Stashed changes
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />

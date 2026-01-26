@@ -288,18 +288,32 @@ const EmployerJobs: React.FC = () => {
             )}
           </div>
           <div className="flex items-center space-x-2">
-            <Filter className="text-gray-400 w-5 h-5" />
-            <select
-              value={filterStatus}
-              onChange={(e) =>
-                setFilterStatus(e.target.value as "all" | "active" | "closed")
-              }
-              className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              <option value="all">All Status</option>
-              <option value="active">Active</option>
-              <option value="closed">Closed</option>
-            </select>
+            {(searchInput || filterStatus !== "all") && (
+              <button
+                onClick={() => {
+                  setSearchInput("");
+                  setFilterStatus("all");
+                }}
+                className="text-red-600 hover:text-red-800 px-3 py-2 rounded-lg flex items-center gap-1 transition font-medium cursor-pointer"
+              >
+                <CloseIcon className="w-4 h-4" />
+                Clear Filters
+              </button>
+            )}
+            <div className="flex items-center space-x-2">
+              <Filter className="text-gray-400 w-5 h-5" />
+              <select
+                value={filterStatus}
+                onChange={(e) =>
+                  setFilterStatus(e.target.value as "all" | "active" | "closed")
+                }
+                className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="closed">Closed</option>
+              </select>
+            </div>
           </div>
         </div>
 

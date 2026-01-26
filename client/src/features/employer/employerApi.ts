@@ -98,6 +98,7 @@ export const updateApplicationStatusApi = async (
   data: {
     status: string;
     interviewDate?: string;
+    [key: string]: any;
   },
 ): Promise<EmployerApplicationsPaginatedDto> => {
   const response = await api.patch(

@@ -20,12 +20,14 @@ export const fetchCandidates = createAsyncThunk(
     page,
     limit,
     search,
+    status,
   }: {
     page: number;
     limit: number;
     search: string;
+    status: "active" | "blocked" | "all";
   }) => {
-    return await getAllCandidatesApi(page, limit, search);
+    return await getAllCandidatesApi(page, limit, search, status);
   },
 );
 //Block or unblock
@@ -58,11 +60,29 @@ export const fetchCandidateById = createAsyncThunk<
 export const fetchEmployers = createAsyncThunk(
   "adminEmployers/fetchEmployers",
   async (
-    { page, limit, search }: { page: number; limit: number; search?: string },
+    {
+      page,
+      limit,
+      search,
+      status,
+      verification,
+    }: {
+      page: number;
+      limit: number;
+      search?: string;
+      status?: "active" | "blocked" | "all";
+      verification?: "verified" | "pending" | "all";
+    },
     { rejectWithValue },
   ) => {
     try {
-      return await getAllEmployersApi({ page, limit, search });
+      return await getAllEmployersApi({
+        page,
+        limit,
+        search,
+        status,
+        verification,
+      });
     } catch (err: unknown) {
       const error = err as ApiError;
       return rejectWithValue(error.response?.data?.message || error.message);
@@ -141,7 +161,8 @@ export const fetchAdminJobs = createAsyncThunk(
     page: number;
     limit: number;
     search?: string;
-    status?: "active" | "closed" | "all";
+    status?: "active" | "closed" | "draft" | "all";
+    type?: string;
   }) => {
     const response = await getAdminJobs(params);
     return response;

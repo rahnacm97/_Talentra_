@@ -12,11 +12,12 @@ import { USER_ROLES } from "../../shared/enums/enums";
 import { JobRepository } from "../../repositories/job/job.repository";
 import { EmployerRepository } from "../../repositories/employer/employer.repository";
 import { ApplicationRepository } from "../../repositories/application/application.repository";
+import { FullyAuthenticatedRequest } from "../../type/types";
 import { JobMapper } from "../../mappers/job/job.mapper";
 import { EmployerJobService } from "../../services/job/job.service";
 import { CandidateJobService } from "../../services/job/job.service";
-import { EmployerJobController } from "../../controllers/job/job.controller";
-import { CandidateJobController } from "../../controllers/job/job.controller";
+import { EmployerJobController } from "../../controllers/job/employerJob.controller";
+import { CandidateJobController } from "../../controllers/job/candidateJob.controller";
 import { CandidateRepository } from "../../repositories/candidate/candidate.repository";
 
 const jobRepo = new JobRepository();
@@ -42,7 +43,46 @@ const candidateController = new CandidateJobController(candidateService);
 
 const router = Router();
 
+<<<<<<< Updated upstream
 router.get("/", candidateController.getPublicJobs.bind(candidateController));
+=======
+router.get(
+  "/",
+  optionalAuth,
+  (req: Request, res: Response, next: NextFunction) => {
+    const user = (req as FullyAuthenticatedRequest).user;
+
+    if (user?.role === USER_ROLES.EMPLOYER) {
+      return employerController.getJobs(req, res, next);
+    }
+
+    return candidateController.getPublicJobs(req, res, next);
+  },
+);
+
+// Employer specific routes
+router.post(
+  "/",
+  verifyAuth([USER_ROLES.EMPLOYER]),
+  validate(createJobSchema),
+  employerController.postJob.bind(employerController),
+);
+
+router.put(
+  "/:jobId",
+  verifyAuth([USER_ROLES.EMPLOYER]),
+  validate(updateJobSchema),
+  employerController.updateJob.bind(employerController),
+);
+
+router.patch(
+  "/:jobId/close",
+  verifyAuth([USER_ROLES.EMPLOYER]),
+  employerController.closeJob.bind(employerController),
+);
+
+// Candidate specific routes
+>>>>>>> Stashed changes
 router.get(
   "/public/:id",
   candidateController.getJobById.bind(candidateController),

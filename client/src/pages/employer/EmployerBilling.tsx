@@ -29,6 +29,7 @@ interface BillingItem {
 }
 
 const EmployerBilling: React.FC = () => {
+<<<<<<< Updated upstream
   const [selectedPlan, setSelectedPlan] = useState<Plan["id"]>("monthly");
 
   const mockSubscription = {
@@ -54,6 +55,18 @@ const EmployerBilling: React.FC = () => {
       },
     ],
   };
+=======
+  const dispatch = useDispatch<AppDispatch>();
+  const { user } = useSelector((state: RootState) => state.auth);
+  const { history, loading } = useSelector(
+    (state: RootState) => state.subscription,
+  );
+  const [selectedPlan, setSelectedPlan] = useState<Plan["id"]>("professional");
+  const [processingPlanId, setProcessingPlanId] = useState<string | null>(null);
+  const [showActiveModal, setShowActiveModal] = useState(false);
+  const [showPaymentInProgressModal, setShowPaymentInProgressModal] =
+    useState(false);
+>>>>>>> Stashed changes
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -152,11 +165,51 @@ const EmployerBilling: React.FC = () => {
         </div>
 
         {/* Active Plan Info */}
+<<<<<<< Updated upstream
         {isActive && (
           <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
             <p className="font-semibold text-green-800">
               Active Plan: Professional (
               {planType === "yearly" ? "Annual" : "Monthly"})
+=======
+        <div className="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <p className="font-semibold text-blue-800">
+            Current Plan:{" "}
+            {isActive
+              ? currentPlan === "enterprise"
+                ? "Professional Annual"
+                : "Professional Monthly"
+              : history && history.length > 0 && history[0].status === "expired"
+                ? "No Plan"
+                : "Free Plan"}
+          </p>
+          <p className="text-sm text-blue-700 mt-1">
+            Status:{" "}
+            {isActive
+              ? "Active"
+              : history && history.length > 0 && history[0].status === "expired"
+                ? "Expired"
+                : "Standard"}
+          </p>
+          {!isActive && user?.trialEndsAt && (
+            <p className="text-sm text-red-600 mt-2 font-medium flex items-center gap-2">
+              <Calendar className="w-4 h-4" />
+              Trial ends on:{" "}
+              {new Date(user.trialEndsAt).toLocaleDateString("en-US", {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              })}
+              <span className="text-gray-500 font-normal">
+                (
+                {Math.ceil(
+                  (new Date(user.trialEndsAt).getTime() -
+                    new Date().getTime()) /
+                    (1000 * 60 * 60 * 24),
+                )}{" "}
+                days remaining)
+              </span>
+>>>>>>> Stashed changes
             </p>
             <p className="text-sm text-green-700 mt-1">
               Next billing: {nextBillingDate}

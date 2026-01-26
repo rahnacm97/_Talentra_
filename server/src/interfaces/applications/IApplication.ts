@@ -1,3 +1,13 @@
+export type ApplicationStatus =
+  | "pending"
+  | "reviewed"
+  | "rejected"
+  | "accepted"
+  | "interview"
+  | "shortlisted"
+  | "hired"
+  | "all";
+
 export interface IApplication {
   id: string;
   jobId: string;
@@ -9,6 +19,7 @@ export interface IApplication {
   coverLetter?: string;
   appliedAt: Date;
   interviewDate: Date;
+<<<<<<< Updated upstream
   status:
     | "pending"
     | "reviewed"
@@ -17,6 +28,18 @@ export interface IApplication {
     | "interview"
     | "shortlisted"
     | "all";
+=======
+  status: ApplicationStatus;
+  reviewedAt?: Date;
+  shortlistedAt?: Date;
+  hiredAt?: Date;
+  rejectedAt?: Date;
+  rejectionReason?: string;
+  rejectionFeedback?: string;
+  rejectionFeedbackShared?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+>>>>>>> Stashed changes
 }
 
 export interface IApplicationWithJob extends IApplication {

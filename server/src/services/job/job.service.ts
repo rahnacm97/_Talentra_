@@ -55,6 +55,7 @@ export class EmployerJobService implements IEmployerJobService {
     dto: CreateJobDto,
   ): Promise<JobResponseDto> {
     await this.verifyEmployer(employerId);
+
     const job = await this._repository.create({
       ...dto,
       employerId,
@@ -272,19 +273,21 @@ export class AdminJobService implements IAdminJobService {
     page: number;
     limit: number;
     search?: string;
-    status?: "active" | "closed" | "draft" | "all";
+    status?: "active" | "closed" | "all";
+    type?: string;
   }): Promise<{
     jobs: AdminJob[];
     total: number;
     page: number;
     limit: number;
   }> {
-    const { page, limit, search, status = "all" } = params;
+    const { page, limit, search, status = "all", type } = params;
 
     const repoParams = {
       page,
       limit,
       status,
+      type,
       ...(search ? { search } : {}),
     };
 

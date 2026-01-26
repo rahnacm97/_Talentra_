@@ -1,4 +1,7 @@
-import { InterviewStatus } from "../../interfaces/interviews/IInterview";
+import {
+  InterviewStatus,
+  InterviewRoundStatus,
+} from "../../interfaces/interviews/IInterview";
 
 export interface InterviewResponseDto {
   id: string;
@@ -52,4 +55,158 @@ export interface InterviewsPaginatedDto {
     total: number;
     totalPages: number;
   };
+}
+
+export class InterviewFeedbackResponseDto {
+  id!: string;
+  roundId!: string;
+  applicationId!: string;
+  providedBy!: string;
+  rating!: number;
+  strengths?: string;
+  weaknesses?: string;
+  comments?: string;
+  recommendation!: string;
+  technicalSkills?: number;
+  communication?: number;
+  problemSolving?: number;
+  culturalFit?: number;
+  isSharedWithCandidate!: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export class FeedbackWithProviderDto extends InterviewFeedbackResponseDto {
+  provider!: {
+    name: string;
+    email: string;
+    profileImage?: string;
+    role: string;
+  };
+}
+
+export class FeedbackSummaryDto {
+  roundId!: string;
+  totalFeedback!: number;
+  averageRating!: number;
+  recommendations!: {
+    proceed: number;
+    hold: number;
+    reject: number;
+  };
+}
+
+export class SubmitFeedbackDto {
+  applicationId!: string;
+  providedBy!: string;
+  rating!: number;
+  strengths?: string;
+  weaknesses?: string;
+  comments?: string;
+  recommendation!: string;
+  technicalSkills?: number;
+  communication?: number;
+  problemSolving?: number;
+  culturalFit?: number;
+}
+
+export class UpdateFeedbackDto {
+  rating?: number;
+  strengths?: string;
+  weaknesses?: string;
+  comments?: string;
+  recommendation?: string;
+  technicalSkills?: number;
+  communication?: number;
+  problemSolving?: number;
+  culturalFit?: number;
+}
+
+export class InterviewParticipantResponseDto {
+  id!: string;
+  roundId!: string;
+  userId!: string;
+  role!: string;
+  name!: string;
+  email!: string;
+  joinedAt?: string;
+  leftAt?: string;
+  connectionStatus!: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export class AddParticipantDto {
+  userId!: string;
+  role!: string;
+  name!: string;
+  email!: string;
+}
+
+export class UpdateParticipantStatusDto {
+  status!: string;
+}
+
+export class InterviewRoundResponseDto {
+  id!: string;
+  applicationId!: string;
+  jobId!: string;
+  candidateId!: string;
+  employerId!: string;
+  roundNumber!: number;
+  roundType!: string;
+  customRoundName?: string;
+  scheduledDate?: string;
+  status!: InterviewRoundStatus;
+  meetingLink!: string;
+  duration?: number;
+  notes?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export class InterviewRoundWithDetailsDto extends InterviewRoundResponseDto {
+  job!: {
+    title: string;
+    location: string;
+    type: string;
+  };
+  candidate!: {
+    fullName: string;
+    email: string;
+    phone: string;
+    profileImage?: string;
+  };
+  employer!: {
+    name: string;
+    companyName: string;
+    logo?: string;
+  };
+  participantCount?: number;
+  feedbackCount?: number;
+}
+
+export class CreateRoundDto {
+  applicationId!: string;
+  jobId!: string;
+  candidateId!: string;
+  employerId!: string;
+  roundNumber!: number;
+  roundType!: string;
+  customRoundName?: string;
+  scheduledDate?: string;
+  duration?: number;
+  notes?: string;
+}
+
+export class UpdateRoundStatusDto {
+  status!: string;
+}
+
+export class RescheduleRoundDto {
+  newDate!: string;
+}
+
+export class CancelRoundDto {
+  reason?: string;
 }

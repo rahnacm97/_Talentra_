@@ -1,37 +1,48 @@
+<<<<<<< Updated upstream
 import { FilterQuery } from "mongoose";
 import { EmployerRepository } from "../../repositories/employer/employer.repository";
+=======
+>>>>>>> Stashed changes
 import { IAdminEmployerService } from "../../interfaces/users/admin/IAdminEmployerService";
 import {
   BlockEmployerDTO,
   EmployerResponseDTO,
 } from "../../dto/admin/employer.dto";
-import { IEmployer } from "../../interfaces/users/employer/IEmployer";
 import { IEmployerMapper } from "../../interfaces/users/admin/IEmployerMapper";
-import { INotificationService } from "../../interfaces/auth/INotificationService";
+import { INotificationService } from "../../interfaces/shared/INotificationService";
 import { ApiError } from "../../shared/utils/ApiError";
 import { HTTP_STATUS } from "../../shared/httpStatus/httpStatusCode";
 import { ERROR_MESSAGES } from "../../shared/enums/enums";
 import { logger } from "../../shared/utils/logger";
+<<<<<<< Updated upstream
+=======
+import { IEmployerRepository } from "../../interfaces/users/employer/IEmployerRepository";
+import { EmployerFilterProcessor } from "./filters/employer/EmployerFilterProcessor";
+import { EmployerSearchFilter } from "./filters/employer/EmployerSearchFilter";
+import { EmployerStatusFilter } from "./filters/employer/EmployerStatusFilter";
+import { EmployerVerificationFilter } from "./filters/employer/EmployerVerificationFilter";
+>>>>>>> Stashed changes
 
 export class AdminEmployerService implements IAdminEmployerService {
   constructor(
     private _employerRepo: EmployerRepository,
     private _employerMapper: IEmployerMapper,
-    private _emailService: INotificationService,
+    private _notificationService: INotificationService,
   ) {}
   //Fecthing all employers
   async getAllEmployers(
     page: number,
     limit: number,
     search?: string,
+    status?: "active" | "blocked",
+    verification?: "verified" | "pending",
   ): Promise<{ data: EmployerResponseDTO[]; total: number }> {
-    const query: FilterQuery<IEmployer> = {};
-    if (search) {
-      query.$or = [
-        { name: { $regex: search, $options: "i" } },
-        { email: { $regex: search, $options: "i" } },
-      ];
-    }
+    const filterProcessor = new EmployerFilterProcessor();
+    filterProcessor.addFilter(new EmployerSearchFilter(search));
+    filterProcessor.addFilter(new EmployerStatusFilter(status));
+    filterProcessor.addFilter(new EmployerVerificationFilter(verification));
+
+    const query = filterProcessor.buildQuery();
 
     const employers = await this._employerRepo.findAll(query, page, limit);
     const total = await this._employerRepo.count(query);
@@ -52,6 +63,21 @@ export class AdminEmployerService implements IAdminEmployerService {
     );
     if (!employer) throw new Error("Employer not found");
 
+<<<<<<< Updated upstream
+=======
+    if (employerEntity.block) {
+      this._notificationService.emitUserBlocked(
+        employerEntity.employerId,
+        "Employer",
+      );
+    } else {
+      this._notificationService.emitUserUnblocked(
+        employerEntity.employerId,
+        "Employer",
+      );
+    }
+
+>>>>>>> Stashed changes
     return this._employerMapper.toEmployerResponseDTO(employer);
   }
   //Fetching single employer
@@ -81,8 +107,15 @@ export class AdminEmployerService implements IAdminEmployerService {
     if (!updated) throw new Error("Employer not found");
 
     const dto = this._employerMapper.toEmployerResponseDTO(updated);
+<<<<<<< Updated upstream
+=======
+
+    // Notify employer of verification approval
+    await this._notificationService.notifyEmployerVerificationApproved(id);
+
+>>>>>>> Stashed changes
     try {
-      await this._emailService.sendEmployerVerificationEmail({
+      await this._notificationService.sendEmployerVerificationEmail({
         to: employer.email,
         name: employer.name,
         companyName: employer.name,
@@ -117,8 +150,17 @@ export class AdminEmployerService implements IAdminEmployerService {
 
     const dto = this._employerMapper.toEmployerResponseDTO(updated);
 
+<<<<<<< Updated upstream
+=======
+    // Notify employer of verification rejection
+    await this._notificationService.notifyEmployerVerificationRejected(
+      id,
+      reason,
+    );
+
+>>>>>>> Stashed changes
     try {
-      await this._emailService.sendEmployerRejectionEmail({
+      await this._notificationService.sendEmployerRejectionEmail({
         to: employer.email,
         name: employer.name,
         companyName: employer.name,

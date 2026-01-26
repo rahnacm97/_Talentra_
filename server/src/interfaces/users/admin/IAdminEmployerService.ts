@@ -8,6 +8,8 @@ export interface IAdminEmployerService {
     page: number,
     limit: number,
     search?: string,
+    status?: "active" | "blocked",
+    verification?: "verified" | "pending",
   ): Promise<{ data: EmployerResponseDTO[]; total: number }>;
   blockUnblockEmployer(data: BlockEmployerDTO): Promise<EmployerResponseDTO>;
   getEmployerById(id: string): Promise<EmployerResponseDTO | null>;

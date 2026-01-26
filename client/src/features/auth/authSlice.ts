@@ -152,7 +152,11 @@ const authSlice = createSlice({
       })
       .addCase(
         refreshToken.fulfilled,
+<<<<<<< Updated upstream
         (state, action: PayloadAction<{ accessToken: string }>) => {
+=======
+        (state, action: PayloadAction<{ accessToken: string; user: any }>) => {
+>>>>>>> Stashed changes
           state.accessToken = action.payload.accessToken;
           state.loading = false;
           state.error = null;

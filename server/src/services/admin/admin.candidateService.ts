@@ -1,31 +1,41 @@
+<<<<<<< Updated upstream
 import { FilterQuery } from "mongoose";
 import { CandidateRepository } from "../../repositories/candidate/candidate.repository";
+=======
+>>>>>>> Stashed changes
 import { IAdminCandidateService } from "../../interfaces/users/admin/IAdminCandidateService";
 import {
   BlockCandidateDTO,
   CandidateResponseDTO,
 } from "../../dto/admin/candidate.dto";
-import { ICandidate } from "../../interfaces/users/candidate/ICandidate";
 import { ICandidateMapper } from "../../interfaces/users/admin/ICandidateMapper";
+<<<<<<< Updated upstream
+=======
+import { INotificationService } from "../../interfaces/shared/INotificationService";
+import { ICandidateRepo } from "../../interfaces/users/candidate/ICandidateRepository";
+import { CandidateFilterProcessor } from "./filters/candidate/CandidateFilterProcessor";
+import { CandidateSearchFilter } from "./filters/candidate/CandidateSearchFilter";
+import { CandidateStatusFilter } from "./filters/candidate/CandidateStatusFilter";
+>>>>>>> Stashed changes
 
 export class AdminCandidateService implements IAdminCandidateService {
   constructor(
     private _candidateRepo: CandidateRepository,
     private _candidateMapper: ICandidateMapper,
+    private _notificationService: INotificationService,
   ) {}
   //Fetching all candidates
   async getAllCandidates(
     page: number,
     limit: number,
     search?: string,
+    status?: "active" | "blocked",
   ): Promise<{ data: CandidateResponseDTO[]; total: number }> {
-    const query: FilterQuery<ICandidate> = {};
-    if (search) {
-      query.$or = [
-        { name: { $regex: search, $options: "i" } },
-        { email: { $regex: search, $options: "i" } },
-      ];
-    }
+    const filterProcessor = new CandidateFilterProcessor();
+    filterProcessor.addFilter(new CandidateSearchFilter(search));
+    filterProcessor.addFilter(new CandidateStatusFilter(status));
+
+    const query = filterProcessor.buildQuery();
 
     const candidates = await this._candidateRepo.findAll(query, page, limit);
     const total = await this._candidateRepo.count(query);
@@ -47,6 +57,21 @@ export class AdminCandidateService implements IAdminCandidateService {
     );
     if (!candidate) throw new Error("Candidate not found");
 
+<<<<<<< Updated upstream
+=======
+    if (candidateEntity.block) {
+      this._notificationService.emitUserBlocked(
+        candidateEntity.candidateId,
+        "Candidate",
+      );
+    } else {
+      this._notificationService.emitUserUnblocked(
+        candidateEntity.candidateId,
+        "Candidate",
+      );
+    }
+
+>>>>>>> Stashed changes
     return this._candidateMapper.toCandidateResponseDTO(candidate);
   }
   //Fetching single candidate

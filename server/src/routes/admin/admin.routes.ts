@@ -2,7 +2,7 @@ import { Router } from "express";
 import { AdminAuthController } from "../../controllers/admin/admin.authController";
 import { AdminCandidateController } from "../../controllers/admin/admin.candidateController";
 import { AdminEmployerController } from "../../controllers/admin/admin.employerController";
-import { AdminJobController } from "../../controllers/job/job.controller";
+import { AdminJobController } from "../../controllers/job/adminJob.controller";
 import { AdminAuthService } from "../../services/admin/admin.authService";
 import { AdminCandidateService } from "../../services/admin/admin.candidateService";
 import { AdminEmployerService } from "../../services/admin/admin.employerService";
@@ -17,7 +17,7 @@ import { AdminRepository } from "../../repositories/admin/admin.repository";
 import { AdminMapper } from "../../mappers/admin/admin.mapper";
 import { CandidateMapper } from "../../mappers/admin/adminCandidate.mapper";
 import { EmployerMapper } from "../../mappers/admin/adminEmployer.mapper";
-import { EmailService } from "../../services/auth/email.service";
+import { NotificationAdapter } from "../../services/notification/NotificationAdapter";
 import { AdminJobService } from "../../services/job/job.service";
 import { AdminJobMapper } from "../../mappers/admin/adminJob.mapper";
 import { JobRepository } from "../../repositories/job/job.repository";
@@ -32,7 +32,7 @@ const tokenService: ITokenService = new TokenService();
 const adminMapper = new AdminMapper();
 const candidateMapper = new CandidateMapper();
 const employerMapper = new EmployerMapper();
-const emailService = new EmailService();
+const notificationAdapter = new NotificationAdapter();
 const adminJobMapper = new AdminJobMapper();
 const jobRepo = new JobRepository();
 
@@ -45,11 +45,12 @@ const adminAuthService = new AdminAuthService(
 const adminCandidateService = new AdminCandidateService(
   new CandidateRepository(),
   candidateMapper,
+  notificationAdapter,
 );
 const adminEmployerService = new AdminEmployerService(
   new EmployerRepository(),
   employerMapper,
-  emailService,
+  notificationAdapter,
 );
 const jobService = new AdminJobService(jobRepo, adminJobMapper);
 const analyticsRepository = new AdminAnalyticsRepository();

@@ -56,9 +56,9 @@ declare global {
   }
 }
 
-export type FullyAuthenticatedRequest = Request & {
-  user: IAuthenticatedUser;
-};
+// export type FullyAuthenticatedRequest = Request & {
+//   user: IAuthenticatedUser;
+// };
 
 export type AnyUser = IUserEntity | ICandidate | IEmployer | IAdmin;
 
@@ -85,7 +85,7 @@ export function hasEmailVerification(
   return user && "emailVerified" in user;
 }
 
-<<<<<<< Updated upstream
+
 export type FullyAuthenticatedRequest = Request & {
   user: {
     id: string;
@@ -105,6 +105,4 @@ export type FullyAuthenticatedRequest = Request & {
   };
   maskApplications?: boolean;
 };
-=======
-// Replaced by global augmentation and IAuthenticatedUser
->>>>>>> Stashed changes
+

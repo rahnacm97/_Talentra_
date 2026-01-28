@@ -34,7 +34,7 @@ const RemoteVideo: React.FC<{ stream: MediaStream; name: string }> = ({
         ref={videoRef}
         autoPlay
         playsInline
-        className="w-full h-full object-contain"
+        className="w-full h-full object-cover"
       />
       <div className="absolute bottom-6 left-6 text-white text-lg font-bold bg-black/40 px-4 py-2 rounded-xl backdrop-blur-md border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
         {name}
@@ -97,6 +97,29 @@ export const VideoCallWindow: React.FC = () => {
     }
   };
 
+  const participants = React.useMemo(() => {
+    const list = [];
+    // Local user always first
+    list.push({
+      id: "local",
+      stream: localStream,
+      name: localUserInfo?.name || "You",
+      isLocal: true,
+    });
+
+    // Remote users
+    Array.from(remoteStreams.entries()).forEach(([userId, stream]) => {
+      list.push({
+        id: userId,
+        stream,
+        name: remoteUsers.get(userId)?.name || "Remote User",
+        isLocal: false,
+      });
+    });
+
+    return list;
+  }, [localStream, remoteStreams, localUserInfo, remoteUsers]);
+
   if (!isCallActive) return null;
 
   if (callStatus === "waiting") {
@@ -135,50 +158,50 @@ export const VideoCallWindow: React.FC = () => {
       <div className="relative w-full h-full bg-gray-900 overflow-hidden shadow-2xl flex">
         {/* Main Video Area */}
         <div className="flex-1 relative bg-black flex flex-col">
-          <div className="flex-1 relative">
-            {remoteStreams.size > 0 ? (
+            <div className="flex-1 min-h-0 relative bg-black flex items-center justify-center p-2 overflow-hidden">
               <div
-                className={`w-full h-full grid gap-1 p-1 ${
-                  remoteStreams.size === 1
+                className={`w-full h-full grid gap-2 ${
+                  participants.length === 1
                     ? "grid-cols-1"
-                    : remoteStreams.size === 2
-                      ? "grid-cols-2"
-                      : "grid-cols-2 grid-rows-2"
+                    : participants.length === 2
+                      ? "grid-cols-1 md:grid-cols-2"
+                      : "grid-cols-2"
                 }`}
               >
-                {Array.from(remoteStreams.entries()).map(([userId, stream]) => (
-                  <RemoteVideo
-                    key={userId}
-                    stream={stream}
-                    name={remoteUsers.get(userId)?.name || "Remote User"}
-                  />
+                {participants.map((p) => (
+                  <div
+                    key={p.id}
+                    className="relative group bg-gray-900 rounded-xl overflow-hidden border border-white/5 shadow-2xl min-h-[150px] h-full"
+                  >
+                    {p.isLocal ? (
+                      <video
+                        ref={setLocalVideoRef}
+                        autoPlay
+                        playsInline
+                        muted
+                        className="w-full h-full object-cover transform scale-x-[-1]"
+                      />
+                    ) : (
+                      <RemoteVideo stream={p.stream!} name={p.name} />
+                    )}
+
+                    <div className="absolute bottom-4 left-4 text-white text-sm font-bold bg-black/40 px-3 py-1.5 rounded-lg backdrop-blur-md border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+                      {p.name} {p.isLocal ? "(You)" : ""}
+                    </div>
+
+                    {p.isLocal && remoteStreams.size === 0 && (
+                      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 flex items-center gap-3">
+                        <div className="w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                        <p className="text-white text-xs font-semibold tracking-wide whitespace-nowrap">
+                          Waiting for others to join...
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 ))}
               </div>
-            ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center text-white text-xl gap-4 bg-gray-900">
-                <div className="w-20 h-20 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-                <span className="text-gray-400 font-light tracking-wide">
-                  Waiting for participant...
-                </span>
-                <div className="bg-gray-800 px-6 py-3 rounded-full text-sm text-gray-400 border border-gray-700 mt-4">
-                  Share the link to invite others
-                </div>
-              </div>
-            )}
-
-            {/* Local Preview - Draggable/Floating look */}
-            <div className="absolute top-6 right-6 w-56 h-40 bg-gray-800 rounded-2xl overflow-hidden shadow-2xl border border-white/10 group hover:scale-105 transition-transform duration-300 z-20">
-              <video
-                ref={setLocalVideoRef}
-                autoPlay
-                playsInline
-                muted
-                className="w-full h-full object-contain transform scale-x-[-1]"
-              />
-              <div className="absolute bottom-2 left-2 text-white text-[10px] font-bold bg-black/60 px-2 py-1 rounded-lg backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity">
-                {localUserInfo?.name || "You"}
-              </div>
             </div>
+
 
             {/* Header Info */}
             {interviewDetails && (
@@ -235,7 +258,6 @@ export const VideoCallWindow: React.FC = () => {
                 ))}
               </div>
             )}
-          </div>
 
           {/* Controls Bar */}
           <div className="h-20 bg-gray-900 border-t border-gray-800 flex items-center justify-center gap-4 px-6 flex-shrink-0">

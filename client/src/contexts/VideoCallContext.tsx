@@ -80,6 +80,7 @@ export const VideoCallProvider: React.FC<{ children: React.ReactNode }> = ({
   const [activeSocket, setActiveSocket] = useState<any | null>(getSocket());
   const currentRoomId = useRef<string | null>(null);
   const currentUser = useSelector((state: RootState) => state.auth.user);
+  const guestIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     const s = getSocket();
@@ -219,6 +220,7 @@ export const VideoCallProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const handleUserJoined = React.useCallback(
     async (userId: string) => {
+      if (userId === currentUser?._id || userId === guestIdRef.current) return;
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       try {
@@ -246,6 +248,9 @@ export const VideoCallProvider: React.FC<{ children: React.ReactNode }> = ({
       fromUserId: string;
     }) => {
       const { offer, userData, fromUserId } = payload;
+      if (fromUserId === currentUser?._id || fromUserId === guestIdRef.current)
+        return;
+
       if (userData) {
         setRemoteUsers((prev) => {
           const newMap = new Map(prev);
@@ -280,6 +285,9 @@ export const VideoCallProvider: React.FC<{ children: React.ReactNode }> = ({
       fromUserId: string;
     }) => {
       const { answer, userData, fromUserId } = payload;
+      if (fromUserId === currentUser?._id || fromUserId === guestIdRef.current)
+        return;
+
       if (userData) {
         setRemoteUsers((prev) => {
           const newMap = new Map(prev);
@@ -300,6 +308,8 @@ export const VideoCallProvider: React.FC<{ children: React.ReactNode }> = ({
   const handleNewIceCandidate = React.useCallback(
     async (payload: { candidate: RTCIceCandidateInit; fromUserId: string }) => {
       const { candidate, fromUserId } = payload;
+      if (fromUserId === currentUser?._id || fromUserId === guestIdRef.current)
+        return;
       const pc = peerConnections.current.get(fromUserId);
       if (pc && pc.remoteDescription) {
         try {
@@ -337,7 +347,7 @@ export const VideoCallProvider: React.FC<{ children: React.ReactNode }> = ({
 
       activeSocket?.emit("join_call", {
         roomId: data.roomId,
-        userId: currentUser?._id || "guest",
+        userId: currentUser?._id || guestIdRef.current || "guest",
         isHost: false,
       });
     },
@@ -455,9 +465,12 @@ export const VideoCallProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsCallActive(true);
     setCallStatus("waiting");
 
+    const guestId = currentUser?._id || "guest-" + Date.now();
+    guestIdRef.current = guestId;
+
     activeSocket?.emit("request_to_join", {
       roomId,
-      userId: currentUser?._id || "guest-" + Date.now(),
+      userId: guestId,
       name: userInfo.name,
       userType,
     });

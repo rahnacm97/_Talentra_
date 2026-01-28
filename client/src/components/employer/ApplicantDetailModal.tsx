@@ -18,14 +18,10 @@ import {
   MessageSquare,
 } from "lucide-react";
 import type { EmployerApplicationResponseDto } from "../../types/application/application.types";
-
-import { InterviewScheduleModal } from "./InterviewSchedule";
-
 import { aiService } from "../../services/aiService";
 import { toast } from "react-toastify";
 import { handleFileDownload } from "../../utils/fileUtils";
 import RejectionModal from "./RejectionModal";
-
 
 interface ApplicantDetailsModalProps {
   applicant: EmployerApplicationResponseDto;
@@ -33,7 +29,6 @@ interface ApplicantDetailsModalProps {
   onClose: () => void;
 
   onStatusChange: (newStatus: string, data?: any) => Promise<void>;
-
 }
 
 const statusOptions = [
@@ -52,9 +47,6 @@ export const ApplicantDetailsModal: React.FC<ApplicantDetailsModalProps> = ({
   onStatusChange,
 }) => {
   const [isUpdating, setIsUpdating] = React.useState(false);
-
-  const [showInterviewModal, setShowInterviewModal] = React.useState(false);
-
   const [showRejectionModal, setShowRejectionModal] = React.useState(false);
   const [summary, setSummary] = React.useState<string | null>(null);
   const [isSummarizing, setIsSummarizing] = React.useState(false);
@@ -72,7 +64,6 @@ export const ApplicantDetailsModal: React.FC<ApplicantDetailsModalProps> = ({
       setIsSummarizing(false);
     }
   };
-
 
   if (!isOpen) return null;
 
@@ -106,9 +97,7 @@ export const ApplicantDetailsModal: React.FC<ApplicantDetailsModalProps> = ({
     return map[s] || <Clock className="w-4 h-4" />;
   };
 
-
   const handleStatusUpdate = async (newStatus: string, data?: any) => {
-
     if (applicant.status === newStatus) return;
 
     setIsUpdating(true);
@@ -381,15 +370,27 @@ export const ApplicantDetailsModal: React.FC<ApplicantDetailsModalProps> = ({
                 <FileText className="w-5 h-5 text-indigo-600" />
                 Resume
               </h3>
-              <a
-                href={applicant.resume}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white font-semibold rounded-lg hover:from-indigo-700 hover:to-indigo-800 transition-all duration-200 shadow-md hover:shadow-lg"
-              >
-                <Download className="w-5 h-5" />
-                Download Resume
-              </a>
+              {applicant.resume ? (
+                <button
+                  onClick={() => {
+                    // Optional: create a meaningful filename
+                    const fileName = applicant.fullName
+                      ? `${applicant.fullName.replace(/\s+/g, "_")}_Resume`
+                      : "Candidate_Resume";
+
+                    handleFileDownload(applicant.resume, fileName);
+                  }}
+                  disabled={!applicant.resume}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white font-semibold rounded-lg hover:from-indigo-700 hover:to-indigo-800 transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Download className="w-5 h-5" />
+                  Download Resume
+                </button>
+              ) : (
+                <div className="text-gray-500 italic text-center py-4">
+                  No resume uploaded by the candidate
+                </div>
+              )}
             </div>
 
             {/* Status Update Section */}

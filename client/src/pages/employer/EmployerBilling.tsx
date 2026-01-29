@@ -206,6 +206,7 @@ const EmployerBilling: React.FC = () => {
     },
   ];
 
+
   const isActive = user?.hasActiveSubscription;
   const currentPlan = user?.currentPlan || "free";
   return (

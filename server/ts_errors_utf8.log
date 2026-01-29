@@ -1,0 +1,78 @@
+﻿src/controllers/employer/employerAnalytics.controller.ts(7,10): error TS2305: Module '"../../interfaces/users/employer/IEmployerService"' has no exported member 'IEmployerAnalyticsService'.
+src/controllers/employer/employerSubscription.controller.ts(13,37): error TS2307: Cannot find module '../../interfaces/users/employer/IEmployerRepository' or its corresponding type declarations.
+src/controllers/interview/interviewCandidate.controller.ts(35,9): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/controllers/interview/interviewEmployer.controller.ts(35,9): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/controllers/interview/interviewEmployer.controller.ts(77,9): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/interfaces/videoCall/IVideoCallService.ts(1,28): error TS2307: Cannot find module './IVideoCall' or its corresponding type declarations.
+src/mappers/application/application.mapper.ts(23,7): error TS2322: Type 'ApplicationStatus' is not assignable to type '"rejected" | "all" | "pending" | "reviewed" | "accepted" | "interview" | "shortlisted"'.
+  Type '"hired"' is not assignable to type '"rejected" | "all" | "pending" | "reviewed" | "accepted" | "interview" | "shortlisted"'.
+src/mappers/application/application.mapper.ts(50,7): error TS2322: Type 'ApplicationStatus' is not assignable to type '"rejected" | "all" | "pending" | "reviewed" | "accepted" | "interview" | "shortlisted"'.
+  Type '"hired"' is not assignable to type '"rejected" | "all" | "pending" | "reviewed" | "accepted" | "interview" | "shortlisted"'.
+src/mappers/notification/notification.mapper.ts(1,37): error TS2307: Cannot find module '../../interfaces/notifications/INotificationMapper' or its corresponding type declarations.
+src/mappers/notification/notification.mapper.ts(2,31): error TS2307: Cannot find module '../../interfaces/notifications/INotification' or its corresponding type declarations.
+src/repositories/application/application.repository.ts(576,7): error TS2561: Object literal may only specify known properties, but 'candidateId' does not exist in type 'IEmployerApplicationResponse'. Did you mean to write 'candidate'?
+src/repositories/application/application.repository.ts(576,24): error TS2551: Property 'candidateId' does not exist on type 'EmployerApplicationAggResult'. Did you mean 'candidate'?
+src/routes/employer/employer.routes.ts(102,3): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Argument of type '(req: AuthenticatedRequest, res: Response, next: NextFunction) => Promise<void | Response<any, Record<string, any>>>' is not assignable to parameter of type 'RequestHandlerParams<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'.
+      Type '(req: AuthenticatedRequest, res: Response, next: NextFunction) => Promise<void | Response<any, Record<string, any>>>' is not assignable to type 'RequestHandler<ParamsDictionary, any, any, ParsedQs, Record<string, any>>'.
+        Types of parameters 'req' and 'req' are incompatible.
+          Type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>' is not assignable to type 'AuthenticatedRequest' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+            Type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>' is not assignable to type '{ user?: { _id: string; id: string; role: USER_ROLES; email: string; blocked?: boolean; subscription?: { active: boolean; plan: "free" | "professional" | "enterprise"; status: string; currentPeriodEnd?: Date | null; razorpaySubscriptionId?: string | null; trialEndsAt?: Date | null; }; }; maskApplications?: boolean; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+              Types of property 'user' are incompatible.
+                Type 'User' is not assignable to type '{ _id: string; id: string; role: USER_ROLES; email: string; blocked?: boolean; subscription?: { active: boolean; plan: "free" | "professional" | "enterprise"; status: string; currentPeriodEnd?: Date | null; razorpaySubscriptionId?: string | null; trialEndsAt?: Date | null; }; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+                  Property '_id' is optional in type 'User' but required in type '{ _id: string; id: string; role: USER_ROLES; email: string; blocked?: boolean; subscription?: { active: boolean; plan: "free" | "professional" | "enterprise"; status: string; currentPeriodEnd?: Date | null; razorpaySubscriptionId?: string | null; trialEndsAt?: Date | null; }; }'.
+src/routes/employer/employer.routes.ts(110,3): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Argument of type '(req: FullyAuthenticatedRequest, res: Response<any, Record<string, any>>, next: NextFunction) => Promise<void>' is not assignable to parameter of type 'RequestHandlerParams<{ id: string; }, any, any, ParsedQs, Record<string, any>>'.
+      Type '(req: FullyAuthenticatedRequest, res: Response<any, Record<string, any>>, next: NextFunction) => Promise<void>' is not assignable to type 'RequestHandler<{ id: string; }, any, any, ParsedQs, Record<string, any>>'.
+        Types of parameters 'req' and 'req' are incompatible.
+          Type 'Request<{ id: string; }, any, any, ParsedQs, Record<string, any>>' is not assignable to type 'FullyAuthenticatedRequest' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+            Type 'Request<{ id: string; }, any, any, ParsedQs, Record<string, any>>' is not assignable to type '{ user: IAuthenticatedUser; }'.
+              Types of property 'user' are incompatible.
+                Type 'User' is not assignable to type 'IAuthenticatedUser' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+                  Property 'id' is optional in type 'User' but required in type 'IAuthenticatedUser'.
+src/routes/employer/employer.routes.ts(121,3): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Argument of type '(req: FullyAuthenticatedRequest, res: Response<any, Record<string, any>>, next: NextFunction) => Promise<void>' is not assignable to parameter of type 'RequestHandlerParams<{ id: string; }, any, any, ParsedQs, Record<string, any>>'.
+      Type '(req: FullyAuthenticatedRequest, res: Response<any, Record<string, any>>, next: NextFunction) => Promise<void>' is not assignable to type 'RequestHandler<{ id: string; }, any, any, ParsedQs, Record<string, any>>'.
+        Types of parameters 'req' and 'req' are incompatible.
+          Type 'Request<{ id: string; }, any, any, ParsedQs, Record<string, any>>' is not assignable to type 'FullyAuthenticatedRequest' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+            Type 'Request<{ id: string; }, any, any, ParsedQs, Record<string, any>>' is not assignable to type '{ user: IAuthenticatedUser; }'.
+              Types of property 'user' are incompatible.
+                Type 'User' is not assignable to type 'IAuthenticatedUser' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+                  Property 'id' is optional in type 'User' but required in type 'IAuthenticatedUser'.
+src/routes/employer/employer.routes.ts(128,3): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Argument of type '(req: FullyAuthenticatedRequest, res: Response<any, Record<string, any>>, next: NextFunction) => Promise<void>' is not assignable to parameter of type 'RequestHandlerParams<{ id: string; }, any, any, ParsedQs, Record<string, any>>'.
+      Type '(req: FullyAuthenticatedRequest, res: Response<any, Record<string, any>>, next: NextFunction) => Promise<void>' is not assignable to type 'RequestHandler<{ id: string; }, any, any, ParsedQs, Record<string, any>>'.
+        Types of parameters 'req' and 'req' are incompatible.
+          Type 'Request<{ id: string; }, any, any, ParsedQs, Record<string, any>>' is not assignable to type 'FullyAuthenticatedRequest' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+            Type 'Request<{ id: string; }, any, any, ParsedQs, Record<string, any>>' is not assignable to type '{ user: IAuthenticatedUser; }'.
+              Types of property 'user' are incompatible.
+                Type 'User' is not assignable to type 'IAuthenticatedUser' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+                  Property 'id' is optional in type 'User' but required in type 'IAuthenticatedUser'.
+src/routes/employer/employer.routes.ts(137,3): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Argument of type '(req: FullyAuthenticatedRequest, res: Response<any, Record<string, any>>, next: NextFunction) => Promise<void>' is not assignable to parameter of type 'RequestHandlerParams<{ id: string; }, any, any, ParsedQs, Record<string, any>>'.
+      Type '(req: FullyAuthenticatedRequest, res: Response<any, Record<string, any>>, next: NextFunction) => Promise<void>' is not assignable to type 'RequestHandler<{ id: string; }, any, any, ParsedQs, Record<string, any>>'.
+        Types of parameters 'req' and 'req' are incompatible.
+          Type 'Request<{ id: string; }, any, any, ParsedQs, Record<string, any>>' is not assignable to type 'FullyAuthenticatedRequest' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+            Type 'Request<{ id: string; }, any, any, ParsedQs, Record<string, any>>' is not assignable to type '{ user: IAuthenticatedUser; }'.
+              Types of property 'user' are incompatible.
+                Type 'User' is not assignable to type 'IAuthenticatedUser' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+                  Property 'id' is optional in type 'User' but required in type 'IAuthenticatedUser'.
+src/routes/feedback/feedback.routes.ts(2,36): error TS2307: Cannot find module '../../controllers/feedback/feedback.controller' or its corresponding type declarations.
+src/routes/feedback/feedback.routes.ts(4,36): error TS2307: Cannot find module '../../repositories/feedback/feedback.repository' or its corresponding type declarations.
+src/routes/feedback/feedback.routes.ts(5,32): error TS2307: Cannot find module '../../mappers/feedback/feedback.mapper' or its corresponding type declarations.
+src/routes/feedback/feedback.routes.ts(13,25): error TS2554: Expected 3 arguments, but got 2.
+src/services/feedback/feedback.service.ts(1,34): error TS2307: Cannot find module '../../interfaces/feedback/IFeedbackService' or its corresponding type declarations.
+src/services/feedback/feedback.service.ts(2,37): error TS2307: Cannot find module '../../interfaces/feedback/IFeedbackRepository' or its corresponding type declarations.
+src/services/feedback/feedback.service.ts(3,33): error TS2307: Cannot find module '../../interfaces/feedback/IFeedbackMapper' or its corresponding type declarations.
+src/services/feedback/feedback.service.ts(9,8): error TS2307: Cannot find module '../../interfaces/feedback/IFeedback' or its corresponding type declarations.
+src/services/notification/NotificationAdapter.ts(10,36): error TS2307: Cannot find module '../../socket/notification.socket' or its corresponding type declarations.
+src/services/notification/NotificationAdapter.ts(11,37): error TS2307: Cannot find module './notification.service' or its corresponding type declarations.
+src/services/notification/NotificationAdapter.ts(12,40): error TS2307: Cannot find module '../../repositories/notification/notification.repository' or its corresponding type declarations.

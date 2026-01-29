@@ -61,7 +61,7 @@ import { useAppDispatch, useAppSelector } from "./hooks/hooks";
 import { getUserChats } from "./thunks/chat.thunks";
 import { useEffect } from "react";
 import MeetingJoinPage from "./pages/common/MeetingJoinPage";
-
+import OffersPage from "./pages/candidate/OffersPage";
 
 const App: React.FC = () => {
   useAuthInitialiazer();
@@ -187,6 +187,10 @@ const App: React.FC = () => {
                 element={<ApplicationDetails />}
               />
               <Route
+                path={FRONTEND_ROUTES.CANDIDATEOFFERS}
+                element={<OffersPage />}
+              />
+              <Route
                 path={FRONTEND_ROUTES.CANDIDATEINTERVIEW}
                 element={<CandidateInterviews />}
               />
@@ -240,7 +244,6 @@ const App: React.FC = () => {
                 element={<EmployerInterview />}
               />
               <Route
-
                 path={FRONTEND_ROUTES.EMPLOYERINTERVIEWDETAIL}
                 element={<EmployerInterviewDetail />}
               />

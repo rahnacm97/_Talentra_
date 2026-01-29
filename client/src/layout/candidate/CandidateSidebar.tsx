@@ -10,6 +10,7 @@ import {
   Calendar,
   MessageCircle,
   MessageSquareQuote,
+  Mail,
 } from "lucide-react";
 import { useAppDispatch } from "../../hooks/hooks";
 import { logout } from "../../features/auth/authSlice";
@@ -60,6 +61,12 @@ const CandidateSidebar: React.FC<SidebarProps> = ({
       path: FRONTEND_ROUTES.CANDIDATEINTERVIEW,
     },
     {
+      id: "offers",
+      label: "My offers",
+      icon: Mail,
+      path: FRONTEND_ROUTES.CANDIDATEOFFERS,
+    },
+    {
       id: "saved",
       label: "Saved Jobs",
       icon: Heart,
@@ -79,14 +86,13 @@ const CandidateSidebar: React.FC<SidebarProps> = ({
     },
   ];
 
-  //const isActive = (path: string) => location.pathname === path;
-
   const isActive = (itemPath: string) => {
     const current = location.pathname;
 
     if (
       itemPath === FRONTEND_ROUTES.CANDIDATEAPPLICATIONS ||
-      itemPath === FRONTEND_ROUTES.CANDIDATEINTERVIEW
+      itemPath === FRONTEND_ROUTES.CANDIDATEINTERVIEW ||
+      itemPath === FRONTEND_ROUTES.CANDIDATEOFFERS
     ) {
       return (
         current === itemPath ||

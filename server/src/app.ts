@@ -14,6 +14,7 @@ import aiRoutes from "./routes/ai/ai.routes";
 import feedbackRoutes from "./routes/feedback/feedback.routes";
 import { interviewRoutes } from "./routes/interview/interview.routes";
 import meetingRoutes from "./routes/meeting.routes";
+import offerRoutes from "./routes/offer/offer.routes";
 import { errorHandler } from "./middlewares/errorHandler";
 import dotenv from "dotenv";
 import http from "http";
@@ -73,7 +74,7 @@ app.use("/api/ai", aiRoutes);
 app.use("/api/feedback", feedbackRoutes);
 app.use("/api/interviews", interviewRoutes);
 app.use("/api/meeting", meetingRoutes);
-
+app.use("/api/offers", offerRoutes);
 
 // Error handler
 app.use(errorHandler);

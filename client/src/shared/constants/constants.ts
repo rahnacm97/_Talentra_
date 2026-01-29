@@ -106,6 +106,9 @@ export const API_ROUTES = {
     ADMIN: "/feedback/admin",
     ADMIN_BY_ID: (id: string) => `/feedback/admin/${id}`,
   },
+  OFFERS: {
+    MY_OFFERS: "/offers/my-offers",
+  },
 } as const;
 
 export const FRONTEND_ROUTES = {
@@ -138,6 +141,8 @@ export const FRONTEND_ROUTES = {
   CANDIDATESETTINGS: "/settings",
   CANDIDATEINTERVIEW: "/interview",
   CANDIDATEINTERVIEWDETAIL: "/interview/:id",
+  CANDIDATEOFFERS: "/offers",
+  CANDIDATEOFFERDETAIL: "/offers/:id",
   ADMINEMPLOYERS: "/employers",
   ADMINCANDIDATES: "/candidates",
   ADMINCANDIDATEVIEW: "/candidates/view/:id",

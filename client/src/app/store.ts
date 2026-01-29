@@ -13,6 +13,7 @@ import subscriptionReducer from "../features/subscription/subscriptionSlice";
 import notificationReducer from "../features/notification/notificationSlice";
 import chatReducer from "../features/chat/chatSlice";
 import feedbackReducer from "../features/feedback/feedbackSlice";
+import offerReducer from "../features/offer/offerSlice";
 
 
 //Whole app state store
@@ -32,6 +33,7 @@ export const store = configureStore({
     notifications: notificationReducer,
     chat: chatReducer,
     feedback: feedbackReducer,
+    offer: offerReducer,
   },
 });
 

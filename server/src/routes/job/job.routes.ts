@@ -41,9 +41,6 @@ const candidateController = new CandidateJobController(candidateService);
 
 const router = Router();
 
-
-router.get("/", candidateController.getPublicJobs.bind(candidateController));
-
 router.get(
   "/",
   optionalAuth,

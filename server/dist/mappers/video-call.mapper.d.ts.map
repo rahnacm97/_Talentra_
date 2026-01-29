@@ -1,0 +1,1 @@
+{"version":3,"file":"video-call.mapper.d.ts","sourceRoot":"","sources":["../../src/mappers/video-call.mapper.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,oBAAoB,EAAE,MAAM,wBAAwB,CAAC;AAE9D,qBAAa,eAAe;IAC1B,MAAM,CAAC,sBAAsB,CAAC,SAAS,EAAE,GAAG,GAAG,oBAAoB;CAwBpE"}

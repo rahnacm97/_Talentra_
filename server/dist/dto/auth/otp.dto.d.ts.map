@@ -1,0 +1,1 @@
+{"version":3,"file":"otp.dto.d.ts","sourceRoot":"","sources":["../../../src/dto/auth/otp.dto.ts"],"names":[],"mappings":"AAAA,MAAM,WAAW,UAAU;IACzB,OAAO,EAAE,MAAM,CAAC;CACjB;AAED,MAAM,WAAW,YAAY;IAC3B,OAAO,EAAE,OAAO,CAAC;IACjB,OAAO,EAAE,MAAM,CAAC;CACjB"}

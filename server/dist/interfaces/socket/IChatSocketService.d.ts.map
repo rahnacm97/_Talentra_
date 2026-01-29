@@ -1,0 +1,1 @@
+{"version":3,"file":"IChatSocketService.d.ts","sourceRoot":"","sources":["../../../src/interfaces/socket/IChatSocketService.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,kBAAkB,EAAE,MAAM,yBAAyB,CAAC;AAE7D,MAAM,WAAW,kBAAkB;IACjC,iBAAiB,CAAC,MAAM,EAAE,MAAM,EAAE,OAAO,EAAE,kBAAkB,GAAG,IAAI,CAAC;IACrE,eAAe,CAAC,MAAM,EAAE,MAAM,EAAE,WAAW,EAAE,MAAM,GAAG,IAAI,CAAC;CAC5D"}

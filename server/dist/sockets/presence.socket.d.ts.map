@@ -1,0 +1,1 @@
+{"version":3,"file":"presence.socket.d.ts","sourceRoot":"","sources":["../../src/sockets/presence.socket.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,MAAM,IAAI,cAAc,EAAE,MAAM,EAAE,MAAM,WAAW,CAAC;AAM7D,wBAAgB,qBAAqB,CAAC,EAAE,EAAE,cAAc,EAAE,MAAM,EAAE,MAAM,QA0CvE;AAGD,wBAAgB,YAAY,CAAC,MAAM,EAAE,MAAM,GAAG,OAAO,CAEpD;AAGD,wBAAgB,cAAc,IAAI,MAAM,EAAE,CAEzC"}

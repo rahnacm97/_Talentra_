@@ -1,0 +1,1 @@
+{"version":3,"file":"Interview.model.d.ts","sourceRoot":"","sources":["../../src/models/Interview.model.ts"],"names":[],"mappings":"AAAA,OAAO,QAAQ,EAAE,EAAU,QAAQ,EAAE,MAAM,UAAU,CAAC;AACtD,OAAO,EAAE,UAAU,EAAE,MAAM,qCAAqC,CAAC;AAEjE,MAAM,WAAW,kBAAmB,SAAQ,IAAI,CAAC,UAAU,EAAE,IAAI,CAAC,EAAE,QAAQ;IAC1E,GAAG,EAAE,QAAQ,CAAC,KAAK,CAAC,QAAQ,CAAC;CAC9B;;;;;;AAoCD,wBAAgF"}

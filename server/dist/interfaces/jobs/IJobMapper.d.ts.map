@@ -1,0 +1,1 @@
+{"version":3,"file":"IJobMapper.d.ts","sourceRoot":"","sources":["../../../src/interfaces/jobs/IJobMapper.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,IAAI,EAAE,MAAM,QAAQ,CAAC;AAC9B,OAAO,EAAE,cAAc,EAAE,MAAM,uBAAuB,CAAC;AAEvD,MAAM,WAAW,UAAU;IACzB,aAAa,CAAC,GAAG,EAAE,IAAI,GAAG,cAAc,CAAC;IACzC,iBAAiB,CAAC,IAAI,EAAE,IAAI,EAAE,GAAG,cAAc,EAAE,CAAC;CACnD"}

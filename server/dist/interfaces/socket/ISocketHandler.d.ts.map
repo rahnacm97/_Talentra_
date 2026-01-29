@@ -1,0 +1,1 @@
+{"version":3,"file":"ISocketHandler.d.ts","sourceRoot":"","sources":["../../../src/interfaces/socket/ISocketHandler.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,MAAM,EAAE,MAAM,WAAW,CAAC;AAEnC,MAAM,WAAW,cAAc;IAC7B,MAAM,CAAC,MAAM,EAAE,MAAM,GAAG,IAAI,CAAC;CAC9B"}

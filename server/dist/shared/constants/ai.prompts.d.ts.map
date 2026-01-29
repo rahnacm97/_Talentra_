@@ -1,0 +1,1 @@
+{"version":3,"file":"ai.prompts.d.ts","sourceRoot":"","sources":["../../../src/shared/constants/ai.prompts.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,UAAU,EAAE,MAAM,6CAA6C,CAAC;AAEzE,eAAO,MAAM,yBAAyB,GAAI,aAAa,OAAO,CAAC,UAAU,CAAC,WAoBnE,CAAC;AAER,eAAO,MAAM,mBAAmB,GAC9B,WAAW,OAAO,CAAC,UAAU,CAAC,EAC9B,UAAU,MAAM,EAChB,gBAAgB,MAAM,WAqBjB,CAAC"}

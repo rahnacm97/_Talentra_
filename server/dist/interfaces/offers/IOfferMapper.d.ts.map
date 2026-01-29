@@ -1,0 +1,1 @@
+{"version":3,"file":"IOfferMapper.d.ts","sourceRoot":"","sources":["../../../src/interfaces/offers/IOfferMapper.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,aAAa,EAAE,MAAM,UAAU,CAAC;AACzC,OAAO,EAAE,gBAAgB,EAAE,MAAM,2BAA2B,CAAC;AAE7D,MAAM,WAAW,YAAY;IAC3B,aAAa,CAAC,KAAK,EAAE,aAAa,GAAG,gBAAgB,CAAC;IACtD,iBAAiB,CAAC,MAAM,EAAE,aAAa,EAAE,GAAG,gBAAgB,EAAE,CAAC;CAChE"}

@@ -1,0 +1,1 @@
+{"version":3,"file":"IGoogleAuthController.d.ts","sourceRoot":"","sources":["../../../src/interfaces/auth/IGoogleAuthController.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,YAAY,EAAE,OAAO,EAAE,QAAQ,EAAE,MAAM,SAAS,CAAC;AAE1D,MAAM,WAAW,qBAAqB;IACpC,YAAY,CACV,GAAG,EAAE,OAAO,EACZ,GAAG,EAAE,QAAQ,EACb,IAAI,EAAE,YAAY,GACjB,OAAO,CAAC,QAAQ,GAAG,IAAI,CAAC,CAAC;CAC7B"}

@@ -1,0 +1,1 @@
+{"version":3,"file":"IFeedbackMapper.d.ts","sourceRoot":"","sources":["../../../src/interfaces/feedback/IFeedbackMapper.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,SAAS,EAAE,mBAAmB,EAAE,MAAM,aAAa,CAAC;AAE7D,MAAM,WAAW,eAAe;IAC9B,aAAa,CAAC,QAAQ,EAAE,SAAS,GAAG,mBAAmB,CAAC;IACxD,iBAAiB,CAAC,SAAS,EAAE,SAAS,EAAE,GAAG,mBAAmB,EAAE,CAAC;CAClE"}

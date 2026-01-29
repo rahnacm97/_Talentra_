@@ -1,0 +1,1 @@
+{"version":3,"file":"IVideoCall.d.ts","sourceRoot":"","sources":["../../../src/interfaces/videoCall/IVideoCall.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,QAAQ,EAAE,MAAM,UAAU,CAAC;AAEpC,MAAM,WAAW,UAAW,SAAQ,QAAQ;IAC1C,WAAW,EAAE,MAAM,CAAC;IACpB,YAAY,EAAE,MAAM,EAAE,CAAC;IACvB,SAAS,EAAE,IAAI,CAAC;IAChB,OAAO,CAAC,EAAE,IAAI,CAAC;IACf,MAAM,EAAE,QAAQ,GAAG,OAAO,CAAC;CAC5B"}

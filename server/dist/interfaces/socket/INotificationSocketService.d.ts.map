@@ -1,0 +1,1 @@
+{"version":3,"file":"INotificationSocketService.d.ts","sourceRoot":"","sources":["../../../src/interfaces/socket/INotificationSocketService.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,uBAAuB,EAAE,MAAM,yCAAyC,CAAC;AAElF,MAAM,WAAW,0BAA0B;IACzC,UAAU,CAAC,MAAM,EAAE,MAAM,EAAE,YAAY,EAAE,uBAAuB,GAAG,IAAI,CAAC;IACxE,YAAY,CAAC,YAAY,EAAE,uBAAuB,GAAG,IAAI,CAAC;CAC3D"}

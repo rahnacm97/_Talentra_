@@ -1,0 +1,1 @@
+{"version":3,"file":"IOfferController.d.ts","sourceRoot":"","sources":["../../../src/interfaces/offers/IOfferController.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,OAAO,EAAE,QAAQ,EAAE,MAAM,SAAS,CAAC;AAE5C,MAAM,WAAW,gBAAgB;IAC/B,kBAAkB,CAAC,GAAG,EAAE,OAAO,EAAE,GAAG,EAAE,QAAQ,GAAG,OAAO,CAAC,IAAI,CAAC,CAAC;CAChE"}

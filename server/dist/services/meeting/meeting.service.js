@@ -16,6 +16,10 @@ class MeetingService {
     }
     verifyMeetingToken(token) {
         try {
+            const isObjectId = /^[0-9a-fA-F]{24}$/.test(token);
+            if (isObjectId) {
+                return { interviewId: token };
+            }
             const decoded = jsonwebtoken_1.default.verify(token, this._secret);
             return { interviewId: decoded.interviewId };
         }

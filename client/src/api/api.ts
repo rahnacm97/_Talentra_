@@ -6,7 +6,7 @@ import { FRONTEND_ROUTES } from "../shared/constants/constants";
 import { useNavigationStore } from "../utils/navigate";
 
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:5000",
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   withCredentials: true,
 });
 

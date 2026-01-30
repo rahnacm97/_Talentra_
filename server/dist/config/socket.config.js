@@ -15,7 +15,7 @@ const presence_socket_1 = require("../sockets/presence.socket");
 function initializeSocketIO(httpServer, config) {
     const io = new socket_io_1.Server(httpServer, {
         cors: {
-            origin: process.env.CLIENT_URL || 'http://localhost:5173',
+            origin: process.env.CLIENT_URL,
             methods: ['GET', 'POST'],
             credentials: true,
         },

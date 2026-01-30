@@ -9,7 +9,7 @@ import { type MeetingData } from "../../types/interview/interview.types";
 import axios from "axios";
 import { toast } from "react-toastify";
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+  import.meta.env.VITE_API_BASE_URL;
 
 const MeetingJoinPage: React.FC = () => {
   const { token } = useParams<{ token: string }>();

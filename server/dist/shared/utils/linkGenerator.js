@@ -10,9 +10,10 @@ const generateMeetingLink = (roundId) => {
     const token = jsonwebtoken_1.default.sign({ interviewId: roundId }, secret, {
         expiresIn: "24h",
     });
-    const clientUrl = process.env.CLIENT_URL || "http://localhost:5173" || "https://talentra.site";
+    console.log(process.env.CLIENT_URL, 'process.env.CLIENT_URL');
+    const clientUrl = process.env.CLIENT_URL || "https://talentra.site";
     const link = `${clientUrl}/meet/${roundId}`;
-    return { link, token };
+    return { link, token: roundId };
 };
 exports.generateMeetingLink = generateMeetingLink;
 const validateMeetingToken = (storedToken, providedToken, scheduledDate) => {

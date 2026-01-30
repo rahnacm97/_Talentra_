@@ -8,9 +8,9 @@ export const generateMeetingLink = (
     expiresIn: "24h",
   });
 
-  const clientUrl = process.env.CLIENT_URL || "http://localhost:5173";
+  const clientUrl = process.env.CLIENT_URL || "http://localhost:5173" || "https://talentra.site";
 
-  const link = `${clientUrl}/meet/${token}`;
+  const link = `${clientUrl}/meet/${roundId}`;
 
   return { link, token };
 };

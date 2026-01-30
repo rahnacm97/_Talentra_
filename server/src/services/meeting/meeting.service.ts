@@ -19,6 +19,10 @@ export class MeetingService implements IMeetingService {
 
   verifyMeetingToken(token: string): { interviewId: string } {
     try {
+      const isObjectId = /^[0-9a-fA-F]{24}$/.test(token);
+      if (isObjectId) {
+        return { interviewId: token };
+      }
       const decoded = jwt.verify(token, this._secret) as {
         interviewId: string;
       };

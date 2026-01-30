@@ -131,7 +131,7 @@ const RoundCard: React.FC<Props> = ({ round, isEmployer = true, onUpdate }) => {
 
   const handleReschedule = async (date: string, time: string) => {
     try {
-      const dateTime = `${date}T${time}`;
+      const dateTime = new Date(`${date}T${time}`).toISOString();
       await dispatch(
         rescheduleInterviewRound({ roundId: round.id, newDate: dateTime }),
       ).unwrap();

@@ -54,7 +54,7 @@ const AddRoundModal: React.FC<Props> = ({
           roundNumber: nextRoundNumber,
           roundType: formData.roundType,
           customRoundName: formData.customRoundName || undefined,
-          scheduledDate: formData.scheduledDate,
+          scheduledDate: new Date(formData.scheduledDate).toISOString(),
           duration: formData.duration,
           notes: formData.notes || undefined,
         }),

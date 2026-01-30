@@ -7,7 +7,10 @@ export const initializeSocket = (token: string): Socket => {
     return socket;
   }
 
-  socket = io(import.meta.env.VITE_SOCKET_URL || "http://localhost:5000", {
+  const socketUrl = import.meta.env.VITE_SOCKET_URL || "http://localhost:5000";
+  console.log("Initializing socket connection to:", socketUrl);
+
+  socket = io(socketUrl, {
     auth: { token },
     transports: ["websocket", "polling"],
     reconnection: true,

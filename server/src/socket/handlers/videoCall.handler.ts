@@ -50,9 +50,11 @@ export class VideoCallHandler implements ISocketHandler {
     socket.join(roomId);
 
     if (isHost || !this.roomHosts.has(roomId)) {
+      console.log(`Setting host for room ${roomId}: ${socket.id}`);
       this.roomHosts.set(roomId, socket.id);
     }
 
+    console.log(`User ${userId} joined room ${roomId} (Host: ${isHost})`);
     socket.to(roomId).emit("user_joined", userId);
   }
 
@@ -60,15 +62,20 @@ export class VideoCallHandler implements ISocketHandler {
     socket: Socket,
     data: { roomId: string; userId: string; name: string; userType: string },
   ) {
+    console.log(`Request to join room ${data.roomId} from ${data.userId} (${data.name})`);
     const hostSocketId = this.roomHosts.get(data.roomId);
+    console.log(`Host socket ID for room ${data.roomId}: ${hostSocketId}`);
 
     if (hostSocketId) {
+      console.log(`Emitting participant_waiting to host ${hostSocketId}`);
       socket.to(hostSocketId).emit("participant_waiting", {
         socketId: socket.id,
         userId: data.userId,
         name: data.name,
         userType: data.userType,
       });
+    } else {
+      console.log(`No host found for room ${data.roomId}`);
     }
   }
 

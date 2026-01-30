@@ -31,7 +31,7 @@ dotenv.config();
 //Socket.io setup
 const io = new Server(server, {
   cors: {
-    origin: [process.env.FRONTEND_URL!, "http://localhost:5173"],
+    origin: [process.env.FRONTEND_URL!, "http://localhost:5173", "https://talentra.site"],
     credentials: true,
   },
 });
@@ -50,7 +50,7 @@ SocketManager.initialize(io, [chatHandler, videoCallHandler]);
 app.use(cookieParser());
 app.use(
   cors({
-    origin: [process.env.FRONTEND_URL!, "http://localhost:5173","https://talentra.site"],
+    origin: [process.env.FRONTEND_URL!, "http://localhost:5174","https://talentra.site"],
 
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],

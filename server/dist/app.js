@@ -35,7 +35,7 @@ dotenv_1.default.config();
 //Socket.io setup
 const io = new socket_io_1.Server(server, {
     cors: {
-        origin: [process.env.FRONTEND_URL, "http://localhost:5173"],
+        origin: [process.env.FRONTEND_URL, "http://localhost:5173", "https://talentra.site"],
         credentials: true,
     },
 });
@@ -49,7 +49,7 @@ socket_manager_1.SocketManager.initialize(io, [handler_1.chatHandler, handler_1.
 //Application level middlewares
 app.use((0, cookie_parser_1.default)());
 app.use((0, cors_1.default)({
-    origin: [process.env.FRONTEND_URL, "http://localhost:5173", "https://talentra.site"],
+    origin: [process.env.FRONTEND_URL, "http://localhost:5174", "https://talentra.site"],
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],

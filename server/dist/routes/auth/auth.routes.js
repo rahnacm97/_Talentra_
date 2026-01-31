@@ -55,7 +55,6 @@ router.get("/google", (req, res, next) => {
         state: stateParam,
     })(req, res, next);
 });
-router.get("/google/callback", passport_1.default.authenticate("google", { session: false }), googleAuthController.loginSuccess);
 router.get("/google/callback", (req, res, next) => {
     passport_1.default.authenticate("google", { session: false }, (err, user) => {
         if (err) {

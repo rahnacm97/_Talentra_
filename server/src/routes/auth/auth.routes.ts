@@ -76,12 +76,6 @@ router.get("/google", (req, res, next) => {
   })(req, res, next);
 });
 
-router.get(
-  "/google/callback",
-  passport.authenticate("google", { session: false }),
-  googleAuthController.loginSuccess,
-);
-
 router.get("/google/callback", (req, res, next) => {
   passport.authenticate("google", { session: false }, (err, user) => {
     if (err) {

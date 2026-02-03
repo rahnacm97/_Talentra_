@@ -7,7 +7,6 @@ import { verifyAuth } from "../../middlewares/authMiddleware";
 import { USER_ROLES } from "../../shared/enums/enums";
 import { NotificationAdapter } from "../../services/notification/NotificationAdapter";
 
-
 const router = Router();
 //Dependencies
 const feedbackRepo = new FeedbackRepository();

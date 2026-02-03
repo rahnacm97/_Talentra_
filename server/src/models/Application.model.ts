@@ -39,7 +39,6 @@ const ApplicationSchema = new Schema<IApplicationDocument>(
     rejectionReason: { type: String },
     rejectionFeedback: { type: String },
     rejectionFeedbackShared: { type: Boolean, default: false },
-
   },
   {
     timestamps: true,

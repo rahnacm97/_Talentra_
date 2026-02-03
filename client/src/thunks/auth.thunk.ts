@@ -133,7 +133,7 @@ export const verifyOtp = createAsyncThunk<
 
 export const serverLogout = createAsyncThunk<
   void,
-  { role?: "Candidate" | "Employer" | "Admin" | "Guest"},
+  { role?: "Candidate" | "Employer" | "Admin" | "Guest" },
   { rejectValue: string }
 >("auth/serverLogout", async ({ role }, { rejectWithValue }) => {
   try {

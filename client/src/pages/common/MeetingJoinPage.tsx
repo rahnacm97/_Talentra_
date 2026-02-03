@@ -8,8 +8,7 @@ import { Loader2, AlertCircle, Video, User } from "lucide-react";
 import { type MeetingData } from "../../types/interview/interview.types";
 import axios from "axios";
 import { toast } from "react-toastify";
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const MeetingJoinPage: React.FC = () => {
   const { token } = useParams<{ token: string }>();

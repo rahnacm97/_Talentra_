@@ -1,4 +1,3 @@
-
 import {
   IStatusHandler,
   StatusHandlerContext,
@@ -11,7 +10,6 @@ import {
   sendInterviewScheduledEmail,
   sendRejectionEmail,
 } from "../../../shared/utils/email";
-
 
 export class ReviewedHandler implements IStatusHandler {
   async handle(context: StatusHandlerContext): Promise<void> {
@@ -36,7 +34,6 @@ export class ShortlistedHandler implements IStatusHandler {
           context.application.candidateId,
           context.application.jobId,
           context.application.id,
-
         );
         logger.info("Auto-initiated chat for shortlisted candidate", {
           applicationId: context.application.id,
@@ -51,7 +48,6 @@ export class ShortlistedHandler implements IStatusHandler {
 
 export class InterviewHandler implements IStatusHandler {
   async handle(context: StatusHandlerContext): Promise<void> {
-
     const updateData: IApplicationUpdate = { status: "interview" };
 
     if (context.data.interviewDate) {
@@ -74,7 +70,6 @@ export class InterviewHandler implements IStatusHandler {
         logger.info("Interview created for application", {
           applicationId: context.application.id,
         });
-
       } catch (e) {
         logger.error("Failed to create interview", e);
       }
@@ -98,7 +93,6 @@ export class InterviewHandler implements IStatusHandler {
 
 export class HiredHandler implements IStatusHandler {
   async handle(context: StatusHandlerContext): Promise<void> {
-
     // Check if all interview rounds are complete (if multi-round interviews exist)
     if (context.interviewRoundService) {
       try {
@@ -161,7 +155,6 @@ export class HiredHandler implements IStatusHandler {
 
 export class RejectedHandler implements IStatusHandler {
   async handle(context: StatusHandlerContext): Promise<void> {
-
     // Require rejection reason
     if (!context.data.rejectionReason) {
       throw new Error(
@@ -200,14 +193,12 @@ export class RejectedHandler implements IStatusHandler {
 }
 
 export class DefaultStatusHandler implements IStatusHandler {
-
   async handle(context: StatusHandlerContext): Promise<void> {
     await context.appRepo.updateOne(context.application.id, {
       status: context.data.status as IApplication["status"],
     });
   }
 }
-
 
 export class StatusHandlerRegistry {
   private static handlers: Record<string, IStatusHandler> = {

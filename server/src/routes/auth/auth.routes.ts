@@ -98,7 +98,6 @@ router.get("/google/callback", (req, res, next) => {
   })(req, res, next);
 });
 
-
 router.get("/me", authController.getMe);
 router.post("/signup", authController.signup);
 router.post("/login", authController.login);

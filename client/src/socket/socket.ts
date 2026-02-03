@@ -10,9 +10,11 @@ export const initializeSocket = (token: string): Socket => {
   const socketUrl = import.meta.env.VITE_SOCKET_URL;
   console.log("Initializing socket connection to:", socketUrl);
 
-  // If the URL contains a subpath (like /api), we need to extract the base and set the path option
   const urlStore = new URL(socketUrl || window.location.origin);
-  const path = urlStore.pathname === "/" ? "/socket.io" : `${urlStore.pathname.replace(/\/$/, "")}/socket.io`;
+  const path =
+    urlStore.pathname === "/"
+      ? "/socket.io"
+      : `${urlStore.pathname.replace(/\/$/, "")}/socket.io`;
 
   socket = io(urlStore.origin, {
     path: path,

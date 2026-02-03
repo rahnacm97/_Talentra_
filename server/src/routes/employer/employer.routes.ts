@@ -59,7 +59,6 @@ const chatMapper = new ChatMapper();
 const chatSocket = ChatSocket.getInstance();
 const notificationSocket = NotificationSocket.getInstance();
 
-
 const chatService = new ChatService(
   chatRepository,
   applicationRepo,
@@ -86,7 +85,6 @@ const analyticsService = new EmployerAnalyticsService(
   mapper,
 );
 
-
 //Controller
 
 const employerApplicationsController = new EmployerApplicationsController(
@@ -101,7 +99,6 @@ router.get(
   verifyAuth([USER_ROLES.EMPLOYER]),
   requireActiveSubscription,
   analyticsController.getEmployerAnalytics.bind(analyticsController),
-
 );
 
 router.get(

@@ -19,14 +19,12 @@ import { useNavigate } from "react-router-dom";
 import PageHeader from "../../components/common/auth/PageHeader";
 import Pagination from "../../components/common/pagination/Pagination";
 
-
 const CandidateInterviews: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { interviews, loading, pagination } = useAppSelector(
     (s) => s.interview,
   );
-  
 
   const [activeTab, setActiveTab] = useState<"all" | "scheduled" | "completed">(
     "all",
@@ -194,7 +192,6 @@ const CandidateInterviews: React.FC = () => {
                       </div>
                     </div>
 
-
                     <div className="flex flex-wrap items-center gap-8">
                       <div className="space-y-1">
                         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">
@@ -298,7 +295,6 @@ const CandidateInterviews: React.FC = () => {
                             }
                           })()}
                       </div>
-
                     </div>
                   </div>
                 </div>

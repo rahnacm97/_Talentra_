@@ -4,7 +4,6 @@ export interface SignalData {
 
   targetUserId?: string;
   fromUserId?: string;
-
 }
 
 export interface OfferPayload extends SignalData {
@@ -21,5 +20,4 @@ export interface CandidatePayload {
 
   targetUserId?: string;
   fromUserId?: string;
-
 }

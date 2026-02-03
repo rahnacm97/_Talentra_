@@ -8,9 +8,7 @@ import {
 import { ISocketHandler } from "../../interfaces/socket/ISocketHandler";
 
 export class VideoCallHandler implements ISocketHandler {
-
   private roomHosts: Map<string, string> = new Map();
-
 
   constructor(private _videoCallService: IVideoCallService) {}
 
@@ -19,7 +17,6 @@ export class VideoCallHandler implements ISocketHandler {
   }
 
   private initializeEvents(socket: Socket) {
-
     socket.on("join_call", (data) => this.handleJoinCall(socket, data));
     socket.on("request_to_join", (data) =>
       this.handleRequestToJoin(socket, data),
@@ -37,7 +34,6 @@ export class VideoCallHandler implements ISocketHandler {
     socket.on("end_call", (data) => this.handleEndCall(socket, data));
 
     socket.on("group_message", (data) => this.handleGroupMessage(socket, data));
-
   }
 
   private async handleJoinCall(
@@ -62,7 +58,9 @@ export class VideoCallHandler implements ISocketHandler {
     socket: Socket,
     data: { roomId: string; userId: string; name: string; userType: string },
   ) {
-    console.log(`Request to join room ${data.roomId} from ${data.userId} (${data.name})`);
+    console.log(
+      `Request to join room ${data.roomId} from ${data.userId} (${data.name})`,
+    );
     const hostSocketId = this.roomHosts.get(data.roomId);
     console.log(`Host socket ID for room ${data.roomId}: ${hostSocketId}`);
 
@@ -128,7 +126,6 @@ export class VideoCallHandler implements ISocketHandler {
     } else {
       socket.to(data.roomId).emit("ice_candidate", targetedData);
     }
-
   }
 
   private async handleEndCall(
@@ -139,11 +136,9 @@ export class VideoCallHandler implements ISocketHandler {
     socket.to(roomId).emit("call_ended", { userId });
     socket.leave(roomId);
 
-
     if (this.roomHosts.get(roomId) === socket.id) {
       this.roomHosts.delete(roomId);
     }
-
 
     try {
       await this._videoCallService.endCall(roomId);
@@ -151,7 +146,6 @@ export class VideoCallHandler implements ISocketHandler {
       console.error("Error logging call end:", error);
     }
   }
-
 
   private handleGroupMessage(
     socket: Socket,
@@ -163,5 +157,4 @@ export class VideoCallHandler implements ISocketHandler {
       timestamp: new Date(),
     });
   }
-
 }

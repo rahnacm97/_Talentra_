@@ -19,7 +19,6 @@ export class FeedbackService implements IFeedbackService {
     private readonly _feedbackMapper: IFeedbackMapper,
 
     private readonly _notificationService: INotificationService,
-
   ) {}
 
   //Feedback submission
@@ -41,7 +40,6 @@ export class FeedbackService implements IFeedbackService {
     // Notify Admin
 
     await this._notificationService.notifyAdminNewFeedback(
-
       data.userId,
       data.userName,
     );

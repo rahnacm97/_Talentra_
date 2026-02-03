@@ -110,7 +110,6 @@ export const sendInterviewScheduledEmail = async (data: InterviewEmailData) => {
   }
 };
 
-
 export const sendHiredEmail = async (data: {
   to: string;
   candidateName: string;
@@ -399,4 +398,3 @@ export const sendInterviewCancelledEmail = async (
     console.error("Failed to send cancellation email:", error);
   }
 };
-

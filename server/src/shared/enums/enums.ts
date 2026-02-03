@@ -73,7 +73,6 @@ export enum ERROR_MESSAGES {
   ROUND_ID_TOKEN_REQUIRED = "Round ID and token are required",
   INVALID_MEETLINK = "Invalid or expired meeting link",
   VALIDATE_ACCESS = "Failed to validate access",
-
 }
 
 export enum SUCCESS_MESSAGES {
@@ -134,7 +133,6 @@ export enum SUCCESS_MESSAGES {
   ROUND_RESCHEDULE = "Round rescheduled successfully",
   ROUND_CANCEL = "Round cancelled successfully",
   VALIDATE_ACCESS = "Access validated successfully",
-
 }
 
 export enum NotificationType {

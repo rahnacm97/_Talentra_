@@ -85,7 +85,6 @@ export function hasEmailVerification(
   return user && "emailVerified" in user;
 }
 
-
 export type FullyAuthenticatedRequest = Request & {
   user: {
     id: string;
@@ -105,4 +104,3 @@ export type FullyAuthenticatedRequest = Request & {
   };
   maskApplications?: boolean;
 };
-

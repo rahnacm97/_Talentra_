@@ -51,7 +51,6 @@ const employerInterviewController = new EmployerInterviewController(
   interviewService,
 );
 
-
 router.get(
   "/candidate",
 
@@ -65,9 +64,6 @@ router.get(
   verifyAuth([USER_ROLES.EMPLOYER]),
   employerInterviewController.getInterviews.bind(employerInterviewController),
 );
-
-
-
 
 router.patch(
   "/employer/:id/status",
@@ -153,4 +149,3 @@ router.patch(
 );
 
 export { router as interviewRoutes };
-

@@ -1,4 +1,3 @@
-
 import { IAdminCandidateService } from "../../interfaces/users/admin/IAdminCandidateService";
 import {
   BlockCandidateDTO,
@@ -10,7 +9,6 @@ import { ICandidateRepo } from "../../interfaces/users/candidate/ICandidateRepos
 import { CandidateFilterProcessor } from "./filters/candidate/CandidateFilterProcessor";
 import { CandidateSearchFilter } from "./filters/candidate/CandidateSearchFilter";
 import { CandidateStatusFilter } from "./filters/candidate/CandidateStatusFilter";
-
 
 export class AdminCandidateService implements IAdminCandidateService {
   constructor(
@@ -51,22 +49,17 @@ export class AdminCandidateService implements IAdminCandidateService {
     );
     if (!candidate) throw new Error("Candidate not found");
 
-
     if (candidateEntity.block) {
       this._notificationService.emitUserBlocked(
-
         candidateEntity.candidateId,
         "Candidate",
       );
     } else {
-
       this._notificationService.emitUserUnblocked(
-
         candidateEntity.candidateId,
         "Candidate",
       );
     }
-
 
     return this._candidateMapper.toCandidateResponseDTO(candidate);
   }

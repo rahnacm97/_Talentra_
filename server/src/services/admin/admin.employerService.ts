@@ -1,4 +1,3 @@
-
 import { IAdminEmployerService } from "../../interfaces/users/admin/IAdminEmployerService";
 import {
   BlockEmployerDTO,
@@ -15,7 +14,6 @@ import { EmployerFilterProcessor } from "./filters/employer/EmployerFilterProces
 import { EmployerSearchFilter } from "./filters/employer/EmployerSearchFilter";
 import { EmployerStatusFilter } from "./filters/employer/EmployerStatusFilter";
 import { EmployerVerificationFilter } from "./filters/employer/EmployerVerificationFilter";
-
 
 export class AdminEmployerService implements IAdminEmployerService {
   constructor(
@@ -57,7 +55,6 @@ export class AdminEmployerService implements IAdminEmployerService {
     );
     if (!employer) throw new Error("Employer not found");
 
-
     if (employerEntity.block) {
       this._notificationService.emitUserBlocked(
         employerEntity.employerId,
@@ -65,12 +62,10 @@ export class AdminEmployerService implements IAdminEmployerService {
       );
     } else {
       this._notificationService.emitUserUnblocked(
-
         employerEntity.employerId,
         "Employer",
       );
     }
-
 
     return this._employerMapper.toEmployerResponseDTO(employer);
   }
@@ -101,7 +96,6 @@ export class AdminEmployerService implements IAdminEmployerService {
     if (!updated) throw new Error("Employer not found");
 
     const dto = this._employerMapper.toEmployerResponseDTO(updated);
-
 
     // Notify employer of verification approval
     await this._notificationService.notifyEmployerVerificationApproved(id);

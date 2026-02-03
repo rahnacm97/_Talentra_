@@ -28,13 +28,8 @@ import { logger } from "../../shared/utils/logger";
 import { IJobRepository } from "../../interfaces/jobs/IJobRepository";
 import { uploadResumeFile } from "../../shared/utils/fileUpload";
 import { ICandidateService } from "../../interfaces/users/candidate/ICandidateService";
-
 import { IApplicationQuery } from "../../interfaces/applications/IApplication";
-
-import { sendInterviewScheduledEmail } from "../../shared/utils/email";
-
 import { StatusHandlerRegistry } from "./handlers/StatusHandlerRegistry";
-
 
 export class CandidateApplicationService
   implements ICandidateApplicationService
@@ -104,17 +99,14 @@ export class CandidateApplicationService
 
     await this._jobRepo.incrementApplicants(jobId);
 
-
     // Notify employer of new application
     await this._notificationService.notifyEmployerNewApplication(
-
       job.employerId,
       payload.fullName,
       job.title,
       jobId,
       application.id,
     );
-
 
     logger.info("Application submitted", {
       applicationId: application.id,
@@ -252,37 +244,6 @@ export class EmployerApplicationService implements IEmployerApplicationService {
         ERROR_MESSAGES.APPLICATION_NOT_FOUND,
       );
 
-// <<<<<<< HEAD
-//     const handler = StatusHandlerRegistry.getHandler(data.status);
-//     await handler.handle({
-//       application: app,
-//       employerId,
-//       data,
-//       appRepo: this._appRepo,
-//       interviewService: this._interviewService,
-//       chatService: this._chatService,
-//     });
-// =======
-// <<<<<<< Updated upstream
-//     const updateData: IApplicationUpdate = { status: data.status };
-// >>>>>>> a4015c2 (Implement interview feature with rounds, feedback, and video flow)
-
-//     // Notifying candidate of status change
-//     const notificationHelper = NotificationHelper.getInstance();
-//     await notificationHelper.notifyCandidateApplicationStatusChange(
-//       app.candidateId,
-//       data.status,
-//       app.job.title,
-//       app.jobId,
-//       applicationId,
-//       app.employer.name,
-//     );
-
-//     const apps = await this._appRepo.findByEmployerIdWithJob(employerId, {
-//       limit: 20,
-//     });
-//     const freshData = apps.find((a) => a.id === applicationId);
-// =======
     const handler = StatusHandlerRegistry.getHandler(data.status);
     await handler.handle({
       application: app,
@@ -293,7 +254,6 @@ export class EmployerApplicationService implements IEmployerApplicationService {
       chatService: this._chatService,
     });
 
-    // Notifying candidate of status change
     await this._notificationService.notifyCandidateApplicationStatusChange(
       app.candidateId,
       data.status,

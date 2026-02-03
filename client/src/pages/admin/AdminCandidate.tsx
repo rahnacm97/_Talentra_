@@ -170,7 +170,6 @@ const AdminCandidates: React.FC = () => {
             </button>
           )}
         </div>
-
       </div>
 
       {loading ? (

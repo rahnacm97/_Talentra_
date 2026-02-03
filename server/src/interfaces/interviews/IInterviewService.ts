@@ -31,14 +31,12 @@ export interface IInterviewService {
     filters?: IInterviewQuery,
   ): Promise<InterviewsPaginatedDto>;
 
-
   updateInterviewStatus(
     interviewId: string,
     status: string,
 
     employerId: string,
   ): Promise<InterviewResponseDto>;
-
 }
 
 export interface IInterviewFeedbackService {
@@ -149,5 +147,4 @@ export interface IInterviewRoundService {
   checkAllRoundsComplete(applicationId: string): Promise<boolean>;
 
   deleteRound(roundId: string): Promise<boolean>;
-
 }

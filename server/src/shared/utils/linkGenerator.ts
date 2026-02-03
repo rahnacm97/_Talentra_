@@ -1,14 +1,7 @@
-import jwt from "jsonwebtoken";
-
 export const generateMeetingLink = (
   roundId: string,
 ): { link: string; token: string } => {
-  const secret = process.env.JWT_SECRET || "default_limitless_secret";
-  const token = jwt.sign({ interviewId: roundId }, secret, {
-    expiresIn: "24h",
-  });
-
-  console.log(process.env.CLIENT_URL, 'process.env.CLIENT_URL');
+  console.log(process.env.CLIENT_URL, "process.env.CLIENT_URL");
 
   const clientUrl = process.env.CLIENT_URL || "https://talentra.site";
 

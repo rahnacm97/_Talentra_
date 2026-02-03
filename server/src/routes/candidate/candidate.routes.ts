@@ -24,7 +24,6 @@ const jobRepository = new JobRepository();
 const applMapper = new ApplicationMapper();
 const notificationAdapter = new NotificationAdapter();
 
-
 //Service with dependencies
 const candidateService = new CandidateService(
   candidateRepository,
@@ -47,7 +46,6 @@ const candidateController = new CandidateController(
 const candidateApplicationsController = new CandidateApplicationsController(
   applicationService,
 );
-
 
 //Routes
 //router.use("/interviews", candidateInterviewRouter);

@@ -45,9 +45,7 @@ router.get(
   "/",
   optionalAuth,
   (req: Request, res: Response, next: NextFunction) => {
-
     const user = (req as FullyAuthenticatedRequest).user;
-
 
     if (user?.role === USER_ROLES.EMPLOYER) {
       return employerController.getJobs(req, res, next);

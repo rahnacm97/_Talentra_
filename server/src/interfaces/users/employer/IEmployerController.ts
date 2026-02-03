@@ -41,4 +41,3 @@ export interface IEmployerAnalyticsController {
     next: NextFunction,
   ): Promise<void>;
 }
-

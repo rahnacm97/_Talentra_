@@ -176,7 +176,6 @@ const authSlice = createSlice({
         refreshToken.fulfilled,
 
         (state, action: PayloadAction<{ accessToken: string; user: any }>) => {
-
           state.accessToken = action.payload.accessToken;
           state.user = action.payload.user;
           state.loading = false;

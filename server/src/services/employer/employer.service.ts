@@ -30,9 +30,6 @@ import {
   SubscriptionHistoryResponseDTO,
 } from "../../dto/subscription/subscription.dto";
 
-import { NotificationHelper } from "../../shared/utils/notification.helper";
-
-
 export class EmployerService implements IEmployerService {
   constructor(
     private _repository: IEmployerRepository,
@@ -141,22 +138,18 @@ export class EmployerService implements IEmployerService {
       );
     }
 
-
     // Notify admin when employer submits verification documents
     if (isSubmittingVerification && !employer.verified) {
       await this._notificationService.notifyAdminEmployerVerificationSubmitted(
-
         employerId,
         updatedEmployer.name || "An employer",
       );
     }
 
-
     logger.info("Employer profile updated", { employerId });
     return this._employerMapper.toProfileDataDTO(updatedEmployer);
   }
 }
-
 
 export class EmployerAnalyticsService implements IEmployerAnalyticsService {
   constructor(
@@ -337,7 +330,6 @@ export class SubscriptionService implements ISubscriptionService {
                 "Updated employer subscription status to expired in getSubscriptionHistory",
                 { employerId },
               );
-
             }
 
             return { ...sub.toObject(), status: "expired" };
@@ -362,4 +354,3 @@ export class SubscriptionService implements ISubscriptionService {
     }
   }
 }
-

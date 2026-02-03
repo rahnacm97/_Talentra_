@@ -53,14 +53,12 @@ export interface InterviewQueryParams {
   status?: string;
 }
 
-
 export interface InterviewState {
   interviews: Interview[];
   loading: boolean;
   error: string | null;
   pagination: InterviewPagination;
 }
-
 
 export interface InterviewRound {
   id: string;
@@ -109,4 +107,3 @@ export interface InterviewRoundState {
 export interface MeetingData {
   interviewId: string;
 }
-

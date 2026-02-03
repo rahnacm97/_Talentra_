@@ -32,7 +32,6 @@ declare global {
 }
 
 const EmployerBilling: React.FC = () => {
-
   const dispatch = useDispatch<AppDispatch>();
   const { user } = useSelector((state: RootState) => state.auth);
   const { history, loading } = useSelector(
@@ -206,7 +205,6 @@ const EmployerBilling: React.FC = () => {
     },
   ];
 
-
   const isActive = user?.hasActiveSubscription;
   const currentPlan = user?.currentPlan || "free";
   return (
@@ -245,11 +243,9 @@ const EmployerBilling: React.FC = () => {
                 : "Free Plan"}
           </p>
           <p className="text-sm text-blue-700 mt-1">
-
             Status:{" "}
             {isActive
               ? "Active"
-
               : history && history.length > 0 && history[0].status === "expired"
                 ? "Expired"
                 : "Standard"}
@@ -257,7 +253,6 @@ const EmployerBilling: React.FC = () => {
           {!isActive && user?.trialEndsAt && (
             <p className="text-sm text-red-600 mt-2 font-medium flex items-center gap-2">
               <Calendar className="w-4 h-4" />
-
               Trial ends on:{" "}
               {new Date(user.trialEndsAt).toLocaleDateString("en-US", {
                 month: "long",
@@ -273,7 +268,6 @@ const EmployerBilling: React.FC = () => {
                 )}{" "}
                 days remaining)
               </span>
-
             </p>
           )}
         </div>

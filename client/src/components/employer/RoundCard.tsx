@@ -172,7 +172,10 @@ const RoundCard: React.FC<Props> = ({ round, isEmployer = true, onUpdate }) => {
             <CalendarToday className="text-gray-400" fontSize="small" />
             <span>
               {round.scheduledDate
-                ? format(new Date(round.scheduledDate)?.toISOString(), "MMM dd, yyyy 'at' hh:mm a")
+                ? format(
+                    new Date(round.scheduledDate)?.toISOString(),
+                    "MMM dd, yyyy 'at' hh:mm a",
+                  )
                 : "Not scheduled"}
             </span>
           </div>

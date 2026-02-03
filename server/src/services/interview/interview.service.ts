@@ -137,9 +137,7 @@ export class InterviewService implements IInterviewService {
     });
 
     if (!updated) {
-
       throw new Error("Failed to update interview status");
-
     }
 
     logger.info("Interview status updated", { interviewId, status });

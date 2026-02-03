@@ -158,106 +158,105 @@ export const VideoCallWindow: React.FC = () => {
       <div className="relative w-full h-full bg-gray-900 overflow-hidden shadow-2xl flex">
         {/* Main Video Area */}
         <div className="flex-1 relative bg-black flex flex-col">
-            <div className="flex-1 min-h-0 relative bg-black flex items-center justify-center p-2 overflow-hidden">
-              <div
-                className={`w-full h-full grid gap-2 ${
-                  participants.length === 1
-                    ? "grid-cols-1"
-                    : participants.length === 2
-                      ? "grid-cols-1 md:grid-cols-2"
-                      : "grid-cols-2"
-                }`}
-              >
-                {participants.map((p) => (
-                  <div
-                    key={p.id}
-                    className="relative group bg-gray-900 rounded-xl overflow-hidden border border-white/5 shadow-2xl min-h-[150px] h-full"
-                  >
-                    {p.isLocal ? (
-                      <video
-                        ref={setLocalVideoRef}
-                        autoPlay
-                        playsInline
-                        muted
-                        className="w-full h-full object-cover transform scale-x-[-1]"
-                      />
-                    ) : (
-                      <RemoteVideo stream={p.stream!} name={p.name} />
-                    )}
+          <div className="flex-1 min-h-0 relative bg-black flex items-center justify-center p-2 overflow-hidden">
+            <div
+              className={`w-full h-full grid gap-2 ${
+                participants.length === 1
+                  ? "grid-cols-1"
+                  : participants.length === 2
+                    ? "grid-cols-1 md:grid-cols-2"
+                    : "grid-cols-2"
+              }`}
+            >
+              {participants.map((p) => (
+                <div
+                  key={p.id}
+                  className="relative group bg-gray-900 rounded-xl overflow-hidden border border-white/5 shadow-2xl min-h-[150px] h-full"
+                >
+                  {p.isLocal ? (
+                    <video
+                      ref={setLocalVideoRef}
+                      autoPlay
+                      playsInline
+                      muted
+                      className="w-full h-full object-cover transform scale-x-[-1]"
+                    />
+                  ) : (
+                    <RemoteVideo stream={p.stream!} name={p.name} />
+                  )}
 
-                    <div className="absolute bottom-4 left-4 text-white text-sm font-bold bg-black/40 px-3 py-1.5 rounded-lg backdrop-blur-md border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
-                      {p.name} {p.isLocal ? "(You)" : ""}
+                  <div className="absolute bottom-4 left-4 text-white text-sm font-bold bg-black/40 px-3 py-1.5 rounded-lg backdrop-blur-md border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+                    {p.name} {p.isLocal ? "(You)" : ""}
+                  </div>
+
+                  {p.isLocal && remoteStreams.size === 0 && (
+                    <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 flex items-center gap-3">
+                      <div className="w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                      <p className="text-white text-xs font-semibold tracking-wide whitespace-nowrap">
+                        Waiting for others to join...
+                      </p>
                     </div>
-
-                    {p.isLocal && remoteStreams.size === 0 && (
-                      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 bg-black/60 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 flex items-center gap-3">
-                        <div className="w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-                        <p className="text-white text-xs font-semibold tracking-wide whitespace-nowrap">
-                          Waiting for others to join...
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
+                  )}
+                </div>
+              ))}
             </div>
+          </div>
 
-
-            {/* Header Info */}
-            {interviewDetails && (
-              <div className="absolute top-6 left-6 z-10">
-                <div className="bg-gray-900/80 backdrop-blur-md px-5 py-3 rounded-2xl border border-white/10 shadow-lg">
-                  <h3 className="text-white font-bold text-sm tracking-wide">
-                    {interviewDetails.jobTitle}
-                  </h3>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                    <p className="text-gray-400 text-xs font-medium uppercase tracking-wider">
-                      Live Interview
-                    </p>
-                  </div>
+          {/* Header Info */}
+          {interviewDetails && (
+            <div className="absolute top-6 left-6 z-10">
+              <div className="bg-gray-900/80 backdrop-blur-md px-5 py-3 rounded-2xl border border-white/10 shadow-lg">
+                <h3 className="text-white font-bold text-sm tracking-wide">
+                  {interviewDetails.jobTitle}
+                </h3>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                  <p className="text-gray-400 text-xs font-medium uppercase tracking-wider">
+                    Live Interview
+                  </p>
                 </div>
               </div>
-            )}
+            </div>
+          )}
 
-            {/* Waiting Participants Toast - Host View */}
-            {waitingParticipants.length > 0 && (
-              <div className="absolute top-20 left-6 z-30 space-y-2">
-                {waitingParticipants.map((p) => (
-                  <div
-                    key={p.socketId}
-                    className="bg-gray-900/95 backdrop-blur-md text-white p-4 rounded-xl border border-indigo-500/50 shadow-xl w-72 animate-slide-in-right"
-                  >
-                    <div className="flex justify-between items-start mb-3">
-                      <div>
-                        <p className="font-bold text-sm">{p.name}</p>
-                        <p className="text-xs text-indigo-300">
-                          wants to join ({p.userType})
-                        </p>
-                      </div>
-                      <span className="flex h-2 w-2 relative">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
-                      </span>
+          {/* Waiting Participants Toast - Host View */}
+          {waitingParticipants.length > 0 && (
+            <div className="absolute top-20 left-6 z-30 space-y-2">
+              {waitingParticipants.map((p) => (
+                <div
+                  key={p.socketId}
+                  className="bg-gray-900/95 backdrop-blur-md text-white p-4 rounded-xl border border-indigo-500/50 shadow-xl w-72 animate-slide-in-right"
+                >
+                  <div className="flex justify-between items-start mb-3">
+                    <div>
+                      <p className="font-bold text-sm">{p.name}</p>
+                      <p className="text-xs text-indigo-300">
+                        wants to join ({p.userType})
+                      </p>
                     </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => admitParticipant(p.socketId)}
-                        className="flex-1 bg-green-600 hover:bg-green-700 text-white text-xs px-3 py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-1"
-                      >
-                        <CheckCircle className="w-3 h-3" /> Admit
-                      </button>
-                      <button
-                        onClick={() => denyParticipant(p.socketId)}
-                        className="flex-1 bg-gray-700 hover:bg-gray-600 text-white text-xs px-3 py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-1"
-                      >
-                        <XCircle className="w-3 h-3" /> Deny
-                      </button>
-                    </div>
+                    <span className="flex h-2 w-2 relative">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                    </span>
                   </div>
-                ))}
-              </div>
-            )}
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => admitParticipant(p.socketId)}
+                      className="flex-1 bg-green-600 hover:bg-green-700 text-white text-xs px-3 py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-1"
+                    >
+                      <CheckCircle className="w-3 h-3" /> Admit
+                    </button>
+                    <button
+                      onClick={() => denyParticipant(p.socketId)}
+                      className="flex-1 bg-gray-700 hover:bg-gray-600 text-white text-xs px-3 py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-1"
+                    >
+                      <XCircle className="w-3 h-3" /> Deny
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* Controls Bar */}
           <div className="h-20 bg-gray-900 border-t border-gray-800 flex items-center justify-center gap-4 px-6 flex-shrink-0">

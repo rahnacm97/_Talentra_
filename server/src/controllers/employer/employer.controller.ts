@@ -6,13 +6,11 @@ import { IEmployerService } from "../../interfaces/users/employer/IEmployerServi
 import { logger } from "../../shared/utils/logger";
 import { ApiError } from "../../shared/utils/ApiError";
 
-
 export class EmployerController implements IEmployerController {
   constructor(private _employerService: IEmployerService) {}
   //Employer fetch profile
   async getProfile(req: Request, res: Response, next: NextFunction) {
     try {
-
       const employerId = req.user!.id;
 
       logger.info("Fetching candidate profile", { employerId });
@@ -40,7 +38,6 @@ export class EmployerController implements IEmployerController {
         error: message,
 
         employerId: req.user?.id,
-
       });
       next(
         err instanceof ApiError
@@ -57,7 +54,6 @@ export class EmployerController implements IEmployerController {
     next: NextFunction,
   ): Promise<void> {
     try {
-
       const employerId = req.user!.id;
 
       const profileData = req.body;
@@ -80,7 +76,6 @@ export class EmployerController implements IEmployerController {
         error: message,
 
         employerId: req.user?.id,
-
       });
       next(
         err instanceof ApiError

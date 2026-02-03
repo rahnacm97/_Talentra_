@@ -32,7 +32,6 @@ export interface IApplication {
   rejectionFeedbackShared?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
-
 }
 
 export interface IApplicationWithJob extends IApplication {

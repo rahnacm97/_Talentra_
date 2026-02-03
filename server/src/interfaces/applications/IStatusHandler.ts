@@ -1,4 +1,3 @@
-
 import { IApplicationWithJob } from "./IApplication";
 import { IEmployerApplicationRepository } from "./IApplicationRepository";
 import {
@@ -25,7 +24,6 @@ export interface StatusHandlerContext {
   chatService?: IChatService | undefined;
   interviewRoundService?: IInterviewRoundService | undefined;
   feedbackService?: IInterviewFeedbackService | undefined;
-
 }
 
 export interface IStatusHandler {

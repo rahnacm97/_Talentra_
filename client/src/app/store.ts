@@ -15,7 +15,6 @@ import chatReducer from "../features/chat/chatSlice";
 import feedbackReducer from "../features/feedback/feedbackSlice";
 import offerReducer from "../features/offer/offerSlice";
 
-
 //Whole app state store
 export const store = configureStore({
   reducer: {

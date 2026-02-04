@@ -29,6 +29,16 @@ jobs:
           npm ci
           npm run lint --if-present
           npm run build
+        env:
+          VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+          VITE_SOCKET_URL: ${{ secrets.VITE_SOCKET_URL }}
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          BACKEND_URL: ${{ secrets.BACKEND_URL }}
+          VITE_RAZORPAY_KEY_ID: ${{ secrets.VITE_RAZORPAY_KEY_ID }}
+          VITE_RAZORPAY_KEY_SECRET: ${{ secrets.VITE_RAZORPAY_KEY_SECRET }}
+          VITE_RAZORPAY_WEBHOOK_URL: ${{ secrets.VITE_RAZORPAY_WEBHOOK_URL }}
+
 
       - name: Client CI (Lint & Build)
         run: |

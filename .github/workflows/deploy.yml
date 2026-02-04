@@ -37,6 +37,19 @@ jobs:
           npm run lint --if-present
           npm run build
 
+     
+      - name: Upload server dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-dist
+          path: server/dist
+
+      - name: Upload client dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: client-dist
+          path: client/dist
+
   deploy:
     name: Continuous Deployment
     needs: ci
@@ -44,27 +57,47 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy via SSH
+      
+      - name: Download server dist
+        uses: actions/download-artifact@v4
+        with:
+          name: server-dist
+          path: server-dist
+
+      - name: Download client dist
+        uses: actions/download-artifact@v4
+        with:
+          name: client-dist
+          path: client-dist
+
+      
+      - name: Upload backend dist to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "server-dist/*"
+          target: "/home/ubuntu/_Talentra_/server/dist"
+          strip_components: 1
+
+      - name: Upload frontend dist to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "client-dist/*"
+          target: "/home/ubuntu/_Talentra_/client/dist"
+          strip_components: 1
+
+      
+      - name: Reload PM2
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          command_timeout: 30m
           script: |
-            set -e
-
-            cd /home/ubuntu/_Talentra_
-            git fetch origin main
-            git reset --hard origin/main
-
-            echo "Backend deploy"
-            cd server
-            npm ci
-            npm run build
             pm2 reload "Server" --update-env
-
-            echo "Frontend build"
-            cd ../client
-            npm ci
-            npm run build
+            pm2 restart "react-build"

@@ -87,7 +87,7 @@ export const VideoCallProvider: React.FC<{ children: React.ReactNode }> = ({
     if (s && s !== activeSocket) {
       setActiveSocket(s);
     }
-  }, []);
+  }, [activeSocket]);
 
   useEffect(() => {
     if (activeSocket) return;
@@ -238,7 +238,7 @@ export const VideoCallProvider: React.FC<{ children: React.ReactNode }> = ({
         console.error("WebRTC Error in handleUserJoined:", error);
       }
     },
-    [activeSocket, createPeerConnection],
+    [activeSocket, createPeerConnection, currentUser?._id],
   );
 
   const handleReceiveOffer = React.useCallback(
@@ -275,7 +275,7 @@ export const VideoCallProvider: React.FC<{ children: React.ReactNode }> = ({
         targetUserId: fromUserId,
       });
     },
-    [activeSocket, createPeerConnection, processIceQueue],
+    [activeSocket, createPeerConnection, processIceQueue, currentUser?._id],
   );
 
   const handleReceiveAnswer = React.useCallback(
@@ -302,7 +302,7 @@ export const VideoCallProvider: React.FC<{ children: React.ReactNode }> = ({
         await processIceQueue(fromUserId);
       }
     },
-    [processIceQueue],
+    [processIceQueue, currentUser?._id],
   );
 
   const handleNewIceCandidate = React.useCallback(
@@ -324,7 +324,7 @@ export const VideoCallProvider: React.FC<{ children: React.ReactNode }> = ({
         iceCandidatesQueues.current.get(fromUserId)!.push(candidate);
       }
     },
-    [],
+    [currentUser?._id],
   );
 
   const handleRemoteEndCall = React.useCallback(() => {

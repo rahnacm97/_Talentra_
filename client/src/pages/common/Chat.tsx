@@ -79,7 +79,7 @@ const Chat: React.FC = () => {
       socket.off("user_offline", handleUserOffline);
       socket.off("chat_deleted", handleChatDeleted);
     };
-  }, [dispatch, activeChat?.id]);
+  }, [dispatch, activeChat?.id, activeChat]);
 
   const location = useLocation();
   const initState = location.state as {

@@ -50,11 +50,13 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          command_timeout: 30m
           script: |
             set -e
 
             cd /home/ubuntu/_Talentra_
-            git pull origin main
+            git fetch origin main
+            git reset --hard origin/main
 
             echo "Backend deploy"
             cd server

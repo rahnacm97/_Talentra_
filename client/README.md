@@ -2,7 +2,7 @@
 
 Talentra is a feature-rich recruitment platform designed to bridge the gap between talented candidates and top-tier employers. Built with performance, scalability, and user experience in mind.
 
-## 🚀 Features
+## Features
 
 ### For Candidates
 - **Professional Profiles**: Build and manage your career profile, experience, and certifications.
@@ -23,7 +23,7 @@ Talentra is a feature-rich recruitment platform designed to bridge the gap betwe
 - **State Management**: Robust state handling using Redux Toolkit.
 - **Responsive Design**: Premium UI built with Tailwind CSS and Framer Motion.
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Core**: React 19, TypeScript, Vite
 - **Styling**: Tailwind CSS, Lucide React (Icons), Material UI (Select components)
@@ -49,7 +49,7 @@ src/
 └── utils/        # Helper functions and formatters
 ```
 
-## 🚥 Getting Started
+## Getting Started
 
 ### Prerequisites
 - Node.js (v18+)
@@ -72,7 +72,7 @@ npm run dev
 ```
 The application will be available at `http://localhost:5173`.
 
-## 🏗️ Build and Deployment
+## Build and Deployment
 Build the production-ready bundle:
 ```bash
 npm run build

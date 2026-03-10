@@ -2,14 +2,14 @@
 
 Talentra is a comprehensive, full-stack recruitment platform designed to streamline the hiring process for both candidates and employers. It leverages modern technologies and AI to provide a premium, efficient, and user-friendly experience.
 
-## 🏗️ Architecture
+## Architecture
 
 The project is divided into two main components:
 
 - **[Frontend (Client)](./client/README.md)**: A modern React-based web application with a premium UI.
-- **[Backend (Server)](./server/README.md)**: A robust Node.js/Express API with MongoDB for data persistence and AI integration.
+- **[Backend (Server)]**: A robust Node.js/Express API with MongoDB for data persistence and AI integration.
 
-## 🚀 Key Features
+## Key Features
 
 - **AI-Powered Matching**: Automated compatibility analysis between candidate profiles and job requirements.
 - **Real-time Communication**: Integrated chat and notifications for seamless interaction.
@@ -18,7 +18,8 @@ The project is divided into two main components:
 - **Resume Parsing & Management**: Secure storage and handling of professional documents.
 - **Payment Integration**: Subscription-based plans for employers via Razorpay.
 
-## 🛠️ Technology Stack
+
+## Technology Stack
 
 ### Frontend
 - **Framework**: React 19, Vite
@@ -34,7 +35,7 @@ The project is divided into two main components:
 - **Security**: JWT, bcryptjs, Passport.js (OAuth)
 - **Utilities**: PDFKit (Resume generation), Winston (Logging)
 
-## 🏁 Getting Started
+## Getting Started
 
 ### Prerequisites
 - Node.js (v18+)
@@ -65,7 +66,7 @@ The project is divided into two main components:
    npm run dev
    ```
 
-## 🚥 Scripts
+## Scripts
 
 ### Server
 - `npm run dev`: Starts the backend with ts-node-dev (hot reload).
@@ -78,4 +79,4 @@ The project is divided into two main components:
 - `npm run preview`: Previews the production build locally.
 
 ---
-Built with ❤️ by the Talentra Team
+

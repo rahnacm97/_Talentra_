@@ -128,7 +128,6 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
       return;
     }
 
-    // Validate form fields
     const errors: Record<string, string> = {};
 
     if (type === "experience") {
@@ -163,14 +162,23 @@ const ProfileModal: React.FC<ProfileModalProps> = ({
   const validateAndSetFile = (selectedFile: File) => {
     setFileError(null);
 
+    const fileName = selectedFile.name.toLowerCase();
+
     if (type === "resume") {
+      const allowedExtensions = [".pdf", ".doc", ".docx"];
       const allowedTypes = [
         "application/pdf",
         "application/msword",
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
       ];
-      if (!allowedTypes.includes(selectedFile.type)) {
-        setFileError("Please upload a PDF or DOC file");
+
+      const isAllowedExtension = allowedExtensions.some((ext) =>
+        fileName.endsWith(ext),
+      );
+      const isAllowedMimeType = allowedTypes.includes(selectedFile.type);
+
+      if (!isAllowedMimeType && !isAllowedExtension) {
+        setFileError("Please upload a PDF, DOC, or DOCX file");
         return;
       }
       const maxSize = 5 * 1024 * 1024;

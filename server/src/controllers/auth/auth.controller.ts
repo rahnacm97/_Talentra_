@@ -24,22 +24,6 @@ export class AuthController implements IAuthController {
       const data: AuthSignupDTO = req.body;
       const result = await this._authService.signup(data);
 
-      const userInfo = JSON.stringify({
-        _id: result.user._id,
-        email: result.user.email,
-        name: result.user.name,
-        role: data.userType,
-        profileImage: result.user.profileImage,
-        ...(data.userType === "Employer" && {
-          hasActiveSubscription: (result.user as EmployerUserData)
-            .hasActiveSubscription,
-          trialEndsAt: (result.user as EmployerUserData).trialEndsAt,
-          currentPlan: (result.user as EmployerUserData).currentPlan,
-        }),
-      });
-
-      setAuthCookies(res, result.refreshToken, userInfo);
-
       logger.info("User signup successful", {
         userId: result.user._id,
         email: data.email,
@@ -60,7 +44,6 @@ export class AuthController implements IAuthController {
             currentPlan: (result.user as EmployerUserData).currentPlan,
           }),
         },
-        accessToken: result.accessToken,
       });
     } catch (error) {
       const message =

@@ -47,15 +47,13 @@ export class AuthService implements IAuthService {
 
     const user = await repo.create(userData);
 
-    const blocked = hasEmailVerification(user) ? user.blocked : false;
-
     return {
       user: {
         _id: user._id,
         name: user.name,
         email: user.email,
         role: data.userType,
-        blocked,
+        blocked: false,
         emailVerified: false,
         ...(data.userType === "Employer" && {
           verified: false,
@@ -65,21 +63,6 @@ export class AuthService implements IAuthService {
         }),
         profileImage: (user as ICandidate | IEmployer).profileImage,
       },
-      accessToken: this._tokenService.generateAccessToken({
-        id: user._id,
-        email: user.email,
-        role: data.userType,
-        ...(data.userType === "Employer" && {
-          hasActiveSubscription: (user as IEmployer).hasActiveSubscription,
-          trialEndsAt: (user as IEmployer).trialEndsAt,
-          currentPlan: (user as IEmployer).currentPlan,
-        }),
-      }),
-      refreshToken: this._tokenService.generateRefreshToken({
-        id: user._id,
-        email: user.email,
-        role: data.userType,
-      }),
     };
   }
   //Login
@@ -167,8 +150,14 @@ export class AuthService implements IAuthService {
       throw new Error("User not found");
     }
 
-    if (decoded.role !== "Admin" && (user as ICandidate | IEmployer).blocked) {
-      throw new Error("You have been blocked by admin");
+    if (decoded.role !== "Admin") {
+      const userWithAuth = user as ICandidate | IEmployer;
+      if (userWithAuth.blocked) {
+        throw new Error("You have been blocked by admin");
+      }
+      if (!userWithAuth.emailVerified) {
+        throw new Error("Your email is not verified");
+      }
     }
 
     const newAccessToken = this._tokenService.generateAccessToken({

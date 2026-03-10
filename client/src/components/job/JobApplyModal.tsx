@@ -149,6 +149,38 @@ export const JobApplyModal: React.FC<JobApplyModalProps> = ({
 
   const handleFileSelect = (selected: File) => {
     setErrors((prev) => ({ ...prev, resume: undefined }));
+
+    const allowedExtensions = [".pdf", ".doc", ".docx"];
+    const allowedMimeTypes = [
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ];
+
+    const fileName = selected.name.toLowerCase();
+    const isAllowedExtension = allowedExtensions.some((ext) =>
+      fileName.endsWith(ext),
+    );
+    const isAllowedMimeType = allowedMimeTypes.includes(selected.type);
+
+    if (!isAllowedExtension || !isAllowedMimeType) {
+      setErrors((prev) => ({
+        ...prev,
+        resume: "Invalid file type. Please upload a PDF, DOC, or DOCX file.",
+      }));
+      setFile(null);
+      return;
+    }
+
+    if (selected.size > 5 * 1024 * 1024) {
+      setErrors((prev) => ({
+        ...prev,
+        resume: "File size exceeds 5 MB limit.",
+      }));
+      setFile(null);
+      return;
+    }
+
     setFile(selected);
   };
 

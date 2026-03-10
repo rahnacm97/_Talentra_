@@ -29,8 +29,24 @@ export interface RefreshTokenResponse {
   };
 }
 
+export interface SignupResponse {
+  user: {
+    _id: string;
+    name: string;
+    email: string;
+    role: UserType;
+    blocked: boolean;
+    emailVerified: boolean;
+    verified?: boolean;
+    profileImage?: string | undefined;
+    hasActiveSubscription?: boolean;
+    trialEndsAt?: Date | null;
+    currentPlan?: "free" | "professional" | "enterprise";
+  };
+}
+
 export interface IAuthService {
-  signup(data: AuthSignupDTO): Promise<AuthResponse>;
+  signup(data: AuthSignupDTO): Promise<SignupResponse>;
   login(data: AuthLoginDTO): Promise<AuthResponse>;
   refreshToken(refreshToken: string): Promise<RefreshTokenResponse>;
   logout(refreshToken: string): Promise<void>;

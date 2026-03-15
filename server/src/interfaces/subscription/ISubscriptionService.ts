@@ -7,6 +7,7 @@ import {
 } from "../../dto/subscription/subscription.dto";
 import { ISubscription } from "../../interfaces/subscription/ISubscription";
 import { IEmployer } from "../../interfaces/users/employer/IEmployer";
+import { FindSubscriptionOptions } from "./ISubscriptionRepo";
 
 export interface ISubscriptionService {
   createOrder(request: CreateOrderRequestDTO): Promise<CreateOrderResponseDTO>;
@@ -17,6 +18,11 @@ export interface ISubscriptionService {
   getSubscriptionHistory(
     employerId: string,
   ): Promise<SubscriptionHistoryResponseDTO>;
+  getAllSubscriptions(options?: FindSubscriptionOptions): Promise<{
+    subscriptions: ISubscription[];
+    total: number;
+    totalRevenue: number;
+  }>;
 }
 
 export interface IInvoiceService {

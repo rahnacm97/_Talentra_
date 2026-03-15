@@ -19,9 +19,13 @@ import fs from "fs/promises";
 import Razorpay from "razorpay";
 import crypto from "crypto";
 import { ISubscriptionService } from "../../interfaces/subscription/ISubscriptionService";
-import { ISubscriptionRepository } from "../../interfaces/subscription/ISubscriptionRepo";
+import {
+  ISubscriptionRepository,
+  FindSubscriptionOptions,
+} from "../../interfaces/subscription/ISubscriptionRepo";
 import { IEmployerRepository } from "../../interfaces/users/employer/IEmployerRepository";
 import { ISubscriptionMapper } from "../../interfaces/subscription/ISubscriptionMapper";
+import { ISubscription } from "../../interfaces/subscription/ISubscription";
 import {
   CreateOrderRequestDTO,
   CreateOrderResponseDTO,
@@ -351,6 +355,28 @@ export class SubscriptionService implements ISubscriptionService {
         HTTP_STATUS.INTERNAL_SERVER_ERROR,
         ERROR_MESSAGES.SUBSCRIPTION_HISTORY_ERROR,
       );
+    }
+  }
+
+  async getAllSubscriptions(options?: FindSubscriptionOptions): Promise<{
+    subscriptions: ISubscription[];
+    total: number;
+    totalRevenue: number;
+  }> {
+    try {
+      const [subscriptions, total, totalRevenue] = await Promise.all([
+        this._subscriptionRepository.findAll(options),
+        this._subscriptionRepository.countAll(options),
+        this._subscriptionRepository.getTotalRevenue(),
+      ]);
+      return { subscriptions, total, totalRevenue };
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Error fetching all subscriptions";
+      logger.error("Failed to fetch all subscriptions ", { error: message });
+      throw new ApiError(HTTP_STATUS.INTERNAL_SERVER_ERROR, message);
     }
   }
 }

@@ -5,7 +5,9 @@ import { CreateSubscriptionData } from "../../dto/subscription/subscription.dto"
 export interface FindSubscriptionOptions {
   page?: number;
   limit?: number;
-  sort?: Record<string, 1 | -1>;
+  sort?: Record<string, 1 | -1 | "asc" | "desc" | "ascending" | "descending">;
+  search?: string;
+  status?: string;
 }
 
 export interface ISubscriptionRepository {
@@ -17,6 +19,9 @@ export interface ISubscriptionRepository {
   ): Promise<ISubscription[]>;
   findActiveByEmployerId(employerId: string): Promise<ISubscription | null>;
   count(filter: FilterQuery<ISubscription>): Promise<number>;
+  findAll(options?: FindSubscriptionOptions): Promise<ISubscription[]>;
+  countAll(options?: FindSubscriptionOptions): Promise<number>;
+  getTotalRevenue(): Promise<number>;
   updateStatus(
     id: string,
     status: "active" | "expired" | "past_due" | "cancelled",

@@ -18,7 +18,6 @@ The project is divided into two main components:
 - **Resume Parsing & Management**: Secure storage and handling of professional documents.
 - **Payment Integration**: Subscription-based plans for employers via Razorpay.
 
-
 ## Technology Stack
 
 ### Frontend

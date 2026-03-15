@@ -30,6 +30,10 @@ import { AdminAnalyticsService } from "../../services/admin/admin.analyticsServi
 import { ApplicationRepository } from "../../repositories/application/application.repository";
 import { InterviewRepository } from "../../repositories/interview/interview.repository";
 import { AdminAnalyticsMapper } from "../../mappers/admin/admin.analytics.mapper";
+import { AdminSubscriptionController } from "../../controllers/admin/admin.subscriptionController";
+import { SubscriptionService } from "../../services/employer/employer.service";
+import { SubscriptionRepository } from "../../repositories/subscription/subscription.repository";
+import { SubscriptionMapper } from "../../mappers/subscription/subscription.mapper";
 
 const router = Router();
 //Dependencies
@@ -85,6 +89,17 @@ const adminEmployerController = new AdminEmployerController(
 const jobController = new AdminJobController(jobService);
 const analyticsController = new AdminAnalyticsController(analyticsService);
 
+const subscriptionRepo = new SubscriptionRepository();
+const subscriptionMapper = new SubscriptionMapper();
+const subscriptionService = new SubscriptionService(
+  subscriptionRepo,
+  employerRepo,
+  subscriptionMapper,
+);
+const adminSubscriptionController = new AdminSubscriptionController(
+  subscriptionService,
+);
+
 // Routes
 router.post("/login", adminAuthController.login);
 router.get(
@@ -138,6 +153,12 @@ router.get(
   "/analytics/dashboard",
   verifyAuth([USER_ROLES.ADMIN]),
   analyticsController.getDashboardAnalytics,
+);
+
+router.get(
+  "/subscriptions",
+  verifyAuth([USER_ROLES.ADMIN]),
+  adminSubscriptionController.getAllSubscriptions,
 );
 
 router.post("/logout", adminAuthController.logout);

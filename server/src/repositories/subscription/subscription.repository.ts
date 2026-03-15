@@ -5,6 +5,7 @@ import {
 } from "../../interfaces/subscription/ISubscriptionRepo";
 import { CreateSubscriptionData } from "../../dto/subscription/subscription.dto";
 import SubscriptionModel from "../../models/Subscription.model";
+import EmployerModel from "../../models/Employer.model";
 import { FilterQuery } from "mongoose";
 
 export class SubscriptionRepository implements ISubscriptionRepository {
@@ -36,14 +37,76 @@ export class SubscriptionRepository implements ISubscriptionRepository {
     return SubscriptionModel.findOne({
       employerId,
       status: "active",
-      endDate: { $gt: new Date() },
-    })
-      .sort({ endDate: -1 })
-      .exec();
+    }).exec();
   }
 
   async count(filter: FilterQuery<ISubscription>): Promise<number> {
     return SubscriptionModel.countDocuments(filter).exec();
+  }
+
+  async findAll(options?: FindSubscriptionOptions): Promise<ISubscription[]> {
+    const {
+      page = 1,
+      limit = 10,
+      sort = { createdAt: -1 },
+      search,
+      status,
+    } = options || {};
+
+    const query: FilterQuery<ISubscription> = {};
+    if (status && status !== "all") {
+      query.status = status;
+    }
+
+    if (search) {
+      const employers = await EmployerModel.find({
+        $or: [
+          { name: { $regex: search, $options: "i" } },
+          { email: { $regex: search, $options: "i" } },
+        ],
+      }).select("_id");
+
+      query.employerId = {
+        $in: employers.map((e) => e._id),
+      };
+    }
+
+    return SubscriptionModel.find(query)
+      .populate("employerId", "name email")
+      .sort(sort)
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .exec();
+  }
+
+  async countAll(options?: FindSubscriptionOptions): Promise<number> {
+    const { search, status } = options || {};
+    const query: FilterQuery<ISubscription> = {};
+    if (status && status !== "all") {
+      query.status = status;
+    }
+
+    if (search) {
+      const employers = await EmployerModel.find({
+        $or: [
+          { name: { $regex: search, $options: "i" } },
+          { email: { $regex: search, $options: "i" } },
+        ],
+      }).select("_id");
+
+      query.employerId = {
+        $in: employers.map((e) => e._id),
+      };
+    }
+    return SubscriptionModel.countDocuments(query).exec();
+  }
+
+  async getTotalRevenue(): Promise<number> {
+    const result = await SubscriptionModel.aggregate<{ total: number }>([
+      { $match: { status: "active" } },
+      { $group: { _id: null, total: { $sum: "$totalAmount" } } },
+    ]);
+    return result[0]?.total || 0;
   }
 
   async updateStatus(

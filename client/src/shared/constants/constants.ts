@@ -10,6 +10,7 @@ export const API_ROUTES = {
     REJECT_EMPLOYER: (id: string) => `/admin/employers/${id}/reject`,
     JOBS: "/admin/jobs",
     DASHBOARD_ANALYTICS: "/admin/analytics/dashboard",
+    ADMIN_SUBSCRIPTIONS: "/admin/subscriptions",
   },
   AUTH: {
     SIGNUP: "/auth/signup",
@@ -151,6 +152,7 @@ export const FRONTEND_ROUTES = {
   ADMINNOTIFICATIONS: "/admin/notifications",
   ADMINSETTINGS: "/admin/settings",
   ADMINFEEDBACK: "/admin/feedback",
+  ADMINSUBSCRIPTIONS: "/admin/subscriptions",
   CHAT: "/chat",
   MESSAGES: "/messages",
   CANDIDATEMESSAGES: "/candidate/messages",

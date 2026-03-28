@@ -25,6 +25,11 @@ export class AuthService implements IAuthService {
   }
   //Signup
   async signup(data: AuthSignupDTO) {
+    // Security: prevent anyone from self-registering as Admin
+    if ((data.userType as string) === "Admin") {
+      throw new Error("Invalid user type");
+    }
+
     const detected = await detectUserByEmail(data.email, this._repos);
     if (detected) {
       throw new Error("Email already exists in another account");
@@ -67,6 +72,11 @@ export class AuthService implements IAuthService {
   }
   //Login
   async login(data: AuthLoginDTO) {
+    // Security: prevent Admin role from being used on the public login endpoint
+    if ((data.userType as string) === "Admin") {
+      throw new Error("Invalid credentials");
+    }
+
     const detected = await detectUserByEmail(data.email, this._repos);
     if (!detected) throw new Error("User not found");
 
